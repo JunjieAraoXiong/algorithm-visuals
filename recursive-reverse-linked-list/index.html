@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="逐步观察递归反转链表的调用栈、head、new_head 和节点的 next">
+  <title>Recursive Reverse Linked List · Algorithm Visuals</title>
+  <style>
+    :root {
+      --paper: #fffdf8;
+      --ink: #272727;
+      --line: #333;
+      --quiet: #555;
+      --rule: #b7b7b1;
+      --focus: #444;
+      --node-size: 52px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 18px; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
+    main { width: min(100%, 900px); margin: 0 auto; }
+    button { color: inherit; font: inherit; }
+    button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+    .lab-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 8px 8px 0; }
+    h1 { margin: 0; font-size: 18px; font-weight: 500; }
+    .controls { display: flex; align-items: center; gap: 8px; font-family: monospace; font-size: 13px; }
+    .controls button { border: 1px solid #777; border-radius: 2px; background: transparent; padding: 6px 9px; cursor: pointer; }
+    .controls button:disabled { opacity: .4; cursor: default; }
+    .controls output { min-width: 52px; text-align: center; }
+    .stage { position: relative; width: 100%; height: 292px; margin-top: 9px; border-bottom: 1px solid var(--rule); touch-action: none; }
+    .arrows { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+    .stage button { position: absolute; z-index: 1; transform: translate(-50%, -50%); user-select: none; touch-action: none; }
+    .source { min-width: 80px; min-height: 30px; border: 1.5px solid #595959; border-radius: 3px; background: var(--paper); padding: 3px 6px; font: 13px monospace; cursor: grab; }
+    .source:active { cursor: grabbing; }
+    .source.unset { color: #777; border-color: #aaa; }
+    .source.link { min-width: 59px; min-height: 28px; border-style: dashed; font-size: 12px; }
+    .source.selected, .source.changed { outline: 2px solid #555; outline-offset: 3px; }
+    .node { width: var(--node-size); height: var(--node-size); border: 2px solid #383838; border-radius: 50%; background: var(--paper); font: 500 21px Arial, Helvetica, sans-serif; cursor: pointer; }
+    .node.active { border-width: 3px; }
+    .null { min-width: 32px; height: 30px; border: 0; padding: 0; background: var(--paper); font: 16px Arial, Helvetica, sans-serif; cursor: pointer; }
+    .target-ready { outline: 2px dashed #777; outline-offset: 3px; }
+    .stack { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; min-height: 43px; padding: 11px 8px 5px; border-bottom: 1px solid var(--rule); }
+    .stack-label { color: var(--quiet); font-size: 13px; white-space: nowrap; }
+    .stack ol { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin: 0; padding: 0; list-style: none; font: 13px monospace; }
+    .stack li { border: 1px solid #aaa; padding: 3px 7px; }
+    .stack li:not(:last-child)::after { content: "→"; margin: 0 -15px 0 12px; color: #777; }
+    .stack li.current { border: 1.5px solid #333; }
+    .stack .empty { color: #777; font-size: 13px; }
+    .operation { min-height: 56px; margin: 12px 8px 0; padding: 9px 11px; border: 1px dashed #999; font-size: 14px; line-height: 1.5; }
+    .operation code { font: 13px monospace; overflow-wrap: anywhere; }
+    .operation .explanation { display: block; margin-top: 3px; }
+    .base-note { margin: 8px 8px 0; color: var(--quiet); font-size: 12px; line-height: 1.4; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 8px 0; color: var(--quiet); font-size: 12px; }
+    .hint { margin: 7px 8px 12px; color: var(--quiet); font-size: 12px; line-height: 1.4; }
+    @media (max-width: 480px) {
+      :root { --node-size: 43px; }
+      body { padding: 7px; }
+      .lab-head { padding: 6px 5px 0; }
+      h1 { font-size: 16px; }
+      .controls { font-size: 12px; }
+      .stage { height: 278px; }
+      .source { min-width: 68px; font-size: 11px; }
+      .source.link { min-width: 51px; font-size: 10px; }
+      .node { font-size: 19px; }
+      .null { min-width: 29px; font-size: 13px; }
+      .operation { font-size: 13px; }
+      .operation code { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+<main id="recursive-lab">
+  <div class="lab-head">
+    <h1>递归反转链表</h1>
+    <div class="controls">
+      <button type="button" data-action="previous">上一行</button>
+      <output data-count aria-live="polite">0 / 16</output>
+      <button type="button" data-action="next">下一行</button>
+    </div>
+  </div>
+
+  <div class="stage" data-stage aria-label="递归链表反转：固定位置的四个节点及其指针">
+    <svg class="arrows" data-arrows aria-hidden="true"></svg>
+    <button type="button" class="source" data-source="head">head</button>
+    <button type="button" class="source" data-source="newHead">new_head</button>
+    <button type="button" class="node" data-target="1">1</button>
+    <button type="button" class="node" data-target="2">2</button>
+    <button type="button" class="node" data-target="3">3</button>
+    <button type="button" class="node" data-target="4">4</button>
+    <button type="button" class="null" data-target="null-left">None</button>
+    <button type="button" class="null" data-target="null-right">None</button>
+    <button type="button" class="source link" data-source="link1">1.next</button>
+    <button type="button" class="source link" data-source="link2">2.next</button>
+    <button type="button" class="source link" data-source="link3">3.next</button>
+    <button type="button" class="source link" data-source="link4">4.next</button>
+  </div>
+
+  <section class="stack" aria-label="递归调用栈">
+    <span class="stack-label">调用栈（右端正在执行）</span>
+    <ol data-stack></ol>
+  </section>
+  <p class="operation" data-operation aria-live="polite"></p>
+  <p class="base-note">f(k) 表示 linked_list_reversal_recursive(head=节点 k)。基本情况：空链表或只有一个节点时，直接返回原来的 head；本例在 f(4) 遇到单节点。</p>
+  <div class="legend">
+    <span>圆圈间实线：节点保存的 .next</span>
+    <span>方框细箭头：变量指向</span>
+    <span>双向弧线：暂时形成的环</span>
+    <span>None 只是空指针标记，不是节点</span>
+  </div>
+  <p class="hint">可拖动 head、new_head 或下方的 .next 方框到节点／None；也可先点方框、再点目标。自由练习不会推进演示，上一行／下一行会恢复对应步骤。</p>
+</main>
+<script>
+(() => {
+  const root = document.getElementById('recursive-lab');
+  const stage = root.querySelector('[data-stage]');
+  const arrows = root.querySelector('[data-arrows]');
+  const stack = root.querySelector('[data-stack]');
+  const operation = root.querySelector('[data-operation]');
+  const count = root.querySelector('[data-count]');
+  const previous = root.querySelector('[data-action="previous"]');
+  const next = root.querySelector('[data-action="next"]');
+  const sources = [...stage.querySelectorAll('[data-source]')];
+  const targets = [...stage.querySelectorAll('[data-target]')];
+  const allButtons = [...sources, ...targets];
+
+  const frames = [];
+  const working = {head: 1, newHead: undefined, links: {1: 2, 2: 3, 3: 4, 4: null}, stack: [1]};
+  const clone = state => ({head: state.head, newHead: state.newHead, links: {...state.links}, stack: [...state.stack]});
+  function add(code, explanation, change, changed) {
+    if (change) change(working);
+    frames.push({state: clone(working), code, explanation, changed});
+  }
+  add('linked_list_reversal_recursive(head=1)', '从节点 1 开始。每个递归调用都先处理 head.next 后面的较短链表。');
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 先等 f(2) 反转 2 → 3 → 4。此时节点的 .next 都没变。', s => {s.stack.push(2); s.head = 2;});
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 再等 f(3) 反转 3 → 4。', s => {s.stack.push(3); s.head = 3;});
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 再调用 f(4)。', s => {s.stack.push(4); s.head = 4;});
+  add('if not head or not head.next: return head', 'f(4) 只有节点 4，直接返回 head（节点 4）。此时 f(3) 尚未收到返回值。');
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 恢复执行，接住 f(4) 返回的节点 4；new_head 此时才被赋值。', s => {s.stack.pop(); s.head = 3; s.newHead = 4;});
+  add('head.next.next = head', 'head.next 是 4；把 4.next 改为 3。此刻 3 → 4 和 4 → 3 同时存在，暂时成环。', s => {s.links[4] = 3;}, 'link4');
+  add('head.next = None', '把 3.next 清空，拆掉刚才的环；子链表变成 4 → 3 → None。', s => {s.links[3] = null;}, 'link3');
+  add('return new_head', 'f(3) 把同一个 new_head（节点 4）返回给 f(2)。');
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 恢复执行，接住 f(3) 返回的节点 4；节点本身没有移动。', s => {s.stack.pop(); s.head = 2;});
+  add('head.next.next = head', 'head.next 是 3；把 3.next 改为 2。2 → 3 与 3 → 2 暂时成环。', s => {s.links[3] = 2;}, 'link3');
+  add('head.next = None', '把 2.next 清空，拆环；现在是 4 → 3 → 2 → None。', s => {s.links[2] = null;}, 'link2');
+  add('return new_head', 'f(2) 把节点 4 返回给 f(1)。');
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 恢复执行，接住 f(2) 返回的节点 4。', s => {s.stack.pop(); s.head = 1;});
+  add('head.next.next = head', 'head.next 是 2；把 2.next 改为 1。1 → 2 与 2 → 1 暂时成环。', s => {s.links[2] = 1;}, 'link2');
+  add('head.next = None', '把 1.next 清空，拆环；链表成为 4 → 3 → 2 → 1 → None。', s => {s.links[1] = null;}, 'link1');
+  add('return new_head', 'f(1) 返回节点 4。所有调用结束；4 是新头，1 是新尾。', s => {s.stack.pop(); s.head = undefined;});
+
+  let step = 0;
+  let state = clone(frames[0].state);
+  let selected = null;
+  let drag = null;
+  let ignoreClick = false;
+  let manualMessage = '';
+  let places = {};
+
+  const labelFor = value => value === undefined ? '未赋值' : value === null ? 'None' : `节点 ${value}`;
+  function targetPoint(value, side = 'right') { return places[value === null ? `null-${side}` : String(value)]; }
+  function keyToValue(key) { return key.startsWith('null') ? null : Number(key); }
+
+  function layout() {
+    const width = stage.clientWidth;
+    const narrow = width <= 480;
+    const fractions = narrow ? [.16, .38, .60, .82] : [.20, .40, .60, .80];
+    const nodeY = narrow ? 166 : 176;
+    const linkY = narrow ? 250 : 263;
+    const nullOwner = [1, 2, 3, 4].find(node => state.links[node] === null);
+    const localNull = nullOwner === 2 || nullOwner === 3;
+    const localNullX = localNull ? width * (fractions[nullOwner - 1] + fractions[nullOwner]) / 2 : width - (narrow ? 17 : 32);
+    places = {
+      1: {x: width * fractions[0], y: nodeY},
+      2: {x: width * fractions[1], y: nodeY},
+      3: {x: width * fractions[2], y: nodeY},
+      4: {x: width * fractions[3], y: nodeY},
+      'null-left': {x: narrow ? 17 : 32, y: nodeY + (narrow ? 36 : 0)},
+      'null-right': {x: localNullX, y: nodeY + (localNull ? 48 : narrow ? 36 : 0)},
+      head: {x: width * .25, y: 48},
+      newHead: {x: width * .75, y: 48},
+      link1: {x: width * fractions[0], y: linkY},
+      link2: {x: width * fractions[1], y: linkY},
+      link3: {x: width * fractions[2], y: linkY},
+      link4: {x: width * fractions[3], y: linkY}
+    };
+    for (const button of allButtons) {
+      const key = button.dataset.source || button.dataset.target;
+      button.style.left = `${places[key].x}px`;
+      button.style.top = `${places[key].y}px`;
+    }
+    arrows.setAttribute('viewBox', `0 0 ${width} ${stage.clientHeight}`);
+    draw();
+  }
+
+  function linkPath(from, to, reciprocal) {
+    const a = places[from], b = targetPoint(to, to === null && from === 1 ? 'left' : 'right');
+    const r = stage.clientWidth <= 480 ? 23 : 28;
+    if (to !== null && reciprocal) {
+      if (from < to) return `M ${a.x + r - 2} ${a.y - 7} C ${(a.x + b.x) / 2} ${a.y - 42}, ${(a.x + b.x) / 2} ${a.y - 42}, ${b.x - r + 1} ${b.y - 7}`;
+      return `M ${a.x - r + 2} ${a.y + 8} C ${(a.x + b.x) / 2} ${a.y + 42}, ${(a.x + b.x) / 2} ${a.y + 42}, ${b.x + r - 1} ${b.y + 8}`;
+    }
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const start = {x: a.x + dx / len * r, y: a.y + dy / len * r};
+    const endRadius = to === null ? 14 : r + 2;
+    const end = {x: b.x - dx / len * endRadius, y: b.y - dy / len * endRadius};
+    return `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+  }
+
+  function draw() {
+    if (!places[1]) return;
+    const paths = [];
+    for (const node of [1, 2, 3, 4]) {
+      if (drag?.moved && drag.source === `link${node}`) continue;
+      const to = state.links[node];
+      const reciprocal = to !== null && state.links[to] === node;
+      const changed = !manualMessage && frames[step].changed === `link${node}`;
+      paths.push(`<path d="${linkPath(node, to, reciprocal)}" fill="none" stroke="#333" stroke-width="${changed ? 2.8 : 2}" marker-end="url(#node-arrow)"/>`);
+    }
+    for (const name of ['head', 'newHead']) {
+      const value = state[name];
+      if (value === undefined || (drag?.moved && drag.source === name)) continue;
+      const a = places[name], b = targetPoint(value);
+      const endY = b.y - (value === null ? 19 : stage.clientWidth <= 480 ? 25 : 30);
+      paths.push(`<path d="M ${a.x} ${a.y + 17} L ${b.x} ${endY}" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#var-arrow)"/>`);
+    }
+    if (drag?.moved) {
+      const a = places[drag.source];
+      const y = drag.source.startsWith('link') ? a.y - 12 : a.y + 16;
+      paths.push(`<path d="M ${a.x} ${y} L ${drag.x} ${drag.y}" fill="none" stroke="#777" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#var-arrow)"/>`);
+    }
+    arrows.innerHTML = `<defs>
+      <marker id="node-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker>
+      <marker id="var-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker>
+    </defs>${paths.join('')}`;
+  }
+
+  function render() {
+    const frame = frames[step];
+    count.textContent = manualMessage ? `练习 · ${step} / ${frames.length - 1}` : `${step} / ${frames.length - 1}`;
+    previous.disabled = step === 0;
+    next.disabled = step === frames.length - 1;
+    operation.replaceChildren();
+    const code = document.createElement('code');
+    code.textContent = manualMessage ? '自由练习' : frame.code;
+    const explanation = document.createElement('span');
+    explanation.className = 'explanation';
+    explanation.textContent = manualMessage || frame.explanation;
+    operation.append(code, explanation);
+    stack.replaceChildren();
+    if (state.stack.length) {
+      for (const [index, value] of state.stack.entries()) {
+        const item = document.createElement('li');
+        item.textContent = `f(${value})`;
+        if (index === state.stack.length - 1) item.classList.add('current');
+        stack.append(item);
+      }
+    } else {
+      const empty = document.createElement('span');
+      empty.className = 'empty';
+      empty.textContent = '全部返回';
+      stack.append(empty);
+    }
+    for (const button of sources) {
+      const source = button.dataset.source;
+      const value = source.startsWith('link') ? state.links[Number(source.slice(4))] : state[source];
+      button.textContent = source === 'newHead' ? (value === undefined ? 'new_head = —' : 'new_head') : source.startsWith('link') ? `${source.slice(4)}.next` : (value === undefined ? 'head = —' : 'head');
+      button.setAttribute('aria-label', `${button.textContent} 当前指向${labelFor(value)}。点击后选节点或 None，也可拖动。`);
+      button.classList.toggle('unset', value === undefined);
+      button.classList.toggle('selected', selected === source);
+      button.classList.toggle('changed', !manualMessage && frame.changed === source);
+    }
+    for (const button of targets) {
+      const key = button.dataset.target;
+      button.setAttribute('aria-label', key.startsWith('null') ? `${key === 'null-left' ? '左侧' : '右侧'} None` : `节点 ${key}`);
+      button.classList.toggle('active', !key.startsWith('null') && Number(key) === state.head);
+      button.classList.toggle('target-ready', Boolean(selected));
+    }
+    layout();
+  }
+
+  function showStep(index) {
+    step = Math.max(0, Math.min(frames.length - 1, index));
+    state = clone(frames[step].state);
+    selected = null;
+    manualMessage = '';
+    render();
+  }
+  previous.addEventListener('click', () => showStep(step - 1));
+  next.addEventListener('click', () => showStep(step + 1));
+
+  function apply(source, value) {
+    if (source.startsWith('link')) state.links[Number(source.slice(4))] = value;
+    else state[source] = value;
+    const label = source === 'newHead' ? 'new_head' : source.startsWith('link') ? `${source.slice(4)}.next` : 'head';
+    manualMessage = `${label} 现在指向${labelFor(value)}。只有改动 .next 才会改变节点之间的实线；调用栈和演示步骤未改变。`;
+    selected = null;
+    render();
+  }
+
+  function nearestTarget(clientX, clientY) {
+    const rect = stage.getBoundingClientRect();
+    const x = clientX - rect.left, y = clientY - rect.top;
+    let best, distance = 48;
+    for (const key of ['1', '2', '3', '4', 'null-left', 'null-right']) {
+      const point = places[key];
+      const d = Math.hypot(x - point.x, y - point.y);
+      if (d < distance) { best = key; distance = d; }
+    }
+    return best;
+  }
+
+  for (const button of sources) {
+    button.addEventListener('click', () => {
+      if (ignoreClick) { ignoreClick = false; return; }
+      selected = selected === button.dataset.source ? null : button.dataset.source;
+      manualMessage = selected ? `已选择 ${button.textContent}。再点一个节点或 None；也可以拖动方框。` : '';
+      render();
+    });
+    button.addEventListener('pointerdown', event => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      drag = {source: button.dataset.source, button, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
+      button.setPointerCapture(event.pointerId);
+    });
+    button.addEventListener('pointermove', event => {
+      if (!drag || drag.button !== button) return;
+      const dx = event.clientX - drag.startX, dy = event.clientY - drag.startY;
+      if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+      drag.moved = true;
+      drag.x = places[drag.source].x + dx;
+      drag.y = places[drag.source].y + dy;
+      button.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px)`;
+      const ready = nearestTarget(event.clientX, event.clientY);
+      for (const target of targets) target.classList.toggle('target-ready', target.dataset.target === ready);
+      draw();
+    });
+    button.addEventListener('pointerup', event => {
+      if (!drag || drag.button !== button) return;
+      const moved = drag.moved;
+      const source = drag.source;
+      button.style.transform = '';
+      drag = null;
+      if (moved) {
+        const target = nearestTarget(event.clientX, event.clientY);
+        if (target) apply(source, keyToValue(target));
+        else render();
+        ignoreClick = true;
+        setTimeout(() => { ignoreClick = false; }, 0);
+      }
+    });
+    button.addEventListener('pointercancel', () => {
+      button.style.transform = '';
+      drag = null;
+      render();
+    });
+  }
+  for (const button of targets) {
+    button.addEventListener('click', () => {
+      if (selected) apply(selected, keyToValue(button.dataset.target));
+    });
+  }
+  root.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && selected) { selected = null; manualMessage = ''; render(); }
+  });
+  new ResizeObserver(layout).observe(stage);
+  render();
+})();
+</script>
+</body>
+</html>

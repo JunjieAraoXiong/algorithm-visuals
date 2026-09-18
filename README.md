@@ -4,9 +4,10 @@ Interactive visual explanations for algorithm practice, published with GitHub Pa
 
 Each question has a standalone page at `<problem-slug>/index.html`. The root `index.html` lists the available visuals. No build step or server code is required.
 
-## Current visual
+## Visuals
 
-- [Reverse Linked List](reverse-linked-list/index.html)
+- [Reverse Linked List · Iterative](reverse-linked-list/index.html)
+- [Reverse Linked List · Recursive](recursive-reverse-linked-list/index.html)
 
 ## Publishing
 
