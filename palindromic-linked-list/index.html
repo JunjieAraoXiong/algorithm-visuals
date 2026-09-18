@@ -34,9 +34,8 @@
     .stage .node { width:var(--node); height:var(--node); border:1.8px solid var(--ink); border-radius:50%; padding:0; font-size:18px; font-weight:500; background:var(--paper); }
     .stage .node.same-node { outline:2px dashed #777; outline-offset:4px; }
     .stage .node.compare { background:#e9e9e4; }
-    .stage .node.changed { animation:change-node .42s ease-out; }
     @keyframes change-node { from { background:#d8d8d1; border-color:#272727; } to { background:var(--paper); border-color:#777; } }
-    .stage .variable { min-width:55px; padding:2px 5px; font:11px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; border:1px solid #777; border-radius:3px; background:var(--paper); text-align:center; white-space:nowrap; pointer-events:none; transition:left .28s ease,top .28s ease; }
+    .stage .variable { min-width:55px; padding:2px 5px; font:11px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; border:1px solid #777; border-radius:3px; background:var(--paper); text-align:center; white-space:nowrap; pointer-events:none; }
     .stage .variable.long { font-size:10px; }
     .stage .next-field { padding:3px 5px; border-style:dashed; font:10px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:nowrap; touch-action:none; cursor:grab; }
     .stage .next-field.selected { outline:2px solid #555; outline-offset:2px; }
@@ -68,8 +67,7 @@
       .controls button { padding:5px 7px; }
     }
     @media(prefers-reduced-motion:reduce) {
-      .stage .variable { transition:none; }
-      .stage .node.changed,.stage .next-field.changed { animation:none; }
+      .stage .next-field.changed { animation:none; }
     }
   </style>
 </head>
@@ -164,7 +162,7 @@ def find_middle(head: ListNode) -&gt; ListNode:
   const nullButton = stage.querySelector('[data-target="null"]');
   const modes = {odd:[1,2,3,2,1], even:[1,2,1,2]};
   let mode='odd', frames=[], index=0, state, manual='', selected=null, drag=null, positions={}, lastChanged=null;
-  let sourceButtons=[], targetButtons=[], variableBoxes=new Map();
+  let sourceButtons=[], targetButtons=[], variableBoxes=new Map(), paintedRefs=new Map(), motion=null, motionFrame=null;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const clone = s => ({link:{...s.link}, refs:{...s.refs}, res:s.res, compared:s.compared ? [...s.compared] : [], mismatch:s.mismatch});
   const id = i => i === null ? null : `n${i+1}`;
@@ -215,29 +213,41 @@ def find_middle(head: ListNode) -&gt; ListNode:
   }
   function point(idOrNull){return idOrNull===null?positions.null:positions[idOrNull];}
   const arrow=(marker,color,width=1.5)=>`<marker id="${marker}" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="${color}"/></marker>`;
-  function draw(){
+  const between=(a,b,t)=>a+(b-a)*t;
+  function linkMarkup(source,target,fraction=1){
+    if(fraction<=0)return '';
+    const a=point(source),b=point(target),nodeRadius=stage.clientWidth<440?17:21;
+    const marker=fraction>.11?' marker-end="url(#solid-arrow)"':'';
+    if(target===null){
+      const y=a.y+nodeRadius;
+      return `<path data-link="${source}" d="M ${a.x} ${y} L ${a.x} ${y+18*fraction}" stroke="#333" stroke-width="1.6" fill="none"${marker}/>`+
+        (fraction>.98?`<text x="${a.x+3}" y="${y+37}" font-size="10" fill="#555">None</text>`:'');
+    }
+    if(b.x>a.x){
+      const x0=a.x+nodeRadius+2,x1=b.x-nodeRadius-5;
+      return `<path data-link="${source}" d="M ${x0} ${a.y} L ${between(x0,x1,fraction)} ${between(a.y,b.y,fraction)}" stroke="#333" stroke-width="1.8" fill="none"${marker}/>`;
+    }
+    const y=a.y+nodeRadius-2;
+    const start={x:a.x-10,y},control={x:(a.x+b.x)/2,y:y+34},end={x:b.x+10,y};
+    const first={x:between(start.x,control.x,fraction),y:between(start.y,control.y,fraction)};
+    const second={x:between(control.x,end.x,fraction),y:between(control.y,end.y,fraction)};
+    const tip={x:between(first.x,second.x,fraction),y:between(first.y,second.y,fraction)};
+    return `<path data-link="${source}" d="M ${start.x} ${start.y} Q ${first.x} ${first.y} ${tip.x} ${tip.y}" stroke="#333" stroke-width="1.8" fill="none"${marker}/>`;
+  }
+  function draw(linkChange=null,progress=1){
     const w=stage.clientWidth,h=stage.clientHeight, nodeRadius=w<440?17:21;
     svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
     const paths=[`<defs>${arrow('solid-arrow','#333')}${arrow('ref-arrow','#777')}</defs>`];
     for(const [source,target] of Object.entries(state.link)){
-      const a=point(source), b=point(target);
-      if(target===null){
-        paths.push(`<path data-link="${source}" d="M ${a.x} ${a.y+nodeRadius} l 0 18" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#solid-arrow)"/>`);
-        paths.push(`<text x="${a.x+3}" y="${a.y+nodeRadius+37}" font-size="10" fill="#555">None</text>`);
-      } else if(b.x>a.x){
-        paths.push(`<path data-link="${source}" d="M ${a.x+nodeRadius+2} ${a.y} L ${b.x-nodeRadius-5} ${b.y}" stroke="#333" stroke-width="1.8" fill="none" marker-end="url(#solid-arrow)"/>`);
-      } else {
-        const y=a.y+nodeRadius-2;
-        paths.push(`<path data-link="${source}" d="M ${a.x-10} ${y} Q ${(a.x+b.x)/2} ${y+34} ${b.x+10} ${y}" stroke="#333" stroke-width="1.8" fill="none" marker-end="url(#solid-arrow)"/>`);
-      }
+      if(linkChange?.source===source){
+        if(progress<.38)paths.push(linkMarkup(source,linkChange.before,1-progress/.38));
+        else paths.push(linkMarkup(source,target,Math.min(1,(progress-.38)/.46)));
+      }else paths.push(linkMarkup(source,target));
     }
-    for(const [name,target] of Object.entries(state.refs)){
-      if(target===null)continue;
-      const label=variableBoxes.get(name),p=point(target);
-      if(!label||!p)continue;
-      const x=Number(label.dataset.x), y=Number(label.dataset.y);
-      const up=y<p.y;
-      paths.push(`<path data-ref="${name}" d="M ${x} ${y+(up?11:-11)} L ${p.x} ${p.y+(up?-nodeRadius-5:nodeRadius+5)}" stroke="#777" stroke-width="1.2" fill="none" marker-end="url(#ref-arrow)"/>`);
+    for(const [name,visual] of paintedRefs){
+      if(visual.kind!=='node'||visual.opacity<=.01)continue;
+      const startY=visual.y+(visual.up?11:-11);
+      paths.push(`<path data-ref="${name}" d="M ${visual.x} ${startY} L ${visual.targetX} ${visual.targetY}" stroke="#777" stroke-width="1.2" opacity="${visual.opacity}" fill="none" marker-end="url(#ref-arrow)"/>`);
     }
     if(drag?.moved){
       const p=point(drag.source);
@@ -245,34 +255,81 @@ def find_middle(head: ListNode) -&gt; ListNode:
     }
     svg.innerHTML=paths.join('');
   }
-  function positionVariables(){
-    const y=180, w=stage.clientWidth, tiny=w<440;
+  function variablePlacements(refs,links=state.link){
+    const w=stage.clientWidth, tiny=w<440;
     const config={head:95,mid:95,second_head:95,slow:62,fast:230,prevNode:62,currNode:131,nextNode:230,ptr1:62,ptr2:230};
-    const nullRefs=Object.entries(state.refs).filter(([,target])=>target===null).map(([name])=>name);
-    for(const [name,box] of variableBoxes){
-      const target=state.refs[name];
-      if(target===undefined){box.hidden=true;continue;}
-      box.hidden=false;
+    const nullRefs=Object.entries(refs).filter(([,target])=>target===null).map(([name])=>name);
+    const placements=new Map();
+    for(const name of variableBoxes.keys()){
+      const target=refs[name];
+      if(target===undefined)continue;
       if(target===null){
         const order=nullRefs.indexOf(name);
         const xx=20+(w-110)*(order+.5)/nullRefs.length;
-        box.textContent=`${name} = None`;
-        box.style.left=xx+'px';box.style.top='318px';box.dataset.x=xx;box.dataset.y=318;
-        box.setAttribute('aria-label',`${name} 引用 None`);
+        placements.set(name,{kind:'none',text:`${name} = None`,x:xx,y:318,opacity:1});
         continue;
       }
-      box.textContent=name;
       const p=point(target), yy=config[name]||100;
       let xx=p.x;
       if(['slow','prevNode','currNode','ptr1'].includes(name)) xx+=p.x>w-70?-34:34;
-      if(['fast','nextNode','ptr2'].includes(name)&&state.link[target]===null) xx+=p.x>w/2?-50:50;
+      if(['fast','nextNode','ptr2'].includes(name)&&links[target]===null) xx+=p.x>w/2?-50:50;
       // On narrow screens the permanent endpoints need room from the edge.
       xx=Math.max(tiny?29:46,Math.min(w-(tiny?29:46),xx));
-      box.style.left=xx+'px';box.style.top=yy+'px';box.dataset.x=xx;box.dataset.y=yy;
-      box.setAttribute('aria-label',`${name} 引用${target?`节点 ${target.slice(1)}`:'None'}`);
+      const up=yy<p.y,nodeRadius=w<440?17:21;
+      placements.set(name,{kind:'node',text:name,target,x:xx,y:yy,targetX:p.x,targetY:p.y+(up?-nodeRadius-5:nodeRadius+5),up,opacity:1});
+    }
+    return placements;
+  }
+  function paintVariables(visuals){
+    paintedRefs=visuals;
+    for(const [name,box] of variableBoxes){
+      const visual=visuals.get(name);
+      box.hidden=!visual||visual.opacity<=.01;
+      if(!visual)continue;
+      box.textContent=visual.text;
+      box.style.left=visual.x+'px';box.style.top=visual.y+'px';box.style.opacity=visual.opacity;
+      box.setAttribute('aria-label',visual.kind==='none'?`${name} 引用 None`:`${name} 引用节点 ${visual.target.slice(1)}`);
     }
   }
-  function layout(){
+  function betweenPlacements(from,to,t){
+    const visuals=new Map();
+    for(const name of new Set([...from.keys(),...to.keys()])){
+      const start=from.get(name),end=to.get(name);
+      if(start?.kind==='node'&&end?.kind==='node'){
+        visuals.set(name,{...end,x:between(start.x,end.x,t),y:between(start.y,end.y,t),targetX:between(start.targetX,end.targetX,t),targetY:between(start.targetY,end.targetY,t)});
+      }else if(start&&end){
+        visuals.set(name,t<.5?{...start,opacity:1-2*t}:{...end,opacity:2*t-1});
+      }else if(start)visuals.set(name,{...start,opacity:1-t});
+      else if(end)visuals.set(name,{...end,opacity:t});
+    }
+    return visuals;
+  }
+  function cancelMotion(){
+    if(motionFrame!==null)cancelAnimationFrame(motionFrame);
+    motionFrame=null;motion=null;
+    if(state&&positions.n1){paintVariables(variablePlacements(state.refs));draw();}
+  }
+  function startMotion(previousState){
+    const from=variablePlacements(previousState.refs,previousState.link),to=variablePlacements(state.refs);
+    const changedSources=Object.keys(state.link).filter(source=>previousState.link[source]!==state.link[source]);
+    const changedSource=changedSources[0];
+    const refChanged=Object.keys({...previousState.refs,...state.refs}).some(name=>previousState.refs[name]!==state.refs[name]);
+    if(reduced.matches||changedSources.length>1||(!changedSource&&!refChanged)){paintVariables(to);draw();return;}
+    const linkChange=changedSource?{source:changedSource,before:previousState.link[changedSource]}:null;
+    const currentMotion={from,to,linkChange,start:performance.now()};
+    motion=currentMotion;
+    const tick=now=>{
+      if(motion!==currentMotion)return;
+      const raw=Math.min(1,(now-currentMotion.start)/320);
+      const progress=raw<.5?2*raw*raw:1-2*(1-raw)*(1-raw);
+      paintVariables(betweenPlacements(from,to,progress));draw(linkChange,progress);
+      if(raw<1)motionFrame=requestAnimationFrame(tick);
+      else {motionFrame=null;motion=null;paintVariables(to);draw();}
+    };
+    paintVariables(betweenPlacements(from,to,0));draw(linkChange,0);
+    motionFrame=requestAnimationFrame(tick);
+  }
+  function layout(previousState=null){
     const w=stage.clientWidth,n=modes[mode].length;
     const margin=w<440?35:62, spacing=(w-2*margin)/(n-1);
     positions={null:{x:w-(w<440?35:62),y:320}};
@@ -283,7 +340,8 @@ def find_middle(head: ListNode) -&gt; ListNode:
       field.style.left=p.x+'px';field.style.top='269px';
     }
     nullButton.style.left=positions.null.x+'px';nullButton.style.top=positions.null.y+'px';
-    positionVariables();draw();
+    if(previousState)startMotion(previousState);
+    else {paintVariables(variablePlacements(state.refs));draw();}
   }
   function rebuild(){
     for(const el of stage.querySelectorAll('.node,.next-field,.variable'))el.remove();
@@ -302,10 +360,12 @@ def find_middle(head: ListNode) -&gt; ListNode:
     for(const button of sourceButtons){
       button.addEventListener('click',()=>{
         if(button.dataset.suppress){delete button.dataset.suppress;return;}
+        cancelMotion();
         selected=button.dataset.source;manual=`已选 #${selected.slice(1)}.next；点击一个节点或 None。`;render();
       });
       button.addEventListener('pointerdown',event=>{
         if(event.pointerType==='mouse'&&event.button!==0)return;
+        cancelMotion();
         drag={source:button.dataset.source,button,x:0,y:0,startX:event.clientX,startY:event.clientY,moved:false,ignoreClick:false};
         selected=button.dataset.source;
         manual=`已选 #${selected.slice(1)}.next；点击节点或 None，也可拖到目标。`;
@@ -340,11 +400,13 @@ def find_middle(head: ListNode) -&gt; ListNode:
     return best;
   }
   function apply(source,target){
+    cancelMotion();
+    const previousState=clone(state);
     const before=state.link[source];state.link[source]=target;selected=null;
     manual=`自由练习：把节点 #${source.slice(1)}.next 从 ${before?`节点 #${before.slice(1)}`:'None'} 改为 ${target?`节点 #${target.slice(1)}`:'None'}。这条深色实线是节点保存的连接；变量方框没有改变。`;
-    lastChanged=source;render();
+    lastChanged=source;render(previousState);
   }
-  function render(){
+  function render(previousState=null){
     const frame=frames[index];
     count.textContent=`${index+1} / ${frames.length}`;
     previous.disabled=index===0;next.disabled=index===frames.length-1;
@@ -361,7 +423,6 @@ def find_middle(head: ListNode) -&gt; ListNode:
       b.classList.toggle('compare',isCompared);
       b.classList.toggle('same-node',state.refs.ptr1===node&&state.refs.ptr2===node);
       b.classList.toggle('available',selected!==null);
-      b.classList.toggle('changed',lastChanged===node);
       b.setAttribute('aria-label',`节点 #${i+1}，值 ${modes[mode][i]}，next 指向${state.link[node]?`节点 #${state.link[node].slice(1)}`:'None'}。${selected?'点击设为目标。':''}`);
       sourceButtons[i].classList.toggle('selected',selected===node);
       sourceButtons[i].classList.toggle('changed',lastChanged===node);
@@ -369,15 +430,19 @@ def find_middle(head: ListNode) -&gt; ListNode:
     }
     nullButton.classList.toggle('available',selected!==null);
     nullButton.hidden=selected===null;
-    layout();
+    layout(previousState);
   }
   function show(step){
+    cancelMotion();
+    const previousIndex=index,wasManual=!!manual;
+    const previousState=clone(state);
     index=Math.max(0,Math.min(frames.length-1,step));state=clone(frames[index].state);
-    selected=null;manual='';lastChanged=frames[index].changed;
-    render();
+    selected=null;drag=null;manual='';lastChanged=frames[index].changed;
+    render(!wasManual&&Math.abs(index-previousIndex)===1?previousState:null);
   }
   function switchMode(value){
-    mode=value;frames=makeFrames(modes[mode]);index=0;state=clone(frames[0].state);selected=null;manual='';lastChanged=null;
+    cancelMotion();
+    mode=value;frames=makeFrames(modes[mode]);index=0;state=clone(frames[0].state);selected=null;drag=null;manual='';lastChanged=null;
     for(const button of document.querySelectorAll('[data-example]'))button.setAttribute('aria-pressed',button.dataset.example===mode?'true':'false');
     rebuild();render();
   }
@@ -386,8 +451,8 @@ def find_middle(head: ListNode) -&gt; ListNode:
   for(const button of document.querySelectorAll('[data-example]'))button.addEventListener('click',()=>switchMode(button.dataset.example));
   jump.addEventListener('change',()=>{const at=frames.findIndex(f=>f.group===jump.value);if(at>=0)show(at);});
   stage.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();show(index+(event.key==='ArrowRight'?1:-1));}});
-  new ResizeObserver(layout).observe(stage);
-  reduced.addEventListener('change',layout);
+  new ResizeObserver(()=>{cancelMotion();drag=null;layout();}).observe(stage);
+  reduced.addEventListener('change',()=>{cancelMotion();layout();});
   switchMode('odd');
 })();
 </script>
