@@ -35,14 +35,20 @@
     #reverse-list-lab .lab-null { min-width: 44px; min-height: 38px; padding: 3px; border: 0; background: #fffdf8; font-family: Arial, Helvetica, sans-serif !important; font-size: 18px; font-weight: 500; cursor: pointer !important; }
     #reverse-list-lab .drop-ready { outline: 2px dashed #777; outline-offset: 3px; }
     #reverse-list-lab .motion-cue { animation: rl-motion-cue 380ms ease-out both; }
+    #reverse-list-lab .link-change { animation: rl-link-change 380ms ease-out both; }
     @keyframes rl-motion-cue {
       0% { opacity: 0; stroke-dashoffset: 18; }
       20% { opacity: .9; }
       75% { opacity: .7; }
       100% { opacity: 0; stroke-dashoffset: 0; }
     }
+    @keyframes rl-link-change {
+      0% { stroke-width: 4; }
+      100% { stroke-width: 2; }
+    }
     @media (prefers-reduced-motion: reduce) {
       #reverse-list-lab .motion-cue { animation: none; display: none; }
+      #reverse-list-lab .link-change { animation: none; }
     }
     #reverse-list-lab .lab-operation { min-height: 40px; margin: 12px 16px 0; padding: 8px 10px; border: 1px dashed #999; font-size: 14px; }
     #reverse-list-lab .lab-operation code { color: #272727; font-weight: 500; font-size: 13px; }
@@ -86,7 +92,7 @@
   <div class="lab-legend text-small">
     <span>方框竖箭头：变量指向</span>
     <span>圆圈间实线：节点的 .next</span>
-    <span>短暂弧形虚线：本步指向变化</span>
+    <span>短暂虚线：变量移动；实线变粗：.next 改动</span>
   </div>
   <p class="lab-hint">拖动方框到圆圈或 null；下方虚线方框用于改动节点的 .next。</p>
 
@@ -228,7 +234,8 @@
           if (drag?.moved && drag.source === `link${node}`) continue;
           const target = state.link[node];
           const to = pointFor(target, node === 3 ? 'right' : 'left');
-          arrows.push(`<path d="${pathBetween(places[node], to, target === null)}" fill="none" stroke="#333" stroke-width="2" marker-end="url(#rl-node-arrow)"/>`);
+          const changing = motion.some(cue => cue.kind === 'link' && cue.node === node);
+          arrows.push(`<path class="${changing ? 'link-change' : ''}" d="${pathBetween(places[node], to, target === null)}" fill="none" stroke="#333" stroke-width="2" marker-end="url(#rl-node-arrow)"/>`);
         }
         for (const name of ['prev', 'curr', 'temp']) {
           const target = state[name];
@@ -237,19 +244,12 @@
           arrows.push(`<path d="M ${start.x} ${start.y + 16} L ${end.x} ${end.y - (target === null ? 23 : 31)}" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#rl-label-arrow)"/>`);
         }
         for (const cue of motion) {
-          let path;
-          if (cue.kind === 'reference') {
-            const side = cue.name === 'prev' ? 'left' : 'right';
-            const start = cue.from === undefined ? places[cue.name] : pointFor(cue.from, side);
-            const end = pointFor(cue.to, side);
-            const startY = cue.from === undefined ? start.y + 22 : start.y - 35;
-            path = `M ${start.x} ${startY} Q ${(start.x + end.x) / 2} 105 ${end.x} ${end.y - 35}`;
-          } else {
-            const side = cue.node === 3 ? 'right' : 'left';
-            const start = pointFor(cue.from, side);
-            const end = pointFor(cue.to, side);
-            path = `M ${start.x} ${start.y + 33} Q ${(start.x + end.x) / 2} 258 ${end.x} ${end.y + 33}`;
-          }
+          if (cue.kind !== 'reference') continue;
+          const side = cue.name === 'prev' ? 'left' : 'right';
+          const start = cue.from === undefined ? places[cue.name] : pointFor(cue.from, side);
+          const end = pointFor(cue.to, side);
+          const startY = cue.from === undefined ? start.y + 22 : start.y - 35;
+          const path = `M ${start.x} ${startY} Q ${(start.x + end.x) / 2} 105 ${end.x} ${end.y - 35}`;
           arrows.push(`<path class="motion-cue" d="${path}" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#rl-move-arrow)"/>`);
         }
         if (drag?.moved) {

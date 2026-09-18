@@ -157,16 +157,17 @@
   function showCue(kind, from, to) {
     clearCue();
     if (reducedMotion.matches || from === to || !places[from ?? 'null'] || !places[to ?? 'null']) return;
-    const a = places[from ?? 'null'];
+    const a = kind === 'link' ? places.link : places[from ?? 'null'];
     const b = places[to ?? 'null'];
     const radius = stage.clientWidth <= 480 ? 19 : 22;
     const above = kind !== 'link';
-    const edge = above ? -radius - 7 : radius + 7;
-    const y = a.y + edge;
-    const endY = b.y + edge;
-    const bend = above ? -35 : 68;
-    // A switch from None routes above the whole chain: it is a variable move, not a node link.
-    const controlY = (from === null || to === null) && above ? Math.min(y, endY) - 56 : (y + endY) / 2 + bend;
+    const y = above ? a.y - radius - 7 : a.y - 16;
+    const endY = b.y + (above ? -radius - 7 : radius + 7);
+    // A variable moving from None routes above the chain. A .next assignment
+    // starts at the edited field, never at the old target node.
+    const controlY = above
+      ? (from === null || to === null ? Math.min(y, endY) - 56 : (y + endY) / 2 - 35)
+      : Math.max(y, endY) + 34;
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', `M ${a.x} ${y} Q ${(a.x + b.x) / 2} ${controlY} ${b.x} ${endY}`);
     path.setAttribute('fill', 'none');

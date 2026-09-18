@@ -39,14 +39,20 @@
     .null { min-width: 32px; height: 30px; border: 0; padding: 0; background: var(--paper); font: 16px Arial, Helvetica, sans-serif; cursor: pointer; }
     .target-ready { outline: 2px dashed #777; outline-offset: 3px; }
     .motion-cue { animation: recursive-motion-cue 380ms ease-out both; }
+    .link-change { animation: recursive-link-change 380ms ease-out both; }
     @keyframes recursive-motion-cue {
       0% { opacity: 0; stroke-dashoffset: 18; }
       20% { opacity: .9; }
       75% { opacity: .7; }
       100% { opacity: 0; stroke-dashoffset: 0; }
     }
+    @keyframes recursive-link-change {
+      0% { stroke-width: 4.5; }
+      100% { stroke-width: var(--link-width); }
+    }
     @media (prefers-reduced-motion: reduce) {
       .motion-cue { animation: none; display: none; }
+      .link-change { animation: none; }
     }
     .stack { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; min-height: 43px; padding: 11px 8px 5px; border-bottom: 1px solid var(--rule); }
     .stack-label { color: var(--quiet); font-size: 13px; white-space: nowrap; }
@@ -113,7 +119,7 @@
   <div class="legend">
     <span>圆圈间实线：节点保存的 .next</span>
     <span>方框细箭头：变量指向</span>
-    <span>短暂弧形虚线：本步指向变化</span>
+    <span>短暂虚线：变量移动；实线变粗：.next 改动</span>
     <span>双向弧线：暂时形成的环</span>
     <span>None 只是空指针标记，不是节点</span>
   </div>
@@ -252,7 +258,8 @@
       const to = state.links[node];
       const reciprocal = to !== null && state.links[to] === node;
       const changed = !manualMessage && frames[step].changed === `link${node}`;
-      paths.push(`<path d="${linkPath(node, to, reciprocal)}" fill="none" stroke="#333" stroke-width="${changed ? 2.8 : 2}" marker-end="url(#node-arrow)"/>`);
+      const changing = motion.some(cue => cue.kind === 'link' && cue.node === node);
+      paths.push(`<path class="${changing ? 'link-change' : ''}" style="--link-width:${changed ? 2.8 : 2}px" d="${linkPath(node, to, reciprocal)}" fill="none" stroke="#333" stroke-width="${changed ? 2.8 : 2}" marker-end="url(#node-arrow)"/>`);
     }
     for (const name of ['head', 'newHead']) {
       const value = state[name];
@@ -262,18 +269,11 @@
       paths.push(`<path d="M ${a.x} ${a.y + 17} L ${b.x} ${endY}" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#var-arrow)"/>`);
     }
     for (const cue of motion) {
-      let path;
-      if (cue.kind === 'reference') {
-        const start = cue.from === undefined ? places[cue.name] : targetPoint(cue.from);
-        const end = targetPoint(cue.to);
-        const startY = cue.from === undefined ? start.y + 21 : start.y - 34;
-        path = `M ${start.x} ${startY} Q ${(start.x + end.x) / 2} ${stage.clientWidth <= 480 ? 103 : 111} ${end.x} ${end.y - 34}`;
-      } else {
-        const start = targetPoint(cue.from, cue.from === null && cue.node === 1 ? 'left' : 'right');
-        const end = targetPoint(cue.to, cue.to === null && cue.node === 1 ? 'left' : 'right');
-        const below = places[1].y + (stage.clientWidth <= 480 ? 43 : 47);
-        path = `M ${start.x} ${start.y + 33} Q ${(start.x + end.x) / 2} ${below + 18} ${end.x} ${end.y + 33}`;
-      }
+      if (cue.kind !== 'reference') continue;
+      const start = cue.from === undefined ? places[cue.name] : targetPoint(cue.from);
+      const end = targetPoint(cue.to);
+      const startY = cue.from === undefined ? start.y + 21 : start.y - 34;
+      const path = `M ${start.x} ${startY} Q ${(start.x + end.x) / 2} ${stage.clientWidth <= 480 ? 103 : 111} ${end.x} ${end.y - 34}`;
       paths.push(`<path class="motion-cue" d="${path}" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#cue-arrow)"/>`);
     }
     if (drag?.moved) {
