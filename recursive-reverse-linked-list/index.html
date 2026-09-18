@@ -38,6 +38,16 @@
     .node.active { border-width: 3px; }
     .null { min-width: 32px; height: 30px; border: 0; padding: 0; background: var(--paper); font: 16px Arial, Helvetica, sans-serif; cursor: pointer; }
     .target-ready { outline: 2px dashed #777; outline-offset: 3px; }
+    .motion-cue { animation: recursive-motion-cue 380ms ease-out both; }
+    @keyframes recursive-motion-cue {
+      0% { opacity: 0; stroke-dashoffset: 18; }
+      20% { opacity: .9; }
+      75% { opacity: .7; }
+      100% { opacity: 0; stroke-dashoffset: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .motion-cue { animation: none; display: none; }
+    }
     .stack { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; min-height: 43px; padding: 11px 8px 5px; border-bottom: 1px solid var(--rule); }
     .stack-label { color: var(--quiet); font-size: 13px; white-space: nowrap; }
     .stack ol { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin: 0; padding: 0; list-style: none; font: 13px monospace; }
@@ -103,6 +113,7 @@
   <div class="legend">
     <span>圆圈间实线：节点保存的 .next</span>
     <span>方框细箭头：变量指向</span>
+    <span>短暂弧形虚线：本步指向变化</span>
     <span>双向弧线：暂时形成的环</span>
     <span>None 只是空指针标记，不是节点</span>
   </div>
@@ -154,6 +165,33 @@
   let ignoreClick = false;
   let manualMessage = '';
   let places = {};
+  let motion = [];
+  let motionTimer = null;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function cancelMotion() {
+    clearTimeout(motionTimer);
+    motionTimer = null;
+    motion = [];
+  }
+
+  function beginMotion(before, after) {
+    cancelMotion();
+    if (reducedMotion.matches) return;
+    for (const name of ['head', 'newHead']) {
+      if (before[name] !== after[name] && after[name] !== undefined) {
+        motion.push({kind: 'reference', name, from: before[name], to: after[name]});
+      }
+    }
+    for (const node of [1, 2, 3, 4]) {
+      if (before.links[node] !== after.links[node]) {
+        motion.push({kind: 'link', node, from: before.links[node], to: after.links[node]});
+      }
+    }
+    if (motion.length) {
+      motionTimer = setTimeout(() => { motion = []; motionTimer = null; draw(); }, 380);
+    }
+  }
 
   const labelFor = value => value === undefined ? '未赋值' : value === null ? 'None' : `节点 ${value}`;
   function targetPoint(value, side = 'right') { return places[value === null ? `null-${side}` : String(value)]; }
@@ -223,6 +261,21 @@
       const endY = b.y - (value === null ? 19 : stage.clientWidth <= 480 ? 25 : 30);
       paths.push(`<path d="M ${a.x} ${a.y + 17} L ${b.x} ${endY}" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#var-arrow)"/>`);
     }
+    for (const cue of motion) {
+      let path;
+      if (cue.kind === 'reference') {
+        const start = cue.from === undefined ? places[cue.name] : targetPoint(cue.from);
+        const end = targetPoint(cue.to);
+        const startY = cue.from === undefined ? start.y + 21 : start.y - 34;
+        path = `M ${start.x} ${startY} Q ${(start.x + end.x) / 2} ${stage.clientWidth <= 480 ? 103 : 111} ${end.x} ${end.y - 34}`;
+      } else {
+        const start = targetPoint(cue.from, cue.from === null && cue.node === 1 ? 'left' : 'right');
+        const end = targetPoint(cue.to, cue.to === null && cue.node === 1 ? 'left' : 'right');
+        const below = places[1].y + (stage.clientWidth <= 480 ? 43 : 47);
+        path = `M ${start.x} ${start.y + 33} Q ${(start.x + end.x) / 2} ${below + 18} ${end.x} ${end.y + 33}`;
+      }
+      paths.push(`<path class="motion-cue" d="${path}" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#cue-arrow)"/>`);
+    }
     if (drag?.moved) {
       const a = places[drag.source];
       const y = drag.source.startsWith('link') ? a.y - 12 : a.y + 16;
@@ -231,6 +284,7 @@
     arrows.innerHTML = `<defs>
       <marker id="node-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker>
       <marker id="var-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker>
+      <marker id="cue-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#888"/></marker>
     </defs>${paths.join('')}`;
   }
 
@@ -279,16 +333,20 @@
   }
 
   function showStep(index) {
+    const before = manualMessage ? null : clone(state);
     step = Math.max(0, Math.min(frames.length - 1, index));
     state = clone(frames[step].state);
     selected = null;
     manualMessage = '';
+    if (before) beginMotion(before, state);
+    else cancelMotion();
     render();
   }
   previous.addEventListener('click', () => showStep(step - 1));
   next.addEventListener('click', () => showStep(step + 1));
 
   function apply(source, value) {
+    cancelMotion();
     if (source.startsWith('link')) state.links[Number(source.slice(4))] = value;
     else state[source] = value;
     const label = source === 'newHead' ? 'new_head' : source.startsWith('link') ? `${source.slice(4)}.next` : 'head';
@@ -312,12 +370,15 @@
   for (const button of sources) {
     button.addEventListener('click', () => {
       if (ignoreClick) { ignoreClick = false; return; }
+      cancelMotion();
       selected = selected === button.dataset.source ? null : button.dataset.source;
       manualMessage = selected ? `已选择 ${button.textContent}。再点一个节点或 None；也可以拖动方框。` : '';
       render();
     });
     button.addEventListener('pointerdown', event => {
       if (event.pointerType === 'mouse' && event.button !== 0) return;
+      cancelMotion();
+      draw();
       drag = {source: button.dataset.source, button, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
       button.setPointerCapture(event.pointerId);
     });
@@ -361,7 +422,8 @@
   root.addEventListener('keydown', event => {
     if (event.key === 'Escape' && selected) { selected = null; manualMessage = ''; render(); }
   });
-  new ResizeObserver(layout).observe(stage);
+  new ResizeObserver(() => { cancelMotion(); layout(); }).observe(stage);
+  reducedMotion.addEventListener('change', () => { cancelMotion(); draw(); });
   render();
 })();
 </script>

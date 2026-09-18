@@ -31,6 +31,7 @@
     .round { margin-left: auto; color: var(--quiet); }
     .stage { position: relative; width: 100%; height: 390px; border-bottom: 1px solid var(--rule); touch-action: none; }
     .lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .motion { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
     .stage button { position: absolute; z-index: 1; transform: translate(-50%, -50%); user-select: none; touch-action: none; }
     .pointer { min-width: 76px; min-height: 30px; padding: 3px 7px; border: 1.5px solid #595959; border-radius: 3px; background: var(--paper); font: 13px monospace; cursor: grab; }
     .pointer:active { cursor: grabbing; }
@@ -91,6 +92,7 @@
 
   <div class="stage" data-stage aria-label="A、B 两条链表的节点和可移动指针">
     <svg class="lines" data-lines aria-hidden="true"></svg>
+    <svg class="motion" data-motion aria-hidden="true"></svg>
     <button type="button" class="pointer a" data-source="a">ptr_A</button>
     <button type="button" class="pointer b" data-source="b">ptr_B</button>
     <button type="button" class="none" data-target="null" aria-label="None，链表结束">None</button>
@@ -102,6 +104,7 @@
     <span>圆圈间黑色实线：节点保存的 <code>.next</code></span>
     <span>方框灰色细箭头：变量当前指向</span>
     <span>虚线方框／箭头：<code>ptr_B</code></span>
+    <span>短暂的灰色虚线和小点：变量移动轨迹，不是 <code>.next</code></span>
     <span>圆圈旁小字：对象身份（S = 共享）</span>
   </div>
   <p class="hint">点 <code>ptr_A</code> 或 <code>ptr_B</code>，再点节点／None，可自由练习；也可拖动指针。键盘使用 Tab 和 Enter。自由练习不推进演示。</p>
@@ -113,6 +116,7 @@
   const root = document.getElementById('intersection-lab');
   const stage = root.querySelector('[data-stage]');
   const lines = root.querySelector('[data-lines]');
+  const motion = root.querySelector('[data-motion]');
   const count = root.querySelector('[data-count]');
   const roundLabel = root.querySelector('[data-round]');
   const positions = root.querySelector('[data-positions]');
@@ -129,6 +133,65 @@
   const copy = state => ({a: state.a, b: state.b});
   let config, frames, state, step = 0, selected = null, manualMessage = '', drag = null, ignoreClick = false, places = {};
   let targetButtons = [];
+  let motionFrame = null, motionToken = 0;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function cancelMotion() {
+    motionToken++;
+    if (motionFrame !== null) cancelAnimationFrame(motionFrame);
+    motionFrame = null;
+    motion.replaceChildren();
+  }
+
+  function motionPath(source, fromId, toId) {
+    const from = places[fromId === null ? 'null' : fromId];
+    const to = places[toId === null ? 'null' : toId];
+    if (fromId === null) {
+      // Go around the stage edge: switching heads does not create a stored .next link.
+      const outerX = stage.clientWidth - 5;
+      const outerY = source === 'a' ? stage.clientHeight - 7 : 7;
+      const approachY = to.y + (source === 'a' ? 29 : -29);
+      return `M ${from.x} ${from.y} L ${outerX} ${from.y} L ${outerX} ${outerY} L ${to.x} ${outerY} L ${to.x} ${approachY} L ${to.x} ${to.y}`;
+    }
+    const bend = source === 'a' ? -30 : 30;
+    const middleX = (from.x + to.x) / 2;
+    return `M ${from.x} ${from.y} C ${middleX} ${from.y + bend}, ${middleX} ${to.y + bend}, ${to.x} ${to.y}`;
+  }
+
+  function startMotion(source, fromId, toId) {
+    cancelMotion();
+    if (!source || fromId === toId || reducedMotion.matches || !places.a1) return;
+    const namespace = 'http://www.w3.org/2000/svg';
+    const path = document.createElementNS(namespace, 'path');
+    path.setAttribute('d', motionPath(source, fromId, toId));
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', '#777');
+    path.setAttribute('stroke-width', '1.5');
+    path.setAttribute('stroke-dasharray', '5 5');
+    const dot = document.createElementNS(namespace, 'circle');
+    dot.setAttribute('r', '3.5');
+    dot.setAttribute('fill', '#555');
+    motion.append(path, dot);
+    const length = path.getTotalLength();
+    const token = motionToken;
+    const started = performance.now();
+    const tick = now => {
+      if (token !== motionToken) return;
+      const progress = Math.min(1, (now - started) / 320);
+      const eased = progress * progress * (3 - 2 * progress);
+      const point = path.getPointAtLength(length * eased);
+      dot.setAttribute('cx', point.x);
+      dot.setAttribute('cy', point.y);
+      motion.style.opacity = progress > .75 ? String((1 - progress) / .25) : '1';
+      if (progress < 1) motionFrame = requestAnimationFrame(tick);
+      else {
+        motion.style.opacity = '1';
+        cancelMotion();
+      }
+    };
+    motion.style.opacity = '1';
+    motionFrame = requestAnimationFrame(tick);
+  }
 
   function makeConfig(mode) {
     const shared = mode === 'shared';
@@ -188,6 +251,7 @@
   }
 
   function layout() {
+    cancelMotion();
     const width = stage.clientWidth;
     const height = stage.clientHeight;
     const xs = [.085, .225, .365, .505, .645, .785];
@@ -202,6 +266,7 @@
       button.style.top = `${places[key].y}px`;
     }
     lines.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    motion.setAttribute('viewBox', `0 0 ${width} ${height}`);
     draw();
   }
 
@@ -289,25 +354,32 @@
     layout();
   }
 
-  function showStep(index) {
-    step = Math.max(0, Math.min(frames.length - 1, index));
+  function showStep(index, animate = true) {
+    const targetStep = Math.max(0, Math.min(frames.length - 1, index));
+    const source = manualMessage ? null : targetStep > step ? frames[targetStep].changed : targetStep < step ? frames[step].changed : null;
+    const fromId = source && state ? state[source] : null;
+    step = targetStep;
     state = copy(frames[step].state);
     selected = null;
     manualMessage = '';
     render();
+    if (animate && source) startMotion(source, fromId, state[source]);
   }
   function reset() {
+    cancelMotion();
     config = makeConfig(choice.value);
     makeNodes();
     frames = buildFrames();
-    showStep(0);
+    showStep(0, false);
   }
 
-  function apply(source, id) {
+  function apply(source, id, animate = true) {
+    const fromId = state[source];
     state[source] = id;
     selected = null;
     manualMessage = `ptr_${source.toUpperCase()} 现在指向${description(id)}。只移动变量的引用，节点间的 .next 未变。${state.a === state.b ? (id === null ? '两个变量都是 None。' : '两个变量指向同一个对象。') : '两个变量指向不同对象，即使节点值相同也不能停止。'}`;
     render();
+    if (animate) startMotion(source, fromId, id);
   }
 
   function nearestTarget(clientX, clientY) {
@@ -336,6 +408,7 @@
     });
     button.addEventListener('pointerdown', event => {
       if (event.pointerType === 'mouse' && event.button !== 0) return;
+      cancelMotion();
       drag = {source: button.dataset.source, button, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
       button.setPointerCapture(event.pointerId);
     });
@@ -359,7 +432,7 @@
       drag = null;
       if (moved) {
         const target = nearestTarget(event.clientX, event.clientY);
-        if (target !== null) apply(source, target === 'null' ? null : target);
+        if (target !== null) apply(source, target === 'null' ? null : target, false);
         else render();
         ignoreClick = true;
         setTimeout(() => { ignoreClick = false; }, 0);
@@ -371,6 +444,7 @@
     if (event.key === 'Escape' && selected) { selected = null; manualMessage = ''; render(); }
   });
   new ResizeObserver(layout).observe(stage);
+  reducedMotion.addEventListener('change', cancelMotion);
   reset();
 })();
 </script>

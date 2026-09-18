@@ -31,6 +31,7 @@
     .gap { margin-left: auto; color: var(--quiet); }
     .stage { position: relative; width: 100%; height: 320px; border-bottom: 1px solid var(--rule); touch-action: none; }
     .lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+    .motion { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
     .stage button { position: absolute; z-index: 1; transform: translate(-50%, -50%); user-select: none; touch-action: none; }
     .source { min-width: 83px; min-height: 30px; padding: 3px 6px; border: 1.5px solid #595959; border-radius: 3px; background: var(--paper); font: 13px monospace; cursor: grab; }
     .source:active { cursor: grabbing; }
@@ -91,6 +92,7 @@
 
   <div class="stage" data-stage aria-label="固定位置的 dummy 节点、五个链表节点和两个可移动指针">
     <svg class="lines" data-lines aria-hidden="true"></svg>
+    <svg class="motion" data-motion aria-hidden="true"></svg>
     <button type="button" class="source" data-source="trailer">trailer</button>
     <button type="button" class="source" data-source="leader">leader</button>
     <button type="button" class="node dummy" data-target="D" aria-label="dummy 节点 D">D</button>
@@ -107,6 +109,7 @@
   <div class="legend">
     <span>圆圈间实线：节点保存的 .next</span>
     <span>方框细箭头：变量指向</span>
+    <span>短暂虚线＋小点：变化轨迹；上方是变量移动，下方是 .next 改线</span>
     <span>下方虚线方框：trailer 所在节点的 .next</span>
     <span>括号：当前两个指针相隔的边数</span>
   </div>
@@ -119,6 +122,7 @@
   const root = document.getElementById('remove-lab');
   const stage = root.querySelector('[data-stage]');
   const lines = root.querySelector('[data-lines]');
+  const motion = root.querySelector('[data-motion]');
   const operation = root.querySelector('[data-operation]');
   const count = root.querySelector('[data-count]');
   const gapLabel = root.querySelector('[data-gap]');
@@ -140,6 +144,55 @@
   let ignoreClick = false;
   let manualMessage = '';
   let places = {};
+  let cueFrame = null;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  reducedMotion.addEventListener('change', clearCue);
+
+  function clearCue() {
+    if (cueFrame !== null) cancelAnimationFrame(cueFrame);
+    cueFrame = null;
+    motion.replaceChildren();
+  }
+
+  function showCue(kind, from, to) {
+    clearCue();
+    if (reducedMotion.matches || from === to || !places[from ?? 'null'] || !places[to ?? 'null']) return;
+    const a = places[from ?? 'null'];
+    const b = places[to ?? 'null'];
+    const radius = stage.clientWidth <= 480 ? 19 : 22;
+    const above = kind !== 'link';
+    const edge = above ? -radius - 7 : radius + 7;
+    const y = a.y + edge;
+    const endY = b.y + edge;
+    const bend = above ? -35 : 68;
+    // A switch from None routes above the whole chain: it is a variable move, not a node link.
+    const controlY = (from === null || to === null) && above ? Math.min(y, endY) - 56 : (y + endY) / 2 + bend;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M ${a.x} ${y} Q ${(a.x + b.x) / 2} ${controlY} ${b.x} ${endY}`);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', above ? '#777' : '#444');
+    path.setAttribute('stroke-width', '1.6');
+    path.setAttribute('stroke-dasharray', '5 5');
+    path.setAttribute('stroke-linecap', 'round');
+    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    marker.setAttribute('r', '3');
+    marker.setAttribute('fill', above ? '#777' : '#444');
+    motion.append(path, marker);
+    const length = path.getTotalLength();
+    let start;
+    function tick(now) {
+      if (start === undefined) start = now;
+      const progress = Math.min(1, (now - start) / 380);
+      const point = path.getPointAtLength(length * (1 - Math.pow(1 - progress, 2)));
+      marker.setAttribute('cx', point.x);
+      marker.setAttribute('cy', point.y);
+      motion.style.opacity = String(Math.min(1, progress * 7, (1 - progress) * 5));
+      if (progress < 1) cueFrame = requestAnimationFrame(tick);
+      else clearCue();
+    }
+    motion.style.opacity = '0';
+    cueFrame = requestAnimationFrame(tick);
+  }
 
   function build(k) {
     const work = {leader: 'D', trailer: 'D', links: {...initialLinks}, removed: null, phase: 'advance'};
@@ -216,6 +269,7 @@
       button.style.top = `${places[key].y}px`;
     }
     lines.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    motion.setAttribute('viewBox', `0 0 ${width} ${height}`);
     draw();
   }
 
@@ -246,16 +300,6 @@
       const detached = node === state.removed && !reachableFromDummy(node);
       paths.push(`<path d="${linkPath(node, state.links[node])}" fill="none" stroke="${detached ? '#999' : '#333'}" stroke-width="${changed ? 3 : detached ? 1.5 : 2}" ${detached ? 'stroke-dasharray="4 4"' : ''} marker-end="url(#${detached ? 'old-arrow' : 'node-arrow'})"/>`);
     }
-    if (!manualMessage && step > 0 && ['leader', 'trailer'].includes(frames[step].changed)) {
-      const key = frames[step].changed;
-      const oldTarget = frames[step - 1].state[key];
-      const newTarget = state[key];
-      if (oldTarget !== newTarget && oldTarget !== null && newTarget !== null) {
-        const a = places[oldTarget], b = places[newTarget];
-        const y = a.y - (stage.clientWidth <= 480 ? 25 : 30);
-        paths.push(`<path d="M ${a.x} ${y} Q ${(a.x + b.x) / 2} ${y - 37} ${b.x} ${y}" fill="none" stroke="#999" stroke-width="1.4" stroke-dasharray="5 5" marker-end="url(#move-arrow)"/>`);
-      }
-    }
     for (const variable of ['trailer', 'leader']) {
       if (drag?.moved && drag.source === variable) continue;
       const a = places[variable], b = places[state[variable] === null ? 'null' : state[variable]];
@@ -278,7 +322,6 @@
       <marker id="node-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker>
       <marker id="old-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#999"/></marker>
       <marker id="var-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker>
-      <marker id="move-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#999"/></marker>
     </defs>${paths.join('')}`;
   }
 
@@ -312,22 +355,34 @@
     layout();
   }
 
-  function showStep(index) {
+  function showStep(index, animate = true) {
+    clearCue();
+    const before = state && !manualMessage ? clone(state) : null;
     step = Math.max(0, Math.min(frames.length - 1, index));
     state = clone(frames[step].state);
     selected = null;
     manualMessage = '';
     render();
+    if (animate && before) {
+      const changedLink = order.find(node => before.links[node] !== state.links[node]);
+      if (changedLink) showCue('link', before.links[changedLink], state.links[changedLink]);
+      else for (const key of ['leader', 'trailer']) {
+        if (before[key] !== state[key]) { showCue(key, before[key], state[key]); break; }
+      }
+    }
   }
   function reset() {
+    clearCue();
     frames = build(Number(choice.value));
-    showStep(0);
+    showStep(0, false);
   }
   previous.addEventListener('click', () => showStep(step - 1));
   next.addEventListener('click', () => showStep(step + 1));
   choice.addEventListener('change', reset);
 
   function apply(source, value) {
+    clearCue();
+    const before = source === 'link' ? state.links[state.trailer] : state[source];
     if (source === 'link') {
       if (state.trailer === null) return;
       state.links[state.trailer] = value;
@@ -338,6 +393,7 @@
     }
     selected = null;
     render();
+    showCue(source, before, value);
   }
   function nearestTarget(clientX, clientY) {
     const rect = stage.getBoundingClientRect();
@@ -355,12 +411,14 @@
   for (const source of sources) {
     source.addEventListener('click', () => {
       if (ignoreClick) { ignoreClick = false; return; }
+      clearCue();
       selected = selected === source.dataset.source ? null : source.dataset.source;
       manualMessage = selected ? `已选择 ${source.textContent}；再点一个节点或 None，也可以直接拖动方框。` : '';
       render();
     });
     source.addEventListener('pointerdown', event => {
       if (event.pointerType === 'mouse' && event.button !== 0) return;
+      clearCue();
       drag = {source: source.dataset.source, button: source, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
       source.setPointerCapture(event.pointerId);
     });
@@ -399,7 +457,11 @@
   root.addEventListener('keydown', event => {
     if (event.key === 'Escape' && selected) { selected = null; manualMessage = ''; render(); }
   });
-  new ResizeObserver(layout).observe(stage);
+  let observedSize = '';
+  new ResizeObserver(() => {
+    const size = `${stage.clientWidth}x${stage.clientHeight}`;
+    if (size !== observedSize) { observedSize = size; clearCue(); layout(); }
+  }).observe(stage);
   reset();
 })();
 </script>

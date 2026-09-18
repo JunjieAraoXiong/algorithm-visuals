@@ -34,6 +34,16 @@
     #reverse-list-lab .lab-node { width: 54px; height: 54px; border-radius: 50%; border: 2px solid #383838; background: #fffdf8; font-family: Arial, Helvetica, sans-serif !important; font-size: 22px; font-weight: 500; cursor: pointer !important; }
     #reverse-list-lab .lab-null { min-width: 44px; min-height: 38px; padding: 3px; border: 0; background: #fffdf8; font-family: Arial, Helvetica, sans-serif !important; font-size: 18px; font-weight: 500; cursor: pointer !important; }
     #reverse-list-lab .drop-ready { outline: 2px dashed #777; outline-offset: 3px; }
+    #reverse-list-lab .motion-cue { animation: rl-motion-cue 380ms ease-out both; }
+    @keyframes rl-motion-cue {
+      0% { opacity: 0; stroke-dashoffset: 18; }
+      20% { opacity: .9; }
+      75% { opacity: .7; }
+      100% { opacity: 0; stroke-dashoffset: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #reverse-list-lab .motion-cue { animation: none; display: none; }
+    }
     #reverse-list-lab .lab-operation { min-height: 40px; margin: 12px 16px 0; padding: 8px 10px; border: 1px dashed #999; font-size: 14px; }
     #reverse-list-lab .lab-operation code { color: #272727; font-weight: 500; font-size: 13px; }
     #reverse-list-lab .lab-legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 10px 16px 0; color: #555; }
@@ -76,7 +86,7 @@
   <div class="lab-legend text-small">
     <span>方框竖箭头：变量指向</span>
     <span>圆圈间实线：节点的 .next</span>
-    <span>弧形虚线：变量移动</span>
+    <span>短暂弧形虚线：本步指向变化</span>
   </div>
   <p class="lab-hint">拖动方框到圆圈或 null；下方虚线方框用于改动节点的 .next。</p>
 
@@ -121,6 +131,33 @@
       let drag = null;
       let ignoreClick = false;
       let places = {};
+      let motion = [];
+      let motionTimer = null;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      function cancelMotion() {
+        clearTimeout(motionTimer);
+        motionTimer = null;
+        motion = [];
+      }
+
+      function beginMotion(before, after) {
+        cancelMotion();
+        if (reducedMotion.matches) return;
+        for (const name of ['prev', 'curr', 'temp']) {
+          if (before[name] !== after[name] && after[name] !== undefined) {
+            motion.push({kind: 'reference', name, from: before[name], to: after[name]});
+          }
+        }
+        for (const node of [1, 2, 3]) {
+          if (before.link[node] !== after.link[node]) {
+            motion.push({kind: 'link', node, from: before.link[node], to: after.link[node]});
+          }
+        }
+        if (motion.length) {
+          motionTimer = setTimeout(() => { motion = []; motionTimer = null; draw(); }, 380);
+        }
+      }
 
       function layout() {
         const width = stage.clientWidth;
@@ -187,16 +224,6 @@
           <marker id="rl-move-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#999"/></marker>
         </defs>`;
         const arrows = [];
-        if (!manualMessage && step > 0) {
-          const code = frames[step].code;
-          const name = code === 'prev_node = curr_node' ? 'prev' : code === 'curr_node = next_node' ? 'curr' : null;
-          if (name && frames[step - 1].state[name] !== state[name]) {
-            const oldPoint = pointFor(frames[step - 1].state[name], name === 'prev' ? 'left' : 'right');
-            const newPoint = pointFor(state[name], name === 'prev' ? 'left' : 'right');
-            const middleX = (oldPoint.x + newPoint.x) / 2;
-            arrows.push(`<path d="M ${oldPoint.x} 154 Q ${middleX} 108 ${newPoint.x} 154" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="6 6" marker-end="url(#rl-move-arrow)"/>`);
-          }
-        }
         for (const node of [1, 2, 3]) {
           if (drag?.moved && drag.source === `link${node}`) continue;
           const target = state.link[node];
@@ -208,6 +235,22 @@
           if (target === undefined || (drag?.moved && drag.source === name)) continue;
           const start = places[name], end = pointFor(target, name === 'prev' ? 'left' : 'right');
           arrows.push(`<path d="M ${start.x} ${start.y + 16} L ${end.x} ${end.y - (target === null ? 23 : 31)}" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#rl-label-arrow)"/>`);
+        }
+        for (const cue of motion) {
+          let path;
+          if (cue.kind === 'reference') {
+            const side = cue.name === 'prev' ? 'left' : 'right';
+            const start = cue.from === undefined ? places[cue.name] : pointFor(cue.from, side);
+            const end = pointFor(cue.to, side);
+            const startY = cue.from === undefined ? start.y + 22 : start.y - 35;
+            path = `M ${start.x} ${startY} Q ${(start.x + end.x) / 2} 105 ${end.x} ${end.y - 35}`;
+          } else {
+            const side = cue.node === 3 ? 'right' : 'left';
+            const start = pointFor(cue.from, side);
+            const end = pointFor(cue.to, side);
+            path = `M ${start.x} ${start.y + 33} Q ${(start.x + end.x) / 2} 258 ${end.x} ${end.y + 33}`;
+          }
+          arrows.push(`<path class="motion-cue" d="${path}" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#rl-move-arrow)"/>`);
         }
         if (drag?.moved) {
           const x = drag.x, y = drag.y;
@@ -243,16 +286,20 @@
       }
 
       function showStep(index) {
+        const before = manualMessage ? null : copy(state);
         step = Math.max(0, Math.min(frames.length - 1, index));
         state = copy(frames[step].state);
         manualMessage = '';
         selectedSource = null;
+        if (before) beginMotion(before, state);
+        else cancelMotion();
         render();
       }
       previous.addEventListener('click', () => showStep(step - 1));
       next.addEventListener('click', () => showStep(step + 1));
 
       function apply(source, target) {
+        cancelMotion();
         if (source.startsWith('link')) state.link[Number(source.slice(4))] = target;
         else state[source] = target;
         const label = source.startsWith('link') ? `${source.slice(4)}.next` : source === 'temp' ? 'next_node' : `${source}_node`;
@@ -264,12 +311,15 @@
       for (const button of sourceButtons) {
         button.addEventListener('click', () => {
           if (ignoreClick) { ignoreClick = false; return; }
+          cancelMotion();
           selectedSource = button.dataset.source;
           manualMessage = `已选 ${button.textContent}；点一个节点或 None，也可以直接拖过去。`;
           render();
         });
         button.addEventListener('pointerdown', event => {
           if (event.button !== 0 && event.pointerType === 'mouse') return;
+          cancelMotion();
+          draw();
           drag = {source: button.dataset.source, button, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
           button.setPointerCapture(event.pointerId);
         });
@@ -327,7 +377,8 @@
         });
       }
 
-      new ResizeObserver(layout).observe(stage);
+      new ResizeObserver(() => { cancelMotion(); layout(); }).observe(stage);
+      reducedMotion.addEventListener('change', () => { cancelMotion(); draw(); });
       layout();
       render();
     })();
