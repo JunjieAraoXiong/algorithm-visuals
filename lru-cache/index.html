@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="逐步观察 LRU Cache 的 hashmap 与双向链表如何协作">
+  <title>LRU Cache · Algorithm Visuals</title>
+  <style>
+    :root {
+      --paper: #fffdf8;
+      --ink: #272727;
+      --line: #333;
+      --secondary: #555;
+      --soft: #777;
+      --border: #b7b7b1;
+      --wash: #f5f2e9;
+      --node-size: 68px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px 18px 50px; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
+    main { max-width: 880px; margin: auto; }
+    button, input, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: default; opacity: .42; }
+    :is(button, input, select):focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    code, pre, .mono, .step-count, .operation-title { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .eyebrow { margin: 0 0 8px; color: var(--secondary); font-size: 12px; letter-spacing: .04em; }
+    h1 { margin: 0; font-size: 29px; font-weight: 500; line-height: 1.15; }
+    .intro { max-width: 680px; margin: 9px 0 18px; color: var(--secondary); font-size: 14px; line-height: 1.5; }
+    .topline { display: flex; align-items: baseline; gap: 15px; flex-wrap: wrap; }
+    .capacity { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--secondary); }
+    .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .plain-button, .jump { min-height: 35px; border: 1px solid #858580; border-radius: 3px; background: transparent; padding: 6px 10px; font-size: 13px; }
+    .plain-button:hover:not(:disabled), .jump:hover { background: var(--wash); }
+    .step-count { min-width: 68px; text-align: center; font-size: 12px; }
+    .mode-label { margin-left: auto; color: var(--secondary); font-size: 12px; }
+    .jump-wrap { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--secondary); }
+    .jump { max-width: 250px; }
+
+    .visual { border: 1px solid var(--border); background: var(--paper); }
+    .diagram-label { display: flex; justify-content: space-between; gap: 10px; padding: 12px 16px 0; font-size: 12px; color: var(--secondary); }
+    .stage { position: relative; height: 320px; overflow: hidden; touch-action: pan-y; }
+    .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .sentinel, .node { position: absolute; z-index: 1; transform: translate(-50%, -50%); background: var(--paper); }
+    .sentinel { min-width: 60px; padding: 8px 4px; border: 1.5px solid var(--line); border-radius: 3px; text-align: center; font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .node { width: var(--node-size); height: var(--node-size); border: 1.8px solid var(--line); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1; padding: 4px; transition: left 470ms cubic-bezier(.2,.75,.2,1), top 470ms cubic-bezier(.2,.75,.2,1), opacity 200ms; }
+    .node:hover { background: var(--wash); }
+    .node-key { font-size: 20px; }
+    .node.is-long-key .node-key { font-size: 14px; }
+    .node-value { font-size: 11px; color: var(--secondary); }
+    .node-id { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); color: var(--secondary); font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
+    .node.is-focused, .node.is-inspected { outline: 2px solid var(--ink); outline-offset: 4px; }
+    .node.is-detached { border-style: dashed; }
+    .node.is-retired { opacity: .3; }
+    .stage.no-motion .node { transition: none; }
+    .parking-label { position: absolute; bottom: 8px; left: 50%; width: 100%; transform: translateX(-50%); text-align: center; color: var(--soft); font-size: 11px; }
+    .stage-rule { position: absolute; left: 16px; right: 16px; top: 190px; border-top: 1px dashed #d0d0c9; }
+    .list-legend { display: flex; flex-wrap: wrap; gap: 9px 18px; padding: 0 16px 12px; color: var(--secondary); font-size: 11px; }
+    .list-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .sample { width: 21px; height: 0; border-top: 2px solid var(--line); position: relative; }
+    .sample::after { content: '›'; position: absolute; right: -1px; top: -10px; font-size: 18px; }
+    .sample.muted { border-color: var(--soft); }
+    .sample.muted::after { content: ''; }
+    .map-wrap { border-top: 1px solid var(--border); padding: 12px 16px 14px; }
+    .map-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .map-head h2 { margin: 0; font: 15px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .map-head p { margin: 0; color: var(--secondary); font-size: 12px; }
+    .map-rows { display: flex; flex-wrap: wrap; gap: 7px; min-height: 33px; align-items: flex-start; }
+    .map-entry { min-height: 30px; padding: 5px 9px; border: 1px solid #aaa; border-radius: 3px; background: transparent; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .map-entry:hover { background: var(--wash); }
+    .map-entry.is-focused, .map-entry.is-inspected { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .empty-map { color: var(--soft); font-size: 13px; padding-top: 5px; }
+    .inspection { min-height: 18px; margin: 8px 0 0; color: var(--secondary); font-size: 12px; }
+
+    .callout { margin: 12px 0 0; padding: 11px 13px; border: 1px dashed #999; min-height: 65px; font-size: 14px; line-height: 1.5; }
+    .callout .operation-title { display: block; margin-bottom: 2px; font-size: 13px; color: var(--ink); }
+    .callout .explanation { color: var(--secondary); }
+    .result { display: inline-block; margin-left: 7px; padding: 1px 5px; border: 1px solid var(--border); color: var(--ink); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .practice { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 13px; }
+    .practice h2, .reasoning h2 { margin: 0 0 7px; font-size: 16px; font-weight: 500; }
+    .practice p, .reasoning p { margin: 5px 0; color: var(--secondary); font-size: 13px; line-height: 1.5; }
+    .practice-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin-top: 9px; }
+    .practice-controls label { display: flex; flex-direction: column; gap: 4px; color: var(--secondary); font-size: 11px; }
+    .practice-controls input { width: 78px; height: 35px; padding: 5px 7px; border: 1px solid #858580; border-radius: 3px; background: var(--paper); font-size: 13px; }
+    .practice-status { min-height: 19px; margin-top: 7px !important; }
+    .reasoning { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .reasoning ol { margin: 7px 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
+    .reasoning li { margin: 5px 0; }
+    .reasoning pre { overflow: auto; margin: 9px 0; padding: 11px 13px; border-left: 2px solid var(--border); background: #f8f6f0; font-size: 12px; line-height: 1.45; }
+    .source { margin: 16px 0 0; font-size: 12px; }
+    .source a { color: var(--ink); text-underline-offset: 2px; }
+    @media (max-width: 480px) {
+      :root { --node-size: 52px; }
+      body { padding: 12px 8px 35px; }
+      h1 { font-size: 24px; }
+      .toolbar { gap: 6px; }
+      .mode-label { margin-left: 0; flex-basis: 100%; }
+      .jump-wrap { width: 100%; }
+      .jump { flex: 1; max-width: none; min-width: 0; }
+      .diagram-label { padding: 10px 8px 0; font-size: 10px; }
+      .stage { height: 300px; }
+      .stage-rule { left: 8px; right: 8px; top: 181px; }
+      .sentinel { min-width: 42px; padding: 6px 2px; font-size: 10px; }
+      .node-key { font-size: 17px; }
+      .node.is-long-key .node-key { font-size: 11px; }
+      .node-value { font-size: 9px; }
+      .node-id { font-size: 10px; top: calc(100% + 4px); }
+      .parking-label { bottom: 5px; font-size: 10px; }
+      .list-legend, .map-wrap { padding-left: 9px; padding-right: 9px; }
+      .callout { font-size: 13px; }
+    }
+    @media (max-width: 340px) { :root { --node-size: 44px; } }
+    @media (prefers-reduced-motion: reduce) { .node { transition: none; } }
+  </style>
+</head>
+<body>
+<main id="lru-lab">
+  <p class="eyebrow">数据结构可视化</p>
+  <div class="topline"><h1>LRU Cache</h1><span class="capacity">capacity = 3</span></div>
+  <p class="intro">缓存满时，移走最久没有使用的节点。点击「下一步」，看 <code>hashmap</code> 如何找到节点，以及双向链表怎样把它移到最近使用的一端。</p>
+
+  <div class="toolbar" aria-label="演示控制">
+    <button class="plain-button" type="button" data-action="previous">← 上一步</button>
+    <span class="step-count" data-count aria-live="polite"></span>
+    <button class="plain-button" type="button" data-action="next">下一步 →</button>
+    <span class="mode-label" data-mode>示例演示</span>
+    <label class="jump-wrap">跳到操作 <select class="jump" data-jump aria-label="跳到操作"></select></label>
+  </div>
+
+  <section class="visual" aria-label="LRU 缓存状态图">
+    <div class="diagram-label"><span>LRU · 最久未使用</span><span>最近使用 · MRU</span></div>
+    <div class="stage" data-stage role="group" aria-label="双向链表，从左侧 head 到右侧 tail">
+      <svg data-links aria-hidden="true"></svg>
+      <div class="stage-rule" aria-hidden="true"></div>
+      <div class="sentinel" data-sentinel="head">head</div>
+      <div class="sentinel" data-sentinel="tail">tail</div>
+      <div data-nodes></div>
+      <span class="parking-label">虚线节点：主链已绕过它；自身旧引用未画</span>
+    </div>
+    <div class="list-legend" aria-label="图例">
+      <span><i class="sample" aria-hidden="true"></i>上方箭头 <code>.next</code></span>
+      <span><i class="sample" aria-hidden="true"></i>下方反向箭头 <code>.prev</code></span>
+      <span>圆圈内：上 <code>key</code>、下 <code>value</code></span>
+      <span><i class="sample muted" aria-hidden="true"></i>节点下方 <code>#</code> 是对象身份</span>
+    </div>
+    <div class="map-wrap">
+      <div class="map-head"><h2>hashmap</h2><p>键 → 链表里的同一个节点（点击可对照）</p></div>
+      <div class="map-rows" data-map></div>
+      <p class="inspection" data-inspection aria-live="polite"></p>
+    </div>
+  </section>
+
+  <div class="callout" aria-live="polite" aria-atomic="true">
+    <span class="operation-title" data-code></span>
+    <span class="explanation" data-explanation></span><span data-result></span>
+  </div>
+
+  <section class="practice" aria-label="自由练习">
+    <h2>自己试一次</h2>
+    <p>「开始自由练习」会开一个容量 3 的空缓存；每次操作也能逐步查看。可用「重播示例」回到上面的固定演示。</p>
+    <div class="practice-controls">
+      <button class="plain-button" type="button" data-action="practice">开始自由练习</button>
+      <label>key (0–10000) <input data-key type="number" min="0" max="10000" step="1" value="2" inputmode="numeric" aria-label="缓存键 key，0 到 10000"></label>
+      <label>value (0–100000) <input data-value type="number" min="0" max="100000" step="1" value="250" inputmode="numeric" aria-label="缓存值 value，0 到 100000"></label>
+      <button class="plain-button" type="button" data-action="get">加入 get(key)</button>
+      <button class="plain-button" type="button" data-action="put">加入 put(key, value)</button>
+      <button class="plain-button" type="button" data-action="reset">重播示例</button>
+    </div>
+    <p class="practice-status" data-practice-status aria-live="polite">当前是示例演示；自由练习从空缓存开始。</p>
+  </section>
+
+  <section class="reasoning" aria-label="解题思路">
+    <h2>为什么这两个结构要一起用？</h2>
+    <p><code>hashmap[key]</code> 直接给出节点。链表从 <code>head</code>（最久未使用）排到 <code>tail</code>（最近使用）；<code>head</code> 和 <code>tail</code> 是不存业务键值的哨兵。</p>
+    <ol>
+      <li><code>get(key)</code>：查表。没找到就返回 <code>-1</code>，链表不变；找到了就把节点移到 <code>tail</code> 前，再返回它的值。</li>
+      <li><code>put(key, value)</code>：若键已存在，先移除旧节点，再创建新节点放到尾部并更新 <code>hashmap[key]</code>。若是新键且缓存已满，先移除 <code>head.next</code>，同时删掉它的表项。</li>
+      <li><code>remove_node</code> 只改左右邻居的 <code>.next</code> / <code>.prev</code>。摘下的节点暂时还保留旧的 <code>prev</code> / <code>next</code>，但从 <code>head</code> 已走不到它。若同一节点重新插入，<code>add_to_tail</code> 会覆盖这两个字段；若被淘汰，删掉表项后它就不再属于缓存。</li>
+    </ol>
+    <pre><code>def remove_node(self, node):
+    node.prev.next = node.next
+    node.next.prev = node.prev
+
+def add_to_tail(self, node):
+    prev_node = self.tail.prev
+    node.prev = prev_node
+    node.next = self.tail
+    prev_node.next = node
+    self.tail.prev = node</code></pre>
+    <p>查找和局部改线都是 <code>O(1)</code>，所以 <code>get</code>、<code>put</code> 平均 <code>O(1)</code>；最多保存 <code>capacity</code> 个有效节点，空间 <code>O(capacity)</code>。<code>get</code> 未命中不会改变最近使用顺序。</p>
+  </section>
+  <p class="source">相关讲解：<a href="https://www.youtube.com/watch?v=7ABFKPK2hD4" target="_blank" rel="noopener noreferrer">NeetCode · LRU Cache 视频</a></p>
+</main>
+
+<script>
+(() => {
+  const root = document.getElementById('lru-lab');
+  const stage = root.querySelector('[data-stage]');
+  const svg = root.querySelector('[data-links]');
+  const nodeLayer = root.querySelector('[data-nodes]');
+  const mapRows = root.querySelector('[data-map]');
+  const inspection = root.querySelector('[data-inspection]');
+  const code = root.querySelector('[data-code]');
+  const explanation = root.querySelector('[data-explanation]');
+  const result = root.querySelector('[data-result]');
+  const count = root.querySelector('[data-count]');
+  const modeLabel = root.querySelector('[data-mode]');
+  const jump = root.querySelector('[data-jump]');
+  const practiceStatus = root.querySelector('[data-practice-status]');
+  const keyInput = root.querySelector('[data-key]');
+  const valueInput = root.querySelector('[data-value]');
+  const previous = root.querySelector('[data-action="previous"]');
+  const next = root.querySelector('[data-action="next"]');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const nodeElements = new Map();
+  const CAPACITY = 3;
+
+  const emptyState = () => ({ order: [], detached: [], nodes: {}, hashmap: {}, nextId: 1, lookup: null, result: null });
+  const clone = s => ({ order: [...s.order], detached: [...s.detached], nodes: Object.fromEntries(Object.entries(s.nodes).map(([id, n]) => [id, {...n}])), hashmap: {...s.hashmap}, nextId: s.nextId, lookup: s.lookup, result: s.result });
+  const initialFrame = () => ({ state: emptyState(), code: '初始化：head ⇄ tail', explanation: '缓存为空。head 和 tail 是固定的哨兵；新节点会插入它们之间。', opTitle: '初始状态', opIndex: -1, focusId: null, focusKey: null, result: null });
+
+  function makeOperation(base, type, key, value, opIndex) {
+    const state = clone(base);
+    const frames = [];
+    const title = type === 'get' ? `get(${key})` : `put(${key}, ${value})`;
+    const emit = (line, text, options = {}) => frames.push({
+      state: clone(state), code: line, explanation: text, opTitle: title, opIndex,
+      focusId: options.focusId ?? null, focusKey: options.focusKey ?? null,
+      result: options.result ?? null
+    });
+    state.lookup = null;
+    state.result = null;
+    emit(title, `准备执行 ${title}。链表左边是 LRU，右边是 MRU。`);
+    state.lookup = key;
+    const found = state.hashmap[key];
+    emit(`node = hashmap.get(${key})`, found === undefined
+      ? `表里没有 key ${key}，这是一次未命中。`
+      : `表项 ${key} → #${found}，直接找到链表中的节点 #${found}。`,
+      {focusId: found, focusKey: key});
+
+    if (type === 'get') {
+      if (found === undefined) {
+        state.result = -1;
+        emit('return -1', `没有这个键，返回 -1；hashmap 和链表顺序都不变。`, {focusKey: key, result: -1});
+      } else {
+        const foundValue = state.nodes[found].value;
+        state.order = state.order.filter(id => id !== found);
+        state.detached.push(found);
+        emit('remove_node(node)', `让 #${found} 两侧的邻居直接相连。#${found} 自己的旧 prev/next 暂未清空，但已不在主链上；hashmap[${key}] 仍指向它。`, {focusId: found, focusKey: key});
+        state.detached = state.detached.filter(id => id !== found);
+        state.order.push(found);
+        emit('add_to_tail(node)', `把同一个节点 #${found} 放到 tail 前，它现在是最近使用的节点。`, {focusId: found, focusKey: key});
+        state.result = foundValue;
+        emit(`return ${foundValue}`, `返回节点 #${found} 中的 value ${foundValue}。`, {focusId: found, focusKey: key, result: foundValue});
+      }
+      return frames;
+    }
+
+    if (found !== undefined) {
+      state.order = state.order.filter(id => id !== found);
+      state.detached.push(found);
+      emit(`remove_node(hashmap[${key}])`, `先从主链移走旧节点 #${found}；它自己的旧 prev/next 暂未清空。此时 hashmap[${key}] 还指着它，随后会创建新节点。`, {focusId: found, focusKey: key});
+    } else if (state.order.length === CAPACITY) {
+      const lru = state.order[0];
+      const oldKey = state.nodes[lru].key;
+      emit('lru = head.next', `容量已满。head.next 是最久未使用的节点 #${lru}（key ${oldKey}）。`, {focusId: lru, focusKey: oldKey});
+      state.order.shift();
+      state.detached.push(lru);
+      emit('remove_node(lru)', `主链绕过 LRU 节点 #${lru}；它自己的旧 prev/next 暂未清空，hashmap[${oldKey}] 目前仍引用它。`, {focusId: lru, focusKey: oldKey});
+      delete state.hashmap[oldKey];
+      state.detached = state.detached.filter(id => id !== lru);
+      delete state.nodes[lru];
+      emit(`del hashmap[${oldKey}]`, `再删除 key ${oldKey} 的表项。旧节点不再被缓存引用，可被回收。`, {focusKey: oldKey});
+    }
+
+    const id = state.nextId++;
+    state.nodes[id] = {key, value};
+    state.detached.push(id);
+    emit(`node = Node(${key}, ${value})`, `创建新对象 #${id}，先放在链表下方。${found === undefined ? '' : `旧节点 #${found} 仍由 hashmap 暂时引用。`}`, {focusId: id, focusKey: key});
+    state.detached = state.detached.filter(item => item !== id);
+    state.order.push(id);
+    emit('add_to_tail(node)', `把新节点 #${id} 插在 tail 前，成为 MRU。${found === undefined ? '表项还没有添加。' : '表项暂时仍指向旧节点。'}`, {focusId: id, focusKey: key});
+    state.hashmap[key] = id;
+    if (found !== undefined) {
+      state.detached = state.detached.filter(item => item !== found);
+      delete state.nodes[found];
+    }
+    emit(`hashmap[${key}] = node`, found === undefined
+      ? `建立 key ${key} → 节点 #${id} 的映射。`
+      : `把 key ${key} 的映射从旧节点 #${found} 改到新节点 #${id}；旧节点可以回收。`,
+      {focusId: id, focusKey: key});
+    return frames;
+  }
+
+  const scriptedOps = [
+    ['put', 1, 100], ['put', 2, 250], ['get', 2], ['put', 4, 300],
+    ['put', 3, 200], ['get', 4], ['get', 1]
+  ];
+  const scriptedFrames = [initialFrame()];
+  let built = clone(scriptedFrames[0].state);
+  scriptedOps.forEach(([type, key, value], opIndex) => {
+    const frames = makeOperation(built, type, key, value, opIndex);
+    scriptedFrames.push(...frames);
+    built = clone(frames.at(-1).state);
+  });
+
+  let mode = 'script';
+  let practiceFrames = [initialFrame()];
+  let practiceOpCount = 0;
+  let step = 0;
+  let inspectedId = null;
+  let raf = null;
+  const frames = () => mode === 'script' ? scriptedFrames : practiceFrames;
+  const current = () => frames()[step];
+
+  function refreshJump() {
+    jump.replaceChildren();
+    const all = frames();
+    const starts = all.map((f, index) => ({...f, index})).filter((f, index) => index === 0 || all[index - 1].opIndex !== f.opIndex);
+    for (const frame of starts) {
+      const option = document.createElement('option');
+      option.value = String(frame.index);
+      option.textContent = frame.opTitle;
+      jump.append(option);
+    }
+  }
+
+  function positionOf(id, state, width) {
+    const margin = width < 440 ? 26 : 57;
+    const mainY = width < 440 ? 111 : 115;
+    const parkingY = 235;
+    const index = state.order.indexOf(id);
+    if (index !== -1) {
+      const gap = (width - 2 * margin) / (state.order.length + 1);
+      return {x: margin + gap * (index + 1), y: mainY};
+    }
+    const parked = state.detached.indexOf(id);
+    const gap = Math.min(95, width * .27);
+    return {x: width / 2 + (parked - (state.detached.length - 1) / 2) * gap, y: parkingY};
+  }
+
+  function renderNodes(state, frame) {
+    const width = stage.clientWidth;
+    const margin = width < 440 ? 26 : 57;
+    const mainY = width < 440 ? 111 : 115;
+    for (const [name, x] of [['head', margin], ['tail', width - margin]]) {
+      const sentinel = root.querySelector(`[data-sentinel="${name}"]`);
+      sentinel.style.left = `${x}px`;
+      sentinel.style.top = `${mainY}px`;
+    }
+    const ids = [...state.order, ...state.detached];
+    for (const [id, element] of nodeElements) {
+      if (!ids.includes(Number(id))) { element.remove(); nodeElements.delete(id); }
+    }
+    for (const id of ids) {
+      const n = state.nodes[id];
+      if (!n) continue;
+      let button = nodeElements.get(String(id));
+      if (!button) {
+        button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'node';
+        button.dataset.nodeId = String(id);
+        button.innerHTML = '<span class="node-key"></span><span class="node-value"></span><span class="node-id"></span>';
+        button.addEventListener('click', () => inspectNode(Number(button.dataset.nodeId)));
+        nodeLayer.append(button);
+        nodeElements.set(String(id), button);
+      }
+      button.querySelector('.node-key').textContent = String(n.key);
+      button.querySelector('.node-value').textContent = String(n.value);
+      button.querySelector('.node-id').textContent = `#${id}`;
+      button.classList.toggle('is-long-key', String(n.key).length >= 4);
+      button.setAttribute('aria-label', `节点 #${id}，key ${n.key}，value ${n.value}${state.detached.includes(id) ? '，暂时脱离链表' : ''}`);
+      button.classList.toggle('is-detached', state.detached.includes(id));
+      button.classList.toggle('is-focused', frame.focusId === id);
+      button.classList.toggle('is-inspected', inspectedId === id);
+      const p = positionOf(id, state, width);
+      if (!button.dataset.positioned) {
+        button.style.left = `${p.x}px`;
+        button.style.top = `${p.y}px`;
+        button.dataset.positioned = 'yes';
+      } else {
+        button.style.left = `${p.x}px`;
+        button.style.top = `${p.y}px`;
+      }
+    }
+  }
+
+  function renderMap(state, frame) {
+    mapRows.replaceChildren();
+    const keys = Object.keys(state.hashmap).map(Number).sort((a, b) => a - b);
+    if (!keys.length) {
+      const empty = document.createElement('span');
+      empty.className = 'empty-map';
+      empty.textContent = '∅ 还没有表项';
+      mapRows.append(empty);
+    }
+    for (const key of keys) {
+      const id = state.hashmap[key];
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'map-entry';
+      button.textContent = `${key} → #${id}`;
+      button.setAttribute('aria-label', `hashmap 中 key ${key} 指向节点 #${id}，点击查看同一节点`);
+      button.classList.toggle('is-focused', frame.focusKey === key);
+      button.classList.toggle('is-inspected', inspectedId === id);
+      button.addEventListener('click', () => inspectNode(id));
+      mapRows.append(button);
+    }
+  }
+
+  function inspectNode(id) {
+    inspectedId = id;
+    const state = current().state;
+    const n = state.nodes[id];
+    if (!n) return;
+    const hasMap = state.hashmap[n.key] === id;
+    inspection.textContent = hasMap
+      ? `hashmap[${n.key}] 指向的正是节点 #${id}${state.detached.includes(id) ? '；它此刻暂时脱离链表' : ''}。`
+      : `节点 #${id} 目前在链表中；hashmap[${n.key}] 尚未指向它。`;
+    renderMap(state, current());
+    for (const [nodeId, button] of nodeElements) button.classList.toggle('is-inspected', Number(nodeId) === id);
+  }
+
+  function centerOf(element) {
+    const a = element.getBoundingClientRect();
+    const b = stage.getBoundingClientRect();
+    return {x: a.left - b.left + a.width / 2, y: a.top - b.top + a.height / 2, r: a.width / 2};
+  }
+
+  function drawLinks() {
+    const state = current().state;
+    const chain = [root.querySelector('[data-sentinel="head"]'),
+      ...state.order.map(id => nodeElements.get(String(id))).filter(Boolean),
+      root.querySelector('[data-sentinel="tail"]')];
+    const paths = [];
+    for (let i = 0; i < chain.length - 1; i++) {
+      const a = centerOf(chain[i]), b = centerOf(chain[i + 1]);
+      if (Math.abs(a.y - b.y) > 28) continue;
+      const left = a.x + a.r + 4, right = b.x - b.r - 4;
+      if (right - left < 7) continue;
+      const y1 = (a.y + b.y) / 2 - 8, y2 = (a.y + b.y) / 2 + 8;
+      paths.push(`<path d="M ${left} ${y1} L ${right} ${y1}" marker-end="url(#next-arrow)"/>`);
+      paths.push(`<path d="M ${right} ${y2} L ${left} ${y2}" marker-end="url(#prev-arrow)"/>`);
+    }
+    const width = stage.clientWidth, height = stage.clientHeight;
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.innerHTML = `<defs><marker id="next-arrow" viewBox="0 0 7 7" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#333"/></marker><marker id="prev-arrow" viewBox="0 0 7 7" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#555"/></marker></defs><g fill="none" stroke="#333" stroke-width="1.5">${paths.join('')}</g>`;
+  }
+
+  function keepLinksWithMotion() {
+    if (raf !== null) cancelAnimationFrame(raf);
+    if (reducedMotion.matches) { drawLinks(); return; }
+    const start = performance.now();
+    const tick = now => {
+      drawLinks();
+      if (now - start < 520) raf = requestAnimationFrame(tick);
+      else raf = null;
+    };
+    raf = requestAnimationFrame(tick);
+  }
+
+  function render() {
+    const all = frames(), frame = current(), state = frame.state;
+    previous.disabled = step === 0;
+    next.disabled = step === all.length - 1;
+    count.textContent = `${step} / ${all.length - 1}`;
+    modeLabel.textContent = mode === 'script' ? '示例演示' : '自由练习';
+    code.textContent = frame.code;
+    explanation.textContent = frame.explanation;
+    result.replaceChildren();
+    if (frame.result !== null) {
+      const badge = document.createElement('span');
+      badge.className = 'result';
+      badge.textContent = `返回 ${frame.result}`;
+      result.append(badge);
+    }
+    inspectedId = null;
+    inspection.textContent = '点一个 hashmap 表项或节点，可对照它们的对象身份。';
+    renderNodes(state, frame);
+    renderMap(state, frame);
+    const options = [...jump.options].map(option => Number(option.value));
+    jump.value = String(options.filter(index => index <= step).at(-1) ?? 0);
+    keepLinksWithMotion();
+  }
+
+  previous.addEventListener('click', () => { if (step > 0) { step--; render(); } });
+  next.addEventListener('click', () => { if (step < frames().length - 1) { step++; render(); } });
+  jump.addEventListener('change', () => { step = Number(jump.value); render(); });
+  root.querySelector('[data-action="reset"]').addEventListener('click', () => {
+    mode = 'script'; step = 0; refreshJump(); render();
+    practiceStatus.textContent = '已回到示例的初始状态。';
+  });
+  root.querySelector('[data-action="practice"]').addEventListener('click', () => {
+    mode = 'practice'; practiceFrames = [initialFrame()]; practiceOpCount = 0; step = 0;
+    refreshJump(); render();
+    practiceStatus.textContent = '自由练习已开始：容量 3，缓存为空。输入 key / value 后加入操作。';
+  });
+
+  function validInteger(input, name, minimum, maximum) {
+    const text = input.value.trim();
+    const number = Number(text);
+    if (!text || !Number.isSafeInteger(number) || number < minimum || number > maximum) {
+      practiceStatus.textContent = `${name} 请输入 ${minimum} 到 ${maximum} 的整数。`;
+      input.focus();
+      return null;
+    }
+    return number;
+  }
+  function addPractice(type) {
+    if (mode !== 'practice') {
+      practiceStatus.textContent = '请先点「开始自由练习」，建立独立的空缓存。';
+      return;
+    }
+    const key = validInteger(keyInput, 'key', 0, 10000);
+    if (key === null) return;
+    const value = type === 'put' ? validInteger(valueInput, 'value', 0, 100000) : null;
+    if (type === 'put' && value === null) return;
+    const base = practiceFrames.at(-1).state;
+    const newFrames = makeOperation(base, type, key, value, practiceOpCount++);
+    step = practiceFrames.length;
+    practiceFrames.push(...newFrames);
+    refreshJump(); render();
+    practiceStatus.textContent = `已加入 ${type === 'get' ? `get(${key})` : `put(${key}, ${value})`}；从第一小步开始，点「下一步」继续。`;
+  }
+  root.querySelector('[data-action="get"]').addEventListener('click', () => addPractice('get'));
+  root.querySelector('[data-action="put"]').addEventListener('click', () => addPractice('put'));
+  root.addEventListener('keydown', event => {
+    if (event.target.closest('input, select, button')) return;
+    if (event.key === 'ArrowRight') { next.click(); event.preventDefault(); }
+    if (event.key === 'ArrowLeft') { previous.click(); event.preventDefault(); }
+  });
+  new ResizeObserver(() => {
+    stage.classList.add('no-motion');
+    renderNodes(current().state, current());
+    drawLinks();
+    requestAnimationFrame(() => stage.classList.remove('no-motion'));
+  }).observe(stage);
+  reducedMotion.addEventListener('change', () => { if (raf !== null) cancelAnimationFrame(raf); raf = null; drawLinks(); });
+  refreshJump();
+  render();
+})();
+</script>
+</body>
+</html>
