@@ -23,6 +23,7 @@
     button { cursor: pointer; }
     button:disabled { cursor: default; opacity: .42; }
     :is(button, input, select):focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    .helper:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
     code, pre, .mono, .step-count, .operation-title { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .eyebrow { margin: 0 0 8px; color: var(--secondary); font-size: 12px; letter-spacing: .04em; }
     h1 { margin: 0; font-size: 29px; font-weight: 500; line-height: 1.15; }
@@ -87,6 +88,40 @@
     .reasoning ol { margin: 7px 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
     .reasoning li { margin: 5px 0; }
     .reasoning pre { overflow: auto; margin: 9px 0; padding: 11px 13px; border-left: 2px solid var(--border); background: #f8f6f0; font-size: 12px; line-height: 1.45; }
+    .helper { margin-top: 22px; border-top: 1px solid var(--border); padding-top: 17px; }
+    .helper-link { display: inline-block; margin-left: 5px; color: var(--ink); text-underline-offset: 2px; }
+    .helper h2 { margin: 0 0 6px; font-size: 18px; font-weight: 500; }
+    .helper > p { margin: 0 0 12px; color: var(--secondary); font-size: 13px; line-height: 1.5; }
+    .helper-modes, .helper-stepper { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+    .helper-modes { margin-bottom: 10px; }
+    .helper-modes button[aria-pressed="true"] { background: var(--wash); border-color: var(--ink); }
+    .helper-stepper { margin-bottom: 10px; }
+    .helper-visual { border: 1px solid var(--border); padding: 14px; }
+    .helper-visual-label { margin: 0 0 10px; color: var(--secondary); font-size: 12px; }
+    .helper-walk { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; min-height: 38px; margin-bottom: 13px; }
+    .helper-walk-node { border: 1px solid var(--line); border-radius: 18px; min-width: 48px; padding: 5px 9px; text-align: center; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .helper-walk-arrow { color: var(--line); font-size: 18px; line-height: 1; }
+    .helper-local { min-height: 43px; margin-bottom: 12px; color: var(--secondary); font-size: 12px; }
+    .helper-local span { display: inline-block; border: 1px dashed var(--soft); border-radius: 3px; padding: 7px 9px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .helper-local.is-changed span:last-child { background: var(--wash); border-color: var(--ink); }
+    .helper-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+    .helper-cards.is-single { grid-template-columns: minmax(0, 240px); justify-content: center; }
+    .helper-card { min-width: 0; border: 1px solid var(--border); padding: 9px; }
+    .helper-card.is-detached { border-style: dashed; }
+    .helper-card h3 { margin: 0 0 6px; font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .helper-card-state { display: block; min-height: 29px; margin: -2px 0 4px; color: var(--soft); font-size: 10px; line-height: 1.3; }
+    .helper-field { display: flex; justify-content: space-between; gap: 3px; padding: 3px 2px; border-radius: 2px; font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .helper-field.is-changed { outline: 1px dashed var(--ink); background: var(--wash); }
+    .helper-field-target { text-align: right; overflow-wrap: anywhere; }
+    .helper-field-target.is-unset { color: var(--soft); }
+    .helper-legend { margin: 10px 0 0; color: var(--secondary); font-size: 11px; line-height: 1.45; }
+    .helper-detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-top: 12px; }
+    .helper-callout { min-height: 82px; margin: 0; padding: 11px 12px; border: 1px dashed #999; font-size: 13px; line-height: 1.5; }
+    .helper-callout strong { display: block; margin-bottom: 4px; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .helper-code { min-width: 0; border-left: 2px solid var(--border); background: #f8f6f0; }
+    .helper-code pre { overflow-x: auto; margin: 0; padding: 8px 0; font-size: 11px; line-height: 1.55; }
+    .helper-code-line { display: block; width: max-content; min-width: 100%; padding: 0 10px; white-space: pre; }
+    .helper-code-line.is-current { background: #e9e5d9; outline: 1px dashed var(--soft); outline-offset: -1px; }
     .source { margin: 16px 0 0; font-size: 12px; }
     .source a { color: var(--ink); text-underline-offset: 2px; }
     @media (max-width: 480px) {
@@ -110,6 +145,15 @@
       .callout { font-size: 13px; }
     }
     @media (max-width: 340px) { :root { --node-size: 44px; } }
+    @media (max-width: 650px) {
+      .helper-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .helper-detail { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 370px) {
+      .helper-visual { padding: 9px; }
+      .helper-card { padding: 7px; }
+      .helper-field { font-size: 10px; }
+    }
     @media (prefers-reduced-motion: reduce) { .node { transition: none; } }
   </style>
 </head>
@@ -117,7 +161,7 @@
 <main id="lru-lab">
   <p class="eyebrow">数据结构可视化</p>
   <div class="topline"><h1>LRU Cache</h1><span class="capacity">capacity = 3</span></div>
-  <p class="intro">缓存满时，移走最久没有使用的节点。点击「下一步」，看 <code>hashmap</code> 如何找到节点，以及双向链表怎样把它移到最近使用的一端。</p>
+  <p class="intro">缓存满时，移走最久没有使用的节点。点击「下一步」，看 <code>hashmap</code> 如何找到节点，以及双向链表怎样把它移到最近使用的一端。<a class="helper-link" href="#pointer-helpers">逐行看辅助函数与代码 ↓</a></p>
 
   <div class="toolbar" aria-label="演示控制">
     <button class="plain-button" type="button" data-action="previous">← 上一步</button>
@@ -155,6 +199,32 @@
     <span class="explanation" data-explanation></span><span data-result></span>
   </div>
 
+  <section class="helper" id="pointer-helpers" tabindex="0" aria-label="双向链表辅助函数逐行图，可按左右方向键逐行查看">
+    <h2>逐行看双向链表的指针</h2>
+    <p>上方演示一次完整的缓存操作；这里把节点构造、插到尾部、从链中摘下拆成每一行。代码中的 <code>node</code> 是对象引用；每张卡片里的 <code>prev</code> / <code>next</code> 才是节点真正保存的字段。</p>
+    <div class="helper-modes" role="group" aria-label="选择辅助函数">
+      <button class="plain-button" type="button" data-helper-mode="constructor" aria-pressed="true">建立节点</button>
+      <button class="plain-button" type="button" data-helper-mode="add" aria-pressed="false">add_to_tail</button>
+      <button class="plain-button" type="button" data-helper-mode="remove" aria-pressed="false">remove_node</button>
+    </div>
+    <div class="helper-stepper" role="group" aria-label="辅助函数逐行控制">
+      <button class="plain-button" type="button" data-helper-prev>← 上一行</button>
+      <span class="step-count" data-helper-count aria-live="polite"></span>
+      <button class="plain-button" type="button" data-helper-next>下一行 →</button>
+    </div>
+    <div class="helper-visual" aria-label="当前真实指针字段">
+      <p class="helper-visual-label">从 <code>head</code> 沿 <code>.next</code> 实际能走到：</p>
+      <div class="helper-walk" data-helper-walk></div>
+      <div class="helper-local" data-helper-local></div>
+      <div class="helper-cards" data-helper-cards></div>
+      <p class="helper-legend">卡片内的 <code>→</code> 表示该字段指向谁；<code>None</code> 表示没有目标。“尚未设置”表示这一行代码还没有运行。虚线边框的节点不在从 <code>head</code> 出发的主链上。虚线底色只标出当前代码行改动的字段。</p>
+    </div>
+    <div class="helper-detail">
+      <p class="helper-callout" aria-live="polite" aria-atomic="true"><strong data-helper-line></strong><span data-helper-explanation></span></p>
+      <div class="helper-code"><pre aria-label="当前辅助函数 Python 代码"><code data-helper-code></code></pre></div>
+    </div>
+  </section>
+
   <section class="practice" aria-label="自由练习">
     <h2>自己试一次</h2>
     <p>「开始自由练习」会开一个容量 3 的空缓存；每次操作也能逐步查看。可用「重播示例」回到上面的固定演示。</p>
@@ -177,16 +247,7 @@
       <li><code>put(key, value)</code>：若键已存在，先移除旧节点，再创建新节点放到尾部并更新 <code>hashmap[key]</code>。若是新键且缓存已满，先移除 <code>head.next</code>，同时删掉它的表项。</li>
       <li><code>remove_node</code> 只改左右邻居的 <code>.next</code> / <code>.prev</code>。摘下的节点暂时还保留旧的 <code>prev</code> / <code>next</code>，但从 <code>head</code> 已走不到它。若同一节点重新插入，<code>add_to_tail</code> 会覆盖这两个字段；若被淘汰，删掉表项后它就不再属于缓存。</li>
     </ol>
-    <pre><code>def remove_node(self, node):
-    node.prev.next = node.next
-    node.next.prev = node.prev
-
-def add_to_tail(self, node):
-    prev_node = self.tail.prev
-    node.prev = prev_node
-    node.next = self.tail
-    prev_node.next = node
-    self.tail.prev = node</code></pre>
+    <p>上面的「逐行看双向链表的指针」保留了完整的 Python 辅助函数代码，可以对照每一次赋值。</p>
     <p>查找和局部改线都是 <code>O(1)</code>，所以 <code>get</code>、<code>put</code> 平均 <code>O(1)</code>；最多保存 <code>capacity</code> 个有效节点，空间 <code>O(capacity)</code>。<code>get</code> 未命中不会改变最近使用顺序。</p>
   </section>
   <p class="source">相关讲解：<a href="https://www.youtube.com/watch?v=7ABFKPK2hD4" target="_blank" rel="noopener noreferrer">NeetCode · LRU Cache 视频</a></p>
@@ -538,6 +599,241 @@ def add_to_tail(self, node):
   }).observe(stage);
   reducedMotion.addEventListener('change', () => { if (raf !== null) cancelAnimationFrame(raf); raf = null; drawLinks(); });
   refreshJump();
+  render();
+})();
+</script>
+<script>
+(() => {
+  const helper = document.getElementById('pointer-helpers');
+  const code = helper.querySelector('[data-helper-code]');
+  const cards = helper.querySelector('[data-helper-cards]');
+  const walk = helper.querySelector('[data-helper-walk]');
+  const local = helper.querySelector('[data-helper-local]');
+  const count = helper.querySelector('[data-helper-count]');
+  const line = helper.querySelector('[data-helper-line]');
+  const explanation = helper.querySelector('[data-helper-explanation]');
+  const previous = helper.querySelector('[data-helper-prev]');
+  const next = helper.querySelector('[data-helper-next]');
+  const modes = [...helper.querySelectorAll('[data-helper-mode]')];
+
+  // undefined means a Python attribute has not been assigned yet; null means None.
+  const definitions = {
+    constructor: {
+      code: [
+        'class DoublyLinkedListNode:',
+        '    def __init__(',
+        '        self, key: int, val: int',
+        '    ):',
+        '        self.key = key',
+        '        self.val = val',
+        '        self.next = self.prev = None'
+      ],
+      initial: () => ({nodes: {N: {key: undefined, val: undefined, prev: undefined, next: undefined}}, prevNode: undefined}),
+      intro: '刚进入 __init__：对象 N 已创建，但 key、val、prev、next 属性都还没有赋值。',
+      steps: [
+        {code: 4, label: 'self.key = key', explain: '把参数 key=4 存入 N.key；其他属性仍尚未设置。', changed: ['N.key'], run: s => { s.nodes.N.key = 4; }},
+        {code: 5, label: 'self.val = val', explain: '把参数 val=40 存入 N.val；这一步不改任何指针。', changed: ['N.val'], run: s => { s.nodes.N.val = 40; }},
+        {code: 6, label: 'self.next = self.prev = None', explain: '把 N.next 和 N.prev 都设为 None。N 现在是独立节点，尚未接入链表。', changed: ['N.next', 'N.prev'], run: s => { s.nodes.N.next = null; s.nodes.N.prev = null; }}
+      ]
+    },
+    add: {
+      code: [
+        'class LRUCache:',
+        '    def add_to_tail(',
+        '        self, node: DoublyLinkedListNode',
+        '    ) -> None:',
+        '        prev_node = self.tail.prev',
+        '        node.prev = prev_node',
+        '        node.next = self.tail',
+        '        prev_node.next = node',
+        '        self.tail.prev = node'
+      ],
+      initial: () => ({
+        nodes: {
+          head: {prev: null, next: 'A'},
+          A: {key: 2, val: 20, prev: 'head', next: 'tail'},
+          N: {key: 4, val: 40, prev: null, next: null},
+          tail: {prev: 'A', next: null}
+        },
+        prevNode: undefined
+      }),
+      intro: '开始前：head → A → tail；待插入的 N 已脱离主链，N.prev 和 N.next 都是 None。node 是指向 N 的变量。',
+      steps: [
+        {code: 4, label: 'prev_node = self.tail.prev', explain: '读取 tail.prev，得到 A。只让局部变量 prev_node 指向 A；任何节点字段都没变。', changed: ['local'], run: s => { s.prevNode = 'A'; }},
+        {code: 5, label: 'node.prev = prev_node', explain: '现在 N.prev → A；A.next 仍 → tail。单独改一个方向，链条还没有接入 N。', changed: ['N.prev'], run: s => { s.nodes.N.prev = s.prevNode; }},
+        {code: 6, label: 'node.next = self.tail', explain: '现在 N.next → tail。N 自己知道左右邻居，但 A.next 和 tail.prev 还没有改。', changed: ['N.next'], run: s => { s.nodes.N.next = 'tail'; }},
+        {code: 7, label: 'prev_node.next = node', explain: 'A.next 改为指向 N。从 head 沿 .next 已能走到 N；此刻 tail.prev 仍指向 A，两个方向暂时不对称。', changed: ['A.next'], run: s => { s.nodes.A.next = 'N'; }},
+        {code: 8, label: 'self.tail.prev = node', explain: 'tail.prev 改为指向 N。两侧的 next/prev 都接好了，N 正式成为最新节点。', changed: ['tail.prev'], run: s => { s.nodes.tail.prev = 'N'; }}
+      ]
+    },
+    remove: {
+      code: [
+        'class LRUCache:',
+        '    def remove_node(',
+        '        self, node: DoublyLinkedListNode',
+        '    ) -> None:',
+        '        node.prev.next = node.next',
+        '        node.next.prev = node.prev'
+      ],
+      initial: () => ({
+        nodes: {
+          head: {prev: null, next: 'A'},
+          A: {key: 2, val: 20, prev: 'head', next: 'N'},
+          N: {key: 4, val: 40, prev: 'A', next: 'tail'},
+          tail: {prev: 'N', next: null}
+        },
+        prevNode: undefined
+      }),
+      intro: '开始前：head → A → N → tail。node 是指向 N 的变量；要让 N 的左右邻居直接相连。',
+      steps: [
+        {code: 4, label: 'node.prev.next = node.next', explain: 'node.prev 是 A，node.next 是 tail，因此 A.next → tail。从 head 已绕过 N；但 tail.prev 仍 → N，暂时不对称。N 自身的两个字段也没变。', changed: ['A.next'], run: s => { s.nodes[s.nodes.N.prev].next = s.nodes.N.next; }},
+        {code: 5, label: 'node.next.prev = node.prev', explain: '把 tail.prev 改为 → A，邻居接好。N 已不在主链上，但 N.prev 仍 → A、N.next 仍 → tail；这段代码没有清空它们。', changed: ['tail.prev'], run: s => { s.nodes[s.nodes.N.next].prev = s.nodes.N.prev; }}
+      ]
+    }
+  };
+
+  let mode = 'constructor';
+  let step = 0;
+  const targetText = value => value === undefined ? '尚未设置' : value === null ? 'None' : String(value);
+
+  function stateAt(definition, at) {
+    const state = definition.initial();
+    for (let i = 0; i < at; i++) definition.steps[i].run(state);
+    return state;
+  }
+
+  function reachable(state) {
+    if (!state.nodes.head) return [];
+    const result = [];
+    const seen = new Set();
+    let id = 'head';
+    while (id !== null && id !== undefined && state.nodes[id] && !seen.has(id)) {
+      result.push(id);
+      seen.add(id);
+      id = state.nodes[id].next;
+    }
+    return result;
+  }
+
+  function renderWalk(state, reached) {
+    walk.replaceChildren();
+    if (!reached.length) {
+      walk.removeAttribute('aria-label');
+      walk.textContent = '还没有 head；N 尚未接入链表。';
+      return;
+    }
+    for (const [index, id] of reached.entries()) {
+      if (index) {
+        const arrow = document.createElement('span');
+        arrow.className = 'helper-walk-arrow';
+        arrow.setAttribute('aria-hidden', 'true');
+        arrow.textContent = '→';
+        walk.append(arrow);
+      }
+      const chip = document.createElement('span');
+      chip.className = 'helper-walk-node';
+      chip.textContent = id;
+      walk.append(chip);
+    }
+    const arrow = document.createElement('span');
+    arrow.className = 'helper-walk-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '→';
+    walk.append(arrow);
+    const end = document.createElement('span');
+    end.className = 'mono';
+    end.textContent = 'None';
+    walk.append(end);
+    walk.setAttribute('aria-label', `${reached.join(' 到 ')} 到 None`);
+  }
+
+  function renderCards(state, reached, changes) {
+    cards.replaceChildren();
+    cards.classList.toggle('is-single', !state.nodes.head);
+    for (const id of ['head', 'A', 'N', 'tail']) {
+      const node = state.nodes[id];
+      if (!node) continue;
+      const card = document.createElement('div');
+      card.className = 'helper-card';
+      const detached = id === 'N' && !reached.includes('N');
+      card.classList.toggle('is-detached', detached);
+      const heading = document.createElement('h3');
+      heading.textContent = id === 'N' ? `${mode === 'constructor' ? 'self' : 'node'} → N` : id;
+      card.append(heading);
+      const status = document.createElement('span');
+      status.className = 'helper-card-state';
+      status.textContent = id === 'head' ? '左侧哨兵' : id === 'tail' ? '右侧哨兵' : id === 'N' && detached ? '不在 head 的主链上' : id === 'N' ? '从 head 可达' : '已有节点';
+      card.append(status);
+      const fields = id === 'head' || id === 'tail' ? ['prev', 'next'] : ['key', 'val', 'prev', 'next'];
+      for (const field of fields) {
+        const row = document.createElement('div');
+        row.className = 'helper-field';
+        row.classList.toggle('is-changed', changes.includes(`${id}.${field}`));
+        const name = document.createElement('span');
+        name.textContent = field;
+        const value = document.createElement('span');
+        value.className = 'helper-field-target';
+        value.classList.toggle('is-unset', node[field] === undefined);
+        value.textContent = field === 'prev' || field === 'next' ? `→ ${targetText(node[field])}` : targetText(node[field]);
+        row.append(name, value);
+        card.append(row);
+      }
+      cards.append(card);
+    }
+  }
+
+  function renderCode(definition, activeLine) {
+    code.replaceChildren();
+    definition.code.forEach((source, index) => {
+      const row = document.createElement('span');
+      row.className = 'helper-code-line';
+      row.classList.toggle('is-current', index === activeLine);
+      row.textContent = source || ' ';
+      code.append(row);
+    });
+  }
+
+  function render() {
+    const definition = definitions[mode];
+    const state = stateAt(definition, step);
+    const current = step ? definition.steps[step - 1] : null;
+    const reached = reachable(state);
+    previous.disabled = step === 0;
+    next.disabled = step === definition.steps.length;
+    count.textContent = `${step} / ${definition.steps.length}`;
+    for (const button of modes) button.setAttribute('aria-pressed', String(button.dataset.helperMode === mode));
+    renderWalk(state, reached);
+    local.replaceChildren();
+    local.classList.toggle('is-changed', Boolean(current?.changed.includes('local')));
+    if (mode !== 'constructor') {
+      const nodeRef = document.createElement('span');
+      nodeRef.textContent = '局部变量 node → N';
+      local.append(nodeRef);
+      if (mode === 'add') {
+        const previousRef = document.createElement('span');
+        previousRef.textContent = `局部变量 prev_node → ${targetText(state.prevNode)}`;
+        previousRef.style.marginLeft = '7px';
+        local.append(previousRef);
+      }
+    }
+    renderCards(state, reached, current?.changed ?? []);
+    line.textContent = current?.label ?? '执行前';
+    explanation.textContent = current?.explain ?? definition.intro;
+    renderCode(definition, current?.code ?? -1);
+  }
+
+  modes.forEach(button => button.addEventListener('click', () => {
+    mode = button.dataset.helperMode;
+    step = 0;
+    render();
+  }));
+  previous.addEventListener('click', () => { if (step > 0) { step--; render(); } });
+  next.addEventListener('click', () => { if (step < definitions[mode].steps.length) { step++; render(); } });
+  helper.addEventListener('keydown', event => {
+    if (event.target !== helper) return;
+    if (event.key === 'ArrowRight') { next.click(); event.preventDefault(); event.stopPropagation(); }
+    if (event.key === 'ArrowLeft') { previous.click(); event.preventDefault(); event.stopPropagation(); }
+  });
   render();
 })();
 </script>
