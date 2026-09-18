@@ -168,8 +168,8 @@
     const doomed = work.links[work.trailer];
     const after = work.links[doomed];
     add('while leader.next:  # False', `leader 已到最后一个节点。trailer 停在${name(doomed)}的前一个节点。`, s => {s.phase = 'ready';});
-    add('trailer.next = trailer.next.next', `把 ${work.trailer}.next 从${name(doomed)}改为${name(after)}；这一次才改动链表。节点本身仍留在原位。`, s => {s.links[s.trailer] = after; s.removed = doomed; s.phase = 'removed';}, 'link');
-    add('return dummy.next', `返回 D.next（${name(work.links.D)}）作为新的 head。${name(doomed)}已不在从 D 可到达的链表中。`, s => {s.phase = 'done';});
+    add('trailer.next = trailer.next.next', `把 ${work.trailer}.next 从${name(doomed)}改为${name(after)}。代码没有改被跳过节点的 .next；若该节点仍存在，它仍指向${name(after)}。从 head 已到不了它。`, s => {s.links[s.trailer] = after; s.removed = doomed; s.phase = 'removed';}, 'link');
+    add('return dummy.next', `返回 D.next（${name(work.links.D)}）作为新的 head。${after === null ? '' : `${name(after)}仍在新链表中，没有被复制。`}图中的虚线旧节点只是示意；若没有其他引用，Python 可以回收它。`, s => {s.phase = 'done';});
     return result;
   }
 
@@ -184,6 +184,17 @@
       at = state.links[at];
     }
     return null;
+  }
+
+  function reachableFromDummy(target) {
+    const seen = new Set();
+    let node = 'D';
+    while (node !== null && !seen.has(node)) {
+      if (node === target) return true;
+      seen.add(node);
+      node = state.links[node];
+    }
+    return false;
   }
 
   function layout() {
@@ -232,7 +243,8 @@
     for (const node of order) {
       if (drag?.moved && drag.source === 'link' && node === state.trailer) continue;
       const changed = !manualMessage && frames[step].changed === 'link' && node === state.trailer;
-      paths.push(`<path d="${linkPath(node, state.links[node])}" fill="none" stroke="#333" stroke-width="${changed ? 3 : 2}" marker-end="url(#node-arrow)"/>`);
+      const detached = node === state.removed && !reachableFromDummy(node);
+      paths.push(`<path d="${linkPath(node, state.links[node])}" fill="none" stroke="${detached ? '#999' : '#333'}" stroke-width="${changed ? 3 : detached ? 1.5 : 2}" ${detached ? 'stroke-dasharray="4 4"' : ''} marker-end="url(#${detached ? 'old-arrow' : 'node-arrow'})"/>`);
     }
     if (!manualMessage && step > 0 && ['leader', 'trailer'].includes(frames[step].changed)) {
       const key = frames[step].changed;
@@ -264,6 +276,7 @@
     }
     lines.innerHTML = `<defs>
       <marker id="node-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker>
+      <marker id="old-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#999"/></marker>
       <marker id="var-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker>
       <marker id="move-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#999"/></marker>
     </defs>${paths.join('')}`;
@@ -293,7 +306,7 @@
     }
     for (const target of targets) {
       target.classList.toggle('to-remove', !manualMessage && state.phase === 'ready' && target.dataset.target === state.links[state.trailer]);
-      target.classList.toggle('removed', target.dataset.target === state.removed);
+      target.classList.toggle('removed', target.dataset.target === state.removed && !reachableFromDummy(state.removed));
       target.classList.toggle('target-ready', Boolean(selected));
     }
     layout();
