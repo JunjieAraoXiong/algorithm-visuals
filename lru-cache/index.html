@@ -97,6 +97,29 @@
     .helper-modes button[aria-pressed="true"] { background: var(--wash); border-color: var(--ink); }
     .helper-stepper { margin-bottom: 10px; }
     .helper-visual { border: 1px solid var(--border); padding: 14px; }
+    .helper-diagram { width: 100%; min-height: 275px; }
+    .helper-diagram[hidden] { display: none; }
+    .helper-diagram svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .helper-fields { margin-top: 8px; }
+    .helper-fields summary { width: fit-content; color: var(--secondary); font-size: 12px; cursor: pointer; text-underline-offset: 2px; }
+    .helper-fields summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    .helper-fields.is-constructor { margin-top: 0; }
+    .helper-fields.is-constructor summary { display: none; }
+    .helper-fields:not([open]) .helper-field-panel { display: none; }
+    .helper-fields[open]:not(.is-constructor) .helper-field-panel { margin-top: 11px; border-top: 1px solid var(--border); padding-top: 11px; }
+    .helper-svg-node rect { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; }
+    .helper-svg-node .divider { stroke: var(--border); stroke-width: 1; }
+    .helper-svg-node text { fill: var(--ink); font: 15px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-anchor: middle; dominant-baseline: middle; }
+    .helper-svg-node.is-dim { opacity: .31; }
+    .helper-svg-node.is-changed rect { stroke-width: 2.4; }
+    .helper-svg-link { fill: none; stroke: var(--line); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .helper-svg-link.is-stale { stroke: var(--soft); stroke-dasharray: 4 4; }
+    .helper-svg-link.is-changed { stroke-width: 2.5; }
+    .helper-svg-reference { fill: none; stroke: var(--soft); stroke-width: 1.1; stroke-dasharray: 4 4; }
+    .helper-svg-label { fill: var(--secondary); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-anchor: middle; }
+    .helper-svg-hint { fill: var(--soft); font: 12px Arial, Helvetica, sans-serif; text-anchor: middle; }
+    .helper-svg-cross { stroke: var(--line); stroke-width: 2.2; stroke-linecap: round; }
+    .helper-svg-guide { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 4; }
     .helper-visual-label { margin: 0 0 10px; color: var(--secondary); font-size: 12px; }
     .helper-walk { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; min-height: 38px; margin-bottom: 13px; }
     .helper-walk-node { border: 1px solid var(--line); border-radius: 18px; min-width: 48px; padding: 5px 9px; text-align: center; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -159,6 +182,7 @@
       .helper-card { padding: 7px; }
       .helper-field { font-size: 10px; }
     }
+    @media (max-width: 480px) { .helper-diagram { min-height: 0; } }
     @media (prefers-reduced-motion: reduce) { .node { transition: none; } }
   </style>
 </head>
@@ -206,7 +230,7 @@
 
   <section class="helper" id="pointer-helpers" tabindex="0" aria-label="双向链表辅助函数逐行图，可按左右方向键逐行查看">
     <h2>逐行看双向链表的指针</h2>
-    <p>上方演示一次完整的缓存操作；这里把节点构造、插到尾部、从链中摘下拆成每一行。代码中的 <code>node</code> 是对象引用；每张卡片里的 <code>prev</code> / <code>next</code> 才是节点真正保存的字段。</p>
+    <p>上方演示一次完整的缓存操作；这里把节点构造、插到尾部、从链中摘下拆成每一行。图上的实线箭头是节点真正保存的 <code>next</code> / <code>prev</code>；灰色虚线是局部变量 <code>node</code> 和 <code>prev_node</code> 的引用。</p>
     <div class="helper-modes" role="group" aria-label="选择辅助函数">
       <button class="plain-button" type="button" data-helper-mode="constructor" aria-pressed="true">建立节点</button>
       <button class="plain-button" type="button" data-helper-mode="add" aria-pressed="false">add_to_tail</button>
@@ -218,11 +242,20 @@
       <button class="plain-button" type="button" data-helper-next>下一行 →</button>
     </div>
     <div class="helper-visual" aria-label="当前真实指针字段">
-      <p class="helper-visual-label">从 <code>head</code> 沿 <code>.next</code> 实际能走到：</p>
-      <div class="helper-walk" data-helper-walk></div>
-      <div class="helper-local" data-helper-local></div>
-      <div class="helper-cards" data-helper-cards></div>
-      <p class="helper-legend">卡片内的 <code>→</code> 表示该字段指向谁；<code>None</code> 表示没有目标。“尚未设置”表示这一行代码还没有运行。虚线边框的节点不在从 <code>head</code> 出发的主链上。虚线底色只标出当前代码行改动的字段。</p>
+      <div class="helper-diagram" data-helper-diagram hidden>
+        <svg data-helper-svg role="img" aria-labelledby="helper-svg-title helper-svg-desc"></svg>
+      </div>
+      <details class="helper-fields is-constructor" data-helper-fields open>
+        <summary>查看各节点保存的字段</summary>
+        <div class="helper-field-panel">
+          <p class="helper-visual-label">从 <code>head</code> 沿 <code>.next</code> 实际能走到：</p>
+          <div class="helper-walk" data-helper-walk></div>
+          <div class="helper-local" data-helper-local></div>
+          <div class="helper-cards" data-helper-cards></div>
+          <p class="helper-legend">字段后的 <code>→</code> 表示该节点保存的引用；<code>None</code> 表示没有目标。“尚未设置”表示代码还没有运行。虚线边框表示节点不在 <code>head</code> 的主链上。</p>
+        </div>
+      </details>
+      <p class="helper-legend" data-helper-diagram-legend hidden>水平节点间的上弧线是 <code>.next</code>，下弧线是 <code>.prev</code>；悬在上方的节点向左指 <code>.prev</code>，向右指 <code>.next</code>。灰色虚线只表示变量引用。叉号表示节点已脱离主链；它自己的旧字段仍保留。</p>
     </div>
     <div class="helper-detail">
       <p class="helper-callout" aria-live="polite" aria-atomic="true"><strong data-helper-line></strong><span data-helper-explanation></span></p>
@@ -710,6 +743,10 @@ class LRUCache:
 (() => {
   const helper = document.getElementById('pointer-helpers');
   const code = helper.querySelector('[data-helper-code]');
+  const diagram = helper.querySelector('[data-helper-diagram]');
+  const diagramSvg = helper.querySelector('[data-helper-svg]');
+  const diagramLegend = helper.querySelector('[data-helper-diagram-legend]');
+  const fieldDetail = helper.querySelector('[data-helper-fields]');
   const cards = helper.querySelector('[data-helper-cards]');
   const walk = helper.querySelector('[data-helper-walk]');
   const local = helper.querySelector('[data-helper-local]');
@@ -761,18 +798,19 @@ class LRUCache:
       initial: () => ({
         nodes: {
           head: {prev: null, next: 'A'},
-          A: {key: 2, val: 20, prev: 'head', next: 'tail'},
-          N: {key: 4, val: 40, prev: null, next: null},
-          tail: {prev: 'A', next: null}
+          A: {key: 2, val: 250, prev: 'head', next: 'P'},
+          P: {key: 4, val: 300, prev: 'A', next: 'tail'},
+          N: {key: 3, val: 200, prev: null, next: null},
+          tail: {prev: 'P', next: null}
         },
         prevNode: undefined
       }),
-      intro: '开始前：head → A → tail；待插入的 N 已脱离主链，N.prev 和 N.next 都是 None。node 是指向 N 的变量。',
+      intro: '开始前：head ⇄ 2|250 ⇄ 4|300 ⇄ tail。新节点 3|200 悬在插入位置上方；它的 prev/next 仍是 None。',
       steps: [
-        {code: 5, label: 'prev_node = self.tail.prev', explain: '读取 tail.prev，得到 A。只让局部变量 prev_node 指向 A；任何节点字段都没变。', changed: ['local'], run: s => { s.prevNode = 'A'; }},
-        {code: 8, label: 'node.prev = prev_node', explain: '现在 N.prev → A；A.next 仍 → tail。单独改一个方向，链条还没有接入 N。', changed: ['N.prev'], run: s => { s.nodes.N.prev = s.prevNode; }},
-        {code: 9, label: 'node.next = self.tail', explain: '现在 N.next → tail。N 自己知道左右邻居，但 A.next 和 tail.prev 还没有改。', changed: ['N.next'], run: s => { s.nodes.N.next = 'tail'; }},
-        {code: 13, label: 'prev_node.next = node', explain: 'A.next 改为指向 N。从 head 沿 .next 已能走到 N；此刻 tail.prev 仍指向 A，两个方向暂时不对称。', changed: ['A.next'], run: s => { s.nodes.A.next = 'N'; }},
+        {code: 5, label: 'prev_node = self.tail.prev', explain: '读取 tail.prev，得到 4|300。只让局部变量 prev_node 指向它；节点里的字段都没变。', changed: ['local'], run: s => { s.prevNode = 'P'; }},
+        {code: 8, label: 'node.prev = prev_node', explain: '新节点 3|200 的 prev 指向 4|300。原有的 4.next 仍指向 tail；主链尚未改变。', changed: ['N.prev'], run: s => { s.nodes.N.prev = s.prevNode; }},
+        {code: 9, label: 'node.next = self.tail', explain: '新节点的 next 指向 tail。它知道左右邻居，但 4.next 和 tail.prev 仍互相指向。', changed: ['N.next'], run: s => { s.nodes.N.next = 'tail'; }},
+        {code: 13, label: 'prev_node.next = node', explain: '4.next 改为指向新节点；旧的 4.next → tail 已消失。此刻 tail.prev 仍指向 4，两个方向暂时不对称。', changed: ['P.next'], run: s => { s.nodes.P.next = 'N'; }},
         {code: 14, label: 'self.tail.prev = node', explain: 'tail.prev 改为指向 N。两侧的 next/prev 都接好了，N 正式成为最新节点。', changed: ['tail.prev'], run: s => { s.nodes.tail.prev = 'N'; }}
       ]
     },
@@ -790,16 +828,17 @@ class LRUCache:
       initial: () => ({
         nodes: {
           head: {prev: null, next: 'A'},
-          A: {key: 2, val: 20, prev: 'head', next: 'N'},
-          N: {key: 4, val: 40, prev: 'A', next: 'tail'},
-          tail: {prev: 'N', next: null}
+          A: {key: 2, val: 250, prev: 'head', next: 'N'},
+          N: {key: 4, val: 300, prev: 'A', next: 'B'},
+          B: {key: 3, val: 200, prev: 'N', next: 'tail'},
+          tail: {prev: 'B', next: null}
         },
         prevNode: undefined
       }),
-      intro: '开始前：head → A → N → tail。node 是指向 N 的变量；要让 N 的左右邻居直接相连。',
+      intro: '开始前：head ⇄ 2|250 ⇄ 4|300 ⇄ 3|200 ⇄ tail。node 指向中间的 4|300；要让它的两个邻居直接相连。',
       steps: [
-        {code: 6, label: 'node.prev.next = node.next', explain: 'node.prev 是 A，node.next 是 tail，因此 A.next → tail。从 head 已绕过 N；但 tail.prev 仍 → N，暂时不对称。N 自身的两个字段也没变。', changed: ['A.next'], run: s => { s.nodes[s.nodes.N.prev].next = s.nodes.N.next; }},
-        {code: 7, label: 'node.next.prev = node.prev', explain: '把 tail.prev 改为 → A，邻居接好。N 已不在主链上，但 N.prev 仍 → A、N.next 仍 → tail；这段代码没有清空它们。', changed: ['tail.prev'], run: s => { s.nodes[s.nodes.N.next].prev = s.nodes.N.prev; }}
+        {code: 6, label: 'node.prev.next = node.next', explain: '2.next 改为直接指向 3，绕过 4；但 3.prev 仍指向 4。4 自己的 prev/next 也仍保留。', changed: ['A.next'], run: s => { s.nodes[s.nodes.N.prev].next = s.nodes.N.next; }},
+        {code: 7, label: 'node.next.prev = node.prev', explain: '3.prev 改为直接指向 2，邻居双向接好。4 已脱离主链，但自己的 prev 仍指向 2、next 仍指向 3。', changed: ['B.prev'], run: s => { s.nodes[s.nodes.N.next].prev = s.nodes.N.prev; }}
       ]
     }
   };
@@ -862,7 +901,7 @@ class LRUCache:
   function renderCards(state, reached, changes) {
     cards.replaceChildren();
     cards.classList.toggle('is-single', !state.nodes.head);
-    for (const id of ['head', 'A', 'N', 'tail']) {
+    for (const id of ['head', 'A', 'P', 'N', 'B', 'tail']) {
       const node = state.nodes[id];
       if (!node) continue;
       const card = document.createElement('div');
@@ -905,6 +944,171 @@ class LRUCache:
     });
   }
 
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const diagramMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let diagramRaf = null;
+  let drawnMode = null;
+
+  function svgElement(tag, attributes = {}, content) {
+    const element = document.createElementNS(svgNS, tag);
+    for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, String(value));
+    if (content !== undefined) element.textContent = content;
+    return element;
+  }
+
+  function diagramLayout(kind) {
+    const narrow = diagram.clientWidth < 520;
+    if (kind === 'add') return narrow
+      ? {width: 360, height: 330, boxW: 54, boxH: 31, positions: {head: [29, 220], A: [100, 220], P: [182, 220], N: [270, 90], tail: [330, 220]}}
+      : {width: 820, height: 300, boxW: 82, boxH: 38, positions: {head: [57, 170], A: [223, 170], P: [430, 170], N: [600, 70], tail: [760, 170]}};
+    return narrow
+      ? {width: 360, height: 310, boxW: 54, boxH: 31, positions: {head: [29, 175], A: [102, 175], N: [175, 175], B: [248, 175], tail: [330, 175]}}
+      : {width: 820, height: 300, boxW: 82, boxH: 38, positions: {head: [57, 170], A: [220, 170], N: [390, 170], B: [560, 170], tail: [750, 170]}};
+  }
+
+  // Every path is computed from a real source field and its present target.
+  // The two bypass routes are deliberately separate from the removed node.
+  function linkPoints(layout, kind, sourceId, field, targetId) {
+    const [sx, sy] = layout.positions[sourceId];
+    const [tx, ty] = layout.positions[targetId];
+    const w = layout.boxW / 2, h = layout.boxH / 2;
+    const compact = layout.width === 360;
+    if (kind === 'remove' && sourceId === 'A' && targetId === 'B')
+      return [sx + w * .12, sy - h, sx + w * .35, sy - (compact ? 100 : 112),
+        tx - w * .35, ty - (compact ? 100 : 112), tx - w * .12, ty - h];
+    if (kind === 'remove' && sourceId === 'B' && targetId === 'A')
+      return [sx - w * .12, sy + h, sx - w * .35, sy + (compact ? 100 : 112),
+        tx + w * .35, ty + (compact ? 100 : 112), tx + w * .12, ty + h];
+    if (kind === 'add' && targetId === 'N' && sourceId === 'P')
+      return [sx + w, sy - 6, sx + w * 1.1, sy - (compact ? 56 : 63),
+        tx - w * 1.15, ty + (compact ? 68 : 60), tx - w, ty + 1];
+    if (kind === 'add' && sourceId === 'N' && targetId === 'P')
+      return [sx - w * .14, sy + h, sx - w * .2, sy + (compact ? 70 : 61), tx - w * .45, ty - (compact ? 61 : 67), tx - w * .37, ty - h];
+    if (kind === 'add' && sourceId === 'N' && targetId === 'tail')
+      return [sx + w * .5, sy + h, sx + w * .87, sy + (compact ? 66 : 60), tx - w * .52, ty - (compact ? 58 : 64), tx - w * .4, ty - h];
+    if (kind === 'add' && sourceId === 'tail' && targetId === 'N')
+      return [sx - w * .03, sy - h, sx - w * .12, sy - (compact ? 65 : 67), tx + w * .44, ty + (compact ? 61 : 66), tx + w * .12, ty + h];
+    const forward = field === 'next';
+    const sign = forward ? 1 : -1;
+    const fromX = sx + sign * w;
+    const toX = tx - sign * w;
+    const y = sy + (forward ? -7 : 7);
+    const isBypass = kind === 'remove' && ((sourceId === 'A' && targetId === 'B') || (sourceId === 'B' && targetId === 'A'));
+    const rise = isBypass ? (compact ? 86 : 98) : (compact ? 11 : 18);
+    const distance = Math.abs(toX - fromX);
+    return [fromX, y, fromX + sign * distance * .36, y + sign * -rise,
+      toX - sign * distance * .36, y + sign * -rise, toX, y];
+  }
+
+  function pathData(points) {
+    return `M ${points[0].toFixed(2)} ${points[1].toFixed(2)} C ${points[2].toFixed(2)} ${points[3].toFixed(2)} ${points[4].toFixed(2)} ${points[5].toFixed(2)} ${points[6].toFixed(2)} ${points[7].toFixed(2)}`;
+  }
+
+  function renderDiagram(state, current, animate) {
+    if (diagramRaf !== null) cancelAnimationFrame(diagramRaf);
+    diagramRaf = null;
+    const old = new Map([...diagramSvg.querySelectorAll('.helper-svg-link')].map(path => [path.dataset.linkId,
+      {points: path._points, opacity: Number(path.style.opacity || 1)}]));
+    const layout = diagramLayout(mode);
+    const outgoing = new Map();
+    const svg = document.createDocumentFragment();
+    const title = svgElement('title', {id: 'helper-svg-title'}, mode === 'add' ? '逐行插入到双向链表尾部' : '逐行从双向链表摘下节点');
+    const description = Object.entries(state.nodes).map(([id, node]) =>
+      `${id}${node.key === undefined ? '' : `(${node.key}, ${node.val})`}: prev ${targetText(node.prev)}, next ${targetText(node.next)}`).join('；');
+    svg.append(title, svgElement('desc', {id: 'helper-svg-desc'}, `${current?.label ?? '执行前'}。${description}。灰色虚线是局部变量引用。`));
+    const defs = svgElement('defs');
+    for (const [id, color] of [['helper-link-arrow', '#333'], ['helper-stale-arrow', '#777'], ['helper-variable-arrow', '#777']]) {
+      const marker = svgElement('marker', {id, viewBox: '0 0 7 7', markerWidth: 7, markerHeight: 7, refX: 6, refY: 3.5, orient: 'auto'});
+      marker.append(svgElement('path', {d: 'M0 0 L7 3.5 L0 7 Z', fill: color}));
+      defs.append(marker);
+    }
+    svg.append(defs);
+    const linkGroup = svgElement('g', {'aria-hidden': 'true'});
+    const changed = current?.changed ?? [];
+    for (const [id, node] of Object.entries(state.nodes)) {
+      for (const field of ['next', 'prev']) {
+        const target = node[field];
+        if (!target || !layout.positions[target]) continue;
+        const linkId = `${id}.${field}`;
+        const stale = mode === 'remove' && step === 2 && id === 'N';
+        const path = svgElement('path', {
+          class: `helper-svg-link${stale ? ' is-stale' : ''}${changed.includes(linkId) ? ' is-changed' : ''}`,
+          'data-link-id': linkId,
+          'data-target': target,
+          'marker-end': `url(#${stale ? 'helper-stale-arrow' : 'helper-link-arrow'})`
+        });
+        const targetPoints = linkPoints(layout, mode, id, field, target);
+        const previous = old.get(linkId);
+        const starts = animate && previous?.points?.length === 8 ? previous.points : targetPoints;
+        path._points = starts.slice();
+        path.setAttribute('d', pathData(starts));
+        path.style.opacity = animate && !previous ? '0' : '1';
+        outgoing.set(linkId, {path, from: starts, to: targetPoints, fadeIn: animate && !previous});
+        linkGroup.append(path);
+      }
+    }
+    svg.append(linkGroup);
+    const referenceGroup = svgElement('g', {'aria-hidden': 'true'});
+    const nodeGroup = svgElement('g', {'aria-hidden': 'true'});
+    const [nx, ny] = layout.positions.N;
+    if (mode === 'add') {
+      referenceGroup.append(svgElement('text', {class: 'helper-svg-label', x: nx, y: ny - layout.boxH / 2 - 30}, 'node'));
+      referenceGroup.append(svgElement('path', {class: 'helper-svg-reference', d: `M ${nx} ${ny - layout.boxH / 2 - 25} L ${nx} ${ny - layout.boxH / 2 - 4}`, 'marker-end': 'url(#helper-variable-arrow)'}));
+      if (state.prevNode) {
+        const [px, py] = layout.positions.P;
+        referenceGroup.append(svgElement('text', {class: 'helper-svg-label', x: px, y: py + layout.boxH / 2 + 42}, 'prev_node'));
+        referenceGroup.append(svgElement('path', {class: 'helper-svg-reference', d: `M ${px} ${py + layout.boxH / 2 + 28} L ${px} ${py + layout.boxH / 2 + 5}`, 'marker-end': 'url(#helper-variable-arrow)'}));
+      }
+    } else {
+      referenceGroup.append(svgElement('text', {class: 'helper-svg-label', x: nx, y: ny - layout.boxH / 2 - 28}, 'node'));
+      referenceGroup.append(svgElement('path', {class: 'helper-svg-reference', d: `M ${nx} ${ny - layout.boxH / 2 - 24} L ${nx} ${ny - layout.boxH / 2 - 4}`, 'marker-end': 'url(#helper-variable-arrow)'}));
+    }
+    svg.append(referenceGroup);
+    for (const [id, [x, y]] of Object.entries(layout.positions)) {
+      const node = state.nodes[id];
+      const muted = mode === 'remove' && step === 2 && id === 'N';
+      const group = svgElement('g', {class: `helper-svg-node${muted ? ' is-dim' : ''}${changed.some(item => item.startsWith(id + '.')) ? ' is-changed' : ''}`, 'data-node-id': id});
+      group.append(svgElement('rect', {x: x - layout.boxW / 2, y: y - layout.boxH / 2, width: layout.boxW, height: layout.boxH, rx: 4}));
+      if (id === 'head' || id === 'tail') {
+        group.append(svgElement('text', {x, y: y + 1}, id));
+      } else {
+        const split = x - layout.boxW * .13;
+        group.append(svgElement('line', {class: 'divider', x1: split, x2: split, y1: y - layout.boxH / 2, y2: y + layout.boxH / 2}));
+        group.append(svgElement('text', {x: x - layout.boxW * .31, y: y + 1}, node.key));
+        group.append(svgElement('text', {x: x + layout.boxW * .2, y: y + 1}, node.val));
+      }
+      nodeGroup.append(group);
+    }
+    svg.append(nodeGroup);
+    if (mode === 'remove' && step === 2) {
+      const r = Math.min(layout.boxW, layout.boxH) * .54;
+      svg.append(svgElement('path', {class: 'helper-svg-cross', d: `M ${nx-r} ${ny-r} L ${nx+r} ${ny+r} M ${nx+r} ${ny-r} L ${nx-r} ${ny+r}`, 'aria-hidden': 'true'}));
+    }
+    if (mode === 'add') svg.append(svgElement('text', {class: 'helper-svg-hint', x: layout.width / 2, y: layout.height - 15}, '节点位置保持不动；箭头表示字段何时真正改变'));
+    diagramSvg.replaceChildren(svg);
+    diagramSvg.setAttribute('viewBox', `0 0 ${layout.width} ${layout.height}`);
+    const shouldAnimate = animate && !diagramMotion.matches;
+    if (shouldAnimate) {
+      const begin = performance.now();
+      const duration = 250;
+      const tick = now => {
+        const p = Math.min(1, (now - begin) / duration);
+        const eased = 1 - Math.pow(1 - p, 3);
+        for (const {path, from, to, fadeIn} of outgoing.values()) {
+          const points = from.map((value, index) => value + (to[index] - value) * eased);
+          path._points = points;
+          path.setAttribute('d', pathData(points));
+          if (fadeIn) path.style.opacity = String(eased);
+        }
+        if (p < 1) diagramRaf = requestAnimationFrame(tick);
+        else diagramRaf = null;
+      };
+      diagramRaf = requestAnimationFrame(tick);
+    } else {
+      for (const {path, to} of outgoing.values()) { path._points = to; path.setAttribute('d', pathData(to)); path.style.opacity = '1'; }
+    }
+  }
+
   function render() {
     const definition = definitions[mode];
     const state = stateAt(definition, step);
@@ -914,6 +1118,14 @@ class LRUCache:
     next.disabled = step === definition.steps.length;
     count.textContent = `${step} / ${definition.steps.length}`;
     for (const button of modes) button.setAttribute('aria-pressed', String(button.dataset.helperMode === mode));
+    const diagramShown = mode !== 'constructor';
+    diagram.hidden = !diagramShown;
+    diagramLegend.hidden = !diagramShown;
+    fieldDetail.classList.toggle('is-constructor', !diagramShown);
+    if (!diagramShown) fieldDetail.open = true;
+    if (!diagramShown && diagramRaf !== null) { cancelAnimationFrame(diagramRaf); diagramRaf = null; }
+    if (diagramShown) renderDiagram(state, current, drawnMode === mode);
+    drawnMode = mode;
     renderWalk(state, reached);
     local.replaceChildren();
     local.classList.toggle('is-changed', Boolean(current?.changed.includes('local')));
@@ -937,6 +1149,7 @@ class LRUCache:
   modes.forEach(button => button.addEventListener('click', () => {
     mode = button.dataset.helperMode;
     step = 0;
+    fieldDetail.open = mode === 'constructor';
     render();
   }));
   previous.addEventListener('click', () => { if (step > 0) { step--; render(); } });
@@ -945,6 +1158,27 @@ class LRUCache:
     if (event.target !== helper) return;
     if (event.key === 'ArrowRight') { next.click(); event.preventDefault(); event.stopPropagation(); }
     if (event.key === 'ArrowLeft') { previous.click(); event.preventDefault(); event.stopPropagation(); }
+  });
+  let observedDiagramWidth = 0;
+  new ResizeObserver(entries => {
+    const width = entries[0].contentRect.width;
+    if (Math.abs(width - observedDiagramWidth) < 1) return;
+    observedDiagramWidth = width;
+    if (mode !== 'constructor' && width > 0) {
+      const definition = definitions[mode];
+      renderDiagram(stateAt(definition, step), step ? definition.steps[step - 1] : null, false);
+    }
+  }).observe(diagram);
+  window.addEventListener('resize', () => {
+    if (mode === 'constructor') return;
+    const definition = definitions[mode];
+    renderDiagram(stateAt(definition, step), step ? definition.steps[step - 1] : null, false);
+  });
+  diagramMotion.addEventListener('change', () => {
+    if (mode !== 'constructor') {
+      const definition = definitions[mode];
+      renderDiagram(stateAt(definition, step), step ? definition.steps[step - 1] : null, false);
+    }
   });
   render();
 })();
