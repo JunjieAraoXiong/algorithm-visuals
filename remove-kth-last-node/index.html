@@ -50,6 +50,13 @@
     .legend { display: flex; flex-wrap: wrap; gap: 5px 18px; margin: 10px 3px 0; color: var(--quiet); font-size: 12px; }
     .hint { margin: 7px 3px 0; color: var(--quiet); font-size: 12px; }
     .note { margin: 8px 3px 0; padding-top: 8px; border-top: 1px solid var(--rule); color: var(--quiet); font-size: 12px; }
+    .reasoning { margin: 20px 3px 0; padding-top: 15px; border-top: 1px solid var(--rule); }
+    .reasoning h2 { margin: 0 0 10px; font-size: 16px; font-weight: 500; }
+    .reasoning h3 { margin: 15px 0 5px; font-size: 14px; font-weight: 600; }
+    .reasoning p { margin: 0 0 7px; max-width: 75ch; }
+    .reasoning ol { margin: 5px 0 0; padding-left: 23px; }
+    .reasoning li { margin: 4px 0; }
+    .reasoning code { font: 13px/1.4 monospace; }
     @media (max-width: 480px) {
       :root { --node-size: 36px; }
       body { padding: 7px; }
@@ -109,12 +116,32 @@
   <div class="legend">
     <span>圆圈间实线：节点保存的 .next</span>
     <span>方框细箭头：变量指向</span>
-    <span>短暂虚线＋小点：变化轨迹；上方是变量移动，下方是 .next 改线</span>
+    <span>变量细箭头会移向新目标；改 .next 时强调被修改的实线</span>
     <span>下方虚线方框：trailer 所在节点的 .next</span>
     <span>括号：当前两个指针相隔的边数</span>
   </div>
   <p class="hint">拖动 leader、trailer 或下方的 .next 到目标；也可先点方框，再点节点／None。键盘可用 Tab 和 Enter。自由练习不会推进演示。</p>
   <p class="note">关键区别：移动 leader／trailer 只改变变量的箭头；执行 trailer.next = trailer.next.next 才改变节点之间的实线。返回 dummy.next，才能处理删除原 head 的情况。</p>
+
+  <section class="reasoning" aria-labelledby="reasoning-title">
+    <h2 id="reasoning-title">怎么想到双指针？</h2>
+    <h3>题目</h3>
+    <p>删除单链表中倒数第 <code>k</code> 个节点，返回删除后的头节点。上方可选 <code>k</code>，再逐步看变量和链表怎样变化。</p>
+    <h3>思路与原因</h3>
+    <p>单链表不能往回走，所以要让 <code>trailer</code> 提前停在待删节点的<strong>前一个</strong>节点。先让 <code>leader</code> 从 <code>dummy</code> 向前走 <code>k</code> 条边，再让两个指针同步走；两者始终相隔 <code>k</code> 条边。</p>
+    <p>当 <code>leader</code> 到达尾节点时，<code>trailer</code> 到目标的前一个节点。比如 <code>k = 2</code>：<code>leader</code> 在 3，<code>trailer</code> 在 4，下一节点 7 正是倒数第 2 个。<code>dummy</code> 站在原头节点前面，因此删除头节点时也有一个“前一个节点”。</p>
+    <p>也可以按位置验证：若链表有 <code>n</code> 个真实节点，尾节点在第 <code>n</code> 位；<code>trailer</code> 落后 <code>k</code> 位，停在第 <code>n - k</code> 位，所以下一个就是倒数第 <code>k</code> 个节点。</p>
+    <h3>解题步骤</h3>
+    <ol>
+      <li>令 <code>dummy.next = head</code>，<code>leader</code> 与 <code>trailer</code> 都从 <code>dummy</code> 出发。</li>
+      <li>只移动 <code>leader</code> 共 <code>k</code> 次；若途中到达 <code>None</code>，说明 <code>k</code> 超过链表长度。</li>
+      <li>只要 <code>leader.next</code> 存在，就把两个指针各向前移动一次。这里改的是变量的指向，节点里的 <code>.next</code> 没变。</li>
+      <li>执行 <code>trailer.next = trailer.next.next</code>，把目标从可达链表中跳过；返回 <code>dummy.next</code> 作为新头节点。</li>
+    </ol>
+    <p>两个指针各最多走一遍链表：时间 <code>O(n)</code>，额外空间 <code>O(1)</code>。</p>
+    <h3>跳过节点后，它去哪了？</h3>
+    <p>以删除 7 为例，4 的 <code>.next</code> 改为指向 3。7 自己保存的 <code>7.next → 3</code> 没有被这行代码修改，但从新头节点已无法走到 7。如果程序没有保留别的引用，运行环境便可以回收它；返回的链表是 <code>1 → 2 → 4 → 3</code>。</p>
+  </section>
 </main>
 
 <script>
@@ -145,13 +172,54 @@
   let manualMessage = '';
   let places = {};
   let cueFrame = null;
+  let referenceMotion = null;
+  let referenceFrame = null;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  reducedMotion.addEventListener('change', clearCue);
+  reducedMotion.addEventListener('change', () => { clearCue(); clearReferenceMotion(); draw(); });
 
   function clearCue() {
     if (cueFrame !== null) cancelAnimationFrame(cueFrame);
     cueFrame = null;
     motion.replaceChildren();
+  }
+
+  function clearReferenceMotion() {
+    if (referenceFrame !== null) cancelAnimationFrame(referenceFrame);
+    referenceFrame = null;
+    referenceMotion = null;
+  }
+
+  function referenceTip(value) {
+    const point = places[value ?? 'null'];
+    if (!point) return null;
+    return {x: point.x, y: point.y - (stage.clientWidth <= 480 ? 22 : 26)};
+  }
+
+  function displayedTip(key, value) {
+    return referenceMotion?.key === key ? {...referenceMotion.point} : referenceTip(value);
+  }
+
+  function moveReferenceArrow(key, fromPoint, value) {
+    const toPoint = referenceTip(value);
+    if (reducedMotion.matches || !fromPoint || !toPoint || Math.hypot(fromPoint.x - toPoint.x, fromPoint.y - toPoint.y) < 1) return;
+    const animation = {key, from: fromPoint, to: toPoint, point: {...fromPoint}};
+    referenceMotion = animation;
+    draw();
+    let began;
+    function tick(now) {
+      if (referenceMotion !== animation) return;
+      if (began === undefined) began = now;
+      const elapsed = Math.min(1, (now - began) / 380);
+      const eased = 1 - Math.pow(1 - elapsed, 3);
+      animation.point = {
+        x: animation.from.x + (animation.to.x - animation.from.x) * eased,
+        y: animation.from.y + (animation.to.y - animation.from.y) * eased
+      };
+      draw();
+      if (elapsed < 1) referenceFrame = requestAnimationFrame(tick);
+      else { referenceMotion = null; referenceFrame = null; draw(); }
+    }
+    referenceFrame = requestAnimationFrame(tick);
   }
 
   function showCue(kind, from, to) {
@@ -303,10 +371,10 @@
     }
     for (const variable of ['trailer', 'leader']) {
       if (drag?.moved && drag.source === variable) continue;
-      const a = places[variable], b = places[state[variable] === null ? 'null' : state[variable]];
-      if (!b) continue;
+      const a = places[variable], tip = displayedTip(variable, state[variable]);
+      if (!tip) continue;
       const changed = !manualMessage && frames[step].changed === variable;
-      paths.push(`<path d="M ${a.x} ${a.y + 16} L ${b.x} ${b.y - (stage.clientWidth <= 480 ? 22 : 26)}" fill="none" stroke="#555" stroke-width="${changed ? 2.4 : 1.5}" marker-end="url(#var-arrow)"/>`);
+      paths.push(`<path d="M ${a.x} ${a.y + 16} L ${tip.x} ${tip.y}" fill="none" stroke="#555" stroke-width="${changed ? 2.4 : 1.5}" marker-end="url(#var-arrow)"/>`);
     }
     const gap = distance();
     if (!manualMessage && !['removed', 'done', 'invalid'].includes(state.phase) && gap !== null && gap > 0) {
@@ -359,6 +427,8 @@
   function showStep(index, animate = true) {
     clearCue();
     const before = state && !manualMessage ? clone(state) : null;
+    const oldTips = before ? {leader: displayedTip('leader', before.leader), trailer: displayedTip('trailer', before.trailer)} : null;
+    clearReferenceMotion();
     step = Math.max(0, Math.min(frames.length - 1, index));
     state = clone(frames[step].state);
     selected = null;
@@ -368,12 +438,13 @@
       const changedLink = order.find(node => before.links[node] !== state.links[node]);
       if (changedLink) showCue('link', before.links[changedLink], state.links[changedLink]);
       else for (const key of ['leader', 'trailer']) {
-        if (before[key] !== state[key]) { showCue(key, before[key], state[key]); break; }
+        if (before[key] !== state[key]) { moveReferenceArrow(key, oldTips[key], state[key]); break; }
       }
     }
   }
   function reset() {
     clearCue();
+    clearReferenceMotion();
     frames = build(Number(choice.value));
     showStep(0, false);
   }
@@ -384,6 +455,8 @@
   function apply(source, value) {
     clearCue();
     const before = source === 'link' ? state.links[state.trailer] : state[source];
+    const oldTip = source === 'link' ? null : displayedTip(source, before);
+    clearReferenceMotion();
     if (source === 'link') {
       if (state.trailer === null) return;
       state.links[state.trailer] = value;
@@ -394,7 +467,8 @@
     }
     selected = null;
     render();
-    showCue(source, before, value);
+    if (source === 'link') showCue(source, before, value);
+    else moveReferenceArrow(source, oldTip, value);
   }
   function nearestTarget(clientX, clientY) {
     const rect = stage.getBoundingClientRect();
@@ -413,6 +487,7 @@
     source.addEventListener('click', () => {
       if (ignoreClick) { ignoreClick = false; return; }
       clearCue();
+      clearReferenceMotion();
       selected = selected === source.dataset.source ? null : source.dataset.source;
       manualMessage = selected ? `已选择 ${source.textContent}；再点一个节点或 None，也可以直接拖动方框。` : '';
       render();
@@ -420,6 +495,8 @@
     source.addEventListener('pointerdown', event => {
       if (event.pointerType === 'mouse' && event.button !== 0) return;
       clearCue();
+      clearReferenceMotion();
+      draw();
       drag = {source: source.dataset.source, button: source, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
       source.setPointerCapture(event.pointerId);
     });
@@ -461,7 +538,7 @@
   let observedSize = '';
   new ResizeObserver(() => {
     const size = `${stage.clientWidth}x${stage.clientHeight}`;
-    if (size !== observedSize) { observedSize = size; clearCue(); layout(); }
+    if (size !== observedSize) { observedSize = size; clearCue(); clearReferenceMotion(); layout(); }
   }).observe(stage);
   reset();
 })();

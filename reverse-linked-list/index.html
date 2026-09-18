@@ -34,20 +34,12 @@
     #reverse-list-lab .lab-node { width: 54px; height: 54px; border-radius: 50%; border: 2px solid #383838; background: #fffdf8; font-family: Arial, Helvetica, sans-serif !important; font-size: 22px; font-weight: 500; cursor: pointer !important; }
     #reverse-list-lab .lab-null { min-width: 44px; min-height: 38px; padding: 3px; border: 0; background: #fffdf8; font-family: Arial, Helvetica, sans-serif !important; font-size: 18px; font-weight: 500; cursor: pointer !important; }
     #reverse-list-lab .drop-ready { outline: 2px dashed #777; outline-offset: 3px; }
-    #reverse-list-lab .motion-cue { animation: rl-motion-cue 380ms ease-out both; }
     #reverse-list-lab .link-change { animation: rl-link-change 380ms ease-out both; }
-    @keyframes rl-motion-cue {
-      0% { opacity: 0; stroke-dashoffset: 18; }
-      20% { opacity: .9; }
-      75% { opacity: .7; }
-      100% { opacity: 0; stroke-dashoffset: 0; }
-    }
     @keyframes rl-link-change {
       0% { stroke-width: 4; }
       100% { stroke-width: 2; }
     }
     @media (prefers-reduced-motion: reduce) {
-      #reverse-list-lab .motion-cue { animation: none; display: none; }
       #reverse-list-lab .link-change { animation: none; }
     }
     #reverse-list-lab .lab-operation { min-height: 40px; margin: 12px 16px 0; padding: 8px 10px; border: 1px dashed #999; font-size: 14px; }
@@ -55,6 +47,11 @@
     #reverse-list-lab .lab-legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 10px 16px 0; color: #555; }
     #reverse-list-lab .lab-legend span { display: inline-flex; align-items: center; gap: 5px; }
     #reverse-list-lab .lab-hint { margin: 8px 16px 14px; color: #555; font-size: 12px; }
+    #reverse-list-lab .lab-reasoning { margin: 13px 16px 18px; border-top: 1px solid #b7b7b1; padding-top: 11px; font-size: 13px; line-height: 1.5; }
+    #reverse-list-lab .lab-reasoning h3 { margin: 0 0 5px; font-size: 14px; font-weight: 500; }
+    #reverse-list-lab .lab-reasoning p { margin: 4px 0; }
+    #reverse-list-lab .lab-reasoning ol { margin: 6px 0; padding-left: 20px; }
+    #reverse-list-lab .lab-reasoning li { margin: 3px 0; }
     @media (max-width: 400px) {
       #reverse-list-lab .lab-token { min-width: 82px; padding: 3px; font-size: 11px; }
       #reverse-list-lab .lab-token.next-token { min-width: 59px; }
@@ -92,9 +89,19 @@
   <div class="lab-legend text-small">
     <span>方框竖箭头：变量指向</span>
     <span>圆圈间实线：节点的 .next</span>
-    <span>短暂虚线：变量移动；实线变粗：.next 改动</span>
+    <span>细箭头会移动：变量改指向；实线变粗：.next 改动</span>
   </div>
-  <p class="lab-hint">拖动方框到圆圈或 null；下方虚线方框用于改动节点的 .next。</p>
+  <p class="lab-hint">可拖动方框到圆圈或 null，也可先点方框、再点目标（键盘用 Tab 与 Enter）。下方虚线方框用于改动节点的 .next。</p>
+  <section class="lab-reasoning" aria-label="迭代反转链表的解题思路">
+    <h3>题目与思路</h3>
+    <p>把 <code>1 → 2 → 3 → null</code> 反转为 <code>3 → 2 → 1 → null</code>。<code>prev_node</code> 是已反转部分的头，<code>curr_node</code> 是尚未处理部分的头。</p>
+    <ol>
+      <li>先保存 <code>next_node = curr_node.next</code>，否则改线后会丢失剩余链表的入口。</li>
+      <li>执行 <code>curr_node.next = prev_node</code>，这一步才修改节点保存的实线。</li>
+      <li>让 <code>prev_node = curr_node</code>、<code>curr_node = next_node</code>，继续处理下一个节点。</li>
+    </ol>
+    <p>每轮结束时，<code>prev_node</code> 指向已反转部分，<code>curr_node</code> 指向剩余部分；当 <code>curr_node = null</code>，返回 <code>prev_node</code>。时间 <code>O(n)</code>，额外空间 <code>O(1)</code>。</p>
+  </section>
 
   <script>
     (() => {
@@ -139,7 +146,40 @@
       let places = {};
       let motion = [];
       let motionTimer = null;
+      let arrowFrame = null;
+      let movingTips = {};
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      function cancelArrowMotion() {
+        if (arrowFrame !== null) cancelAnimationFrame(arrowFrame);
+        arrowFrame = null;
+        movingTips = {};
+      }
+
+      function tipFor(name, value) {
+        if (value === undefined) return {x: places[name].x, y: places[name].y + 16};
+        const target = pointFor(value, name === 'prev' ? 'left' : 'right');
+        return {x: target.x, y: target.y - (value === null ? 23 : 31)};
+      }
+
+      function animateArrows(changes) {
+        if (!changes.length || reducedMotion.matches) return;
+        const started = performance.now();
+        const tick = now => {
+          const t = Math.min(1, (now - started) / 380);
+          const eased = t * t * (3 - 2 * t);
+          for (const change of changes) {
+            movingTips[change.name] = {
+              x: change.from.x + (change.to.x - change.from.x) * eased,
+              y: change.from.y + (change.to.y - change.from.y) * eased
+            };
+          }
+          if (t === 1) { arrowFrame = null; movingTips = {}; }
+          draw();
+          if (t < 1) arrowFrame = requestAnimationFrame(tick);
+        };
+        arrowFrame = requestAnimationFrame(tick);
+      }
 
       function cancelMotion() {
         clearTimeout(motionTimer);
@@ -150,11 +190,6 @@
       function beginMotion(before, after) {
         cancelMotion();
         if (reducedMotion.matches) return;
-        for (const name of ['prev', 'curr', 'temp']) {
-          if (before[name] !== after[name] && after[name] !== undefined) {
-            motion.push({kind: 'reference', name, from: before[name], to: after[name]});
-          }
-        }
         for (const node of [1, 2, 3]) {
           if (before.link[node] !== after.link[node]) {
             motion.push({kind: 'link', node, from: before.link[node], to: after.link[node]});
@@ -174,27 +209,9 @@
           'null-left': {x: nullInset, y: 190}, 'null-right': {x: width - nullInset, y: 190},
           link1: {x: xs[0], y: 278}, link2: {x: xs[1], y: 278}, link3: {x: xs[2], y: 278}
         };
-        const targetKey = name => state[name] === null
-          ? (name === 'prev' ? 'null-left' : 'null-right')
-          : String(state[name]);
         for (const name of ['prev', 'curr', 'temp']) {
-          if (width <= 560) {
-            const column = name === 'prev' ? 0.17 : name === 'curr' ? 0.5 : 0.83;
-            places[name] = {x: width * column, y: 55};
-            continue;
-          }
-          if (state[name] === undefined) {
-            places[name] = {x: width - 60, y: 38};
-            continue;
-          }
-          const key = targetKey(name);
-          const siblings = ['prev', 'curr', 'temp'].filter(other => state[other] !== undefined && targetKey(other) === key);
-          const row = siblings.indexOf(name);
-          const offset = siblings.length === 1 ? 0 : row === 0 ? -34 : row === 1 ? 34 : 0;
-          places[name] = {
-            x: Math.max(53, Math.min(width - 53, places[key].x + offset)),
-            y: siblings.length === 1 ? 55 : 42 + row * 40
-          };
+          const column = name === 'prev' ? 0.17 : name === 'curr' ? 0.5 : 0.83;
+          places[name] = {x: width * column, y: 55};
         }
         for (const button of buttons) {
           const key = button.dataset.source || button.dataset.target;
@@ -227,7 +244,6 @@
         const defs = `<defs>
           <marker id="rl-node-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker>
           <marker id="rl-label-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker>
-          <marker id="rl-move-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#999"/></marker>
         </defs>`;
         const arrows = [];
         for (const node of [1, 2, 3]) {
@@ -240,17 +256,8 @@
         for (const name of ['prev', 'curr', 'temp']) {
           const target = state[name];
           if (target === undefined || (drag?.moved && drag.source === name)) continue;
-          const start = places[name], end = pointFor(target, name === 'prev' ? 'left' : 'right');
-          arrows.push(`<path d="M ${start.x} ${start.y + 16} L ${end.x} ${end.y - (target === null ? 23 : 31)}" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#rl-label-arrow)"/>`);
-        }
-        for (const cue of motion) {
-          if (cue.kind !== 'reference') continue;
-          const side = cue.name === 'prev' ? 'left' : 'right';
-          const start = cue.from === undefined ? places[cue.name] : pointFor(cue.from, side);
-          const end = pointFor(cue.to, side);
-          const startY = cue.from === undefined ? start.y + 22 : start.y - 35;
-          const path = `M ${start.x} ${startY} Q ${(start.x + end.x) / 2} 105 ${end.x} ${end.y - 35}`;
-          arrows.push(`<path class="motion-cue" d="${path}" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#rl-move-arrow)"/>`);
+          const start = places[name], tip = movingTips[name] || tipFor(name, target);
+          arrows.push(`<path data-ref="${name}" d="M ${start.x} ${start.y + 16} L ${tip.x} ${tip.y}" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#rl-label-arrow)"/>`);
         }
         if (drag?.moved) {
           const x = drag.x, y = drag.y;
@@ -287,30 +294,56 @@
 
       function showStep(index) {
         const before = manualMessage ? null : copy(state);
+        const nextState = frames[Math.max(0, Math.min(frames.length - 1, index))].state;
+        const changedNames = before
+          ? ['prev', 'curr', 'temp'].filter(name => before[name] !== nextState[name])
+          : [];
+        const keepCurrentArrow = before && changedNames.length === 0 && arrowFrame !== null;
+        const oldTips = {};
+        if (before && changedNames.length && places[1]) {
+          for (const name of ['prev', 'curr', 'temp']) oldTips[name] = movingTips[name] || tipFor(name, before[name]);
+        }
+        if (!keepCurrentArrow) cancelArrowMotion();
         step = Math.max(0, Math.min(frames.length - 1, index));
         state = copy(frames[step].state);
         manualMessage = '';
         selectedSource = null;
         if (before) beginMotion(before, state);
         else cancelMotion();
+        const changes = [];
+        if (before && !reducedMotion.matches) {
+          for (const name of changedNames) {
+            if (state[name] !== undefined && oldTips[name]) {
+              changes.push({name, from: oldTips[name], to: tipFor(name, state[name])});
+              movingTips[name] = oldTips[name];
+            }
+          }
+        }
         render();
+        animateArrows(changes);
       }
       previous.addEventListener('click', () => showStep(step - 1));
       next.addEventListener('click', () => showStep(step + 1));
 
       function apply(source, target) {
+        const before = !source.startsWith('link') ? state[source] : undefined;
+        const oldTip = before !== undefined && places[1] ? movingTips[source] || tipFor(source, before) : null;
+        cancelArrowMotion();
         cancelMotion();
         if (source.startsWith('link')) state.link[Number(source.slice(4))] = target;
         else state[source] = target;
         const label = source.startsWith('link') ? `${source.slice(4)}.next` : source === 'temp' ? 'next_node' : `${source}_node`;
         manualMessage = `已把 ${label} 指向${display(target)}。只有修改 .next 才会改变圆圈之间的实线。`;
         selectedSource = null;
+        if (oldTip && before !== target && !reducedMotion.matches) movingTips[source] = oldTip;
         render();
+        if (movingTips[source]) animateArrows([{name: source, from: oldTip, to: tipFor(source, target)}]);
       }
 
       for (const button of sourceButtons) {
         button.addEventListener('click', () => {
           if (ignoreClick) { ignoreClick = false; return; }
+          cancelArrowMotion();
           cancelMotion();
           selectedSource = button.dataset.source;
           manualMessage = `已选 ${button.textContent}；点一个节点或 None，也可以直接拖过去。`;
@@ -318,6 +351,7 @@
         });
         button.addEventListener('pointerdown', event => {
           if (event.button !== 0 && event.pointerType === 'mouse') return;
+          cancelArrowMotion();
           cancelMotion();
           draw();
           drag = {source: button.dataset.source, button, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
@@ -377,8 +411,8 @@
         });
       }
 
-      new ResizeObserver(() => { cancelMotion(); layout(); }).observe(stage);
-      reducedMotion.addEventListener('change', () => { cancelMotion(); draw(); });
+      new ResizeObserver(() => { cancelArrowMotion(); cancelMotion(); layout(); }).observe(stage);
+      reducedMotion.addEventListener('change', () => { cancelArrowMotion(); cancelMotion(); draw(); });
       layout();
       render();
     })();

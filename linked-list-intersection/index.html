@@ -16,7 +16,7 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 18px; background: var(--paper); color: var(--ink); font: 15px/1.45 Arial, Helvetica, sans-serif; }
-    main { max-width: 930px; margin: 0 auto; }
+    main { max-width: 1040px; margin: 0 auto; }
     button, select { color: var(--ink); font: inherit; }
     button:focus-visible, select:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
     .heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin: 0 3px 8px; }
@@ -29,9 +29,8 @@
     .controls button:disabled { opacity: .42; cursor: default; }
     .controls output { min-width: 55px; text-align: center; }
     .round { margin-left: auto; color: var(--quiet); }
-    .stage { position: relative; width: 100%; height: 390px; border-bottom: 1px solid var(--rule); touch-action: none; }
+    .stage { position: relative; width: 100%; height: 470px; border-bottom: 1px solid var(--rule); touch-action: none; }
     .lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-    .motion { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
     .stage button { position: absolute; z-index: 1; transform: translate(-50%, -50%); user-select: none; touch-action: none; }
     .pointer { min-width: 76px; min-height: 30px; padding: 3px 7px; border: 1.5px solid #595959; border-radius: 3px; background: var(--paper); font: 13px monospace; cursor: grab; }
     .pointer:active { cursor: grabbing; }
@@ -50,6 +49,14 @@
     .legend { display: flex; flex-wrap: wrap; gap: 5px 18px; margin: 10px 3px 0; color: var(--quiet); font-size: 12px; }
     .hint, .note { margin: 7px 3px 0; color: var(--quiet); font-size: 12px; }
     .note { padding-top: 8px; border-top: 1px solid var(--rule); }
+    .reasoning { margin: 17px 3px 8px; padding-top: 11px; border-top: 1px solid var(--rule); font-size: 13px; }
+    .reasoning h2 { margin: 0 0 7px; font-size: 15px; font-weight: 500; }
+    .reasoning ol { margin: 0; padding-left: 21px; }
+    .reasoning li { margin: 0 0 6px; padding-left: 2px; }
+    .reasoning strong { font-weight: 600; }
+    .reasoning code, .reasoning pre { font: 12px/1.55 monospace; }
+    .reasoning pre { margin: 10px 0 6px; padding: 9px 11px; border: 1px solid var(--rule); overflow-x: auto; }
+    .reasoning p { margin: 5px 0; color: var(--quiet); }
     @media (max-width: 480px) {
       :root { --node-size: 33px; }
       body { padding: 7px; }
@@ -57,7 +64,7 @@
       .controls { gap: 6px; font-size: 12px; }
       .controls button { padding: 5px 7px; }
       .round { width: 100%; margin-left: 0; }
-      .stage { height: 370px; }
+      .stage { height: 470px; }
       .pointer { min-width: 69px; font-size: 11px; }
       .node { font-size: 17px; }
       .node::after { font-size: 10px; }
@@ -92,7 +99,6 @@
 
   <div class="stage" data-stage aria-label="A、B 两条链表的节点和可移动指针">
     <svg class="lines" data-lines aria-hidden="true"></svg>
-    <svg class="motion" data-motion aria-hidden="true"></svg>
     <button type="button" class="pointer a" data-source="a">ptr_A</button>
     <button type="button" class="pointer b" data-source="b">ptr_B</button>
     <button type="button" class="none" data-target="null" aria-label="None，链表结束">None</button>
@@ -104,11 +110,26 @@
     <span>圆圈间黑色实线：节点保存的 <code>.next</code></span>
     <span>方框灰色细箭头：变量当前指向</span>
     <span>虚线方框／箭头：<code>ptr_B</code></span>
-    <span>短暂的灰色虚线和小点：变量移动轨迹，不是 <code>.next</code></span>
+    <span>会移动的灰色细箭头：变量引用，不是节点保存的 <code>.next</code></span>
     <span>圆圈旁小字：对象身份（S = 共享）</span>
   </div>
   <p class="hint">点 <code>ptr_A</code> 或 <code>ptr_B</code>，再点节点／None，可自由练习；也可拖动指针。键盘使用 Tab 和 Enter。自由练习不推进演示。</p>
   <p class="note" data-note></p>
+  <section class="reasoning" aria-labelledby="reasoning-title">
+    <h2 id="reasoning-title">为什么换头后会相遇？</h2>
+    <p>题目：给两条单向链表，找它们的第一个共同节点；若没有，返回 <code>None</code>。<code>ptr_A</code> 从 <code>head_A</code> 出发，<code>ptr_B</code> 从 <code>head_B</code> 出发；每轮各沿 <code>.next</code> 前进一步。</p>
+    <ol>
+      <li><strong>先认节点身份。</strong>两边的 <code>4_A</code> 和 <code>4_B</code> 值一样，却是不同对象。只有两个指针指向同一个圆圈，才算相交。</li>
+      <li><strong>让路程相等。</strong>设 A 独有 <code>a</code> 个节点，B 独有 <code>b</code> 个，共同尾部有 <code>c</code> 个。从各自头部开始，到共同节点前，<code>ptr_A</code> 更新 <code>a+c+1+b</code> 次，<code>ptr_B</code> 更新 <code>b+c+1+a</code> 次。中间的 <code>+1</code> 是从 <code>None</code> 换到对方头部；两边次数相等。</li>
+      <li><strong>到 None 后换头。</strong>只把指针变量改指向另一条链表的头，完全不修改任何节点的 <code>.next</code>。如果没有共同节点，两者走完 A 和 B 后会同时指向 <code>None</code>。</li>
+    </ol>
+    <pre><code>ptr_A, ptr_B = head_A, head_B
+while ptr_A is not ptr_B:
+    ptr_A = ptr_A.next if ptr_A else head_B
+    ptr_B = ptr_B.next if ptr_B else head_A
+return ptr_A</code></pre>
+    <p>每一轮先更新 <code>ptr_A</code>，再更新 <code>ptr_B</code>；回到 <code>while</code> 顶部才比较。时间 <code>O(len(A) + len(B))</code>，额外空间 <code>O(1)</code>。</p>
+  </section>
 </main>
 
 <script>
@@ -116,7 +137,6 @@
   const root = document.getElementById('intersection-lab');
   const stage = root.querySelector('[data-stage]');
   const lines = root.querySelector('[data-lines]');
-  const motion = root.querySelector('[data-motion]');
   const count = root.querySelector('[data-count]');
   const roundLabel = root.querySelector('[data-round]');
   const positions = root.querySelector('[data-positions]');
@@ -133,63 +153,54 @@
   const copy = state => ({a: state.a, b: state.b});
   let config, frames, state, step = 0, selected = null, manualMessage = '', drag = null, ignoreClick = false, places = {};
   let targetButtons = [];
-  let motionFrame = null, motionToken = 0;
+  let motionFrame = null, motionToken = 0, activeTween = null;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function cancelMotion() {
     motionToken++;
     if (motionFrame !== null) cancelAnimationFrame(motionFrame);
     motionFrame = null;
-    motion.replaceChildren();
+    activeTween = null;
   }
 
-  function motionPath(source, fromId, toId) {
-    const from = places[fromId === null ? 'null' : fromId];
-    const to = places[toId === null ? 'null' : toId];
-    if (fromId === null) {
-      // Go around the stage edge: switching heads does not create a stored .next link.
-      const outerX = stage.clientWidth - 5;
-      const outerY = source === 'a' ? stage.clientHeight - 7 : 7;
-      const approachY = to.y + (source === 'a' ? 29 : -29);
-      return `M ${from.x} ${from.y} L ${outerX} ${from.y} L ${outerX} ${outerY} L ${to.x} ${outerY} L ${to.x} ${approachY} L ${to.x} ${to.y}`;
-    }
-    const bend = source === 'a' ? -30 : 30;
-    const middleX = (from.x + to.x) / 2;
-    return `M ${from.x} ${from.y} C ${middleX} ${from.y + bend}, ${middleX} ${to.y + bend}, ${to.x} ${to.y}`;
+  function interpolatePoints(from, to, fraction) {
+    return from.map((point, i) => ({
+      x: point.x + (to[i].x - point.x) * fraction,
+      y: point.y + (to[i].y - point.y) * fraction
+    }));
   }
 
-  function startMotion(source, fromId, toId) {
+  function startMotion(source, fromId, toId, fromPoints) {
     cancelMotion();
     if (!source || fromId === toId || reducedMotion.matches || !places.a1) return;
-    const namespace = 'http://www.w3.org/2000/svg';
-    const path = document.createElementNS(namespace, 'path');
-    path.setAttribute('d', motionPath(source, fromId, toId));
-    path.setAttribute('fill', 'none');
-    path.setAttribute('stroke', '#777');
-    path.setAttribute('stroke-width', '1.5');
-    path.setAttribute('stroke-dasharray', '5 5');
-    const dot = document.createElementNS(namespace, 'circle');
-    dot.setAttribute('r', '3.5');
-    dot.setAttribute('fill', '#555');
-    motion.append(path, dot);
-    const length = path.getTotalLength();
+    const starting = fromPoints || pointerPoints(source, fromId);
+    const ending = pointerPoints(source, toId);
+    // When a route changes rows, retract and extend via the outside margin.
+    // In particular, switching from None never draws a line between list nodes.
+    const routeChange = (fromId === null && toId !== null) || crossesRows(source, fromId) !== crossesRows(source, toId);
+    const collapsed = starting.map(() => ({...starting[0]}));
     const token = motionToken;
     const started = performance.now();
+    activeTween = {source, currentPoints: starting};
+    draw();
     const tick = now => {
       if (token !== motionToken) return;
-      const progress = Math.min(1, (now - started) / 320);
+      const progress = Math.min(1, (now - started) / (routeChange ? 430 : 360));
       const eased = progress * progress * (3 - 2 * progress);
-      const point = path.getPointAtLength(length * eased);
-      dot.setAttribute('cx', point.x);
-      dot.setAttribute('cy', point.y);
-      motion.style.opacity = progress > .75 ? String((1 - progress) / .25) : '1';
+      activeTween.currentPoints = routeChange
+        ? eased < .42
+          ? interpolatePoints(starting, collapsed, eased / .42)
+          : interpolatePoints(collapsed, ending, (eased - .42) / .58)
+        : interpolatePoints(starting, ending, eased);
+      const arrow = lines.querySelector(`[data-ref="${source}"]`);
+      if (arrow) arrow.setAttribute('d', pointsPath(activeTween.currentPoints));
       if (progress < 1) motionFrame = requestAnimationFrame(tick);
       else {
-        motion.style.opacity = '1';
-        cancelMotion();
+        if (arrow) arrow.setAttribute('d', pointsPath(ending));
+        activeTween = null;
+        motionFrame = null;
       }
     };
-    motion.style.opacity = '1';
     motionFrame = requestAnimationFrame(tick);
   }
 
@@ -254,19 +265,19 @@
     cancelMotion();
     const width = stage.clientWidth;
     const height = stage.clientHeight;
-    const xs = [.085, .225, .365, .505, .645, .785];
-    const top = width <= 480 ? 130 : 140;
-    const bottom = width <= 480 ? 246 : 265;
-    places = {a: {x: width * .16, y: 30}, b: {x: width * .16, y: height - 28}, null: {x: width * .94, y: (top + bottom) / 2}};
+    const xs = [.09, .24, .39, .55, .70, .85];
+    const top = 145;
+    const bottom = 325;
+    places = {a: {x: width * .16, y: 31}, b: {x: width * .16, y: height - 31}, null: {x: width * .92, y: (top + bottom) / 2}};
     config.a.forEach((id, i) => { places[id] = {x: width * xs[i], y: top}; });
-    config.b.forEach((id, i) => { if (!places[id]) places[id] = {x: width * xs[i + 1], y: bottom}; });
+    const bx = [.17, .36, .55, .70, .85];
+    config.b.forEach((id, i) => { if (!places[id]) places[id] = {x: width * bx[i], y: bottom}; });
     for (const button of [...pointerButtons, ...targetButtons]) {
       const key = button.dataset.source || button.dataset.target;
       button.style.left = `${places[key].x}px`;
       button.style.top = `${places[key].y}px`;
     }
     lines.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    motion.setAttribute('viewBox', `0 0 ${width} ${height}`);
     draw();
   }
 
@@ -279,16 +290,38 @@
     return `M ${a.x + dx / length * r} ${a.y + dy / length * r} L ${b.x - dx / length * br} ${b.y - dy / length * br}`;
   }
 
-  function pointerPath(key, targetId) {
+  function crossesRows(key, targetId) {
+    if (targetId === null) return false;
+    const target = places[targetId];
+    return key === 'a' ? target.y > places.a1.y : target.y < places.b6.y;
+  }
+
+  function pointerPoints(key, targetId) {
     const a = places[key], b = places[targetId === null ? 'null' : targetId];
     const radius = stage.clientWidth <= 480 ? 20 : 25;
     const topPointer = key === 'a';
     const targetY = b.y + (topPointer ? -radius : radius);
     const laneY = topPointer ? a.y + 27 : a.y - 27;
-    const offset = (targetId !== null && ((topPointer && b.y > places.a1.y) || (!topPointer && b.y < places.b6.y)))
-      ? (topPointer ? -radius - 7 : radius + 7) : 0;
-    const approachX = b.x + offset;
-    return `M ${a.x + 38} ${a.y} L ${a.x + 47} ${laneY} L ${approachX} ${laneY} L ${approachX} ${targetY + (topPointer ? -15 : 15)} L ${b.x} ${targetY}`;
+    const oppositeRow = crossesRows(key, targetId);
+    if (oppositeRow) {
+      // A reference crossing lists travels through the empty left margin.
+      const outerX = 7;
+      const crossLane = b.y + (topPointer ? radius + 39 : -radius - 39);
+      return [
+        {x: a.x + 38, y: a.y}, {x: a.x + 47, y: laneY},
+        {x: outerX, y: laneY}, {x: outerX, y: crossLane},
+        {x: b.x, y: crossLane}, {x: b.x, y: targetY}
+      ];
+    }
+    return [
+      {x: a.x + 38, y: a.y}, {x: a.x + 47, y: laneY},
+      {x: b.x, y: laneY}, {x: b.x, y: targetY + (topPointer ? -15 : 15)},
+      {x: b.x, y: targetY + (topPointer ? -15 : 15)}, {x: b.x, y: targetY}
+    ];
+  }
+
+  function pointsPath(points) {
+    return points.map((point, i) => `${i ? 'L' : 'M'} ${point.x} ${point.y}`).join(' ');
   }
 
   function draw() {
@@ -307,7 +340,8 @@
     for (const key of ['a', 'b']) {
       if (drag?.moved && drag.source === key) continue;
       const changed = !manualMessage && frames[step].changed === key;
-      paths.push(`<path d="${pointerPath(key, state[key])}" fill="none" stroke="${changed ? '#333' : '#666'}" stroke-width="${changed ? 2.2 : 1.35}" ${key === 'b' ? 'stroke-dasharray="5 3"' : ''} marker-end="url(#ref-arrow)"/>`);
+      const points = activeTween?.source === key ? activeTween.currentPoints : pointerPoints(key, state[key]);
+      paths.push(`<path data-ref="${key}" d="${pointsPath(points)}" fill="none" stroke="${changed ? '#333' : '#666'}" stroke-width="${changed ? 2.2 : 1.35}" ${key === 'b' ? 'stroke-dasharray="5 3"' : ''} marker-end="url(#ref-arrow)"/>`);
     }
     if (drag?.moved) {
       const source = places[drag.source];
@@ -358,12 +392,15 @@
     const targetStep = Math.max(0, Math.min(frames.length - 1, index));
     const source = manualMessage ? null : targetStep > step ? frames[targetStep].changed : targetStep < step ? frames[step].changed : null;
     const fromId = source && state ? state[source] : null;
+    const fromPoints = source && places.a1
+      ? (activeTween?.source === source ? activeTween.currentPoints.map(point => ({...point})) : pointerPoints(source, fromId))
+      : null;
     step = targetStep;
     state = copy(frames[step].state);
     selected = null;
     manualMessage = '';
     render();
-    if (animate && source) startMotion(source, fromId, state[source]);
+    if (animate && source) startMotion(source, fromId, state[source], fromPoints);
   }
   function reset() {
     cancelMotion();
@@ -375,11 +412,14 @@
 
   function apply(source, id, animate = true) {
     const fromId = state[source];
+    const fromPoints = activeTween?.source === source
+      ? activeTween.currentPoints.map(point => ({...point}))
+      : pointerPoints(source, fromId);
     state[source] = id;
     selected = null;
     manualMessage = `ptr_${source.toUpperCase()} 现在指向${description(id)}。只移动变量的引用，节点间的 .next 未变。${state.a === state.b ? (id === null ? '两个变量都是 None。' : '两个变量指向同一个对象。') : '两个变量指向不同对象，即使节点值相同也不能停止。'}`;
     render();
-    if (animate) startMotion(source, fromId, id);
+    if (animate) startMotion(source, fromId, id, fromPoints);
   }
 
   function nearestTarget(clientX, clientY) {
@@ -444,7 +484,7 @@
     if (event.key === 'Escape' && selected) { selected = null; manualMessage = ''; render(); }
   });
   new ResizeObserver(layout).observe(stage);
-  reducedMotion.addEventListener('change', cancelMotion);
+  reducedMotion.addEventListener('change', () => { cancelMotion(); draw(); });
   reset();
 })();
 </script>
