@@ -155,6 +155,44 @@
     .full-code pre:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
     .source { margin: 16px 0 0; font-size: 12px; }
     .source a { color: var(--ink); text-underline-offset: 2px; }
+    .overview { margin: 18px 0 22px; padding: 15px; border: 1px solid var(--border); }
+    .overview:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    .overview h2, .detail-heading { margin: 0 0 5px; font-size: 18px; font-weight: 500; }
+    .overview > p { margin: 0 0 11px; color: var(--secondary); font-size: 13px; line-height: 1.5; }
+    .overview-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 10px; }
+    .overview-modes, .overview-stepper { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+    .overview-modes button[aria-pressed="true"] { background: var(--wash); border-color: var(--ink); }
+    .overview-figure { max-width: 540px; min-height: 241px; margin: 0 auto; padding: 10px 6px 7px; text-align: center; }
+    .overview-capacity { margin: 0 0 6px; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .overview-operation { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px 12px; min-height: 51px; color: var(--secondary); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .overview-operation strong { font-weight: 500; color: var(--ink); }
+    .overview-floating { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; }
+    .overview-floating-label { font: 11px Arial, Helvetica, sans-serif; color: var(--secondary); }
+    .overview-bracket { position: relative; display: flex; align-items: center; justify-content: space-around; gap: 7px; width: min(100%, 354px); min-height: 64px; margin: 0 auto; padding: 8px 12px; }
+    .overview-bracket::before, .overview-bracket::after { content: ''; position: absolute; top: 0; bottom: 0; width: 8px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .overview-bracket::before { left: 0; border-left: 1px solid var(--line); }
+    .overview-bracket::after { right: 0; border-right: 1px solid var(--line); }
+    .overview-node { position: relative; display: inline-grid; grid-template-columns: 39% 61%; align-items: center; width: clamp(57px, 22vw, 78px); height: 36px; border: 1.3px solid var(--line); border-radius: 4px; background: var(--paper); color: var(--ink); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .overview-node span { padding: 0 1px; white-space: nowrap; }
+    .overview-node span + span { border-left: 1px solid var(--border); line-height: 34px; }
+    .overview-node.is-current { outline: 2px solid var(--line); outline-offset: 3px; }
+    .overview-node.is-new { animation: overview-arrive 230ms ease-out; }
+    .overview-node.is-evicted { opacity: .58; }
+    .overview-node.is-evicted::after, .overview-node.is-evicted::before { content: ''; position: absolute; z-index: 1; left: -7px; right: -7px; top: 50%; border-top: 1.7px solid var(--line); }
+    .overview-node.is-evicted::after { transform: rotate(27deg); }
+    .overview-node.is-evicted::before { transform: rotate(-27deg); }
+    .overview-direction { display: flex; align-items: center; justify-content: space-between; width: min(100%, 354px); margin: 6px auto 0; color: var(--secondary); font-size: 11px; }
+    .overview-direction .overview-direction-arrow { flex: 1; margin: 0 8px; border-top: 1px solid var(--secondary); text-align: right; height: 0; position: relative; }
+    .overview-direction .overview-direction-arrow::after { content: '›'; position: absolute; right: -1px; top: -11px; font-size: 18px; }
+    .overview-outcome { display: flex; justify-content: flex-start; align-items: center; gap: 9px; width: min(100%, 354px); min-height: 52px; margin: 0 auto; padding-left: 8px; font-size: 11px; color: var(--secondary); }
+    .overview-outcome.has-return { justify-content: flex-end; padding-left: 0; padding-right: 8px; }
+    .overview-return { display: inline-block; border: 1px dashed var(--soft); padding: 6px 9px; color: var(--ink); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .overview-callout { min-height: 68px; margin: 0; padding: 10px 12px; border: 1px dashed #999; font-size: 13px; line-height: 1.5; }
+    .overview-callout strong { display: block; margin-bottom: 3px; overflow-wrap: anywhere; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .overview-callout span { color: var(--secondary); }
+    .overview-note { margin: 8px 0 0 !important; font-size: 11px !important; }
+    .detail-heading { margin-top: 4px; }
+    @keyframes overview-arrive { from { opacity: .35; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 480px) {
       :root { --node-size: 52px; }
       body { padding: 12px 8px 35px; }
@@ -186,14 +224,42 @@
       .helper-field { font-size: 10px; }
     }
     @media (max-width: 480px) { .helper-diagram { min-height: 0; } }
-    @media (prefers-reduced-motion: reduce) { .node { transition: none; } }
+    @media (max-width: 370px) { .overview { padding: 10px; } .overview-bracket { padding-left: 9px; padding-right: 9px; } .overview-node { font-size: 11px; } }
+    @media (prefers-reduced-motion: reduce) { .node { transition: none; } .overview-node.is-new { animation: none; } }
   </style>
 </head>
 <body>
 <main id="lru-lab">
   <p class="eyebrow">数据结构可视化</p>
   <div class="topline"><h1>LRU Cache</h1><span class="capacity">capacity = 3</span></div>
-  <p class="intro">缓存满时，移走最久没有使用的节点。点击「下一步」，看 <code>hashmap</code> 如何找到节点，以及双向链表怎样把它移到最近使用的一端。<a class="helper-link" href="#pointer-helpers">逐行看辅助函数 ↓</a><a class="helper-link" href="#complete-code">完整 Python 代码 ↓</a></p>
+  <p class="intro">缓存满时，移走最久没有使用的节点。先看 <code>put</code> 和 <code>get</code> 如何改变使用顺序，再用下方逐行图追踪 <code>hashmap</code> 与链表指针。<a class="helper-link" href="#pointer-helpers">逐行看辅助函数 ↓</a><a class="helper-link" href="#complete-code">完整 Python 代码 ↓</a></p>
+
+  <section class="overview" id="get-put-overview" tabindex="0" aria-label="get 和 put 的缓存顺序概览，可按左右方向键切换步骤">
+    <h2>先看 get / put 怎样改变顺序</h2>
+    <p>方框左格是 <code>key</code>，右格是 <code>value</code>。方括号内是容量为 3 的缓存；左边最久没用，右边最近使用。</p>
+    <div class="overview-controls">
+      <div class="overview-modes" role="group" aria-label="选择缓存操作">
+        <button class="plain-button" type="button" data-overview-mode="put" aria-pressed="true">put(3, 200)</button>
+        <button class="plain-button" type="button" data-overview-mode="get" aria-pressed="false">get(2)</button>
+      </div>
+      <div class="overview-stepper" role="group" aria-label="缓存操作步骤">
+        <button class="plain-button" type="button" data-overview-prev>← 上一步</button>
+        <span class="step-count" data-overview-count aria-live="polite"></span>
+        <button class="plain-button" type="button" data-overview-next>下一步 →</button>
+      </div>
+    </div>
+    <div class="overview-figure" data-overview-figure role="img">
+      <div class="overview-capacity">capacity = 3</div>
+      <div class="overview-operation"><strong data-overview-operation></strong><span class="overview-floating" data-overview-floating></span></div>
+      <div class="overview-bracket" data-overview-chain></div>
+      <div class="overview-direction" aria-hidden="true"><span>LRU · 最久未使用</span><span class="overview-direction-arrow"></span><span>MRU · 最近使用</span></div>
+      <div class="overview-outcome" data-overview-outcome></div>
+    </div>
+    <p class="overview-callout" aria-live="polite" aria-atomic="true"><strong data-overview-code></strong><span data-overview-explanation></span></p>
+    <p class="overview-note">这里展示 <code>put</code> 新键且缓存已满、<code>get</code> 命中的整体过程。未命中与更新已有键可在下方逐行图中查看。</p>
+  </section>
+
+  <h2 class="detail-heading">再看代码逐行怎样实现</h2>
 
   <div class="toolbar" aria-label="演示控制">
     <button class="plain-button" type="button" data-action="previous">← 上一步</button>
@@ -1219,6 +1285,114 @@ class LRUCache:
   diagramMotion.addEventListener('change', () => {
     const definition = definitions[mode];
     renderDiagram(stateAt(definition, step), step ? definition.steps[step - 1] : null, false);
+  });
+  render();
+})();
+</script>
+<script>
+(() => {
+  const overview = document.getElementById('get-put-overview');
+  const figure = overview.querySelector('[data-overview-figure]');
+  const operation = overview.querySelector('[data-overview-operation]');
+  const floating = overview.querySelector('[data-overview-floating]');
+  const chain = overview.querySelector('[data-overview-chain]');
+  const outcome = overview.querySelector('[data-overview-outcome]');
+  const code = overview.querySelector('[data-overview-code]');
+  const explanation = overview.querySelector('[data-overview-explanation]');
+  const count = overview.querySelector('[data-overview-count]');
+  const previous = overview.querySelector('[data-overview-prev]');
+  const next = overview.querySelector('[data-overview-next]');
+  const modes = [...overview.querySelectorAll('[data-overview-mode]')];
+  const one = {id: 'entry-1', key: 1, val: 100};
+  const two = {id: 'entry-2', key: 2, val: 250};
+  const four = {id: 'entry-4', key: 4, val: 300};
+  const three = {id: 'entry-3', key: 3, val: 200};
+
+  // Each row is a meaningful group of lines in the complete code below.
+  // The same `two` object is used before removal, while parked, and after get reinserts it.
+  const examples = {
+    put: [
+      {order: [one, two, four], floating: three, floatingLabel: '待加入', code: 'put(3, 200) 执行前', explain: '缓存已有 3 项。左端 1|100 是最久未使用；新键 3|200 还在缓存外。'},
+      {order: [one, two, four], floating: three, floatingLabel: '待加入', focus: one.id, code: 'if key in self.hashmap:  /  if len(self.hashmap) == self.capacity:', explain: 'key 3 不在 hashmap 中，而且 3 项已经达到 capacity = 3。先处理左端的最旧节点。'},
+      {order: [two, four], floating: three, floatingLabel: '待加入', evicted: one, code: 'least_recent = self.head.next; self.remove_node(least_recent); del self.hashmap[least_recent.key]', explain: '摘下左端 1|100，并删除 hashmap[1]。现在缓存里只有 2 项，才能加入新键。'},
+      {order: [two, four, three], evicted: one, focus: three.id, arrived: three.id, code: 'node = DoublyLinkedListNode(key, value); self.hashmap[key] = node; self.add_to_tail(node)', explain: '创建 3|200、建立 hashmap[3] 映射，再放到右端成为最近使用。顺序是 2 → 4 → 3。'}
+    ],
+    get: [
+      {order: [two, four, three], code: 'get(2) 执行前', explain: '沿用上一个 put 的结果：左端 2|250 最久未使用，右端 3|200 最近使用。'},
+      {order: [two, four, three], focus: two.id, code: 'if key not in self.hashmap:  /  node = self.hashmap[key]', explain: 'hashmap[2] 找到原来的 2|250 节点。取值还没改变缓存顺序。'},
+      {order: [four, three], floating: two, floatingLabel: '同一个节点，暂时离链', code: 'self.remove_node(node)', explain: '先把原来的 2|250 从左端摘下；hashmap[2] 和局部变量 node 仍指向这个对象。'},
+      {order: [four, three, two], focus: two.id, arrived: two.id, returned: 250, code: 'self.add_to_tail(node); return node.val', explain: '把同一个 2|250 节点接到右端，成为最近使用；返回它的 value 250。'}
+    ]
+  };
+  let mode = 'put';
+  let step = 0;
+
+  function box(item, classes = []) {
+    const element = document.createElement('span');
+    element.className = `overview-node ${classes.join(' ')}`.trim();
+    element.dataset.overviewIdentity = item.id;
+    element.setAttribute('aria-hidden', 'true');
+    const key = document.createElement('span');
+    const value = document.createElement('span');
+    key.textContent = item.key;
+    value.textContent = item.val;
+    element.append(key, value);
+    return element;
+  }
+
+  function render() {
+    const frames = examples[mode];
+    const frame = frames[step];
+    overview.dataset.overviewStep = String(step);
+    modes.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.overviewMode === mode)));
+    previous.disabled = step === 0;
+    next.disabled = step === frames.length - 1;
+    count.textContent = `${step} / ${frames.length - 1}`;
+    operation.textContent = mode === 'put' ? 'put(3, 200) →' : 'get(2) →';
+    floating.replaceChildren();
+    if (frame.floating) {
+      floating.append(box(frame.floating));
+      const label = document.createElement('span');
+      label.className = 'overview-floating-label';
+      label.textContent = frame.floatingLabel;
+      floating.append(label);
+    }
+    chain.replaceChildren(...frame.order.map(item => box(item, [
+      item.id === frame.focus ? 'is-current' : '', item.id === frame.arrived ? 'is-new' : ''
+    ].filter(Boolean))));
+    outcome.replaceChildren();
+    outcome.classList.toggle('has-return', frame.returned !== undefined);
+    if (frame.evicted) {
+      const label = document.createElement('span');
+      label.textContent = '淘汰';
+      outcome.append(label, box(frame.evicted, ['is-evicted']));
+    }
+    if (frame.returned !== undefined) {
+      const badge = document.createElement('span');
+      badge.className = 'overview-return';
+      badge.textContent = `return ${frame.returned}`;
+      outcome.append(badge);
+    }
+    code.textContent = frame.code;
+    explanation.textContent = frame.explain;
+    const orderText = frame.order.map(item => `${item.key}|${item.val}`).join('，');
+    const extra = frame.floating ? `；缓存外有 ${frame.floating.key}|${frame.floating.val}` : '';
+    const evicted = frame.evicted ? `；已淘汰 ${frame.evicted.key}|${frame.evicted.val}` : '';
+    const returned = frame.returned !== undefined ? `；返回 ${frame.returned}` : '';
+    figure.setAttribute('aria-label', `capacity 3。${mode === 'put' ? 'put 3, 200' : 'get 2'}，第 ${step} 步。缓存从最久未使用到最近使用依次是 ${orderText}${extra}${evicted}${returned}。`);
+  }
+
+  modes.forEach(button => button.addEventListener('click', () => {
+    mode = button.dataset.overviewMode;
+    step = 0;
+    render();
+  }));
+  previous.addEventListener('click', () => { if (step > 0) { step--; render(); } });
+  next.addEventListener('click', () => { if (step < examples[mode].length - 1) { step++; render(); } });
+  overview.addEventListener('keydown', event => {
+    if (event.target !== overview) return;
+    if (event.key === 'ArrowRight') { next.click(); event.preventDefault(); event.stopPropagation(); }
+    if (event.key === 'ArrowLeft') { previous.click(); event.preventDefault(); event.stopPropagation(); }
   });
   render();
 })();
