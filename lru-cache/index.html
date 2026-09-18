@@ -122,6 +122,11 @@
     .helper-code pre { overflow-x: auto; margin: 0; padding: 8px 0; font-size: 11px; line-height: 1.55; }
     .helper-code-line { display: block; width: max-content; min-width: 100%; padding: 0 10px; white-space: pre; }
     .helper-code-line.is-current { background: #e9e5d9; outline: 1px dashed var(--soft); outline-offset: -1px; }
+    .full-code { margin-top: 22px; border-top: 1px solid var(--border); padding-top: 17px; }
+    .full-code h2 { margin: 0 0 6px; font-size: 18px; font-weight: 500; }
+    .full-code p { margin: 0 0 11px; color: var(--secondary); font-size: 13px; line-height: 1.5; }
+    .full-code pre { overflow: auto; margin: 0; padding: 13px 15px; border-left: 2px solid var(--border); background: #f8f6f0; font-size: 12px; line-height: 1.5; }
+    .full-code pre:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
     .source { margin: 16px 0 0; font-size: 12px; }
     .source a { color: var(--ink); text-underline-offset: 2px; }
     @media (max-width: 480px) {
@@ -161,7 +166,7 @@
 <main id="lru-lab">
   <p class="eyebrow">数据结构可视化</p>
   <div class="topline"><h1>LRU Cache</h1><span class="capacity">capacity = 3</span></div>
-  <p class="intro">缓存满时，移走最久没有使用的节点。点击「下一步」，看 <code>hashmap</code> 如何找到节点，以及双向链表怎样把它移到最近使用的一端。<a class="helper-link" href="#pointer-helpers">逐行看辅助函数与代码 ↓</a></p>
+  <p class="intro">缓存满时，移走最久没有使用的节点。点击「下一步」，看 <code>hashmap</code> 如何找到节点，以及双向链表怎样把它移到最近使用的一端。<a class="helper-link" href="#pointer-helpers">逐行看辅助函数 ↓</a><a class="helper-link" href="#complete-code">完整 Python 代码 ↓</a></p>
 
   <div class="toolbar" aria-label="演示控制">
     <button class="plain-button" type="button" data-action="previous">← 上一步</button>
@@ -179,7 +184,7 @@
       <div class="sentinel" data-sentinel="head">head</div>
       <div class="sentinel" data-sentinel="tail">tail</div>
       <div data-nodes></div>
-      <span class="parking-label">虚线节点：主链已绕过它；自身旧引用未画</span>
+      <span class="parking-label">虚线节点：尚未接入或已脱离主链；自身引用未画</span>
     </div>
     <div class="list-legend" aria-label="图例">
       <span><i class="sample" aria-hidden="true"></i>上方箭头 <code>.next</code></span>
@@ -225,6 +230,89 @@
     </div>
   </section>
 
+  <section class="full-code" id="complete-code" aria-label="完整 Python 代码">
+    <h2>完整 Python 代码</h2>
+    <p>按你给出的代码整理缩进；上方动画用 <code>capacity = 3</code> 演示。</p>
+    <pre tabindex="0" aria-label="完整 Python 代码，可用方向键水平滚动"><code>class DoublyLinkedListNode:
+    """Store a cache entry and links to its neighboring nodes."""
+
+    def __init__(self, key: int, val: int) -&gt; None:
+        self.key = key
+        self.val = val
+        self.next = self.prev = None
+
+
+class LRUCache:
+    """A fixed-capacity cache that evicts the least recently used entry."""
+
+    def __init__(self, capacity: int) -&gt; None:
+        """Create a cache with the given capacity."""
+        self.capacity = capacity
+
+        # Map each key directly to its linked-list node.
+        self.hashmap = {}
+
+        # Dummy nodes mark the two ends of the list.
+        # Nodes near tail were used more recently.
+        self.head = DoublyLinkedListNode(-1, -1)
+        self.tail = DoublyLinkedListNode(-1, -1)
+        self.head.next = self.tail
+        self.tail.prev = self.head
+
+    def add_to_tail(self, node: DoublyLinkedListNode) -&gt; None:
+        """Place node just before tail, marking it most recently used."""
+        prev_node = self.tail.prev
+
+        # First, point the node to its new neighbors.
+        node.prev = prev_node
+        node.next = self.tail
+
+        # Replace the old prev_node &lt;-&gt; tail connection
+        # with prev_node &lt;-&gt; node &lt;-&gt; tail.
+        prev_node.next = node
+        self.tail.prev = node
+
+    def remove_node(self, node: DoublyLinkedListNode) -&gt; None:
+        """Unlink node from the list without changing the hashmap."""
+        # Change previous &lt;-&gt; node &lt;-&gt; next into previous &lt;-&gt; next.
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def get(self, key: int) -&gt; int:
+        """Return a key's value, or -1 if absent; mark it recently used."""
+        if key not in self.hashmap:
+            return -1
+
+        node = self.hashmap[key]
+
+        # A successful get counts as using this entry.
+        self.remove_node(node)
+        self.add_to_tail(node)
+
+        return node.val
+
+    def put(self, key: int, value: int) -&gt; None:
+        """Add or update a key, evicting the least recent if necessary."""
+        if key in self.hashmap:
+            # Update the existing node and move it to the recent end.
+            node = self.hashmap[key]
+            node.val = value
+            self.remove_node(node)
+            self.add_to_tail(node)
+            return
+
+        if len(self.hashmap) == self.capacity:
+            # The real node immediately after head is least recent.
+            least_recent = self.head.next
+            self.remove_node(least_recent)
+            del self.hashmap[least_recent.key]
+
+        # A new entry is the most recently used.
+        node = DoublyLinkedListNode(key, value)
+        self.hashmap[key] = node
+        self.add_to_tail(node)</code></pre>
+  </section>
+
   <section class="practice" aria-label="自由练习">
     <h2>自己试一次</h2>
     <p>「开始自由练习」会开一个容量 3 的空缓存；每次操作也能逐步查看。可用「重播示例」回到上面的固定演示。</p>
@@ -243,11 +331,11 @@
     <h2>为什么这两个结构要一起用？</h2>
     <p><code>hashmap[key]</code> 直接给出节点。链表从 <code>head</code>（最久未使用）排到 <code>tail</code>（最近使用）；<code>head</code> 和 <code>tail</code> 是不存业务键值的哨兵。</p>
     <ol>
-      <li><code>get(key)</code>：查表。没找到就返回 <code>-1</code>，链表不变；找到了就把节点移到 <code>tail</code> 前，再返回它的值。</li>
-      <li><code>put(key, value)</code>：若键已存在，先移除旧节点，再创建新节点放到尾部并更新 <code>hashmap[key]</code>。若是新键且缓存已满，先移除 <code>head.next</code>，同时删掉它的表项。</li>
-      <li><code>remove_node</code> 只改左右邻居的 <code>.next</code> / <code>.prev</code>。摘下的节点暂时还保留旧的 <code>prev</code> / <code>next</code>，但从 <code>head</code> 已走不到它。若同一节点重新插入，<code>add_to_tail</code> 会覆盖这两个字段；若被淘汰，删掉表项后它就不再属于缓存。</li>
+      <li><code>get(key)</code>：查表。没找到就返回 <code>-1</code>，链表不变；找到了就把同一个节点移到 <code>tail</code> 前，再返回它的值。</li>
+      <li><code>put(key, value)</code>：已有键时，修改原节点的 <code>val</code> 并将它移到尾部，节点身份不变。新键且已满时，先摘下并删掉最旧节点的表项，然后创建新节点、建立映射并接到尾部。</li>
+      <li><code>remove_node</code> 只改左右邻居的 <code>.next</code> / <code>.prev</code>。摘下的节点暂时还保留旧的 <code>prev</code> / <code>next</code>，但从 <code>head</code> 已走不到它。若同一节点重新插入，<code>add_to_tail</code> 会覆盖这两个字段；若被淘汰，局部变量 <code>least_recent</code> 会暂时引用它，函数结束后若无其他引用便可回收。</li>
     </ol>
-    <p>上面的「逐行看双向链表的指针」保留了完整的 Python 辅助函数代码，可以对照每一次赋值。</p>
+    <p>上面的「逐行看双向链表的指针」可以对照每一次字段赋值；「完整 Python 代码」保留了整个类的执行顺序。</p>
     <p>查找和局部改线都是 <code>O(1)</code>，所以 <code>get</code>、<code>put</code> 平均 <code>O(1)</code>；最多保存 <code>capacity</code> 个有效节点，空间 <code>O(capacity)</code>。<code>get</code> 未命中不会改变最近使用顺序。</p>
   </section>
   <p class="source">相关讲解：<a href="https://www.youtube.com/watch?v=7ABFKPK2hD4" target="_blank" rel="noopener noreferrer">NeetCode · LRU Cache 视频</a></p>
@@ -278,7 +366,7 @@
 
   const emptyState = () => ({ order: [], detached: [], nodes: {}, hashmap: {}, nextId: 1, lookup: null, result: null });
   const clone = s => ({ order: [...s.order], detached: [...s.detached], nodes: Object.fromEntries(Object.entries(s.nodes).map(([id, n]) => [id, {...n}])), hashmap: {...s.hashmap}, nextId: s.nextId, lookup: s.lookup, result: s.result });
-  const initialFrame = () => ({ state: emptyState(), code: '初始化：head ⇄ tail', explanation: '缓存为空。head 和 tail 是固定的哨兵；新节点会插入它们之间。', opTitle: '初始状态', opIndex: -1, focusId: null, focusKey: null, result: null });
+  const initialFrame = () => ({ state: emptyState(), code: 'LRUCache.__init__(capacity=3) 执行后', explanation: 'capacity 是 3，hashmap 为空；哨兵 head.next 指向 tail，tail.prev 指向 head。', opTitle: '初始状态', opIndex: -1, focusId: null, focusKey: null, result: null });
 
   function makeOperation(base, type, key, value, opIndex) {
     const state = clone(base);
@@ -289,73 +377,87 @@
       focusId: options.focusId ?? null, focusKey: options.focusKey ?? null,
       result: options.result ?? null
     });
-    state.lookup = null;
-    state.result = null;
-    emit(title, `准备执行 ${title}。链表左边是 LRU，右边是 MRU。`);
     state.lookup = key;
+    state.result = null;
     const found = state.hashmap[key];
-    emit(`node = hashmap.get(${key})`, found === undefined
-      ? `表里没有 key ${key}，这是一次未命中。`
-      : `表项 ${key} → #${found}，直接找到链表中的节点 #${found}。`,
-      {focusId: found, focusKey: key});
 
     if (type === 'get') {
+      emit('if key not in self.hashmap:', found === undefined
+        ? `hashmap 没有 key ${key}，条件成立。`
+        : `hashmap[${key}] → #${found}，条件不成立；继续取得这个节点。`,
+        {focusId: found, focusKey: key});
       if (found === undefined) {
         state.result = -1;
         emit('return -1', `没有这个键，返回 -1；hashmap 和链表顺序都不变。`, {focusKey: key, result: -1});
       } else {
-        const foundValue = state.nodes[found].value;
+        emit('node = self.hashmap[key]', `局部变量 node 指向 hashmap[${key}] 中的同一个节点 #${found}；链表没有变化。`, {focusId: found, focusKey: key});
         state.order = state.order.filter(id => id !== found);
         state.detached.push(found);
-        emit('remove_node(node)', `让 #${found} 两侧的邻居直接相连。#${found} 自己的旧 prev/next 暂未清空，但已不在主链上；hashmap[${key}] 仍指向它。`, {focusId: found, focusKey: key});
+        emit('self.remove_node(node)', `让 #${found} 两侧的邻居直接相连。node 和 hashmap[${key}] 仍指向它；它自身的旧 prev/next 暂未清空。`, {focusId: found, focusKey: key});
         state.detached = state.detached.filter(id => id !== found);
         state.order.push(found);
-        emit('add_to_tail(node)', `把同一个节点 #${found} 放到 tail 前，它现在是最近使用的节点。`, {focusId: found, focusKey: key});
-        state.result = foundValue;
-        emit(`return ${foundValue}`, `返回节点 #${found} 中的 value ${foundValue}。`, {focusId: found, focusKey: key, result: foundValue});
+        emit('self.add_to_tail(node)', `把同一个节点 #${found} 放到 tail 前。它的对象身份不变，现在是最近使用的节点。`, {focusId: found, focusKey: key});
+        state.result = state.nodes[found].value;
+        emit('return node.val', `返回同一节点 #${found} 中的 value ${state.result}。`, {focusId: found, focusKey: key, result: state.result});
       }
       return frames;
     }
 
+    emit('if key in self.hashmap:', found === undefined
+      ? `hashmap 没有 key ${key}，条件不成立；继续检查是否需要淘汰。`
+      : `hashmap[${key}] → 节点 #${found}，条件成立；更新这个节点。`,
+      {focusId: found, focusKey: key});
     if (found !== undefined) {
+      emit('node = self.hashmap[key]', `局部变量 node 指向节点 #${found}；没有创建新对象。`, {focusId: found, focusKey: key});
+      state.nodes[found].value = value;
+      emit('node.val = value', `直接把节点 #${found} 的 value 改为 ${value}。hashmap[${key}] 仍指向同一个对象。`, {focusId: found, focusKey: key});
       state.order = state.order.filter(id => id !== found);
       state.detached.push(found);
-      emit(`remove_node(hashmap[${key}])`, `先从主链移走旧节点 #${found}；它自己的旧 prev/next 暂未清空。此时 hashmap[${key}] 还指着它，随后会创建新节点。`, {focusId: found, focusKey: key});
-    } else if (state.order.length === CAPACITY) {
-      const lru = state.order[0];
-      const oldKey = state.nodes[lru].key;
-      emit('lru = head.next', `容量已满。head.next 是最久未使用的节点 #${lru}（key ${oldKey}）。`, {focusId: lru, focusKey: oldKey});
+      emit('self.remove_node(node)', `从主链摘下节点 #${found}。node 和 hashmap[${key}] 仍指向它；自身旧 prev/next 暂未清空。`, {focusId: found, focusKey: key});
+      state.detached = state.detached.filter(id => id !== found);
+      state.order.push(found);
+      emit('self.add_to_tail(node)', `把同一个节点 #${found} 接到 tail 前，成为 MRU。hashmap 映射和对象身份都没有改变。`, {focusId: found, focusKey: key});
+      emit('return', `这个键已更新，直接结束 put；不会执行后面的淘汰或新节点构造。`, {focusId: found, focusKey: key});
+      return frames;
+    }
+
+    const full = Object.keys(state.hashmap).length === CAPACITY;
+    emit('if len(self.hashmap) == self.capacity:', full
+      ? `当前有 ${CAPACITY} 个表项，缓存已满；先移走最久未使用的节点。`
+      : `当前有 ${Object.keys(state.hashmap).length} 个表项，未达到容量 ${CAPACITY}；直接创建新节点。`,
+      {focusKey: key});
+    let leastRecent = null;
+    if (full) {
+      leastRecent = state.order[0];
+      const oldKey = state.nodes[leastRecent].key;
+      emit('least_recent = self.head.next', `局部变量 least_recent 指向 head 后面的节点 #${leastRecent}（key ${oldKey}）；节点和表项都尚未改变。`, {focusId: leastRecent, focusKey: oldKey});
       state.order.shift();
-      state.detached.push(lru);
-      emit('remove_node(lru)', `主链绕过 LRU 节点 #${lru}；它自己的旧 prev/next 暂未清空，hashmap[${oldKey}] 目前仍引用它。`, {focusId: lru, focusKey: oldKey});
+      state.detached.push(leastRecent);
+      emit('self.remove_node(least_recent)', `主链绕过节点 #${leastRecent}。least_recent 和 hashmap[${oldKey}] 此刻仍指向它；自身旧 prev/next 暂未清空。`, {focusId: leastRecent, focusKey: oldKey});
       delete state.hashmap[oldKey];
-      state.detached = state.detached.filter(id => id !== lru);
-      delete state.nodes[lru];
-      emit(`del hashmap[${oldKey}]`, `再删除 key ${oldKey} 的表项。旧节点不再被缓存引用，可被回收。`, {focusKey: oldKey});
+      emit('del self.hashmap[least_recent.key]', `删除 key ${oldKey} 的表项。局部变量 least_recent 暂时仍引用虚线节点 #${leastRecent}。`, {focusId: leastRecent, focusKey: oldKey});
     }
 
     const id = state.nextId++;
     state.nodes[id] = {key, value};
     state.detached.push(id);
-    emit(`node = Node(${key}, ${value})`, `创建新对象 #${id}，先放在链表下方。${found === undefined ? '' : `旧节点 #${found} 仍由 hashmap 暂时引用。`}`, {focusId: id, focusKey: key});
+    emit('node = DoublyLinkedListNode(key, value)', `创建新对象 #${id}；局部变量 node 指向它。它尚未接入主链。`, {focusId: id, focusKey: key});
+    state.hashmap[key] = id;
+    emit('self.hashmap[key] = node', `建立 key ${key} → 节点 #${id} 的映射；此时新节点仍在链表外。`, {focusId: id, focusKey: key});
+
     state.detached = state.detached.filter(item => item !== id);
     state.order.push(id);
-    emit('add_to_tail(node)', `把新节点 #${id} 插在 tail 前，成为 MRU。${found === undefined ? '表项还没有添加。' : '表项暂时仍指向旧节点。'}`, {focusId: id, focusKey: key});
-    state.hashmap[key] = id;
-    if (found !== undefined) {
-      state.detached = state.detached.filter(item => item !== found);
-      delete state.nodes[found];
+    if (leastRecent !== null) {
+      state.detached = state.detached.filter(item => item !== leastRecent);
+      delete state.nodes[leastRecent];
     }
-    emit(`hashmap[${key}] = node`, found === undefined
-      ? `建立 key ${key} → 节点 #${id} 的映射。`
-      : `把 key ${key} 的映射从旧节点 #${found} 改到新节点 #${id}；旧节点可以回收。`,
-      {focusId: id, focusKey: key});
+    emit('self.add_to_tail(node)', `把新节点 #${id} 插在 tail 前，成为 MRU。hashmap[${key}] 已经指向它。`, {focusId: id, focusKey: key});
     return frames;
   }
 
   const scriptedOps = [
     ['put', 1, 100], ['put', 2, 250], ['get', 2], ['put', 4, 300],
-    ['put', 3, 200], ['get', 4], ['get', 1]
+    ['put', 3, 200], ['put', 2, 260], ['get', 4], ['get', 1]
   ];
   const scriptedFrames = [initialFrame()];
   let built = clone(scriptedFrames[0].state);
@@ -478,7 +580,9 @@
     const hasMap = state.hashmap[n.key] === id;
     inspection.textContent = hasMap
       ? `hashmap[${n.key}] 指向的正是节点 #${id}${state.detached.includes(id) ? '；它此刻暂时脱离链表' : ''}。`
-      : `节点 #${id} 目前在链表中；hashmap[${n.key}] 尚未指向它。`;
+      : state.detached.includes(id)
+        ? `节点 #${id} 尚未接入或已脱离主链；hashmap[${n.key}] 目前没有指向它。`
+        : `节点 #${id} 目前在链表中；hashmap[${n.key}] 目前没有指向它。`;
     renderMap(state, current());
     for (const [nodeId, button] of nodeElements) button.classList.toggle('is-inspected', Number(nodeId) === id);
   }
@@ -621,9 +725,9 @@
     constructor: {
       code: [
         'class DoublyLinkedListNode:',
-        '    def __init__(',
-        '        self, key: int, val: int',
-        '    ):',
+        '    """Store a cache entry and links to its neighboring nodes."""',
+        '',
+        '    def __init__(self, key: int, val: int) -> None:',
         '        self.key = key',
         '        self.val = val',
         '        self.next = self.prev = None'
@@ -639,12 +743,18 @@
     add: {
       code: [
         'class LRUCache:',
-        '    def add_to_tail(',
-        '        self, node: DoublyLinkedListNode',
-        '    ) -> None:',
+        '    """A fixed-capacity cache that evicts the least recently used entry."""',
+        '',
+        '    def add_to_tail(self, node: DoublyLinkedListNode) -> None:',
+        '        """Place node just before tail, marking it most recently used."""',
         '        prev_node = self.tail.prev',
+        '',
+        '        # First, point the node to its new neighbors.',
         '        node.prev = prev_node',
         '        node.next = self.tail',
+        '',
+        '        # Replace the old prev_node <-> tail connection',
+        '        # with prev_node <-> node <-> tail.',
         '        prev_node.next = node',
         '        self.tail.prev = node'
       ],
@@ -659,19 +769,21 @@
       }),
       intro: '开始前：head → A → tail；待插入的 N 已脱离主链，N.prev 和 N.next 都是 None。node 是指向 N 的变量。',
       steps: [
-        {code: 4, label: 'prev_node = self.tail.prev', explain: '读取 tail.prev，得到 A。只让局部变量 prev_node 指向 A；任何节点字段都没变。', changed: ['local'], run: s => { s.prevNode = 'A'; }},
-        {code: 5, label: 'node.prev = prev_node', explain: '现在 N.prev → A；A.next 仍 → tail。单独改一个方向，链条还没有接入 N。', changed: ['N.prev'], run: s => { s.nodes.N.prev = s.prevNode; }},
-        {code: 6, label: 'node.next = self.tail', explain: '现在 N.next → tail。N 自己知道左右邻居，但 A.next 和 tail.prev 还没有改。', changed: ['N.next'], run: s => { s.nodes.N.next = 'tail'; }},
-        {code: 7, label: 'prev_node.next = node', explain: 'A.next 改为指向 N。从 head 沿 .next 已能走到 N；此刻 tail.prev 仍指向 A，两个方向暂时不对称。', changed: ['A.next'], run: s => { s.nodes.A.next = 'N'; }},
-        {code: 8, label: 'self.tail.prev = node', explain: 'tail.prev 改为指向 N。两侧的 next/prev 都接好了，N 正式成为最新节点。', changed: ['tail.prev'], run: s => { s.nodes.tail.prev = 'N'; }}
+        {code: 5, label: 'prev_node = self.tail.prev', explain: '读取 tail.prev，得到 A。只让局部变量 prev_node 指向 A；任何节点字段都没变。', changed: ['local'], run: s => { s.prevNode = 'A'; }},
+        {code: 8, label: 'node.prev = prev_node', explain: '现在 N.prev → A；A.next 仍 → tail。单独改一个方向，链条还没有接入 N。', changed: ['N.prev'], run: s => { s.nodes.N.prev = s.prevNode; }},
+        {code: 9, label: 'node.next = self.tail', explain: '现在 N.next → tail。N 自己知道左右邻居，但 A.next 和 tail.prev 还没有改。', changed: ['N.next'], run: s => { s.nodes.N.next = 'tail'; }},
+        {code: 13, label: 'prev_node.next = node', explain: 'A.next 改为指向 N。从 head 沿 .next 已能走到 N；此刻 tail.prev 仍指向 A，两个方向暂时不对称。', changed: ['A.next'], run: s => { s.nodes.A.next = 'N'; }},
+        {code: 14, label: 'self.tail.prev = node', explain: 'tail.prev 改为指向 N。两侧的 next/prev 都接好了，N 正式成为最新节点。', changed: ['tail.prev'], run: s => { s.nodes.tail.prev = 'N'; }}
       ]
     },
     remove: {
       code: [
         'class LRUCache:',
-        '    def remove_node(',
-        '        self, node: DoublyLinkedListNode',
-        '    ) -> None:',
+        '    """A fixed-capacity cache that evicts the least recently used entry."""',
+        '',
+        '    def remove_node(self, node: DoublyLinkedListNode) -> None:',
+        '        """Unlink node from the list without changing the hashmap."""',
+        '        # Change previous <-> node <-> next into previous <-> next.',
         '        node.prev.next = node.next',
         '        node.next.prev = node.prev'
       ],
@@ -686,8 +798,8 @@
       }),
       intro: '开始前：head → A → N → tail。node 是指向 N 的变量；要让 N 的左右邻居直接相连。',
       steps: [
-        {code: 4, label: 'node.prev.next = node.next', explain: 'node.prev 是 A，node.next 是 tail，因此 A.next → tail。从 head 已绕过 N；但 tail.prev 仍 → N，暂时不对称。N 自身的两个字段也没变。', changed: ['A.next'], run: s => { s.nodes[s.nodes.N.prev].next = s.nodes.N.next; }},
-        {code: 5, label: 'node.next.prev = node.prev', explain: '把 tail.prev 改为 → A，邻居接好。N 已不在主链上，但 N.prev 仍 → A、N.next 仍 → tail；这段代码没有清空它们。', changed: ['tail.prev'], run: s => { s.nodes[s.nodes.N.next].prev = s.nodes.N.prev; }}
+        {code: 6, label: 'node.prev.next = node.next', explain: 'node.prev 是 A，node.next 是 tail，因此 A.next → tail。从 head 已绕过 N；但 tail.prev 仍 → N，暂时不对称。N 自身的两个字段也没变。', changed: ['A.next'], run: s => { s.nodes[s.nodes.N.prev].next = s.nodes.N.next; }},
+        {code: 7, label: 'node.next.prev = node.prev', explain: '把 tail.prev 改为 → A，邻居接好。N 已不在主链上，但 N.prev 仍 → A、N.next 仍 → tail；这段代码没有清空它们。', changed: ['tail.prev'], run: s => { s.nodes[s.nodes.N.next].prev = s.nodes.N.prev; }}
       ]
     }
   };
