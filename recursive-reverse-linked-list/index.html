@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="逐步观察递归反转链表的调用栈、head、new_head 和节点的 next">
   <title>Recursive Reverse Linked List · Algorithm Visuals</title>
+  <link rel="stylesheet" href="../assets/visual.css">
   <style>
     :root {
       --paper: #fffdf8;
@@ -60,11 +61,8 @@
     .operation code { font: 13px monospace; overflow-wrap: anywhere; }
     .operation .explanation { display: block; margin-top: 3px; }
     .base-note { margin: 8px 8px 0; color: var(--quiet); font-size: 12px; line-height: 1.4; }
-    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 8px 0; color: var(--quiet); font-size: 12px; }
-    .hint { margin: 7px 8px 12px; color: var(--quiet); font-size: 12px; line-height: 1.4; }
     .code-panel { position: sticky; top: 18px; align-self: start; padding: 13px 14px 14px; border: 1px solid var(--rule); }
     .code-panel h2 { margin: 0; font-size: 16px; font-weight: 500; }
-    .code-panel p { margin: 5px 0 10px; color: var(--quiet); font-size: 12px; line-height: 1.45; }
     .code-scroll { max-height: min(72vh, 640px); margin: 0; overflow: auto; padding: 11px 0; border-left: 2px solid var(--rule); background: #f8f6f0; font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size: 4; }
     .code-scroll code { display: block; min-width: max-content; }
     .code-line { display: block; width: max-content; min-width: 100%; padding: 0 12px; white-space: pre; }
@@ -90,22 +88,23 @@
       .operation code { font-size: 12px; }
     }
   </style>
+<link rel="stylesheet" href="../assets/guide.css">
 </head>
 <body>
 <main id="recursive-lab">
-  <nav class="page-nav" aria-label="页面导航"><a href="../">← 返回主页</a></nav>
+  <nav class="page-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
   <div class="learning-workspace" data-learning-layout>
     <section class="demo-pane" data-animation-panel aria-label="递归反转链表交互演示">
       <div class="lab-head">
-        <h1>递归反转链表</h1>
+        <h1>Recursive Reverse Linked List · 递归反转链表</h1>
         <div class="controls">
-          <button type="button" data-action="previous">上一行</button>
+          <button type="button" data-action="previous">← 上一步</button>
           <output data-count aria-live="polite">0 / 16</output>
-          <button type="button" data-action="next">下一行</button>
+          <button type="button" data-action="next">下一步 →</button>
         </div>
       </div>
 
-      <div class="stage" data-stage aria-label="递归链表反转：固定位置的四个节点及其指针">
+      <div class="stage" data-stage tabindex="0" aria-label="递归链表反转：固定位置的四个节点及其指针">
         <svg class="arrows" data-arrows aria-hidden="true"></svg>
         <button type="button" class="source" data-source="head">head</button>
         <button type="button" class="source" data-source="newHead">new_head</button>
@@ -127,20 +126,11 @@
       </section>
       <p class="operation" data-operation aria-live="polite"></p>
       <p class="base-note">f(k) 表示 linked_list_reversal_recursive(head=节点 k)。基本情况：空链表或只有一个节点时，直接返回原来的 head；本例在 f(4) 遇到单节点。</p>
-      <div class="legend">
-        <span>圆圈间实线：节点保存的 .next</span>
-        <span>方框细箭头：变量指向</span>
-        <span>细箭头平滑移动：变量改指向；实线短暂变粗：.next 改动</span>
-        <span>双向弧线：暂时形成的环</span>
-        <span>None 只是空指针标记，不是节点</span>
-      </div>
-      <p class="hint">可拖动 head、new_head 或下方的 .next 方框到节点／None；也可先点方框、再点目标。自由练习不会推进演示，上一行／下一行会恢复对应步骤。</p>
     </section>
 
     <aside class="code-panel" data-code-panel aria-label="完整 Python 代码">
       <h2>完整 Python 代码</h2>
-      <p>递归深入与回退会再次执行同一行；调用栈显示当前是哪一层。</p>
-      <pre class="code-scroll" data-code-scroll tabindex="0"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val: int, next=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line"> </span><span class="code-line" data-code-line="entry">def linked_list_reversal_recursive(head: ListNode) -&gt; ListNode:</span><span class="code-line" data-code-line="base-test">    if not head or not head.next:</span><span class="code-line" data-code-line="base-return">        return head</span><span class="code-line"> </span><span class="code-line" data-code-line="recursive-call">    new_head = linked_list_reversal_recursive(head.next)</span><span class="code-line" data-code-line="reverse-link">    head.next.next = head</span><span class="code-line" data-code-line="clear-link">    head.next = None</span><span class="code-line" data-code-line="return-new-head">    return new_head</span></code></pre>
+      <pre class="code-scroll" data-code-scroll tabindex="0"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val: int, next=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line"> </span><span class="code-line" data-source-key="entry">def linked_list_reversal_recursive(head: ListNode) -&gt; ListNode:</span><span class="code-line" data-source-key="base-test">    if not head or not head.next:</span><span class="code-line" data-source-key="base-return">        return head</span><span class="code-line"> </span><span class="code-line" data-source-key="recursive-call">    new_head = linked_list_reversal_recursive(head.next)</span><span class="code-line" data-source-key="reverse-link">    head.next.next = head</span><span class="code-line" data-source-key="clear-link">    head.next = None</span><span class="code-line" data-source-key="return-new-head">    return new_head</span></code></pre>
     </aside>
   </div>
 
@@ -155,137 +145,89 @@
     </ol>
     <p><strong>为什么可行</strong> 每层只处理一个 <code>head</code>，较短的后半段已反转。反向接回时旧的 <code>head → head.next</code> 仍在，暂时出现双向环；清掉 <code>head.next</code> 后，当前节点成为新尾。每层返回的仍是同一个原尾节点。时间 <code>O(n)</code>；递归调用栈空间 <code>O(n)</code>。</p>
   </section>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../reverse-linked-list/">迭代反转链表</a><a href="../palindromic-linked-list/">回文链表</a><a href="../">全部题目</a></nav>
 </main>
+<script src="../assets/core.js"></script>
 <script>
 (() => {
+  const {createManualInteraction, createMotionController, createSvgScene, createTrace, position} = window.AlgorithmVisualCore;
   const root = document.getElementById('recursive-lab');
   const stage = root.querySelector('[data-stage]');
   const arrows = root.querySelector('[data-arrows]');
   const stack = root.querySelector('[data-stack]');
   const operation = root.querySelector('[data-operation]');
-  const count = root.querySelector('[data-count]');
-  const previous = root.querySelector('[data-action="previous"]');
-  const next = root.querySelector('[data-action="next"]');
   const sources = [...stage.querySelectorAll('[data-source]')];
   const targets = [...stage.querySelectorAll('[data-target]')];
   const allButtons = [...sources, ...targets];
-  const codeScroll = root.querySelector('[data-code-scroll]');
-  const codeLines = [...root.querySelectorAll('[data-code-line]')];
-
-  const frames = [];
   const working = {head: 1, newHead: undefined, links: {1: 2, 2: 3, 3: 4, 4: null}, stack: [1]};
   const clone = state => ({head: state.head, newHead: state.newHead, links: {...state.links}, stack: [...state.stack]});
-  function add(code, explanation, change, changed, lineKeys = []) {
+  const frames = [];
+  const add = (code, explanation, change, changed, sourceKeys) => {
     if (change) change(working);
-    frames.push({state: clone(working), code, explanation, changed, lineKeys});
-  }
+    frames.push({state: clone(working), code, explanation, changed, sourceKeys});
+  };
   add('linked_list_reversal_recursive(head=1)', '从节点 1 开始。每个递归调用都先处理 head.next 后面的较短链表。', null, null, ['entry']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 先等 f(2) 反转 2 → 3 → 4。此时节点的 .next 都没变。', s => {s.stack.push(2); s.head = 2;}, null, ['recursive-call']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 再等 f(3) 反转 3 → 4。', s => {s.stack.push(3); s.head = 3;}, null, ['recursive-call']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 再调用 f(4)。', s => {s.stack.push(4); s.head = 4;}, null, ['recursive-call']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 先等 f(2) 反转 2 → 3 → 4。此时节点的 .next 都没变。', s => { s.stack.push(2); s.head = 2; }, null, ['recursive-call']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 再等 f(3) 反转 3 → 4。', s => { s.stack.push(3); s.head = 3; }, null, ['recursive-call']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 再调用 f(4)。', s => { s.stack.push(4); s.head = 4; }, null, ['recursive-call']);
   add('if not head or not head.next: return head', 'f(4) 只有节点 4，直接返回 head（节点 4）。此时 f(3) 尚未收到返回值。', null, null, ['base-test', 'base-return']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 恢复执行，接住 f(4) 返回的节点 4；new_head 此时才被赋值。', s => {s.stack.pop(); s.head = 3; s.newHead = 4;}, null, ['recursive-call']);
-  add('head.next.next = head', 'head.next 是 4；把 4.next 改为 3。此刻 3 → 4 和 4 → 3 同时存在，暂时成环。', s => {s.links[4] = 3;}, 'link4', ['reverse-link']);
-  add('head.next = None', '把 3.next 清空，拆掉刚才的环；子链表变成 4 → 3 → None。', s => {s.links[3] = null;}, 'link3', ['clear-link']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 恢复执行，接住 f(4) 返回的节点 4；new_head 此时才被赋值。', s => { s.stack.pop(); s.head = 3; s.newHead = 4; }, null, ['recursive-call']);
+  add('head.next.next = head', 'head.next 是 4；把 4.next 改为 3。此刻 3 → 4 和 4 → 3 同时存在，暂时成环。', s => { s.links[4] = 3; }, 'link4', ['reverse-link']);
+  add('head.next = None', '把 3.next 清空，拆掉刚才的环；子链表变成 4 → 3 → None。', s => { s.links[3] = null; }, 'link3', ['clear-link']);
   add('return new_head', 'f(3) 把同一个 new_head（节点 4）返回给 f(2)。', null, null, ['return-new-head']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 恢复执行，接住 f(3) 返回的节点 4；节点本身没有移动。', s => {s.stack.pop(); s.head = 2;}, null, ['recursive-call']);
-  add('head.next.next = head', 'head.next 是 3；把 3.next 改为 2。2 → 3 与 3 → 2 暂时成环。', s => {s.links[3] = 2;}, 'link3', ['reverse-link']);
-  add('head.next = None', '把 2.next 清空，拆环；现在是 4 → 3 → 2 → None。', s => {s.links[2] = null;}, 'link2', ['clear-link']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 恢复执行，接住 f(3) 返回的节点 4；节点本身没有移动。', s => { s.stack.pop(); s.head = 2; }, null, ['recursive-call']);
+  add('head.next.next = head', 'head.next 是 3；把 3.next 改为 2。2 → 3 与 3 → 2 暂时成环。', s => { s.links[3] = 2; }, 'link3', ['reverse-link']);
+  add('head.next = None', '把 2.next 清空，拆环；现在是 4 → 3 → 2 → None。', s => { s.links[2] = null; }, 'link2', ['clear-link']);
   add('return new_head', 'f(2) 把节点 4 返回给 f(1)。', null, null, ['return-new-head']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 恢复执行，接住 f(2) 返回的节点 4。', s => {s.stack.pop(); s.head = 1;}, null, ['recursive-call']);
-  add('head.next.next = head', 'head.next 是 2；把 2.next 改为 1。1 → 2 与 2 → 1 暂时成环。', s => {s.links[2] = 1;}, 'link2', ['reverse-link']);
-  add('head.next = None', '把 1.next 清空，拆环；链表成为 4 → 3 → 2 → 1 → None。', s => {s.links[1] = null;}, 'link1', ['clear-link']);
-  add('return new_head', 'f(1) 返回节点 4。所有调用结束；4 是新头，1 是新尾。', s => {s.stack.pop(); s.head = undefined;}, null, ['return-new-head']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 恢复执行，接住 f(2) 返回的节点 4。', s => { s.stack.pop(); s.head = 1; }, null, ['recursive-call']);
+  add('head.next.next = head', 'head.next 是 2；把 2.next 改为 1。1 → 2 与 2 → 1 暂时成环。', s => { s.links[2] = 1; }, 'link2', ['reverse-link']);
+  add('head.next = None', '把 1.next 清空，拆环；链表成为 4 → 3 → 2 → 1 → None。', s => { s.links[1] = null; }, 'link1', ['clear-link']);
+  add('return new_head', 'f(1) 返回节点 4。所有调用结束；4 是新头，1 是新尾。', s => { s.stack.pop(); s.head = undefined; }, null, ['return-new-head']);
 
-  let step = 0;
-  let state = clone(frames[0].state);
-  let selected = null;
-  let drag = null;
-  let ignoreClick = false;
-  let manualMessage = '';
   let places = {};
   let motion = [];
-  let motionFrame = null;
-  let motionStartedAt = null;
   let motionProgress = 1;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  function cancelMotion() {
-    if (motionFrame !== null) cancelAnimationFrame(motionFrame);
-    motionFrame = null;
-    motionStartedAt = null;
-    motionProgress = 1;
-    motion = [];
-  }
-
-  function advanceMotion(now) {
-    if (motionStartedAt === null) motionStartedAt = now;
-    motionProgress = Math.min(1, (now - motionStartedAt) / 380);
-    draw();
-    if (motionProgress < 1) motionFrame = requestAnimationFrame(advanceMotion);
-    else {
-      motion = [];
-      motionFrame = null;
-      motionStartedAt = null;
-      draw();
-    }
-  }
-
+  let transitionHandoff = null;
+  let trace, interaction;
+  const tween = createMotionController();
+  const scene = createSvgScene(arrows);
+  scene.defineMarker('node-arrow', {fill: '#333'});
+  scene.defineMarker('var-arrow', {markerWidth: 7, refX: 6, fill: '#555'});
+  const labelFor = value => value === undefined ? '未赋值' : value === null ? 'None' : `节点 ${value}`;
+  const targetPoint = (value, side = 'right') => places[value === null ? `null-${side}` : String(value)];
+  const keyToValue = key => key.startsWith('null') ? null : Number(key);
+  function cancelMotion() { tween.cancel(); motion = []; motionProgress = 1; }
   function beginMotion(before, after, fromTips = {}) {
     cancelMotion();
-    if (reducedMotion.matches) return;
-    for (const name of ['head', 'newHead']) {
-      if (before[name] !== after[name]) {
-        motion.push({kind: 'reference', name, from: before[name], to: after[name], fromPoint: fromTips[name]});
-      }
-    }
-    for (const node of [1, 2, 3, 4]) {
-      if (before.links[node] !== after.links[node]) {
-        motion.push({kind: 'link', node, from: before.links[node], to: after.links[node]});
-      }
-    }
-    if (motion.length) {
-      motionProgress = 0;
-      motionFrame = requestAnimationFrame(advanceMotion);
-    }
+    if (tween.reduced) return;
+    for (const name of ['head', 'newHead']) if (before[name] !== after[name]) motion.push({kind: 'reference', name, from: before[name], to: after[name], fromPoint: fromTips[name]});
+    for (const node of [1, 2, 3, 4]) if (before.links[node] !== after.links[node]) motion.push({kind: 'link', node});
+    if (!motion.length) return;
+    motionProgress = 0;
+    tween.tween({duration: 380, update(eased) { motionProgress = eased; draw(); }, complete() { motion = []; motionProgress = 1; draw(); }});
   }
-
-  const labelFor = value => value === undefined ? '未赋值' : value === null ? 'None' : `节点 ${value}`;
-  function targetPoint(value, side = 'right') { return places[value === null ? `null-${side}` : String(value)]; }
-  function keyToValue(key) { return key.startsWith('null') ? null : Number(key); }
-
   function layout() {
-    const width = stage.clientWidth;
-    const narrow = width <= 480;
+    const state = trace?.state;
+    if (!state) return;
+    const width = stage.clientWidth, narrow = width <= 480;
     const fractions = narrow ? [.16, .38, .60, .82] : [.20, .40, .60, .80];
-    const nodeY = narrow ? 166 : 176;
-    const linkY = narrow ? 250 : 263;
+    const nodeY = narrow ? 166 : 176, linkY = narrow ? 250 : 263;
     const nullOwner = [1, 2, 3, 4].find(node => state.links[node] === null);
     const localNull = nullOwner === 2 || nullOwner === 3;
     const localNullX = localNull ? width * (fractions[nullOwner - 1] + fractions[nullOwner]) / 2 : width - (narrow ? 17 : 32);
     places = {
-      1: {x: width * fractions[0], y: nodeY},
-      2: {x: width * fractions[1], y: nodeY},
-      3: {x: width * fractions[2], y: nodeY},
-      4: {x: width * fractions[3], y: nodeY},
-      'null-left': {x: narrow ? 17 : 32, y: nodeY + (narrow ? 36 : 0)},
-      'null-right': {x: localNullX, y: nodeY + (localNull ? 48 : narrow ? 36 : 0)},
-      head: {x: width * .25, y: 48},
-      newHead: {x: width * .75, y: 48},
-      link1: {x: width * fractions[0], y: linkY},
-      link2: {x: width * fractions[1], y: linkY},
-      link3: {x: width * fractions[2], y: linkY},
-      link4: {x: width * fractions[3], y: linkY}
+      1: {x: width * fractions[0], y: nodeY}, 2: {x: width * fractions[1], y: nodeY}, 3: {x: width * fractions[2], y: nodeY}, 4: {x: width * fractions[3], y: nodeY},
+      'null-left': {x: narrow ? 17 : 32, y: nodeY + (narrow ? 36 : 0)}, 'null-right': {x: localNullX, y: nodeY + (localNull ? 48 : narrow ? 36 : 0)},
+      head: {x: width * .25, y: 48}, newHead: {x: width * .75, y: 48},
+      link1: {x: width * fractions[0], y: linkY}, link2: {x: width * fractions[1], y: linkY}, link3: {x: width * fractions[2], y: linkY}, link4: {x: width * fractions[3], y: linkY}
     };
     for (const button of allButtons) {
       const key = button.dataset.source || button.dataset.target;
-      button.style.left = `${places[key].x}px`;
-      button.style.top = `${places[key].y}px`;
+      position(button, places[key].x, places[key].y);
     }
     arrows.setAttribute('viewBox', `0 0 ${width} ${stage.clientHeight}`);
     draw();
   }
-
   function linkPath(from, to, reciprocal) {
     const a = places[from], b = targetPoint(to, to === null && from === 1 ? 'left' : 'right');
     const r = stage.clientWidth <= 480 ? 23 : 28;
@@ -293,90 +235,47 @@
       if (from < to) return `M ${a.x + r - 2} ${a.y - 7} C ${(a.x + b.x) / 2} ${a.y - 42}, ${(a.x + b.x) / 2} ${a.y - 42}, ${b.x - r + 1} ${b.y - 7}`;
       return `M ${a.x - r + 2} ${a.y + 8} C ${(a.x + b.x) / 2} ${a.y + 42}, ${(a.x + b.x) / 2} ${a.y + 42}, ${b.x + r - 1} ${b.y + 8}`;
     }
-    const dx = b.x - a.x, dy = b.y - a.y;
-    const len = Math.hypot(dx, dy) || 1;
-    const start = {x: a.x + dx / len * r, y: a.y + dy / len * r};
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
     const endRadius = to === null ? 14 : r + 2;
-    const end = {x: b.x - dx / len * endRadius, y: b.y - dy / len * endRadius};
-    return `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+    return `M ${a.x + dx / len * r} ${a.y + dy / len * r} L ${b.x - dx / len * endRadius} ${b.y - dy / len * endRadius}`;
   }
-
   function referenceEnd(name, value) {
-    const source = places[name];
-    if (value === undefined) return {x: source.x, y: source.y + 17};
+    if (value === undefined) return {x: places[name].x, y: places[name].y + 17};
     const target = targetPoint(value);
     return {x: target.x, y: target.y - (value === null ? 19 : stage.clientWidth <= 480 ? 25 : 30)};
   }
-
-  function displayedReferenceEnd(name) {
+  function displayedReferenceEnd(name, state) {
     const transition = motion.find(item => item.kind === 'reference' && item.name === name);
     if (!transition) return referenceEnd(name, state[name]);
-    const start = transition.fromPoint || referenceEnd(name, transition.from);
-    const end = referenceEnd(name, transition.to);
-    const eased = 1 - (1 - motionProgress) ** 3;
-    return {x: start.x + (end.x - start.x) * eased, y: start.y + (end.y - start.y) * eased};
+    const start = transition.fromPoint || referenceEnd(name, transition.from), end = referenceEnd(name, transition.to);
+    return {x: start.x + (end.x - start.x) * motionProgress, y: start.y + (end.y - start.y) * motionProgress};
   }
-
   function draw() {
-    if (!places[1]) return;
-    const paths = [];
-    for (const node of [1, 2, 3, 4]) {
-      if (drag?.moved && drag.source === `link${node}`) continue;
-      const to = state.links[node];
-      const reciprocal = to !== null && state.links[to] === node;
-      const changed = !manualMessage && frames[step].changed === `link${node}`;
-      const changing = motion.some(cue => cue.kind === 'link' && cue.node === node);
-      const width = changing ? 4.5 - (4.5 - (changed ? 2.8 : 2)) * motionProgress : changed ? 2.8 : 2;
-      paths.push(`<path d="${linkPath(node, to, reciprocal)}" fill="none" stroke="#333" stroke-width="${width}" marker-end="url(#node-arrow)"/>`);
-    }
-    for (const name of ['head', 'newHead']) {
-      const value = state[name];
-      const transition = motion.find(item => item.kind === 'reference' && item.name === name);
-      if ((value === undefined && !transition) || (drag?.moved && drag.source === name)) continue;
-      const a = places[name];
-      const tip = displayedReferenceEnd(name);
-      const opacity = transition && transition.to === undefined ? 1 - motionProgress : 1;
-      paths.push(`<path data-ref="${name}" d="M ${a.x} ${a.y + 17} L ${tip.x} ${tip.y}" fill="none" stroke="#555" stroke-width="1.5" opacity="${opacity}" marker-end="url(#var-arrow)"/>`);
-    }
-    if (drag?.moved) {
-      const a = places[drag.source];
-      const y = drag.source.startsWith('link') ? a.y - 12 : a.y + 16;
-      paths.push(`<path d="M ${a.x} ${y} L ${drag.x} ${drag.y}" fill="none" stroke="#777" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#var-arrow)"/>`);
-    }
-    arrows.innerHTML = `<defs>
-      <marker id="node-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker>
-      <marker id="var-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker>
-    </defs>${paths.join('')}`;
-  }
-
-  function syncCodeHighlight(frame) {
-    const activeKeys = new Set(manualMessage ? [] : frame.lineKeys);
-    const activeLines = [];
-    for (const line of codeLines) {
-      const active = activeKeys.has(line.dataset.codeLine);
-      line.classList.toggle('is-active', active);
-      if (active) {
-        line.setAttribute('aria-current', 'step');
-        activeLines.push(line);
-      } else {
-        line.removeAttribute('aria-current');
+    const state = trace?.state;
+    if (!state || !places[1]) return;
+    const frame = trace.frame, drag = interaction?.drag;
+    scene.update(({path}) => {
+      for (const node of [1, 2, 3, 4]) {
+        if (drag?.moved && drag.source === `link${node}`) continue;
+        const to = state.links[node], reciprocal = to !== null && state.links[to] === node;
+        const changed = !trace.manualMessage && frame.changed === `link${node}`;
+        const changing = motion.some(cue => cue.kind === 'link' && cue.node === node);
+        path(`node-link-${node}`, {d: linkPath(node, to, reciprocal), fill: 'none', stroke: '#333', 'stroke-width': changing ? 4.5 - (4.5 - (changed ? 2.8 : 2)) * motionProgress : changed ? 2.8 : 2, 'marker-end': 'url(#node-arrow)'});
       }
-    }
-    if (!activeLines.length) return;
-    const scroller = codeScroll.getBoundingClientRect();
-    const first = activeLines[0].getBoundingClientRect();
-    const last = activeLines[activeLines.length - 1].getBoundingClientRect();
-    const visibleTop = scroller.top + 10;
-    const visibleBottom = scroller.bottom - 10;
-    if (first.top < visibleTop) codeScroll.scrollTop -= visibleTop - first.top;
-    else if (last.bottom > visibleBottom) codeScroll.scrollTop += last.bottom - visibleBottom;
+      for (const name of ['head', 'newHead']) {
+        const value = state[name], transition = motion.find(item => item.kind === 'reference' && item.name === name);
+        if ((value === undefined && !transition) || (drag?.moved && drag.source === name)) continue;
+        const a = places[name], tip = displayedReferenceEnd(name, state);
+        path(`reference-${name}`, {d: `M ${a.x} ${a.y + 17} L ${tip.x} ${tip.y}`, fill: 'none', stroke: '#555', 'stroke-width': 1.5, opacity: transition && transition.to === undefined ? 1 - motionProgress : 1, 'marker-end': 'url(#var-arrow)'});
+      }
+      if (drag?.moved) {
+        const a = places[drag.source], y = drag.source.startsWith('link') ? a.y - 12 : a.y + 16;
+        path('drag-preview', {d: `M ${a.x} ${y} L ${drag.x} ${drag.y}`, fill: 'none', stroke: '#777', 'stroke-width': 1.5, 'stroke-dasharray': '5 5', 'marker-end': 'url(#var-arrow)'});
+      }
+    });
   }
-
-  function render() {
-    const frame = frames[step];
-    count.textContent = manualMessage ? `练习 · ${step} / ${frames.length - 1}` : `${step} / ${frames.length - 1}`;
-    previous.disabled = step === 0;
-    next.disabled = step === frames.length - 1;
+  function renderScene({frame, state, manualMessage}) {
+    const selected = interaction?.selected;
     operation.replaceChildren();
     const code = document.createElement('code');
     code.dataset.currentCode = '';
@@ -385,7 +284,6 @@
     explanation.className = 'explanation';
     explanation.textContent = manualMessage || frame.explanation;
     operation.append(code, explanation);
-    syncCodeHighlight(frame);
     stack.replaceChildren();
     if (state.stack.length) {
       for (const [index, value] of state.stack.entries()) {
@@ -401,8 +299,7 @@
       stack.append(empty);
     }
     for (const button of sources) {
-      const source = button.dataset.source;
-      const value = source.startsWith('link') ? state.links[Number(source.slice(4))] : state[source];
+      const source = button.dataset.source, value = source.startsWith('link') ? state.links[Number(source.slice(4))] : state[source];
       button.textContent = source === 'newHead' ? (value === undefined ? 'new_head = —' : 'new_head') : source.startsWith('link') ? `${source.slice(4)}.next` : (value === undefined ? 'head = —' : 'head');
       button.setAttribute('aria-label', `${button.textContent} 当前指向${labelFor(value)}。点击后选节点或 None，也可拖动。`);
       button.classList.toggle('unset', value === undefined);
@@ -417,104 +314,48 @@
     }
     layout();
   }
-
-  function showStep(index) {
-    const before = manualMessage ? null : clone(state);
-    const fromTips = before ? {head: displayedReferenceEnd('head'), newHead: displayedReferenceEnd('newHead')} : {};
-    step = Math.max(0, Math.min(frames.length - 1, index));
-    state = clone(frames[step].state);
-    selected = null;
-    manualMessage = '';
-    if (before) beginMotion(before, state, fromTips);
-    else cancelMotion();
-    render();
-  }
-  previous.addEventListener('click', () => showStep(step - 1));
-  next.addEventListener('click', () => showStep(step + 1));
-
-  function apply(source, value) {
-    const before = clone(state);
-    const fromTips = source.startsWith('link') ? {} : {[source]: displayedReferenceEnd(source)};
+  function prepareStep({beforeState}) {
+    transitionHandoff = beforeState ? {beforeState, fromTips: {head: displayedReferenceEnd('head', beforeState), newHead: displayedReferenceEnd('newHead', beforeState)}} : null;
     cancelMotion();
-    if (source.startsWith('link')) state.links[Number(source.slice(4))] = value;
-    else state[source] = value;
+    interaction?.clearSelection({notify: false});
+  }
+  function animateStep({state}) {
+    const handoff = transitionHandoff;
+    transitionHandoff = null;
+    if (handoff) beginMotion(handoff.beforeState, state, handoff.fromTips);
+  }
+  function apply(source, value) {
+    const before = clone(trace.state);
+    const fromTips = source.startsWith('link') ? {} : {[source]: displayedReferenceEnd(source, before)};
+    cancelMotion();
+    interaction.clearSelection({notify: false});
     const label = source === 'newHead' ? 'new_head' : source.startsWith('link') ? `${source.slice(4)}.next` : 'head';
-    manualMessage = `${label} 现在指向${labelFor(value)}。只有改动 .next 才会改变节点之间的实线；调用栈和演示步骤未改变。`;
-    selected = null;
-    beginMotion(before, state, fromTips);
-    render();
+    trace.updatePractice(state => {
+      if (source.startsWith('link')) state.links[Number(source.slice(4))] = value;
+      else state[source] = value;
+    }, `${label} 现在指向${labelFor(value)}。只有改动 .next 才会改变节点之间的实线；调用栈和演示步骤未改变。`);
+    beginMotion(before, trace.state, fromTips);
   }
-
-  function nearestTarget(clientX, clientY) {
-    const rect = stage.getBoundingClientRect();
-    const x = clientX - rect.left, y = clientY - rect.top;
-    let best, distance = 48;
-    for (const key of ['1', '2', '3', '4', 'null-left', 'null-right']) {
-      const point = places[key];
-      const d = Math.hypot(x - point.x, y - point.y);
-      if (d < distance) { best = key; distance = d; }
-    }
-    return best;
-  }
-
-  for (const button of sources) {
-    button.addEventListener('click', () => {
-      if (ignoreClick) { ignoreClick = false; return; }
+  trace = createTrace({root, cloneState: clone, motion: tween, onRender: renderScene, onBeforeStep: prepareStep, onTransition: animateStep});
+  interaction = createManualInteraction({
+    root, stage, sources, targets,
+    getTargetPoint: target => places[target.dataset.target],
+    getTargetValue: target => keyToValue(target.dataset.target),
+    targetReadyClass: 'target-ready', maxDistance: 48,
+    onSelectionChange: ({selected, source}) => {
       cancelMotion();
-      selected = selected === button.dataset.source ? null : button.dataset.source;
-      manualMessage = selected ? `已选择 ${button.textContent}。再点一个节点或 None；也可以拖动方框。` : '';
-      render();
-    });
-    button.addEventListener('pointerdown', event => {
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      cancelMotion();
-      draw();
-      drag = {source: button.dataset.source, button, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
-      button.setPointerCapture(event.pointerId);
-    });
-    button.addEventListener('pointermove', event => {
-      if (!drag || drag.button !== button) return;
-      const dx = event.clientX - drag.startX, dy = event.clientY - drag.startY;
-      if (!drag.moved && Math.hypot(dx, dy) < 5) return;
-      drag.moved = true;
-      drag.x = places[drag.source].x + dx;
-      drag.y = places[drag.source].y + dy;
-      button.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px)`;
-      const ready = nearestTarget(event.clientX, event.clientY);
-      for (const target of targets) target.classList.toggle('target-ready', target.dataset.target === ready);
-      draw();
-    });
-    button.addEventListener('pointerup', event => {
-      if (!drag || drag.button !== button) return;
-      const moved = drag.moved;
-      const source = drag.source;
-      button.style.transform = '';
-      drag = null;
-      if (moved) {
-        const target = nearestTarget(event.clientX, event.clientY);
-        if (target) apply(source, keyToValue(target));
-        else render();
-        ignoreClick = true;
-        setTimeout(() => { ignoreClick = false; }, 0);
-      }
-    });
-    button.addEventListener('pointercancel', () => {
-      button.style.transform = '';
-      drag = null;
-      render();
-    });
-  }
-  for (const button of targets) {
-    button.addEventListener('click', () => {
-      if (selected) apply(selected, keyToValue(button.dataset.target));
-    });
-  }
-  root.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && selected) { selected = null; manualMessage = ''; render(); }
+      if (selected) trace.setPreviewMessage(`已选择 ${source.textContent}。再点一个节点或 None；也可以拖动方框。`);
+      else trace.clearPreviewMessage();
+    },
+    onPointerStart: () => { cancelMotion(); trace.clearCodeHighlight(); draw(); },
+    onPointerMove: draw,
+    onPointerEnd: () => trace.render(),
+    onPointerCancel: () => trace.render(),
+    onDrop: ({source, value}) => apply(source, value)
   });
+  tween.onPreferenceChange(() => { motion = []; motionProgress = 1; draw(); });
   new ResizeObserver(() => { cancelMotion(); layout(); }).observe(stage);
-  reducedMotion.addEventListener('change', () => { cancelMotion(); draw(); });
-  render();
+  trace.setFrames(frames);
 })();
 </script>
 </body>

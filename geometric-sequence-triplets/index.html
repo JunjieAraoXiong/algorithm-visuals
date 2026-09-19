@@ -4,16 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="Interactive bilingual visualization of counting geometric-sequence triplets with two frequency maps. 双哈希表统计等比数列三元组。" />
-    <title>Geometric Sequence Triplets · Algo Visual</title>
+    <title>Geometric Sequence Triplets · Algorithm Visuals</title>
     <link rel="stylesheet" href="../assets/guide.css" />
     <link rel="stylesheet" href="../assets/visual.css" />
     <style>
       :root { --soft:#e5e3dc; --wash:#f5f2e9; }
       .problem { max-width:920px; margin:0 3px 12px; color:#41413e; }
       .problem span { display:block; margin-top:3px; color:var(--quiet); }
-      .step-meta { display:flex; flex-wrap:wrap; gap:8px 18px; min-height:28px; margin:8px 3px 0; color:var(--quiet); font:12px/1.5 monospace; }
       .step-picker { margin-left:auto; }
-      .stage { height:410px; overflow:hidden; border-bottom:1px solid var(--rule); touch-action:pan-y; }
+      .stage { height:430px; overflow:hidden; border-bottom:1px solid var(--rule); touch-action:pan-y; }
       .array-track { position:absolute; inset:0; }
       .array-cell { position:absolute; z-index:2; display:grid; place-items:center; height:48px; border:1.5px solid var(--ink); background:var(--paper); font:16px/1 monospace; transition:left .32s ease,background-color .2s,border-color .2s; }
       .array-cell::after { content:attr(data-index); position:absolute; top:calc(100% + 5px); color:var(--quiet); font:9px/1 monospace; }
@@ -67,19 +66,18 @@
   <body>
     <main id="triplet-lab">
       <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
-      <header class="heading"><div><h1>Geometric Sequence Triplets · 等比数列三元组</h1><p class="subtitle">Chapter 02 · Hash Maps and Sets / 哈希表与集合</p></div></header>
+      <header class="heading"><div><h1>Geometric Sequence Triplets · 等比数列三元组</h1></div></header>
       <p class="problem">For <code>nums = [2, 1, 2, 4, 8, 8]</code> and <code>r = 2</code>, count index triplets <code>i &lt; j &lt; k</code> whose values are <code>(x / r, x, x · r)</code>.<span lang="zh-CN">统计下标满足 i &lt; j &lt; k、数值构成 (x / r, x, x · r) 的三元组；重复数字代表不同下标选择。</span></p>
 
       <div class="learning-layout" data-learning-layout>
-        <section class="animation-panel" data-animation-panel aria-label="Geometric triplet frequency-map trace / 等比三元组频率表演示">
+        <section class="animation-panel" data-animation-panel aria-label="Geometric triplet trace / 等比三元组演示">
           <div class="controls">
             <button type="button" data-action="previous">← 上一步</button>
             <output data-count></output>
             <button type="button" data-action="next">下一步 →</button>
             <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
           </div>
-          <div class="step-meta"><span data-phase></span><span data-position></span></div>
-          <div class="stage" data-stage tabindex="0" aria-label="Use arrow keys, Home, or End to navigate the trace.">
+          <div class="stage" data-stage tabindex="0" aria-label="Geometric triplet trace diagram / 等比三元组演示图">
             <div class="array-track" data-array-track></div>
             <span class="x-pointer" data-x-pointer hidden>x</span>
             <span class="partition-label left" data-left-zone></span>
@@ -115,7 +113,6 @@
       <section class="section" aria-labelledby="triplet-frequency"><h2 id="triplet-frequency">Why multiply the frequencies? / 为什么频率相乘</h2><div class="frequency-grid"><article class="paper-card"><h3>When <code>x = 4</code></h3><div class="triplet-diagram"><span>2 × 2</span><span>4</span><span>2 × 8</span></div><p>There are two earlier 2s and two later 8s. Every earlier choice can pair with every later choice: <code>2 × 2 = 4</code> triplets.</p></article><article class="paper-card"><h3>Contribution by middle index</h3><div class="contribution-list"><div><span>x = 2₀</span><span>0 × 1</span><strong>0</strong></div><div><span>x = 1</span><span>not divisible</span><strong>0</strong></div><div><span>x = 2₂</span><span>1 × 1</span><strong>1</strong></div><div><span>x = 4</span><span>2 × 2</span><strong>4</strong></div><div><span>x = 8₄</span><span>1 × 0</span><strong>0</strong></div><div><span>x = 8₅</span><span>1 × 0</span><strong>0</strong></div></div><p>Total: <code>0 + 0 + 1 + 4 + 0 + 0 = 5</code>.</p></article></div></section>
       <section class="section" aria-labelledby="triplet-edge"><h2 id="triplet-edge">Important details / 重要细节</h2><div class="edge-grid"><article class="paper-card"><code>defaultdict(int)</code><p>A missing key reads as frequency 0. / <span lang="zh-CN">不存在的键默认频率为 0。</span></p></article><article class="paper-card"><code>x % r != 0</code><p>No integer left value exists, so this x contributes nothing.</p></article><article class="paper-card"><code>r = 1</code><p>All three values are equal; the same frequency logic counts different index choices.</p></article><article class="paper-card"><code>r ≠ 0</code><p>This implementation assumes a nonzero common ratio because it divides by r.</p></article></div></section>
       <section class="section" aria-labelledby="triplet-complexity"><h2 id="triplet-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(n) average</strong><p>Two array passes perform average constant-time hash-map operations.</p></article><article class="paper-card"><strong>Extra space · O(n)</strong><p>The two frequency maps can contain up to O(n) distinct keys.</p></article></div></section>
-      <details class="guide-help"><summary>图例与操作说明</summary><div class="legend"><span>浅色数组格：已经移入 left_map</span><span>虚线框：当前中间值 x</span><span>粗框表格行：本步更新</span><span>双线表格行：本步查询</span></div><p>使用按钮、步骤菜单、方向键、Home 或 End 浏览。数组元素位置不变；只有 x 指针和两个频率表随遍历更新。</p></details>
       <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../longest-chain-of-consecutive-numbers/">最长连续数字链</a><a href="../substring-anagrams/">字母异位子串</a><a href="../">返回目录</a></nav>
     </main>
 
@@ -134,8 +131,6 @@
         const leftMapRoot = root.querySelector('[data-left-map]');
         const rightMapRoot = root.querySelector('[data-right-map]');
         const formula = root.querySelector('[data-formula]');
-        const phase = root.querySelector('[data-phase]');
-        const position = root.querySelector('[data-position]');
         const invariant = root.querySelector('[data-invariant]');
         const xValue = root.querySelector('[data-x-value]');
         const leftNeed = root.querySelector('[data-left-need]');
@@ -322,9 +317,6 @@
         }
 
         function render({frame,state,step,frames}) {
-          const phaseLabels = {setup:'Setup / 准备',select:'Choose x / 选择 x', 'move-boundary':'Move boundary / 移动边界',count:'Count choices / 统计选择',advance:'Advance / 前进',done:'Result / 结果'};
-          phase.textContent = `${phaseLabels[state.phase]} · ${frame.stepLabel}`;
-          position.textContent = state.index === null ? (state.done ? 'answer = 5' : `r = ${ratio}`) : `index = ${state.index} · r = ${ratio}`;
           if (state.index === null) invariant.textContent = 'left_map stores processed indexes; right_map stores unprocessed indexes. / left_map 保存已处理下标，right_map 保存未处理下标。';
           else if (state.phase === 'select') invariant.textContent = `Index ${state.index} is still counted in right_map until the next line removes it. / 下标 ${state.index} 此时仍计入 right_map，下一行才会移除。`;
           else if (state.phase === 'advance') invariant.textContent = `Index ${state.index} has finished counting and now belongs to left_map. / 下标 ${state.index} 已完成计数，现在进入 left_map。`;
@@ -338,7 +330,7 @@
           explanation.textContent = frame.en;
           explanationZh.textContent = frame.zh;
           paint(state);
-          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步：${frame.zh}`);
         }
 
         makeArray();

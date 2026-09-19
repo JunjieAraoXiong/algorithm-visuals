@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Bilingual interactive visualization of Floyd's fast and slow pointer algorithm for detecting a linked-list cycle. 快慢指针判断链表环。">
 <title>Linked List Loop · Algorithm Visuals</title>
+<link rel="stylesheet" href="../assets/visual.css">
 <style>
 :root{--paper:#fffdf8;--ink:#272727;--quiet:#5b5b57;--rule:#b7b7b1;--soft:#e5e3dc;--wash:#f5f2e9;--node:42px}
 *{box-sizing:border-box}
@@ -20,10 +21,10 @@ button,select{color:inherit;font:inherit;background:var(--paper);border:1px soli
 .controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}.controls select{max-width:100%;padding:6px}.step-count{min-width:76px;text-align:center;font-size:12px}.jump-label{margin-left:auto;color:var(--quiet);font-size:12px}
 .phase-line{display:flex;flex-wrap:wrap;gap:7px 15px;min-height:24px;margin:8px 1px 3px;color:var(--quiet);font-size:12px}.distance{color:var(--ink)}.distance[hidden],.condition[hidden]{display:none}.condition{min-height:24px;margin:0 1px 3px;color:var(--quiet);font-size:11px}
 .stage{position:relative;width:100%;height:410px;overflow:hidden;border-bottom:1px solid var(--rule);touch-action:pan-y}.stage-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.node,.null-target,.variable{position:absolute;z-index:1;transform:translate(-50%,-50%)}.node{display:grid;place-items:center;width:var(--node);height:var(--node);border:1.8px solid var(--ink);border-radius:50%;background:var(--paper);font-size:18px;font-weight:500}.node:after{content:attr(data-id);position:absolute;top:calc(100% + 3px);left:50%;transform:translateX(-50%);color:var(--quiet);font:9px/1 ui-monospace,monospace}.node.compared{outline:1px dashed #777;outline-offset:5px}.node.meet{outline:3px double var(--ink);outline-offset:5px}.null-target{color:var(--quiet);font-size:13px}
+.node,.null-target,.variable{position:absolute;z-index:1;transform:translate(-50%,-50%)}.node.visual-positioned,.null-target.visual-positioned,.variable.visual-positioned{left:0!important;top:0!important;transform:translate3d(var(--visual-x,0px),var(--visual-y,0px),0) translate(-50%,-50%)!important}.node{display:grid;place-items:center;width:var(--node);height:var(--node);border:1.8px solid var(--ink);border-radius:50%;background:var(--paper);font-size:18px;font-weight:500}.node:after{content:attr(data-id);position:absolute;top:calc(100% + 3px);left:50%;transform:translateX(-50%);color:var(--quiet);font:9px/1 ui-monospace,monospace}.node.compared{outline:1px dashed #777;outline-offset:5px}.node.meet{outline:3px double var(--ink);outline-offset:5px}.null-target{color:var(--quiet);font-size:13px}
 .variable{min-width:57px;padding:3px 6px;border:1.4px solid #595959;border-radius:3px;background:var(--paper);font:11px/1.2 ui-monospace,monospace;text-align:center;white-space:nowrap;pointer-events:none;will-change:left,top}.variable.fast{border-style:dashed}.variable.moving{min-width:84px}
 .callout{min-height:78px;margin:13px 0 8px;padding:10px 12px;border:1px dashed #999}.callout code,.callout span{display:block}.callout code{margin-bottom:4px;font-size:13px;overflow-wrap:anywhere}.callout .zh{margin-top:2px;color:var(--quiet)}
-.legend{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--quiet);font-size:12px}.legend b{color:var(--ink);font-weight:400}.hint,.small{color:var(--quiet);font-size:12px}
+.small{color:var(--quiet);font-size:12px}
 .section{margin-top:24px;padding-top:18px;border-top:1px solid var(--rule)}.section-intro{max-width:850px;color:var(--quiet)}
 .paper-card{min-width:0;padding:11px;border:1px solid var(--rule)}.paper-card p:last-child{margin-bottom:0}.card-kicker{margin-bottom:8px;color:var(--quiet);font:10px/1.2 ui-monospace,monospace;letter-spacing:.07em;text-transform:uppercase}
 .baseline-demo{padding:12px;border:1px solid var(--rule)}.mini-controls{display:flex;align-items:center;gap:7px;margin-bottom:11px}.mini-controls button{padding:4px 7px;font-size:12px}.mini-controls output{min-width:48px;text-align:center;font:11px/1 monospace}
@@ -39,6 +40,7 @@ button,select{color:inherit;font:inherit;background:var(--paper);border:1px soli
 @media(max-width:520px){:root{--node:34px}body{padding:12px 8px 38px;font-size:14px}.example{flex:1 1 46%;text-align:left}.controls{gap:6px}.controls button{padding:5px 7px}.stage{height:382px}.variable{min-width:49px;padding:2px 4px;font-size:9px}.variable.moving{min-width:70px}.baseline-state{grid-template-columns:1fr}.guard-grid,.complexity,.edge-gallery,.speed-contrast{grid-template-columns:1fr}.proof-card svg{height:160px}}
 @media(prefers-reduced-motion:reduce){.variable{will-change:auto}.shelf-item.new{animation:none}}
 </style>
+<link rel="stylesheet" href="../assets/guide.css">
 </head>
 <body>
 <main id="loop-lab">
@@ -57,11 +59,11 @@ button,select{color:inherit;font:inherit;background:var(--paper);border:1px soli
 <button class="example" type="button" data-example="noneOdd" aria-pressed="false">No cycle · odd / 无环奇数</button>
 </div>
 <div class="controls" aria-label="Animation controls / 演示控制">
-<button type="button" data-previous>← Previous / 上一步</button>
+<button type="button" data-action="previous">← 上一步</button>
 <output class="step-count" data-count aria-live="off"></output>
-<button type="button" data-next>Next / 下一步 →</button>
-<label class="jump-label" for="jump">Jump / 跳到</label>
-<select id="jump" data-jump><option value="">Choose phase / 选择阶段</option><option value="start">Start / 开始</option><option value="first">First iteration / 第一轮</option><option value="last-check">Last check / 最后检查</option><option value="result">Result / 结果</option></select>
+<button type="button" data-action="next">下一步 →</button>
+<label class="jump-label" for="jump">跳到步骤</label>
+<select id="jump" data-step-select aria-label="跳到步骤"></select>
 </div>
 <div class="phase-line"><span data-phase></span><span class="distance" data-distance hidden></span></div>
 <div class="condition" data-condition hidden></div>
@@ -72,13 +74,11 @@ button,select{color:inherit;font:inherit;background:var(--paper);border:1px soli
 <span class="variable fast" data-pointer="fast" aria-hidden="true">fast</span>
 </div>
 <div class="callout" role="status" aria-live="polite" aria-atomic="true"><code data-code></code><span data-note-en></span><span class="zh" lang="zh-CN" data-note-zh></span></div>
-<div class="legend"><span><b>Solid arrow / 深色实线：</b> stored <code>.next</code></span><span><b>Solid box / 实线框：</b> <code>slow</code></span><span><b>Dashed box / 虚线框：</b> <code>fast</code></span><span><b>Double ring / 双圈：</b> same node object / 同一个对象</span></div>
-<p class="hint">Use the buttons, or click/focus the diagram and then press ← / →. Nodes and solid links stay fixed; only variable references move. / <span lang="zh-CN">可使用按钮；也可先点击或聚焦图，再按左右方向键。节点和实线连接始终固定，移动的只有变量引用。</span></p>
 </section>
 
 <aside class="code-panel" data-code-panel aria-labelledby="code-panel-title">
 <h2 id="code-panel-title">Final Python <span lang="zh-CN">/ 最终代码</span></h2>
-<p class="small">Both visual fast hops map to the same executable line. / <span lang="zh-CN">图中的 fast 两跳都对应同一行代码。</span></p>
+<p class="code-status" data-code-status aria-live="polite"></p>
 <pre data-code-scroll tabindex="0" aria-label="Complete Python implementation with synchronized current line"><code class="source-code"><span class="code-line" id="source-function" data-code-line="function">def linked_list_loop(head: ListNode) -&gt; bool:</span><span class="code-line" id="source-init" data-code-line="init">    slow = fast = head</span><span class="code-line" aria-hidden="true"> </span><span class="code-line code-comment" id="source-guard-comment" data-code-line="guard-comment">    # Check both 'fast' and 'fast.next' before taking two hops</span><span class="code-line code-comment" id="source-guard-comment-2" data-code-line="guard-comment-2">    # so we never access '.next' on None.</span><span class="code-line" id="source-guard" data-code-line="guard">    while fast and fast.next:</span><span class="code-line" id="source-slow-move" data-code-line="slow-move">        slow = slow.next</span><span class="code-line" id="source-fast-move" data-code-line="fast-move">        fast = fast.next.next</span><span class="code-line" aria-hidden="true"> </span><span class="code-line" id="source-compare" data-code-line="compare">        if fast == slow:</span><span class="code-line" id="source-return-true" data-code-line="return-true">            return True</span><span class="code-line" aria-hidden="true"> </span><span class="code-line" id="source-return-false" data-code-line="return-false">    return False</span></code></pre>
 <p class="small"><strong>Identity assumption / 身份比较前提：</strong> the source keeps <code>fast == slow</code>, which acts as identity when <code>ListNode</code> uses Python’s default equality. If <code>__eq__</code> is overridden, use <code>fast is slow</code> to state object identity explicitly. / <span lang="zh-CN">源码保留 <code>fast == slow</code>；只有在 <code>ListNode</code> 使用默认相等规则时，它才等同于身份比较。若类重写了 <code>__eq__</code>，应使用 <code>fast is slow</code> 明确比较对象身份。</span></p>
 </aside>
@@ -86,7 +86,7 @@ button,select{color:inherit;font:inherit;background:var(--paper);border:1px soli
 
 <section class="section" aria-labelledby="baseline-title">
 <h2 id="baseline-title">Baseline: remember every node <span lang="zh-CN">/ 基础解法：记住每个节点</span></h2>
-<p class="section-intro">A hash set asks whether the current node object is already stored. Step through the shelf below. It takes linear time, but the shelf can grow to <code>n</code> nodes. / <span lang="zh-CN">哈希集合会检查当前节点对象是否已经存过。下面逐步观察集合变大；时间为线性，但最多需要保存 <code>n</code> 个节点。</span></p>
+<p class="section-intro">A hash set asks whether the current node object is already stored. It takes linear time, but the shelf can grow to <code>n</code> nodes. / <span lang="zh-CN">哈希集合检查当前节点对象是否已经存过；时间为线性，但最多需要保存 <code>n</code> 个节点。</span></p>
 <div class="baseline-demo">
 <div class="mini-controls"><button type="button" data-baseline-prev aria-label="Previous hash-set step / 哈希集合上一步">←</button><output data-baseline-count aria-live="off"></output><button type="button" data-baseline-next aria-label="Next hash-set step / 哈希集合下一步">→</button></div>
 <div class="baseline-state">
@@ -109,7 +109,7 @@ button,select{color:inherit;font:inherit;background:var(--paper);border:1px soli
 
 <section class="section" aria-labelledby="proof-title">
 <h2 id="proof-title">Race intuition and distance countdown <span lang="zh-CN">/ 跑道直觉与距离倒计时</span></h2>
-<p class="section-intro">First use a zoomed one-edge excerpt to compare equal and unequal speeds; the complete five-node circular track appears immediately below and in “Perfect cycle.” Equal speeds preserve the gap, while a two-edge <code>fast</code> gains one node per iteration. / <span lang="zh-CN">先用一段连接的放大图比较相同与不同速度；完整的五节点环形跑道就在下方和“完整环”例子中。速度相同会保持距离，而每轮走两步的 <code>fast</code> 会追近一个节点。</span></p>
+<p class="section-intro">Equal speeds preserve the gap. When <code>fast</code> moves two edges for every one edge taken by <code>slow</code>, it gains one node per iteration. / <span lang="zh-CN">速度相同会保持距离；当 <code>fast</code> 每轮走两步、<code>slow</code> 走一步时，<code>fast</code> 每轮追近一个节点。</span></p>
 <div class="speed-contrast" aria-label="Equal speed versus fast two-times speed">
 <article class="paper-card"><p class="card-kicker">1× and 1× / 同速</p><div class="speed-frames"><span class="runner-state"><span class="runner-badges"><span class="runner-badge">slow</span><span class="runner-badge fast">fast</span></span><span class="mini-node">0</span></span><span class="speed-arrow">→</span><span class="runner-state"><span class="runner-badges"><span class="runner-badge">slow</span><span class="runner-badge fast">fast</span></span><span class="mini-node">1</span></span></div><p>Both move one edge; the gap stays <code>0</code>. / 都走一步，距离保持 <code>0</code>。</p></article>
 <article class="paper-card"><p class="card-kicker">1× and 2× / 快慢速</p><div class="speed-frames"><span class="runner-state"><span class="runner-badges"><span class="runner-badge">slow</span><span class="runner-badge fast">fast</span></span><span class="mini-node">0</span></span><span class="speed-arrow">→</span><span class="runner-state split"><span class="runner-badge">slow</span><span class="mini-node">1</span><span class="runner-badge fast">fast</span><span class="mini-node">2</span></span></div><p><code>fast</code> gains one node each iteration. / <code>fast</code> 每轮多走一个节点。</p></article>
@@ -154,29 +154,27 @@ button,select{color:inherit;font:inherit;background:var(--paper);border:1px soli
 <article class="paper-card"><p class="card-kicker">identity / 节点身份</p><div class="edge-visual"><span class="mini-node">7<span class="object-id">A</span></span><span>≠</span><span class="mini-node">7<span class="object-id">B</span></span></div><p>Equal values, different objects: not a meeting yet. / 值相同但对象不同，此刻不算相遇。</p></article>
 </div>
 </section>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../linked-list-midpoint/">链表中点</a><a href="../happy-number/">快乐数</a><a href="../">全部题目</a></nav>
 </main>
+<script src="../assets/core.js"></script>
 <script>
 (() => {
 'use strict';
 const root=document.getElementById('loop-lab');
 const stage=root.querySelector('[data-stage]');
 const svg=root.querySelector('[data-lines]');
+const {createMotionController,createSvgScene,createTrace,position}=window.AlgorithmVisualCore;
+const motionController=createMotionController();
+const scene=createSvgScene(svg);
 const nullTarget=root.querySelector('[data-null]');
-const previousButton=root.querySelector('[data-previous]');
-const nextButton=root.querySelector('[data-next]');
-const count=root.querySelector('[data-count]');
 const phase=root.querySelector('[data-phase]');
 const distanceLabel=root.querySelector('[data-distance]');
 const condition=root.querySelector('[data-condition]');
 const code=root.querySelector('[data-code]');
 const noteEn=root.querySelector('[data-note-en]');
 const noteZh=root.querySelector('[data-note-zh]');
-const jump=root.querySelector('[data-jump]');
 const proofGrid=root.querySelector('[data-proof-grid]');
-const codeScroll=root.querySelector('[data-code-scroll]');
-const sourceLines=new Map([...root.querySelectorAll('[data-code-line]')].map(line=>[line.dataset.codeLine,line]));
 const pointerElements={slow:root.querySelector('[data-pointer=slow]'),fast:root.querySelector('[data-pointer=fast]')};
-const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const cases={
  delayed:{label:'Delayed cycle / 延迟入环',values:[0,1,2,3,4,5],links:{n0:'n1',n1:'n2',n2:'n3',n3:'n4',n4:'n5',n5:'n2'},start:'n0',cycle:['n2','n3','n4','n5']},
@@ -184,8 +182,8 @@ const cases={
  noneEven:{label:'No cycle · even / 无环偶数',values:[0,1,2,3],links:{n0:'n1',n1:'n2',n2:'n3',n3:null},start:'n0',cycle:[]},
  noneOdd:{label:'No cycle · odd / 无环奇数',values:[0,1,2,3,4],links:{n0:'n1',n1:'n2',n2:'n3',n3:'n4',n4:null},start:'n0',cycle:[]}
 };
-let mode='delayed',config=cases[mode],frames=[],index=0,state=null,positions={},nodeElements=new Map();
-let motion=null,motionFrame=null,motionToken=0;
+let mode='delayed',config=cases[mode],frames=[],index=0,state=null,positions={},nodeElements=new Map(),trace;
+let motion=null;
 
 const cloneState=value=>({slow:value.slow,fast:value.fast,iteration:value.iteration,result:value.result,compare:value.compare,guard:value.guard});
 const nodeName=target=>target===null?'None':`node #${target.slice(1)}`;
@@ -204,7 +202,7 @@ function cycleDistance(fast,slow){
 function buildFrames(){
  const output=[];
  const work={slow:config.start,fast:config.start,iteration:0,result:null,compare:false,guard:null};
- const add=(kind,line,en,zh,options={})=>output.push({kind,line,en,zh,state:cloneState(work),move:options.move||null,distance:options.distance??null,condition:options.condition||'',jump:options.jump||'',sourceLine:options.sourceLine});
+ const add=(kind,line,en,zh,options={})=>output.push({kind,line,en,zh,state:cloneState(work),move:options.move||null,distance:options.distance??null,condition:options.condition||'',jump:options.jump||'',sourceKeys:[options.sourceLine]});
  add('start','slow = fast = head',
   'Both variables reference head. Do not compare here: they are equal only because both were initialized to head.',
   '两个变量都引用 head。这里先不比较：它们相同只是因为都刚被初始化为 head。',
@@ -276,9 +274,8 @@ function buildFrames(){
 }
 
 function cancelMotion(settle=true){
- motionToken++;
- if(motionFrame!==null)cancelAnimationFrame(motionFrame);
- motionFrame=null;motion=null;
+ motionController.cancel();
+ motion=null;
  if(settle&&state&&positions[config.start])paintDiagram();
 }
 
@@ -315,11 +312,11 @@ function calculatePositions(){
 
 function placeNodes(){
  for(const [id,element] of nodeElements){
-  element.style.left=`${positions[id].x}px`;element.style.top=`${positions[id].y}px`;
+  position(element,positions[id].x,positions[id].y);
  }
  const showNull=Object.values(config.links).includes(null);
  nullTarget.hidden=!showNull;
- if(showNull){nullTarget.style.left=`${positions.null.x}px`;nullTarget.style.top=`${positions.null.y}px`;}
+ if(showNull)position(nullTarget,positions.null.x,positions.null.y);
 }
 
 const pointFor=target=>positions[target===null?'null':target];
@@ -359,22 +356,36 @@ function cycleEntryLabel(){
  return`<text data-cycle-entry x="${point.x}" y="${y}" fill="#555" font-size="8" font-family="ui-monospace,monospace" text-anchor="middle"><tspan x="${point.x}">cycle entry</tspan><tspan x="${point.x}" dy="9">/ 环入口</tspan></text>`;
 }
 
-function diagramMarkup(placements){
+const linePath=({x1,y1,x2,y2})=>`M ${x1} ${y1} L ${x2} ${y2}`;
+
+function drawDiagram(placements){
  const width=stage.clientWidth,height=stage.clientHeight;
- const parts=[`<defs><marker id="stored-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker><marker id="reference-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#666"/></marker></defs>`,cycleOutline()];
- for(const [from,to] of Object.entries(config.links)){
-  const line=trimmedLine(from,to),movingHere=motion&&motion.from===from&&motion.to===to;
-  if(movingHere)parts.push(`<line x1="${line.x1}" y1="${line.y1}" x2="${line.x2}" y2="${line.y2}" stroke="#777" stroke-width="7" opacity=".12"/>`);
-  parts.push(`<line x1="${line.x1}" y1="${line.y1}" x2="${line.x2}" y2="${line.y2}" stroke="#333" stroke-width="1.8" marker-end="url(#stored-arrow)"/>`);
-  parts.push(`<text x="${line.midX+line.nx*10}" y="${line.midY+line.ny*10}" fill="#686864" font-size="9" font-family="ui-monospace,monospace" text-anchor="middle">next</text>`);
- }
- parts.push(cycleEntryLabel());
- for(const name of ['slow','fast']){
-  const placement=placements[name],moving=motion?.name===name,reference=referenceLine(placement,state[name],moving);
-  parts.push(`<line data-ref="${name}" x1="${reference.x1}" y1="${reference.y1}" x2="${reference.x2}" y2="${reference.y2}" stroke="#666" stroke-width="1.2" ${name==='fast'?'stroke-dasharray="4 3"':''} marker-end="url(#reference-arrow)"/>`);
- }
  svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
- return parts.join('');
+ scene.defineMarker('stored-arrow',{fill:'#333'});
+ scene.defineMarker('reference-arrow',{fill:'#666'});
+ scene.update(({path,text})=>{
+  if(config.cycle.length){
+   const points=config.cycle.map(id=>positions[id]),minX=Math.min(...points.map(point=>point.x)),maxX=Math.max(...points.map(point=>point.x)),minY=Math.min(...points.map(point=>point.y)),maxY=Math.max(...points.map(point=>point.y));
+   const px=stage.clientWidth<520?24:40,py=stage.clientWidth<520?28:34;
+   path('cycle-outline',{d:`M ${minX-px+24} ${minY-py} H ${maxX+px-24} Q ${maxX+px} ${minY-py} ${maxX+px} ${minY-py+24} V ${maxY+py-24} Q ${maxX+px} ${maxY+py} ${maxX+px-24} ${maxY+py} H ${minX-px+24} Q ${minX-px} ${maxY+py} ${minX-px} ${maxY+py-24} V ${minY-py+24} Q ${minX-px} ${minY-py} ${minX-px+24} ${minY-py}`,fill:'none',stroke:'#aaa','stroke-width':1,'stroke-dasharray':'6 6'});
+   text('cycle-label',{x:minX-px+6,y:Math.max(11,minY-py-5),fill:'#666','font-size':10,'font-family':'ui-monospace,monospace'},'cycle / 环');
+  }
+  for(const [from,to] of Object.entries(config.links)){
+   const line=trimmedLine(from,to),movingHere=motion&&motion.from===from&&motion.to===to;
+   if(movingHere)path(`stored-halo-${from}`,{d:linePath(line),fill:'none',stroke:'#777','stroke-width':7,opacity:'.12'});
+   path(`stored-${from}`,{d:linePath(line),fill:'none',stroke:'#333','stroke-width':1.8,'marker-end':'url(#stored-arrow)'});
+   text(`stored-label-${from}`,{x:line.midX+line.nx*10,y:line.midY+line.ny*10,fill:'#686864','font-size':9,'font-family':'ui-monospace,monospace','text-anchor':'middle'},'next');
+  }
+  if(mode==='delayed'){
+   const point=positions.n2,y=point.y+(stage.clientWidth<520?68:48);
+   text('cycle-entry-en',{x:point.x,y,fill:'#555','font-size':8,'font-family':'ui-monospace,monospace','text-anchor':'middle'},'cycle entry');
+   text('cycle-entry-zh',{x:point.x,y:y+9,fill:'#555','font-size':8,'font-family':'ui-monospace,monospace','text-anchor':'middle'},'/ 环入口');
+  }
+  for(const name of ['slow','fast']){
+   const placement=placements[name],moving=motion?.name===name,reference=referenceLine(placement,state[name],moving);
+   path(`reference-${name}`,{d:linePath(reference),fill:'none',stroke:'#666','stroke-width':1.2,'stroke-dasharray':name==='fast'?'4 3':null,'marker-end':'url(#reference-arrow)'});
+  }
+ });
 }
 
 function paintDiagram(){
@@ -384,10 +395,10 @@ function paintDiagram(){
   const moving=motion?.name===name,target=moving?motion.to:state[name],targetPoint=moving?motion.point:pointFor(state[name]);
   placements[name]=pointerPlacement(name,targetPoint,target);
   const element=pointerElements[name];
-  element.style.left=`${placements[name].x}px`;element.style.top=`${placements[name].y}px`;
+  position(element,placements[name].x,placements[name].y);
   element.textContent=moving?motion.label:name;element.classList.toggle('moving',moving);
  }
- svg.innerHTML=diagramMarkup(placements);
+ drawDiagram(placements);
  for(const [id,element] of nodeElements){
   const compared=frames[index]?.kind==='compare'&&(id===state.slow||id===state.fast);
   const meet=(frames[index]?.kind==='compare'||state.result===true)&&state.slow===state.fast&&id===state.slow;
@@ -397,17 +408,10 @@ function paintDiagram(){
 
 function startMove(move){
  cancelMotion(false);
- if(reducedMotion.matches||!pointFor(move.from)||!pointFor(move.to)){paintDiagram();return;}
- const token=++motionToken,started=performance.now(),duration=move.name==='fast'?430:360;
+ if(motionController.reduced||!pointFor(move.from)||!pointFor(move.to)){paintDiagram();return;}
+ const duration=move.name==='fast'?430:360;
  motion={...move,point:pointAlongLink(move.from,move.to,0)};paintDiagram();
- const tick=now=>{
-  if(token!==motionToken||!motion)return;
-  const raw=Math.min(1,(now-started)/duration),eased=raw<.5?2*raw*raw:1-2*(1-raw)*(1-raw);
-  motion.point=pointAlongLink(move.from,move.to,eased);paintDiagram();
-  if(raw<1)motionFrame=requestAnimationFrame(tick);
-  else{motionFrame=null;motion=null;paintDiagram();}
- };
- motionFrame=requestAnimationFrame(tick);
+ motionController.tween({duration,update:eased=>{if(!motion)return;motion.point=pointAlongLink(move.from,move.to,eased);paintDiagram();},complete:()=>{motion=null;paintDiagram();}});
 }
 
 function phaseLabel(frame){
@@ -415,57 +419,23 @@ function phaseLabel(frame){
  return(frame.state.iteration?`Iteration ${frame.state.iteration} / 第 ${frame.state.iteration} 轮 · `:'')+labels[frame.kind];
 }
 
-function syncCode(frame){
- for(const line of sourceLines.values()){
-  line.classList.remove('is-active');
-  line.removeAttribute('aria-current');
- }
- const active=sourceLines.get(frame.sourceLine);
- if(!active)return;
- active.classList.add('is-active');
- active.setAttribute('aria-current','step');
- const containerRect=codeScroll.getBoundingClientRect(),lineRect=active.getBoundingClientRect(),padding=12;
- if(lineRect.top<containerRect.top+padding||lineRect.bottom>containerRect.bottom-padding){
-  const delta=lineRect.top-containerRect.top-(codeScroll.clientHeight-lineRect.height)/2;
-  codeScroll.scrollTo({top:Math.max(0,codeScroll.scrollTop+delta),behavior:reducedMotion.matches?'auto':'smooth'});
- }
-}
-
 function renderText(){
  const frame=frames[index];
- count.textContent=`${index+1} / ${frames.length}`;previousButton.disabled=index===0;nextButton.disabled=index===frames.length-1;
- jump.value=frame.jump||'';
  phase.textContent=`${config.label} · ${phaseLabel(frame)}`;code.textContent=frame.line;noteEn.textContent=frame.en;noteZh.textContent=frame.zh;
  distanceLabel.hidden=frame.distance===null;distanceLabel.textContent=frame.distance===null?'':`cycle distance / 环内距离 = ${frame.distance}`;
  condition.hidden=!frame.condition;condition.textContent=frame.condition;
  const slowText=state.slow===null?'None':`node ${state.slow.slice(1)}`,fastText=state.fast===null?'None':`node ${state.fast.slice(1)}`;
  stage.setAttribute('aria-label',`Step ${index+1} of ${frames.length}. ${frame.en} slow references ${slowText}; fast references ${fastText}. Use left and right arrow keys.`);
- syncCode(frame);
 }
 
-function render(animate=false){renderText();paintDiagram();if(animate&&frames[index].move)startMove(frames[index].move);}
-
-function show(nextIndex){
- const target=Math.max(0,Math.min(frames.length-1,nextIndex));
- if(target===index)return;
- const animate=target===index+1;cancelMotion(false);index=target;state=cloneState(frames[index].state);render(animate);
-}
-
-function jumpTo(value){
- let target=frames.findIndex(frame=>frame.jump===value);
- if(target<0&&value==='last-check'){
-  const checks=frames.map((frame,frameIndex)=>({frame,frameIndex})).filter(item=>item.frame.kind==='compare');
-  target=checks.length?checks.at(-1).frameIndex:frames.length-1;
- }
- if(target>=0)show(target);
-}
+function renderScene(){renderText();paintDiagram();}
 
 function layout(){cancelMotion(false);calculatePositions();placeNodes();paintDiagram();}
 
 function switchMode(nextMode){
  cancelMotion(false);mode=nextMode;config=cases[mode];frames=buildFrames();index=0;state=cloneState(frames[0].state);
  root.querySelectorAll('[data-example]').forEach(button=>button.setAttribute('aria-pressed',button.dataset.example===mode?'true':'false'));
- jump.value='start';makeNodes();calculatePositions();placeNodes();render();
+ makeNodes();calculatePositions();placeNodes();trace.setFrames(frames);
 }
 
 function miniCycleSvg(fastIndex,slowIndex,cardIndex){
@@ -504,15 +474,21 @@ function showBaseline(nextIndex){
  baselinePrevious=baselineIndex;baselineIndex=Math.max(0,Math.min(baselineSequence.length-1,nextIndex));renderBaseline();
 }
 
-previousButton.addEventListener('click',()=>show(index-1));
-nextButton.addEventListener('click',()=>show(index+1));
-jump.addEventListener('change',()=>{if(jump.value)jumpTo(jump.value);});
+trace=createTrace({
+ root,
+ cloneState,
+ motion:motionController,
+ codeKeyAttribute:'data-code-line',
+ onBeforeStep:()=>cancelMotion(false),
+ onRender:context=>{index=context.step;state=context.state;renderScene();},
+ onTransition:context=>{if(context.step===context.previousStep+1&&context.frame.move)startMove(context.frame.move);},
+ formatStepOption:(frame,step)=>`步骤 ${step+1} · ${frame.line}`
+});
 root.querySelectorAll('[data-example]').forEach(button=>button.addEventListener('click',()=>switchMode(button.dataset.example)));
-stage.addEventListener('keydown',event=>{if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;event.preventDefault();show(index+(event.key==='ArrowRight'?1:-1));});
 baselinePreviousButton.addEventListener('click',()=>showBaseline(baselineIndex-1));
 baselineNextButton.addEventListener('click',()=>showBaseline(baselineIndex+1));
 new ResizeObserver(layout).observe(stage);
-reducedMotion.addEventListener('change',()=>{cancelMotion(false);paintDiagram();});
+motionController.onPreferenceChange(()=>{motion=null;paintDiagram();});
 
 renderProof();renderBaseline();switchMode('delayed');
 })();

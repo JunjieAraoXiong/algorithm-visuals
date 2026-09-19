@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="逐步观察 curr 与 tail 如何把多层链表的 child 链接到 next 链表末尾">
   <title>Flatten a Multi-Level Linked List · Algorithm Visuals</title>
+  <link rel="stylesheet" href="../assets/visual.css">
   <style>
     :root {
       --paper: #fffdf8;
@@ -27,13 +28,12 @@
     button { cursor: pointer; }
     button:disabled { cursor: default; opacity: .42; }
     :is(button, select, .diagram):focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-    .eyebrow { margin: 0 0 8px; color: var(--secondary); font-size: 12px; }
     .site-nav { margin: 0 0 18px; }
     .back-link { display: inline-flex; min-height: 34px; align-items: center; padding: 5px 9px; border: 1px solid #858580; border-radius: 3px; color: var(--ink); font-size: 12px; text-decoration: none; }
     .back-link:hover { background: var(--wash); }
     .back-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
     .intro { max-width: 740px; margin: 0 0 17px; color: var(--secondary); font-size: 14px; }
-    .controls, .jump-row, .practice-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .controls, .jump-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
     .controls { margin-bottom: 10px; }
     .plain-button, select, .source-button { min-height: 35px; padding: 6px 10px; border: 1px solid #858580; border-radius: 3px; background: transparent; font-size: 13px; }
     .plain-button:hover:not(:disabled), .source-button:hover:not(:disabled) { background: var(--wash); }
@@ -51,6 +51,7 @@
     .node.is-changed { animation: node-change 440ms ease-out; }
     @keyframes node-change { 0% { background: #e9e5d9; border-width: 2.8px; } 100% { background: var(--paper); border-width: 1.7px; } }
     .reference { position: absolute; z-index: 3; min-width: 48px; padding: 3px 5px; transform: translate(-50%, -50%); border: 1px solid var(--muted); border-radius: 3px; background: var(--paper); color: var(--secondary); text-align: center; font-size: 11px; line-height: 15px; pointer-events: none; }
+    .reference.visual-positioned { left: 0 !important; top: 0 !important; transform: translate3d(var(--visual-x, 0px), var(--visual-y, 0px), 0) translate(-50%, -50%) !important; }
     .reference.is-changed { border-color: var(--line); color: var(--ink); }
     .reference.is-repositioned { animation: appear 380ms ease-out; }
     @keyframes appear { from { opacity: .12; } to { opacity: 1; } }
@@ -58,18 +59,9 @@
     .stage-label.main-label { top: 12px; }
     .stage-label.branch-label { top: 247px; }
     .diagram.is-complete { height: 280px; }
-    .legend { display: flex; gap: 9px 18px; flex-wrap: wrap; margin: 0; padding: 0 14px 13px; color: var(--secondary); font-size: 11px; }
-    .legend span { display: inline-flex; align-items: center; gap: 6px; }
-    .sample { width: 23px; height: 0; border-top: 2px solid var(--line); position: relative; }
-    .sample::after { content: '›'; position: absolute; top: -11px; right: -2px; font-size: 18px; }
-    .sample.child { border-top: 1.5px dashed var(--secondary); }
-    .sample.child::after { color: var(--secondary); }
-    .sample.ref { border-top: 1px solid var(--muted); }
-    .sample.ref::after { color: var(--muted); }
     .callout { margin: 11px 0 0; padding: 10px 13px; border: 1px dashed #999; min-height: 67px; font-size: 13px; line-height: 1.5; }
     .callout code { display: block; margin-bottom: 3px; font-size: 12px; }
     .callout span { color: var(--secondary); }
-    .practice-row { margin: 10px 0 0; min-height: 34px; font-size: 12px; color: var(--secondary); }
     .source-button { position: absolute; z-index: 4; min-width: 82px; min-height: 28px; padding: 4px 6px; transform: translate(-50%, -50%); border-style: dashed; background: var(--paper); font-size: 12px; touch-action: none; cursor: grab; }
     .source-button:active { cursor: grabbing; }
     .source-button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
@@ -82,7 +74,6 @@
     .notes ol { margin: 8px 0; padding-left: 20px; }
     .notes li { margin: 4px 0; }
     .code-panel { grid-column: 2; grid-row: 1; position: sticky; top: 16px; min-width: 0; max-height: calc(100vh - 32px); border: 1px solid var(--border); padding: 14px; overflow: hidden; background: var(--paper); }
-    .code-panel > p { margin: 0 0 9px; color: var(--secondary); font-size: 12px; }
     .code-panel pre { max-height: calc(100vh - 128px); margin: 0; overflow: auto; padding: 10px 0; border-left: 2px solid var(--border); background: #f8f6f0; font-size: 12px; line-height: 1.5; }
     .code-panel pre code { display: block; }
     .code-line { display: block; width: max-content; min-width: 100%; padding: 0 12px; white-space: pre; }
@@ -95,7 +86,6 @@
       .diagram { height: 515px; }
       .diagram.is-complete { height: 365px; }
       .visual-head { padding: 10px 8px 0; font-size: 10px; }
-      .legend { padding-left: 8px; padding-right: 8px; }
       .stage-label { left: 6px; font-size: 10px; }
       .stage-label.branch-label { display: none; }
       .callout { font-size: 12px; }
@@ -110,48 +100,40 @@
       .node.is-changed, .reference.is-repositioned { animation: none; }
     }
   </style>
+<link rel="stylesheet" href="../assets/guide.css">
 </head>
 <body>
 <main>
-  <nav class="site-nav" aria-label="页面导航"><a class="back-link" href="../">← 返回主页</a></nav>
-  <p class="eyebrow">Algorithm Visuals · Linked Lists</p>
-  <h1>Flatten a Multi-Level Linked List</h1>
-  <p class="intro">把每条 <code>child</code> 子链依发现顺序接到最外层链表末尾。图中 <code>curr</code> 沿不断增长的 <code>next</code> 链行走；每次接入子链后，<code>tail</code> 再走到新的末尾。</p>
+  <nav class="site-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+  <h1>Flatten a Multi-Level Linked List · 多层链表扁平化</h1>
+  <p class="intro">把每条 <code>child</code> 子链按发现顺序接到最外层链表末尾。</p>
 
   <div class="workspace" data-learning-layout>
   <div class="demo-pane" data-animation-panel>
   <div class="controls" aria-label="步骤控制">
-    <button class="plain-button" type="button" id="previous">上一步</button>
-    <span class="step-count" id="step-count" aria-live="polite"></span>
-    <button class="plain-button" type="button" id="next">下一步</button>
+    <button class="plain-button" type="button" id="previous" data-action="previous">← 上一步</button>
+    <span class="step-count" id="step-count" data-count aria-live="polite"></span>
+    <button class="plain-button" type="button" id="next" data-action="next">下一步 →</button>
   </div>
   <div class="jump-row">
     <label for="jump">跳到关键步骤</label>
-    <select id="jump"></select>
+    <select id="jump" data-step-select></select>
   </div>
 
   <section class="visual" aria-label="多层链表逐步图">
     <div class="visual-head"><span><code>head → 1</code></span><span>同一个编号始终是同一个节点</span></div>
-    <div class="diagram" id="diagram" tabindex="0" aria-label="多层链表图。按左右方向键切换步骤。">
+    <div class="diagram stage" id="diagram" tabindex="0" aria-label="多层链表图。按左右方向键切换步骤。">
       <svg id="links" aria-hidden="true"></svg>
       <span class="stage-label main-label">从 head 沿 next 可走到的链</span>
       <span class="stage-label branch-label" id="branch-label">尚在 child 支链中的节点</span>
       <span class="reference" id="curr-reference" hidden>curr</span>
       <span class="reference" id="tail-reference" hidden>tail</span>
-      <button type="button" class="source-button" id="connect-source" aria-pressed="false" hidden>tail.next</button>
+      <button type="button" class="source-button" id="connect-source" data-source="connect" aria-pressed="false" hidden>tail.next</button>
       <div id="nodes"></div>
-    </div>
-    <div class="legend" aria-label="图例">
-      <span><i class="sample"></i>节点保存的 <code>next</code></span>
-      <span><i class="sample child"></i>节点保存的 <code>child</code></span>
-      <span><i class="sample ref"></i>变量 <code>curr</code> / <code>tail</code> 的引用</span>
     </div>
   </section>
 
   <p class="callout" id="callout" aria-live="polite"><code data-current-code></code><span></span></p>
-  <div class="practice-row" id="practice-row" hidden>
-    <span>可把图中的 <code>tail.next</code> 拖到子链首节点，或先点它再点节点（键盘用 Tab、Enter）。</span>
-  </div>
   <p class="practice-status" id="practice-status" aria-live="polite"></p>
   </div>
 
@@ -169,30 +151,26 @@
 
   <section class="code-panel" data-code-panel>
     <h2>对应代码</h2>
-    <p>上方虚线说明对应高亮代码行；空链表会直接返回 <code>None</code>。</p>
     <pre tabindex="0" data-code-scroll aria-label="完整 Python 代码，当前步骤同步高亮"><code><span class="code-line">class MultiLevelListNode:</span><span class="code-line">    def __init__(self, val, next, child):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line">        self.child = child</span><span class="code-line"> </span><span class="code-line" data-line="start">def flatten_multi_level_list(head: MultiLevelListNode) -&gt; MultiLevelListNode:</span><span class="code-line" data-line="empty">    if not head:</span><span class="code-line">        return None</span><span class="code-line" data-line="tail-init">    tail = head</span><span class="code-line" data-line="tail-test">    while tail.next:</span><span class="code-line" data-line="tail-scan">        tail = tail.next</span><span class="code-line" data-line="curr-init">    curr = head</span><span class="code-line" data-line="loop">    while curr:</span><span class="code-line" data-line="if-child">        if curr.child:</span><span class="code-line" data-line="append">            tail.next = curr.child</span><span class="code-line" data-line="clear">            curr.child = None</span><span class="code-line" data-line="tail-walk-test">            while tail.next:</span><span class="code-line" data-line="tail-walk">                tail = tail.next</span><span class="code-line" data-line="curr-walk">        curr = curr.next</span><span class="code-line" data-line="return">    return head</span></code></pre>
   </section>
+  <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../reverse-linked-list/">反转链表</a><a href="../linked-list-midpoint/">链表中点</a><a href="../">全部题目</a></nav>
   </div>
 </main>
+<script src="../assets/core.js"></script>
 <script>
 (() => {
   'use strict';
+  const {createManualInteraction, createMotionController, createSvgScene, createTrace, position} = window.AlgorithmVisualCore;
+  const root = document.querySelector('[data-learning-layout]');
   const diagram = document.getElementById('diagram');
   const links = document.getElementById('links');
   const nodesHost = document.getElementById('nodes');
   const currReference = document.getElementById('curr-reference');
   const tailReference = document.getElementById('tail-reference');
   const branchLabel = document.getElementById('branch-label');
-  const previous = document.getElementById('previous');
-  const nextButton = document.getElementById('next');
-  const count = document.getElementById('step-count');
-  const jump = document.getElementById('jump');
   const callout = document.getElementById('callout');
-  const practiceRow = document.getElementById('practice-row');
   const connectSource = document.getElementById('connect-source');
   const practiceStatus = document.getElementById('practice-status');
-  const codeScroll = document.querySelector('[data-code-scroll]');
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const ids = Array.from({length: 11}, (_, i) => i + 1);
   const nodes = new Map();
   for (const id of ids) {
@@ -200,117 +178,72 @@
     button.type = 'button';
     button.className = 'node';
     button.dataset.node = String(id);
+    button.dataset.target = String(id);
     button.textContent = String(id);
     button.setAttribute('aria-label', `节点 ${id}`);
     nodesHost.append(button);
     nodes.set(id, button);
   }
-
   const clone = state => ({next: {...state.next}, child: {...state.child}, tail: state.tail, curr: state.curr});
   const work = {
     next: {1: 2, 2: 3, 3: 4, 4: 5, 5: null, 6: 7, 7: null, 8: 9, 9: null, 10: null, 11: null},
-    child: {1: null, 2: 6, 3: null, 4: 8, 5: null, 6: null, 7: 10, 8: 11, 9: null, 10: null, 11: null},
-    tail: null,
-    curr: null
+    child: {1: null, 2: 6, 3: null, 4: 8, 5: null, 6: null, 7: 10, 8: 11, 9: null, 10: null, 11: null}, tail: null, curr: null
   };
   const frames = [];
   function add(action, code, explanation, line, mutate, bookmark) {
     if (mutate) mutate(work);
-    frames.push({action, code, explanation, line, state: clone(work), bookmark: bookmark || ''});
+    frames.push({action, code, explanation, sourceKeys: [line], state: clone(work), bookmark: bookmark || ''});
   }
   add('start', '开始', '第一层是 1 → 2 → 3 → 4 → 5；实线是 next，虚线是 child。', 'start', null, '初始结构');
-  add('tail', 'tail = head', 'tail 变量现在指向节点 1；链表还没有改变。', 'tail-init', s => {s.tail = 1;});
+  add('tail', 'tail = head', 'tail 变量现在指向节点 1；链表还没有改变。', 'tail-init', s => { s.tail = 1; });
   while (work.next[work.tail] !== null) {
     const nextTail = work.next[work.tail];
-    add('tail', 'tail = tail.next', `tail 沿 next 前进到节点 ${nextTail}，寻找第一层末尾。`, 'tail-scan', s => {s.tail = nextTail;}, nextTail === 5 ? '找到第一层 tail = 5' : '');
+    add('tail', 'tail = tail.next', `tail 沿 next 前进到节点 ${nextTail}，寻找第一层末尾。`, 'tail-scan', s => { s.tail = nextTail; }, nextTail === 5 ? '找到第一层 tail = 5' : '');
   }
-  add('curr', 'curr = head', 'curr 从节点 1 开始；tail 留在末尾节点 5。', 'curr-init', s => {s.curr = 1;});
+  add('curr', 'curr = head', 'curr 从节点 1 开始；tail 留在末尾节点 5。', 'curr-init', s => { s.curr = 1; });
   while (work.curr !== null) {
-    const here = work.curr;
-    const childHead = work.child[here];
-    add('check', 'if curr.child:', childHead === null
-      ? `节点 ${here}.child 是 None，继续沿 next 前进。`
-      : `节点 ${here}.child 指向节点 ${childHead}；下一行会把这条子链接到 tail.next。`,
-    'if-child', null, childHead === null ? '' : `发现 ${here}.child → ${childHead}`);
+    const here = work.curr, childHead = work.child[here];
+    add('check', 'if curr.child:', childHead === null ? `节点 ${here}.child 是 None，继续沿 next 前进。` : `节点 ${here}.child 指向节点 ${childHead}；下一行会把这条子链接到 tail.next。`, 'if-child', null, childHead === null ? '' : `发现 ${here}.child → ${childHead}`);
     if (childHead !== null) {
       const oldTail = work.tail;
-      add('append', 'tail.next = curr.child', `把 ${oldTail}.next 从 None 改为节点 ${childHead}。此刻 ${here}.child 仍指向 ${childHead}；两个字段同时引用同一个节点。`,
-        'append', s => {s.next[oldTail] = childHead;}, `接入 ${childHead}`);
-      add('clear', 'curr.child = None', `把 ${here}.child 清为 None；从现在起只有 next 链保留这条接入关系。`,
-        'clear', s => {s.child[here] = null;}, `清空 ${here}.child`);
+      add('append', 'tail.next = curr.child', `把 ${oldTail}.next 从 None 改为节点 ${childHead}。此刻 ${here}.child 仍指向 ${childHead}；两个字段同时引用同一个节点。`, 'append', s => { s.next[oldTail] = childHead; }, `接入 ${childHead}`);
+      add('clear', 'curr.child = None', `把 ${here}.child 清为 None；从现在起只有 next 链保留这条接入关系。`, 'clear', s => { s.child[here] = null; }, `清空 ${here}.child`);
       while (work.next[work.tail] !== null) {
         const nextTail = work.next[work.tail];
-        add('tail', 'tail = tail.next', `tail 沿 next 前进到节点 ${nextTail}。`, 'tail-walk', s => {s.tail = nextTail;},
-          work.next[nextTail] === null ? `tail 到达 ${nextTail}` : '');
+        add('tail', 'tail = tail.next', `tail 沿 next 前进到节点 ${nextTail}。`, 'tail-walk', s => { s.tail = nextTail; }, work.next[nextTail] === null ? `tail 到达 ${nextTail}` : '');
       }
     }
     const nextCurr = work.next[here];
-    add('curr', 'curr = curr.next', nextCurr === null
-      ? `节点 ${here}.next 是 None；curr 变为 None，扫描结束。`
-      : `curr 从节点 ${here} 沿 next 前进到节点 ${nextCurr}。`,
-    'curr-walk', s => {s.curr = nextCurr;});
+    add('curr', 'curr = curr.next', nextCurr === null ? `节点 ${here}.next 是 None；curr 变为 None，扫描结束。` : `curr 从节点 ${here} 沿 next 前进到节点 ${nextCurr}。`, 'curr-walk', s => { s.curr = nextCurr; });
   }
   add('return', 'return head', '返回原来的 head。沿 next 依次读到 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11；所有 child 都是 None。', 'return', null, '完成：1 → … → 11');
 
-  for (const [index, frame] of frames.entries()) {
-    if (!frame.bookmark) continue;
-    const option = document.createElement('option');
-    option.value = String(index);
-    option.textContent = frame.bookmark;
-    jump.append(option);
-  }
-
   const pointCopy = positions => Object.fromEntries(ids.map(id => [id, {...positions[id]}]));
   function mainOrder(state) {
-    const order = [];
-    const seen = new Set();
+    const order = [], seen = new Set();
     let node = 1;
-    while (node !== null && !seen.has(node)) {
-      order.push(node);
-      seen.add(node);
-      node = state.next[node];
-    }
+    while (node !== null && !seen.has(node)) { order.push(node); seen.add(node); node = state.next[node]; }
     return order;
   }
-  function layout(state) {
-    const width = diagram.clientWidth;
-    const compact = width <= 540;
+  function makeLayout(state) {
+    const width = diagram.clientWidth, compact = width <= 540;
     const columns = width >= 760 ? 7 : width > 540 ? 6 : width >= 400 ? 5 : 4;
-    const margin = compact ? 29 : 34;
-    const x = column => margin + column * (width - margin * 2) / (columns - 1);
-    const mainY = compact ? 82 : 86;
-    const rowGap = compact ? 91 : 96;
-    const branchY = compact ? 351 : 280;
-    const positions = {};
-    const order = mainOrder(state);
+    const margin = compact ? 29 : 34, x = column => margin + column * (width - margin * 2) / (columns - 1);
+    const mainY = compact ? 82 : 86, rowGap = compact ? 91 : 96, branchY = compact ? 351 : 280;
+    const positions = {}, order = mainOrder(state);
     for (const [index, id] of order.entries()) positions[id] = {x: x(index % columns), y: mainY + Math.floor(index / columns) * rowGap};
-    const branchSlots = columns >= 6
-      ? {6: [1, 0], 7: [2, 0], 8: [4, 0], 9: [5, 0], 10: [2, 1], 11: [4, 1]}
-      : {6: [0, 0], 7: [1, 0], 8: [2, 0], 9: [3, 0], 10: [1, 1], 11: [2, 1]};
+    const branchSlots = columns >= 6 ? {6: [1, 0], 7: [2, 0], 8: [4, 0], 9: [5, 0], 10: [2, 1], 11: [4, 1]} : {6: [0, 0], 7: [1, 0], 8: [2, 0], 9: [3, 0], 10: [1, 1], 11: [2, 1]};
     const onMain = new Set(order);
     for (const id of ids) {
       if (positions[id]) continue;
-      const [column, row] = branchSlots[id];
-      const parent = id === 10 ? 7 : id === 11 ? 8 : null;
-      positions[id] = !compact && parent !== null && onMain.has(parent)
-        ? {x: positions[parent].x, y: branchY}
-        : {x: x(column), y: branchY + row * (compact ? 88 : 87)};
+      const [column, row] = branchSlots[id], parent = id === 10 ? 7 : id === 11 ? 8 : null;
+      positions[id] = !compact && parent !== null && onMain.has(parent) ? {x: positions[parent].x, y: branchY} : {x: x(column), y: branchY + row * (compact ? 88 : 87)};
     }
     return {positions, order, compact};
   }
-  function referencePositions(state, positions) {
-    return {
-      curr: state.curr === null ? null : {x: positions[state.curr].x, y: positions[state.curr].y - 47},
-      tail: state.tail === null ? null : {x: positions[state.tail].x, y: positions[state.tail].y + 48}
-    };
-  }
-  const lerp = (a, b, t) => a + (b - a) * t;
-  const mixPoint = (a, b, t) => ({x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t)});
-  function nextPath(from, to, radius) {
-    if (Math.abs(from.y - to.y) < 4) return `M ${from.x + radius} ${from.y} L ${to.x - radius - 3} ${to.y}`;
-    const lane = (from.y + to.y) / 2;
-    return `M ${from.x} ${from.y + radius} L ${from.x} ${lane} L ${to.x} ${lane} L ${to.x} ${to.y - radius - 3}`;
-  }
+  const referencePositions = (state, positions) => ({curr: state.curr === null ? null : {x: positions[state.curr].x, y: positions[state.curr].y - 47}, tail: state.tail === null ? null : {x: positions[state.tail].x, y: positions[state.tail].y + 48}});
+  const mixPoint = (a, b, t) => ({x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t});
+  const nextPath = (from, to, radius) => Math.abs(from.y - to.y) < 4 ? `M ${from.x + radius} ${from.y} L ${to.x - radius - 3} ${to.y}` : `M ${from.x} ${from.y + radius} L ${from.x} ${(from.y + to.y) / 2} L ${to.x} ${(from.y + to.y) / 2} L ${to.x} ${to.y - radius - 3}`;
   function childPath(from, to, radius) {
     if (Math.abs(from.y - to.y) < 9) {
       const arch = Math.max(from.y, to.y) + 53;
@@ -319,232 +252,153 @@
     const dy = to.y - from.y;
     return `M ${from.x} ${from.y + radius} C ${from.x} ${from.y + dy * .52}, ${to.x} ${to.y - dy * .5}, ${to.x} ${to.y - radius - 3}`;
   }
-
-  let step = 0;
   let currentState = frames[0].state;
-  let targetLayout = layout(currentState);
+  let targetLayout = makeLayout(currentState);
   let shownPositions = pointCopy(targetLayout.positions);
   let shownReferences = referencePositions(currentState, shownPositions);
-  let animationFrame = null;
-  let selectedSource = false;
-  let drag = null;
-  let suppressSourceClick = false;
+  let trace, interaction;
+  const motion = createMotionController();
+  const scene = createSvgScene(links);
+  scene.defineMarker('next-arrow', {markerWidth: 7, fill: '#333'});
+  scene.defineMarker('child-arrow', {markerWidth: 7, fill: '#555'});
   function draw() {
-    const width = diagram.clientWidth;
-    const height = diagram.clientHeight;
-    const radius = width <= 540 ? 18 : 20;
+    const width = diagram.clientWidth, height = diagram.clientHeight, radius = width <= 540 ? 18 : 20;
+    const frame = trace?.frame || frames[0], drag = interaction?.drag;
     links.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    const frame = frames[step];
-    const paths = ['<defs><marker id="next-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#333"/></marker><marker id="child-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#555"/></marker></defs>'];
-    for (const id of ids) {
-      const target = currentState.next[id];
-      if (target === null) continue;
-      const changed = frame.action === 'append' && id === currentState.tail && target === currentState.child[currentState.curr];
-      paths.push(`<path d="${nextPath(shownPositions[id], shownPositions[target], radius)}" fill="none" stroke="#333" stroke-width="${changed ? 2.8 : 1.7}" marker-end="url(#next-arrow)"/>`);
-    }
-    for (const id of ids) {
-      const target = currentState.child[id];
-      if (target === null) continue;
-      paths.push(`<path d="${childPath(shownPositions[id], shownPositions[target], radius)}" fill="none" stroke="#555" stroke-width="1.35" stroke-dasharray="4 4" marker-end="url(#child-arrow)"/>`);
-    }
-    for (const name of ['curr', 'tail']) {
-      const target = currentState[name];
-      const ref = shownReferences[name];
-      if (target === null || !ref) continue;
-      const node = shownPositions[target];
-      const startY = name === 'curr' ? ref.y + 12 : ref.y - 12;
-      const endY = name === 'curr' ? node.y - radius - 3 : node.y + radius + 3;
-      paths.push(`<path d="M ${ref.x} ${startY} L ${node.x} ${endY}" fill="none" stroke="#777" stroke-width="1.1" marker-end="url(#child-arrow)"/>`);
-    }
-    links.innerHTML = paths.join('');
-    for (const id of ids) {
-      const point = shownPositions[id];
-      const button = nodes.get(id);
-      button.style.left = `${point.x}px`;
-      button.style.top = `${point.y}px`;
-    }
+    scene.update(({path}) => {
+      for (const id of ids) {
+        const target = currentState.next[id];
+        if (target === null) continue;
+        const changed = frame.action === 'append' && id === currentState.tail && target === currentState.child[currentState.curr];
+        path(`next-${id}`, {d: nextPath(shownPositions[id], shownPositions[target], radius), fill: 'none', stroke: '#333', 'stroke-width': changed ? 2.8 : 1.7, 'marker-end': 'url(#next-arrow)'});
+      }
+      for (const id of ids) {
+        const target = currentState.child[id];
+        if (target === null) continue;
+        path(`child-${id}`, {d: childPath(shownPositions[id], shownPositions[target], radius), fill: 'none', stroke: '#555', 'stroke-width': 1.35, 'stroke-dasharray': '4 4', 'marker-end': 'url(#child-arrow)'});
+      }
+      for (const name of ['curr', 'tail']) {
+        const target = currentState[name], ref = shownReferences[name];
+        if (target === null || !ref) continue;
+        const node = shownPositions[target];
+        path(`reference-${name}`, {d: `M ${ref.x} ${name === 'curr' ? ref.y + 12 : ref.y - 12} L ${node.x} ${name === 'curr' ? node.y - radius - 3 : node.y + radius + 3}`, fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'marker-end': 'url(#child-arrow)'});
+      }
+      if (drag?.moved) {
+        const tail = shownPositions[currentState.tail];
+        path('drag-preview', {d: `M ${tail.x} ${tail.y + radius + 18} L ${drag.x} ${drag.y}`, fill: 'none', stroke: '#777', 'stroke-width': 1.5, 'stroke-dasharray': '4 4', 'marker-end': 'url(#child-arrow)'});
+      }
+    });
+    for (const id of ids) position(nodes.get(id), shownPositions[id].x, shownPositions[id].y);
     for (const [name, label] of [['curr', currReference], ['tail', tailReference]]) {
       const point = shownReferences[name];
       label.hidden = !point;
-      if (point) {
-        label.style.left = `${point.x}px`;
-        label.style.top = `${point.y}px`;
-      }
+      if (point) position(label, point.x, point.y);
     }
     if (!connectSource.hidden && currentState.tail !== null) {
-      const tail = shownPositions[currentState.tail];
-      const offset = tail.x + 80 <= width - 49 ? 80 : -80;
-      connectSource.style.left = `${Math.max(49, Math.min(width - 49, tail.x + offset))}px`;
-      connectSource.style.top = `${tail.y + 48}px`;
+      const tail = shownPositions[currentState.tail], offset = tail.x + 80 <= width - 49 ? 80 : -80;
+      position(connectSource, Math.max(49, Math.min(width - 49, tail.x + offset)), tail.y + 48);
     }
-  }
-  function cancelAnimation() {
-    if (animationFrame !== null) cancelAnimationFrame(animationFrame);
-    animationFrame = null;
   }
   function transitionTo(newState) {
-    cancelAnimation();
-    const oldPositions = pointCopy(shownPositions);
-    const oldRefs = {...shownReferences};
-    const newLayout = layout(newState);
-    const finalPositions = newLayout.positions;
-    const finalRefs = referencePositions(newState, finalPositions);
+    motion.cancel();
+    const oldPositions = pointCopy(shownPositions), oldRefs = {...shownReferences};
+    const nextLayout = makeLayout(newState), finalPositions = nextLayout.positions, finalRefs = referencePositions(newState, finalPositions);
+    const unchanged = currentState === newState;
     currentState = newState;
-    targetLayout = newLayout;
-    diagram.classList.toggle('is-compact', newLayout.compact);
-    if (reducedMotion.matches) {
-      shownPositions = pointCopy(finalPositions);
-      shownReferences = finalRefs;
-      draw();
-      return;
-    }
-    const start = performance.now();
-    const duration = 430;
-    const tick = now => {
-      const raw = Math.min(1, (now - start) / duration);
-      const t = raw * raw * (3 - 2 * raw);
-      shownPositions = Object.fromEntries(ids.map(id => [id, mixPoint(oldPositions[id], finalPositions[id], t)]));
-      shownReferences = {};
-      for (const name of ['curr', 'tail']) {
-        const before = oldRefs[name];
-        const after = finalRefs[name];
-        if (!after) shownReferences[name] = null;
-        else if (!before || Math.hypot(after.x - before.x, after.y - before.y) > 175) shownReferences[name] = after;
-        else shownReferences[name] = mixPoint(before, after, t);
-      }
-      draw();
-      if (raw < 1) animationFrame = requestAnimationFrame(tick);
-      else animationFrame = null;
-    };
-    animationFrame = requestAnimationFrame(tick);
+    targetLayout = nextLayout;
+    diagram.classList.toggle('is-compact', nextLayout.compact);
+    if (unchanged || motion.reduced) { shownPositions = pointCopy(finalPositions); shownReferences = finalRefs; draw(); return; }
+    motion.tween({
+      duration: 430,
+      update(t) {
+        shownPositions = Object.fromEntries(ids.map(id => [id, mixPoint(oldPositions[id], finalPositions[id], t)]));
+        shownReferences = {};
+        for (const name of ['curr', 'tail']) {
+          const before = oldRefs[name], after = finalRefs[name];
+          shownReferences[name] = !after ? null : !before || Math.hypot(after.x - before.x, after.y - before.y) > 175 ? after : mixPoint(before, after, t);
+        }
+        draw();
+      },
+      complete: draw
+    });
   }
   function mainSummary(state) { return mainOrder(state).join(' → '); }
-  function renderStep() {
-    const frame = frames[step];
-    count.textContent = `${step + 1} / ${frames.length}`;
-    previous.disabled = step === 0;
-    nextButton.disabled = step === frames.length - 1;
-    const options = [...jump.options];
-    const latest = options.filter(option => Number(option.value) <= step).at(-1);
-    if (latest) jump.value = latest.value;
-    callout.querySelector('code').textContent = frame.code;
-    callout.querySelector('span').textContent = frame.explanation;
-    let activeCodeLine = null;
-    for (const line of document.querySelectorAll('[data-line]')) {
-      line.dataset.codeLine = line.dataset.line;
-      const active = line.dataset.line === frame.line;
-      line.classList.toggle('is-active', active);
-      if (active) {
-        line.setAttribute('aria-current', 'step');
-        activeCodeLine = line;
-      } else line.removeAttribute('aria-current');
-    }
-    if (activeCodeLine && codeScroll.clientHeight) {
-      codeScroll.scrollTop = Math.max(0, activeCodeLine.offsetTop - codeScroll.clientHeight / 2 + activeCodeLine.offsetHeight / 2);
-    }
-    const childHead = frame.state.curr === null ? null : frame.state.child[frame.state.curr];
+  function renderScene({frame, state, manualMessage, step}) {
+    const selected = interaction?.selected === 'connect';
+    callout.querySelector('code').textContent = manualMessage ? '自由练习' : frame.code;
+    callout.querySelector('span').textContent = manualMessage || frame.explanation;
+    const childHead = state.curr === null ? null : state.child[state.curr];
     const canConnect = frame.action === 'check' && childHead !== null && frames[step + 1]?.action === 'append';
-    practiceRow.hidden = !canConnect;
     connectSource.hidden = !canConnect;
-    if (!canConnect) selectedSource = false;
-    connectSource.setAttribute('aria-pressed', String(selectedSource));
+    if (!canConnect) interaction?.clearSelection({notify: false});
+    connectSource.setAttribute('aria-pressed', String(selected));
     connectSource.setAttribute('aria-label', canConnect ? `把 tail.next 接到节点 ${childHead}。可拖动，或按 Enter 后选择节点 ${childHead}。` : 'tail.next');
-    branchLabel.hidden = mainOrder(frame.state).length === ids.length;
+    branchLabel.hidden = mainOrder(state).length === ids.length;
     diagram.classList.toggle('is-complete', frame.action === 'return');
     for (const id of ids) {
-      const button = nodes.get(id);
-      button.classList.toggle('is-current', id === frame.state.curr);
-      button.classList.toggle('is-target', canConnect && selectedSource && id === childHead);
-      const nextValue = frame.state.next[id] === null ? 'None' : `节点 ${frame.state.next[id]}`;
-      const childValue = frame.state.child[id] === null ? 'None' : `节点 ${frame.state.child[id]}`;
-      button.setAttribute('aria-label', `节点 ${id}，next 指向${nextValue}，child 指向${childValue}${canConnect && id === childHead ? '；这是当前可连接的子链首节点' : ''}`);
+      const button = nodes.get(id), nextValue = state.next[id] === null ? 'None' : `节点 ${state.next[id]}`, childValue = state.child[id] === null ? 'None' : `节点 ${state.child[id]}`;
+      button.classList.toggle('is-current', id === state.curr);
+      button.classList.toggle('is-target', canConnect && selected && id === childHead);
       button.classList.remove('is-changed');
+      button.setAttribute('aria-label', `节点 ${id}，next 指向${nextValue}，child 指向${childValue}${canConnect && id === childHead ? '；这是当前可连接的子链首节点' : ''}`);
     }
-    if (frame.action === 'append') {
-      const source = frame.state.tail;
-      nodes.get(source).classList.add('is-changed');
-    }
-    if (frame.action === 'clear') nodes.get(frame.state.curr).classList.add('is-changed');
+    if (frame.action === 'append') nodes.get(state.tail).classList.add('is-changed');
+    if (frame.action === 'clear') nodes.get(state.curr).classList.add('is-changed');
     currReference.classList.toggle('is-changed', frame.action === 'curr');
     tailReference.classList.toggle('is-changed', frame.action === 'tail');
-    diagram.setAttribute('aria-label', `步骤 ${step + 1} / ${frames.length}：${frame.explanation}。从 head 沿 next：${mainSummary(frame.state)}。按左右方向键切换步骤。`);
-    transitionTo(frame.state);
+    diagram.setAttribute('aria-label', `步骤 ${step + 1} / ${frames.length}：${manualMessage || frame.explanation}。从 head 沿 next：${mainSummary(state)}。按左右方向键、Home 或 End 切换步骤。`);
+    transitionTo(state);
   }
-  function showStep(index) {
-    step = Math.max(0, Math.min(frames.length - 1, index));
-    selectedSource = false;
-    practiceStatus.textContent = '';
-    renderStep();
-  }
-  previous.addEventListener('click', () => showStep(step - 1));
-  nextButton.addEventListener('click', () => showStep(step + 1));
-  jump.addEventListener('change', () => showStep(Number(jump.value)));
-  diagram.addEventListener('keydown', event => {
-    if (event.target !== diagram) return;
-    if (event.key === 'ArrowRight') {event.preventDefault(); showStep(step + 1);}
-    if (event.key === 'ArrowLeft') {event.preventDefault(); showStep(step - 1);}
-  });
   function connectTo(id) {
-    const frame = frames[step];
-    const expected = frame.state.curr === null ? null : frame.state.child[frame.state.curr];
+    const frame = trace.frame, expected = trace.state.curr === null ? null : trace.state.child[trace.state.curr];
     if (frame.action !== 'check' || expected === null) return;
     if (id === expected) {
-      showStep(step + 1);
+      trace.showStep(trace.step + 1);
       practiceStatus.textContent = `已把 tail.next 接到节点 ${id}。`;
-    } else {
-      practiceStatus.textContent = `节点 ${id} 不是这条子链的首节点；请连接节点 ${expected}。`;
-    }
+    } else practiceStatus.textContent = `节点 ${id} 不是这条子链的首节点；请连接节点 ${expected}。`;
   }
   for (const [id, button] of nodes) {
     button.addEventListener('click', () => {
-      if (selectedSource) {connectTo(id); return;}
-      const state = frames[step].state;
+      if (interaction?.selected) return;
+      const state = trace.state;
       practiceStatus.textContent = `节点 ${id}：next → ${state.next[id] ?? 'None'}；child → ${state.child[id] ?? 'None'}。`;
     });
   }
-  connectSource.addEventListener('click', () => {
-    if (suppressSourceClick) {suppressSourceClick = false; return;}
-    selectedSource = !selectedSource;
-    practiceStatus.textContent = selectedSource ? '已选 tail.next；点子链首节点即可接入。' : '';
-    renderStep();
+  trace = createTrace({
+    root, cloneState: clone, motion, onRender: renderScene,
+    onBeforeStep: () => { motion.cancel(); interaction?.clearSelection({notify: false}); },
+    codeKeyAttribute: 'data-line',
+    formatStepOption: (frame, index) => frame.bookmark || `步骤 ${index + 1} · ${frame.code}`
   });
-  connectSource.addEventListener('pointerdown', event => {
-    if (event.pointerType === 'mouse' && event.button !== 0) return;
-    drag = {x: event.clientX, y: event.clientY, moved: false};
-    connectSource.setPointerCapture(event.pointerId);
+  interaction = createManualInteraction({
+    root, stage: diagram, sources: [connectSource], targets: () => [...nodes.values()],
+    getTargetPoint: target => shownPositions[Number(target.dataset.target)], getTargetValue: target => Number(target.dataset.target),
+    targetReadyClass: 'is-target', maxDistance: 42,
+    onSelectionChange: ({selected}) => {
+      motion.cancel();
+      if (selected) { practiceStatus.textContent = '已选 tail.next；点子链首节点即可接入。'; trace.setPreviewMessage('已选 tail.next；点子链首节点即可接入，也可以直接拖动。'); }
+      else trace.clearPreviewMessage();
+    },
+    onPointerStart: () => { motion.cancel(); trace.clearCodeHighlight(); draw(); },
+    onPointerMove: () => { practiceStatus.textContent = '拖到子链首节点后松开。'; draw(); },
+    onPointerEnd: () => trace.render(), onPointerCancel: () => trace.render(),
+    onDrop: ({value}) => connectTo(value)
   });
-  connectSource.addEventListener('pointermove', event => {
-    if (!drag) return;
-    if (Math.hypot(event.clientX - drag.x, event.clientY - drag.y) > 6) drag.moved = true;
-    if (drag.moved) practiceStatus.textContent = '拖到子链首节点后松开。';
+  motion.onPreferenceChange(() => {
+    targetLayout = makeLayout(currentState);
+    shownPositions = pointCopy(targetLayout.positions);
+    shownReferences = referencePositions(currentState, shownPositions);
+    draw();
   });
-  connectSource.addEventListener('pointerup', event => {
-    if (!drag) return;
-    const moved = drag.moved;
-    drag = null;
-    if (!moved) return;
-    const hovered = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-node]');
-    if (hovered) connectTo(Number(hovered.dataset.node));
-    else practiceStatus.textContent = '请拖到子链首节点，或点击 tail.next 后再点节点。';
-    suppressSourceClick = true;
-    setTimeout(() => {suppressSourceClick = false;}, 0);
-  });
-  connectSource.addEventListener('pointercancel', () => {drag = null;});
   new ResizeObserver(() => {
-    cancelAnimation();
-    targetLayout = layout(currentState);
+    motion.cancel();
+    targetLayout = makeLayout(currentState);
     diagram.classList.toggle('is-compact', targetLayout.compact);
     shownPositions = pointCopy(targetLayout.positions);
     shownReferences = referencePositions(currentState, shownPositions);
     draw();
   }).observe(diagram);
-  reducedMotion.addEventListener('change', () => {
-    cancelAnimation();
-    shownPositions = pointCopy(layout(currentState).positions);
-    shownReferences = referencePositions(currentState, shownPositions);
-    draw();
-  });
-  renderStep();
+  trace.setFrames(frames);
 })();
 </script>
 </body>

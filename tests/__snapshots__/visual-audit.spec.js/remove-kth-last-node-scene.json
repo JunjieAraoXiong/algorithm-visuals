@@ -1,0 +1,840 @@
+{
+  "tag": "div",
+  "attributes": [
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "label",
+      "attributes": [
+        [
+          "class",
+          "settings"
+        ]
+      ],
+      "children": [
+        "k =",
+        {
+          "tag": "select",
+          "attributes": [
+            [
+              "aria-label",
+              "选择从末尾数第几个节点"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "1"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "2"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "3"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "4"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "5"
+                ]
+              ],
+              "children": [
+                "5（删除 head）"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "6"
+                ]
+              ],
+              "children": [
+                "6（超出长度）"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 15"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "gap"
+            ],
+            [
+              "data-gap",
+              ""
+            ]
+          ],
+          "children": [
+            "当前间距：0 条边；目标 k = 2"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "固定位置的 dummy 节点、五个链表节点和两个可移动指针；按左右方向键切换步骤"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 319"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#333"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#999"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#555"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 80.48 174 L 144.13 174"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-D"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 190.13 174 L 253.78000000000003 174"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 299.78000000000003 174 L 363.43 174"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 409.43 174 L 473.08000000000004 174"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 519.08 174 L 582.73 174"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-7"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 628.73 174 L 677.4499999999999 174"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 219.29999999999998 63 L 58.480000000000004 148"
+                ],
+                [
+                  "data-visual-element",
+                  "reference-trailer"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#var-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 511.7 63 L 58.480000000000004 148"
+                ],
+                [
+                  "data-visual-element",
+                  "reference-leader"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#var-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "motion"
+            ],
+            [
+              "data-motion",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 319"
+            ]
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "trailer 当前指向D（dummy）。点击后选择节点或 None，也可以拖动。"
+            ],
+            [
+              "class",
+              "source visual-positioned"
+            ],
+            [
+              "data-source",
+              "trailer"
+            ],
+            [
+              "style",
+              "--visual-x: 219.29999999999998px; --visual-y: 47px;"
+            ]
+          ],
+          "children": [
+            "trailer"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "leader 当前指向D（dummy）。点击后选择节点或 None，也可以拖动。"
+            ],
+            [
+              "class",
+              "source visual-positioned"
+            ],
+            [
+              "data-source",
+              "leader"
+            ],
+            [
+              "style",
+              "--visual-x: 511.7px; --visual-y: 47px;"
+            ]
+          ],
+          "children": [
+            "leader"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "dummy 节点 D"
+            ],
+            [
+              "class",
+              "node dummy visual-positioned"
+            ],
+            [
+              "data-target",
+              "D"
+            ],
+            [
+              "style",
+              "--visual-x: 58.480000000000004px; --visual-y: 174px;"
+            ]
+          ],
+          "children": [
+            "D"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 1"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-target",
+              "1"
+            ],
+            [
+              "style",
+              "--visual-x: 168.13px; --visual-y: 174px;"
+            ]
+          ],
+          "children": [
+            "1"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 2"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-target",
+              "2"
+            ],
+            [
+              "style",
+              "--visual-x: 277.78000000000003px; --visual-y: 174px;"
+            ]
+          ],
+          "children": [
+            "2"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 4"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-target",
+              "4"
+            ],
+            [
+              "style",
+              "--visual-x: 387.43px; --visual-y: 174px;"
+            ]
+          ],
+          "children": [
+            "4"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 7"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-target",
+              "7"
+            ],
+            [
+              "style",
+              "--visual-x: 497.08000000000004px; --visual-y: 174px;"
+            ]
+          ],
+          "children": [
+            "7"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 3"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-target",
+              "3"
+            ],
+            [
+              "style",
+              "--visual-x: 606.73px; --visual-y: 174px;"
+            ]
+          ],
+          "children": [
+            "3"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "None，链表结束"
+            ],
+            [
+              "class",
+              "null visual-positioned"
+            ],
+            [
+              "data-target",
+              "null"
+            ],
+            [
+              "style",
+              "--visual-x: 694.4499999999999px; --visual-y: 174px;"
+            ]
+          ],
+          "children": [
+            "None"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "D.next 当前指向节点 1。点击后选择节点或 None，也可以拖动。"
+            ],
+            [
+              "class",
+              "source link visual-positioned"
+            ],
+            [
+              "data-source",
+              "link"
+            ],
+            [
+              "style",
+              "--visual-x: 58.480000000000004px; --visual-y: 287px;"
+            ]
+          ],
+          "children": [
+            "D.next"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "data-operation",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "children": [
+            "dummy = ListNode(0, head); leader = trailer = dummy"
+          ]
+        },
+        {
+          "tag": "span",
+          "children": [
+            "D 放在原 head 前。两个变量都指向 D；先让 leader 向前走 k 步。"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "note"
+        ]
+      ],
+      "children": [
+        "关键区别：移动 leader／trailer 只改变变量的箭头；执行 trailer.next = trailer.next.next 才改变节点之间的实线。返回 dummy.next，才能处理删除原 head 的情况。"
+      ]
+    }
+  ]
+}

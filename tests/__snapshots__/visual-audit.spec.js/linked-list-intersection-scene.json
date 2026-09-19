@@ -1,0 +1,916 @@
+{
+  "tag": "div",
+  "attributes": [
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "label",
+      "attributes": [
+        [
+          "class",
+          "settings"
+        ]
+      ],
+      "children": [
+        "例子",
+        {
+          "tag": "select",
+          "attributes": [
+            [
+              "aria-label",
+              "选择链表是否相交"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "shared"
+                ]
+              ],
+              "children": [
+                "有相交节点"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "separate"
+                ]
+              ],
+              "children": [
+                "不相交"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 20"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "round"
+            ],
+            [
+              "data-round",
+              ""
+            ]
+          ],
+          "children": [
+            "第 0 轮"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "A、B 两条链表的节点和可移动指针；按左右方向键切换步骤"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 399"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#333"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#555"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 88.78999999999999 105 L 152.44 105"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-a1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 198.44 105 L 262.09000000000003 105"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-a3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 308.09000000000003 105 L 379.05 105"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-a4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 425.05 105 L 488.7 105"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-s8"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 534.7 105 L 598.35 105"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-s7"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 630.7001695406726 126.01367006404827 L 663.5763595697914 199.8999677648234"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-s2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 147.27 285 L 240.15999999999997 285"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-b6"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 277.2105631953466 266.7906157739046 L 387.9994368046534 123.20938422609538"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-b4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 65.78999999999999 53 L 65.78999999999999 80"
+                ],
+                [
+                  "data-visual-element",
+                  "reference-a"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#ref-arrow)"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#666"
+                ],
+                [
+                  "stroke-width",
+                  "1.35"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 174.27 337 L 144.27 295"
+                ],
+                [
+                  "data-visual-element",
+                  "reference-b"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#ref-arrow)"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#666"
+                ],
+                [
+                  "stroke-dasharray",
+                  "5 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.35"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "ptr_A 现在指向节点 1_A。点击后选择节点或 None，也可以拖动。"
+            ],
+            [
+              "class",
+              "pointer a visual-positioned"
+            ],
+            [
+              "data-source",
+              "a"
+            ],
+            [
+              "style",
+              "--visual-x: 65.78999999999999px; --visual-y: 37px; opacity: 1;"
+            ]
+          ],
+          "children": [
+            "ptr_A"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "ptr_B 现在指向节点 6_B。点击后选择节点或 None，也可以拖动。"
+            ],
+            [
+              "class",
+              "pointer b visual-positioned"
+            ],
+            [
+              "data-source",
+              "b"
+            ],
+            [
+              "style",
+              "--visual-x: 174.27px; --visual-y: 353px; opacity: 1;"
+            ]
+          ],
+          "children": [
+            "ptr_B"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "None，链表结束"
+            ],
+            [
+              "class",
+              "none visual-positioned"
+            ],
+            [
+              "data-target",
+              "null"
+            ],
+            [
+              "style",
+              "--visual-x: 672.52px; --visual-y: 220px;"
+            ]
+          ],
+          "children": [
+            "None"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 1_A，对象标识 a1。点击让所选指针指向它。"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-caption",
+              "head_A"
+            ],
+            [
+              "data-target",
+              "a1"
+            ],
+            [
+              "style",
+              "--visual-x: 65.78999999999999px; --visual-y: 105px;"
+            ]
+          ],
+          "children": [
+            "1"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 3_A，对象标识 a3。点击让所选指针指向它。"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-caption",
+              "3_A"
+            ],
+            [
+              "data-target",
+              "a3"
+            ],
+            [
+              "style",
+              "--visual-x: 175.44px; --visual-y: 105px;"
+            ]
+          ],
+          "children": [
+            "3"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 4_A，对象标识 a4。点击让所选指针指向它。"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-caption",
+              "4_A"
+            ],
+            [
+              "data-target",
+              "a4"
+            ],
+            [
+              "style",
+              "--visual-x: 285.09000000000003px; --visual-y: 105px;"
+            ]
+          ],
+          "children": [
+            "4"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 8（共同），对象标识 s8。点击让所选指针指向它。"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-caption",
+              "S8"
+            ],
+            [
+              "data-target",
+              "s8"
+            ],
+            [
+              "style",
+              "--visual-x: 402.05px; --visual-y: 105px;"
+            ]
+          ],
+          "children": [
+            "8"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 7（共同），对象标识 s7。点击让所选指针指向它。"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-caption",
+              "S7"
+            ],
+            [
+              "data-target",
+              "s7"
+            ],
+            [
+              "style",
+              "--visual-x: 511.7px; --visual-y: 105px;"
+            ]
+          ],
+          "children": [
+            "7"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 2（共同），对象标识 s2。点击让所选指针指向它。"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-caption",
+              "S2"
+            ],
+            [
+              "data-target",
+              "s2"
+            ],
+            [
+              "style",
+              "--visual-x: 621.35px; --visual-y: 105px;"
+            ]
+          ],
+          "children": [
+            "2"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 6_B，对象标识 b6。点击让所选指针指向它。"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-caption",
+              "head_B"
+            ],
+            [
+              "data-target",
+              "b6"
+            ],
+            [
+              "style",
+              "--visual-x: 124.27000000000001px; --visual-y: 285px;"
+            ]
+          ],
+          "children": [
+            "6"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 4_B，对象标识 b4。点击让所选指针指向它。"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-caption",
+              "4_B"
+            ],
+            [
+              "data-target",
+              "b4"
+            ],
+            [
+              "style",
+              "--visual-x: 263.15999999999997px; --visual-y: 285px;"
+            ]
+          ],
+          "children": [
+            "4"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "positions"
+        ],
+        [
+          "data-positions",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "ptr_A:"
+              ]
+            },
+            "节点 1_A"
+          ]
+        },
+        {
+          "tag": "span",
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "ptr_B:"
+              ]
+            },
+            "节点 6_B"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "data-operation",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "children": [
+            "ptr_A, ptr_B = head_A, head_B"
+          ]
+        },
+        {
+          "tag": "span",
+          "children": [
+            "两个指针分别从 A、B 的头节点出发。只比较节点是否为同一个对象。"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "note"
+        ],
+        [
+          "data-note",
+          ""
+        ]
+      ],
+      "children": [
+        "值相同不代表节点相同：4_A 与 4_B 是两个对象。共同尾部只画一份；两条链的 .next 都指向同一个 8。"
+      ]
+    }
+  ]
+}

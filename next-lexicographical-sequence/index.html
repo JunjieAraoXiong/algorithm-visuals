@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="Interactive bilingual visualization of the next lexicographical sequence. 下一字典序双指针图解。" />
-    <title>Next Lexicographical Sequence · Algo Visual</title>
+    <title>Next Lexicographical Sequence · Algorithm Visuals</title>
     <link rel="stylesheet" href="../assets/guide.css" />
     <link rel="stylesheet" href="../assets/visual.css" />
     <style>
@@ -23,7 +23,7 @@
       .cell.successor { outline:3px double var(--ink); outline-offset:4px; }
       .cell.rearranging { border-style:dashed; }
       .suffix-band { position:absolute; z-index:1; height:86px; border:1px solid #888; background:rgba(229,227,220,.22); transition:left .32s ease,width .32s ease; }
-      .suffix-band::after { content:attr(data-label); position:absolute; left:50%; bottom:-22px; transform:translateX(-50%); color:var(--quiet); font:9px/1 monospace; white-space:nowrap; }
+      .suffix-label { position:absolute; z-index:1; color:var(--quiet); font:9px/1 monospace; white-space:nowrap; transform:translateX(-100%); pointer-events:none; }
       .pointer { position:absolute; z-index:4; min-width:70px; padding:3px 6px; border:1px solid #666; border-radius:3px; background:var(--paper); font:10px/1.15 monospace; text-align:center; transform:translateX(-50%); transition:left .32s ease,top .2s ease; }
       .pointer.successor { border-style:dashed; }
       .pointer::after { content:""; position:absolute; top:100%; left:50%; height:25px; border-left:1px solid #666; }
@@ -59,7 +59,7 @@
   <body>
     <main id="lex-lab">
       <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
-      <header class="heading"><div><h1>Next Lexicographical Sequence · 下一字典序</h1><p class="subtitle">Chapter 01 · Two Pointers / 双指针</p></div></header>
+      <header class="heading"><div><h1>Next Lexicographical Sequence · 下一字典序</h1></div></header>
       <p class="problem">Rearrange the same letters to produce the immediate next string in lexicographical order. If no larger arrangement exists, return the smallest arrangement.<span lang="zh-CN">使用相同字符组成字典序中紧接着的下一个字符串；如果已经是最大排列，就返回最小排列。</span></p>
 
       <div class="learning-layout" data-learning-layout>
@@ -70,9 +70,10 @@
             <button type="button" data-action="next">下一步 →</button>
             <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
           </div>
-          <div class="step-meta"><span data-phase></span><span data-word></span></div>
-          <div class="stage" data-stage tabindex="0" aria-label="Use arrow keys, Home, or End to navigate the trace.">
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="下一字典序演示；可按左右方向键、Home 或 End 浏览步骤">
             <div class="suffix-band" data-suffix hidden></div>
+            <span class="suffix-label" data-suffix-label aria-hidden="true" hidden></span>
             <div class="track" data-track></div>
             <span class="pointer pivot" data-pivot>pivot</span>
             <span class="pointer successor" data-successor>successor</span>
@@ -97,7 +98,6 @@
       <section class="section" aria-labelledby="lex-why-title"><h2 id="lex-why-title">Why reversing is enough / 为什么反转就够了</h2><p class="section-intro">Before the swap, the suffix is non-increasing, which is its largest ordering. After swapping with the rightmost successor it remains non-increasing. Reversing it therefore produces its smallest ordering in O(n), with no sort.</p><ol class="reason-list"><li>The pivot makes the overall string larger.</li><li>Choosing the rightmost successor makes that increase as small as possible.</li><li>Reversing the suffix minimizes everything after the pivot.</li></ol></section>
       <section class="section" aria-labelledby="lex-edge-title"><h2 id="lex-edge-title">No pivot: wrap around / 找不到 pivot：回到最小排列</h2><div class="edge-grid"><article class="paper-card"><div class="mini-word"><span class="mini-char">d</span><span class="mini-char">c</span><span class="mini-char">b</span><span class="mini-char">a</span><span class="mini-arrow">→ reverse →</span><span class="mini-char">a</span><span class="mini-char">b</span><span class="mini-char">c</span><span class="mini-char">d</span></div><p><code>dcba</code> is already the largest permutation, so the next sequence wraps to <code>abcd</code>.</p></article><article class="paper-card"><code>aaaa → aaaa</code><p>Equal adjacent letters are part of a non-increasing suffix; reversing identical characters changes nothing.</p></article></div></section>
       <section class="section" aria-labelledby="lex-complexity"><h2 id="lex-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(n)</strong><p>At most two right-to-left scans and one suffix reversal.</p></article><article class="paper-card"><strong>Extra space · O(n) in Python</strong><p>Strings are immutable, so <code>letters = list(s)</code> stores a mutable copy.</p></article></div></section>
-      <details class="guide-help"><summary>图例与操作说明</summary><div class="legend"><span>粗边框：<code>pivot</code></span><span>双线框：<code>rightmost_successor</code></span><span>浅色区间：已确认的非递增后缀</span></div><p>使用按钮、步骤菜单、方向键、Home 或 End 浏览。字符格的位置固定；交换和反转时只有字符值移动。</p></details>
       <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../shift-zeros-to-the-end/">移动零到末尾</a><a href="../reverse-linked-list/">反转链表</a><a href="../">返回目录</a></nav>
     </main>
 
@@ -109,10 +109,10 @@
         const stage = root.querySelector('[data-stage]');
         const track = root.querySelector('[data-track]');
         const suffixBand = root.querySelector('[data-suffix]');
+        const suffixLabel = root.querySelector('[data-suffix-label]');
         const pivotPointer = root.querySelector('[data-pivot]');
         const successorPointer = root.querySelector('[data-successor]');
         const phase = root.querySelector('[data-phase]');
-        const word = root.querySelector('[data-word]');
         const meaning = root.querySelector('[data-meaning]');
         const pivotValue = root.querySelector('[data-pivot-value]');
         const successorValue = root.querySelector('[data-successor-value]');
@@ -226,13 +226,16 @@
             successorPointer.style.top = state.successor === state.pivot ? '75px' : '43px';
           }
           suffixBand.hidden = state.suffixStart === null;
-          suffixBand.dataset.label = ['reverse','done'].includes(state.phase) ? 'minimum suffix / 最小后缀' : 'non-increasing suffix / 非递增后缀';
+          suffixLabel.hidden = state.suffixStart === null;
           if (state.suffixStart !== null) {
             const first = positions[Math.min(state.suffixStart, positions.length - 1)];
             const last = positions.at(-1);
             suffixBand.style.left = `${first.x - 4}px`;
             suffixBand.style.top = `${first.top - 14}px`;
             suffixBand.style.width = `${last.x + last.width - first.x + 8}px`;
+            suffixLabel.textContent = ['reverse','done'].includes(state.phase) ? 'minimum suffix / 最小后缀' : 'non-increasing suffix / 非递增后缀';
+            suffixLabel.style.left = `${last.x + last.width + 4}px`;
+            suffixLabel.style.top = `${first.top + 80}px`;
           }
         }
 
@@ -266,7 +269,6 @@
         function render({ frame, state, step, frames }) {
           const phaseLabels = { setup:'Setup / 准备', pivot:'Find pivot / 寻找 pivot', successor:'Find successor / 寻找后继', reverse:'Minimize suffix / 最小化后缀', done:'Result / 结果' };
           phase.textContent = `${phaseLabels[state.phase]} · ${frame.stepLabel}`;
-          word.textContent = `letters = "${state.letters.join('')}"`;
           meaning.textContent = phaseMeaning(state);
           pivotValue.textContent = state.pivot === null ? '—' : state.pivot;
           successorValue.textContent = state.successor === null ? '—' : state.successor;

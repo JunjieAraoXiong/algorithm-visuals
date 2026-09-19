@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="逐步观察 LRU Cache 的 hashmap 与双向链表如何协作">
   <title>LRU Cache · Algorithm Visuals</title>
+  <link rel="stylesheet" href="../assets/visual.css">
   <style>
     :root {
       --paper: #fffdf8;
@@ -25,7 +26,6 @@
     :is(button, input, select):focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
     .helper:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
     code, pre, .mono, .step-count, .operation-title { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .eyebrow { margin: 0 0 8px; color: var(--secondary); font-size: 12px; letter-spacing: .04em; }
     .site-nav { margin: 0 0 18px; }
     .back-link { display: inline-flex; min-height: 34px; align-items: center; padding: 5px 9px; border: 1px solid #858580; border-radius: 3px; color: var(--ink); font-size: 12px; text-decoration: none; }
     .back-link:hover { background: var(--wash); }
@@ -48,7 +48,8 @@
     .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
     .sentinel, .node { position: absolute; z-index: 1; transform: translate(-50%, -50%); background: var(--paper); }
     .sentinel { min-width: 60px; padding: 8px 4px; border: 1.5px solid var(--line); border-radius: 3px; text-align: center; font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .node { width: var(--node-size); height: var(--node-size); border: 1.8px solid var(--line); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1; padding: 4px; transition: left 470ms cubic-bezier(.2,.75,.2,1), top 470ms cubic-bezier(.2,.75,.2,1), opacity 200ms; }
+    .sentinel.visual-positioned, .node.visual-positioned { left: 0 !important; top: 0 !important; transform: translate3d(var(--visual-x, 0px), var(--visual-y, 0px), 0) translate(-50%, -50%) !important; }
+    .node { width: var(--node-size); height: var(--node-size); border: 1.8px solid var(--line); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1; padding: 4px; transition: transform 470ms cubic-bezier(.2,.75,.2,1), opacity 200ms; }
     .node:hover { background: var(--wash); }
     .node-key { font-size: 20px; }
     .node.is-long-key .node-key { font-size: 14px; }
@@ -58,14 +59,7 @@
     .node.is-detached { border-style: dashed; }
     .node.is-retired { opacity: .3; }
     .stage.no-motion .node { transition: none; }
-    .parking-label { position: absolute; bottom: 8px; left: 50%; width: 100%; transform: translateX(-50%); text-align: center; color: var(--soft); font-size: 11px; }
     .stage-rule { position: absolute; left: 16px; right: 16px; top: 190px; border-top: 1px dashed #d0d0c9; }
-    .list-legend { display: flex; flex-wrap: wrap; gap: 9px 18px; padding: 0 16px 12px; color: var(--secondary); font-size: 11px; }
-    .list-legend span { display: inline-flex; align-items: center; gap: 5px; }
-    .sample { width: 21px; height: 0; border-top: 2px solid var(--line); position: relative; }
-    .sample::after { content: '›'; position: absolute; right: -1px; top: -10px; font-size: 18px; }
-    .sample.muted { border-color: var(--soft); }
-    .sample.muted::after { content: ''; }
     .map-wrap { border-top: 1px solid var(--border); padding: 12px 16px 14px; }
     .map-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
     .map-head h2 { margin: 0; font: 15px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -93,9 +87,7 @@
     .reasoning li { margin: 5px 0; }
     .reasoning pre { overflow: auto; margin: 9px 0; padding: 11px 13px; border-left: 2px solid var(--border); background: #f8f6f0; font-size: 12px; line-height: 1.45; }
     .helper { grid-column: 1 / -1; grid-row: 2; margin-top: 0; border-top: 1px solid var(--border); padding-top: 17px; }
-    .helper-link { display: inline-block; margin-left: 5px; color: var(--ink); text-underline-offset: 2px; }
     .helper h2 { margin: 0 0 6px; font-size: 18px; font-weight: 500; }
-    .helper > p { margin: 0 0 12px; color: var(--secondary); font-size: 13px; line-height: 1.5; }
     .helper-modes, .helper-stepper { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
     .helper-modes { margin-bottom: 10px; }
     .helper-modes button[aria-pressed="true"] { background: var(--wash); border-color: var(--ink); }
@@ -124,7 +116,6 @@
     .helper-svg-link.is-changed { stroke-width: 2.5; }
     .helper-svg-reference { fill: none; stroke: var(--soft); stroke-width: 1.1; stroke-dasharray: 4 4; }
     .helper-svg-label { fill: var(--secondary); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-anchor: middle; }
-    .helper-svg-hint { fill: var(--soft); font: 12px Arial, Helvetica, sans-serif; text-anchor: middle; }
     .helper-svg-cross { stroke: var(--line); stroke-width: 2.2; stroke-linecap: round; }
     .helper-svg-guide { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 4; }
     .helper-visual-label { margin: 0 0 10px; color: var(--secondary); font-size: 12px; }
@@ -144,7 +135,6 @@
     .helper-field.is-changed { outline: 1px dashed var(--ink); background: var(--wash); }
     .helper-field-target { text-align: right; overflow-wrap: anywhere; }
     .helper-field-target.is-unset { color: var(--soft); }
-    .helper-legend { margin: 10px 0 0; color: var(--secondary); font-size: 11px; line-height: 1.45; }
     .helper-detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-top: 12px; }
     .helper-callout { min-height: 82px; margin: 0; padding: 11px 12px; border: 1px dashed #999; font-size: 13px; line-height: 1.5; }
     .helper-callout strong { display: block; margin-bottom: 4px; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -161,8 +151,6 @@
     .main-code-line { display: block; width: max-content; min-width: 100%; padding: 0 12px; white-space: pre; }
     .main-code-line.is-current, .main-code-line.is-active { background: #e9e5d9; outline: 1px dashed var(--soft); outline-offset: -1px; }
     .full-code pre:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-    .source { margin: 16px 0 0; font-size: 12px; }
-    .source a { color: var(--ink); text-underline-offset: 2px; }
     .overview { margin: 18px 0 22px; padding: 15px; border: 1px solid var(--border); }
     .overview:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
     .overview h2, .detail-heading { margin: 0 0 5px; font-size: 18px; font-weight: 500; }
@@ -198,7 +186,9 @@
     .overview-callout { min-height: 68px; margin: 0; padding: 10px 12px; border: 1px dashed #999; font-size: 13px; line-height: 1.5; }
     .overview-callout strong { display: block; margin-bottom: 3px; overflow-wrap: anywhere; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .overview-callout span { color: var(--secondary); }
-    .overview-note { margin: 8px 0 0 !important; font-size: 11px !important; }
+    .lru-trace-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin: 18px 0 0; }
+    .lru-trace-tabs [role="tab"][aria-selected="true"] { background: var(--wash); border-color: var(--ink); }
+    [data-lru-panel][hidden] { display: none !important; }
     .detail-heading { margin-top: 4px; }
     @keyframes overview-arrive { from { opacity: .35; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 480px) {
@@ -217,8 +207,7 @@
       .node.is-long-key .node-key { font-size: 11px; }
       .node-value { font-size: 9px; }
       .node-id { font-size: 10px; top: calc(100% + 4px); }
-      .parking-label { bottom: 5px; font-size: 10px; }
-      .list-legend, .map-wrap { padding-left: 9px; padding-right: 9px; }
+      .map-wrap { padding-left: 9px; padding-right: 9px; }
       .callout { font-size: 13px; }
     }
     @media (max-width: 340px) { :root { --node-size: 44px; } }
@@ -241,19 +230,23 @@
     @media (max-width: 370px) { .overview { padding: 10px; } .overview-bracket { padding-left: 9px; padding-right: 9px; } .overview-node { font-size: 11px; } }
     @media (prefers-reduced-motion: reduce) { .node { transition: none; } .overview-node.is-new { animation: none; } }
   </style>
+<link rel="stylesheet" href="../assets/guide.css">
 </head>
 <body>
 <main id="lru-lab">
-  <nav class="site-nav" aria-label="页面导航"><a class="back-link" href="../">← 返回主页</a></nav>
-  <p class="eyebrow">数据结构可视化</p>
-  <div class="topline"><h1>LRU Cache</h1><span class="capacity">capacity = 3</span></div>
-  <p class="intro">缓存满时，移走最久没有使用的节点。先看 <code>put</code> 和 <code>get</code> 如何改变使用顺序，再用下方逐行图追踪 <code>hashmap</code> 与链表指针。<a class="helper-link" href="#pointer-helpers">逐行看辅助函数 ↓</a><a class="helper-link" href="#complete-code">完整 Python 代码 ↓</a></p>
+  <nav class="site-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+  <div class="topline"><h1>LRU Cache <span lang="zh-CN">· LRU 缓存</span></h1><span class="capacity">capacity = 3</span></div>
+  <p class="intro">缓存满时，移走最久没有使用的节点；<code>hashmap</code> 提供直接查找，双向链表维护使用顺序。</p>
+  <div class="lru-trace-tabs" role="tablist" aria-label="选择演示层级">
+    <button class="plain-button" type="button" role="tab" id="lru-tab-overview" aria-controls="get-put-overview" aria-selected="false" data-lru-tab="overview">操作概览</button>
+    <button class="plain-button" type="button" role="tab" id="lru-tab-trace" aria-controls="lru-code-trace" aria-selected="true" data-lru-tab="trace">代码逐行</button>
+    <button class="plain-button" type="button" role="tab" id="lru-tab-helper" aria-controls="pointer-helpers" aria-selected="false" data-lru-tab="helper">辅助函数</button>
+  </div>
 
   <div class="detail-workspace" data-learning-layout>
   <div class="detail-demo" data-animation-panel>
-  <section class="overview" id="get-put-overview" tabindex="0" aria-label="get 和 put 的缓存顺序概览，可按左右方向键切换步骤">
-    <h2>先看 get / put 怎样改变顺序</h2>
-    <p>方框左格是 <code>key</code>，右格是 <code>value</code>。方括号内是容量为 3 的缓存；左边最久没用，右边最近使用。</p>
+  <section class="overview" id="get-put-overview" data-lru-panel="overview" tabindex="0" aria-label="get 和 put 的缓存顺序概览，可按左右方向键切换步骤" hidden>
+    <h2>get / put 的顺序变化</h2>
     <div class="overview-controls">
       <div class="overview-modes" role="group" aria-label="选择缓存操作">
         <button class="plain-button" type="button" data-overview-mode="put" aria-pressed="true">put(3, 200)</button>
@@ -273,37 +266,30 @@
       <div class="overview-outcome" data-overview-outcome></div>
     </div>
     <p class="overview-callout" aria-live="polite" aria-atomic="true"><strong data-overview-code></strong><span data-overview-explanation></span></p>
-    <p class="overview-note">这里展示 <code>put</code> 新键且缓存已满、<code>get</code> 命中的整体过程。未命中与更新已有键可在下方逐行图中查看。</p>
   </section>
 
-  <h2 class="detail-heading">再看代码逐行怎样实现</h2>
+  <section id="lru-code-trace" data-lru-panel="trace" aria-labelledby="lru-tab-trace">
+  <h2 class="detail-heading">代码逐行</h2>
 
   <div class="toolbar" aria-label="演示控制">
     <button class="plain-button" type="button" data-action="previous">← 上一步</button>
     <span class="step-count" data-count aria-live="polite"></span>
     <button class="plain-button" type="button" data-action="next">下一步 →</button>
     <span class="mode-label" data-mode>示例演示</span>
-    <label class="jump-wrap">跳到操作 <select class="jump" data-jump aria-label="跳到操作"></select></label>
+    <label class="jump-wrap">跳到步骤 <select class="jump" data-jump data-step-select aria-label="跳到步骤"></select></label>
   </div>
 
   <section class="visual" aria-label="LRU 缓存状态图">
     <div class="diagram-label"><span>LRU · 最久未使用</span><span>最近使用 · MRU</span></div>
-    <div class="stage" data-stage role="group" aria-label="双向链表，从左侧 head 到右侧 tail">
+    <div class="stage" data-stage role="group" tabindex="0" aria-label="双向链表，从左侧 head 到右侧 tail；可按左右方向键逐行查看">
       <svg data-links aria-hidden="true"></svg>
       <div class="stage-rule" aria-hidden="true"></div>
       <div class="sentinel" data-sentinel="head">head</div>
       <div class="sentinel" data-sentinel="tail">tail</div>
       <div data-nodes></div>
-      <span class="parking-label">虚线节点：尚未接入或已脱离主链；自身引用未画</span>
-    </div>
-    <div class="list-legend" aria-label="图例">
-      <span><i class="sample" aria-hidden="true"></i>上方箭头 <code>.next</code></span>
-      <span><i class="sample" aria-hidden="true"></i>下方反向箭头 <code>.prev</code></span>
-      <span>圆圈内：上 <code>key</code>、下 <code>value</code></span>
-      <span><i class="sample muted" aria-hidden="true"></i>节点下方 <code>#</code> 是对象身份</span>
     </div>
     <div class="map-wrap">
-      <div class="map-head"><h2>hashmap</h2><p>键 → 链表里的同一个节点（点击可对照）</p></div>
+      <div class="map-head"><h2>hashmap</h2><p>键 → 同一链表节点</p></div>
       <div class="map-rows" data-map></div>
       <p class="inspection" data-inspection aria-live="polite"></p>
     </div>
@@ -313,20 +299,20 @@
     <span class="operation-title" data-code data-current-code></span>
     <span class="explanation" data-explanation></span><span data-result></span>
   </div>
+  </section>
   </div>
 
-  <section class="helper" id="pointer-helpers" tabindex="0" aria-label="双向链表辅助函数逐行图，可按左右方向键逐行查看">
-    <h2>逐行看双向链表的指针</h2>
-    <p>上方演示一次完整的缓存操作；这里把节点构造、插到尾部、从链中摘下拆成每一行。图上的实线箭头是节点真正保存的 <code>next</code> / <code>prev</code>；灰色虚线是变量 <code>self</code>、<code>node</code> 和 <code>prev_node</code> 的引用。</p>
+  <section class="helper" id="pointer-helpers" data-lru-panel="helper" tabindex="0" aria-label="双向链表辅助函数逐行图，可按左右方向键逐行查看" hidden>
+    <h2>双向链表指针</h2>
     <div class="helper-modes" role="group" aria-label="选择辅助函数">
       <button class="plain-button" type="button" data-helper-mode="constructor" aria-pressed="true">建立节点</button>
       <button class="plain-button" type="button" data-helper-mode="add" aria-pressed="false">add_to_tail</button>
       <button class="plain-button" type="button" data-helper-mode="remove" aria-pressed="false">remove_node</button>
     </div>
     <div class="helper-stepper" role="group" aria-label="辅助函数逐行控制">
-      <button class="plain-button" type="button" data-helper-prev>← 上一行</button>
+      <button class="plain-button" type="button" data-helper-prev>← 上一步</button>
       <span class="step-count" data-helper-count aria-live="polite"></span>
-      <button class="plain-button" type="button" data-helper-next>下一行 →</button>
+      <button class="plain-button" type="button" data-helper-next>下一步 →</button>
     </div>
     <div class="helper-visual" aria-label="当前真实指针字段">
       <div class="helper-diagram" data-helper-diagram>
@@ -339,22 +325,19 @@
           <div class="helper-walk" data-helper-walk></div>
           <div class="helper-local" data-helper-local></div>
           <div class="helper-cards" data-helper-cards></div>
-          <p class="helper-legend">字段后的 <code>→</code> 表示该节点保存的引用；<code>None</code> 表示没有目标。“尚未设置”表示代码还没有运行。虚线边框表示节点不在 <code>head</code> 的主链上。</p>
         </div>
       </details>
-      <p class="helper-legend" data-helper-constructor-legend>矩形左格是 <code>key</code>，右格是 <code>val</code>；格中的「—」表示尚未设置。灰色虚线是 <code>self</code> 对节点的引用。下方的 <code>prev</code> / <code>next</code> 在赋值前显示“尚未设置”，赋值为 <code>None</code> 后仍没有指向目标。</p>
-      <p class="helper-legend" data-helper-diagram-legend hidden>水平节点间的上弧线是 <code>.next</code>，下弧线是 <code>.prev</code>；悬在上方的节点向左指 <code>.prev</code>，向右指 <code>.next</code>。灰色虚线只表示变量引用。叉号表示节点已脱离主链；它自己的旧字段仍保留。</p>
     </div>
     <div class="helper-detail">
       <p class="helper-callout" aria-live="polite" aria-atomic="true"><strong data-helper-line></strong><span data-helper-explanation></span></p>
-      <div class="helper-code"><pre aria-label="当前辅助函数 Python 代码"><code data-helper-code></code></pre></div>
+      <div class="helper-code"><pre tabindex="0" data-helper-code-scroll data-code-scroll aria-label="当前辅助函数 Python 代码"><code data-helper-code></code></pre></div>
     </div>
   </section>
 
-  <section class="full-code" id="complete-code" data-code-panel aria-label="完整 Python 代码">
+  <section class="full-code" id="complete-code" data-lru-panel="trace" data-code-panel aria-label="完整 Python 代码">
     <h2>完整 Python 代码</h2>
-    <p>当前步骤会在这里同步高亮；动画用 <code>capacity = 3</code> 演示。<span class="mono" data-main-line-status aria-live="polite"></span></p>
-    <pre tabindex="0" data-main-code-scroll aria-label="完整 Python 代码，当前步骤同步高亮，可用方向键滚动"><code data-main-source>class DoublyLinkedListNode:
+    <p><span class="mono" data-main-line-status data-code-status aria-live="polite"></span></p>
+    <pre tabindex="0" data-main-code-scroll data-code-scroll aria-label="完整 Python 代码，当前步骤同步高亮，可用方向键滚动"><code data-main-source>class DoublyLinkedListNode:
     """Store a cache entry and links to its neighboring nodes."""
 
     def __init__(self, key: int, val: int) -&gt; None:
@@ -435,9 +418,8 @@ class LRUCache:
   </section>
   </div>
 
-  <section class="practice" aria-label="自由练习">
-    <h2>自己试一次</h2>
-    <p>「开始自由练习」会开一个容量 3 的空缓存；每次操作也能逐步查看。可用「重播示例」回到上面的固定演示。</p>
+  <section class="practice" data-lru-panel="trace" aria-label="自由练习">
+    <h2>自由练习</h2>
     <div class="practice-controls">
       <button class="plain-button" type="button" data-action="practice">开始自由练习</button>
       <label>key (0–10000) <input data-key type="number" min="0" max="10000" step="1" value="2" inputmode="numeric" aria-label="缓存键 key，0 到 10000"></label>
@@ -446,7 +428,7 @@ class LRUCache:
       <button class="plain-button" type="button" data-action="put">加入 put(key, value)</button>
       <button class="plain-button" type="button" data-action="reset">重播示例</button>
     </div>
-    <p class="practice-status" data-practice-status aria-live="polite">当前是示例演示；自由练习从空缓存开始。</p>
+    <p class="practice-status" data-practice-status aria-live="polite"></p>
   </section>
 
   <section class="reasoning" aria-label="解题思路">
@@ -457,43 +439,47 @@ class LRUCache:
       <li><code>put(key, value)</code>：已有键时，修改原节点的 <code>val</code> 并将它移到尾部，节点身份不变。新键且已满时，先摘下并删掉最旧节点的表项，然后创建新节点、建立映射并接到尾部。</li>
       <li><code>remove_node</code> 只改左右邻居的 <code>.next</code> / <code>.prev</code>。摘下的节点暂时还保留旧的 <code>prev</code> / <code>next</code>，但从 <code>head</code> 已走不到它。若同一节点重新插入，<code>add_to_tail</code> 会覆盖这两个字段；若被淘汰，局部变量 <code>least_recent</code> 会暂时引用它，函数结束后若无其他引用便可回收。</li>
     </ol>
-    <p>上面的「逐行看双向链表的指针」可以对照每一次字段赋值；「完整 Python 代码」保留了整个类的执行顺序。</p>
     <p>查找和局部改线都是 <code>O(1)</code>，所以 <code>get</code>、<code>put</code> 平均 <code>O(1)</code>；最多保存 <code>capacity</code> 个有效节点，空间 <code>O(capacity)</code>。<code>get</code> 未命中不会改变最近使用顺序。</p>
   </section>
-  <p class="source">相关讲解：<a href="https://www.youtube.com/watch?v=7ABFKPK2hD4" target="_blank" rel="noopener noreferrer">NeetCode · LRU Cache 视频</a></p>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../reverse-linked-list/">反转链表</a><a href="../linked-list-intersection/">链表相交</a><a href="../">全部题目</a></nav>
 </main>
 
+<script src="../assets/core.js"></script>
 <script>
 (() => {
   const root = document.getElementById('lru-lab');
+  const tracePanel = root.querySelector('[data-lru-panel="trace"]');
   const stage = root.querySelector('[data-stage]');
   const svg = root.querySelector('[data-links]');
+  const {createMotionController, createSvgScene, createTrace, position} = window.AlgorithmVisualCore;
+  const linkMotion = createMotionController();
+  const linkScene = createSvgScene(svg);
   const nodeLayer = root.querySelector('[data-nodes]');
   const mapRows = root.querySelector('[data-map]');
   const inspection = root.querySelector('[data-inspection]');
   const code = root.querySelector('[data-code]');
   const explanation = root.querySelector('[data-explanation]');
   const result = root.querySelector('[data-result]');
-  const count = root.querySelector('[data-count]');
+  const count = tracePanel.querySelector('[data-count]');
   const modeLabel = root.querySelector('[data-mode]');
   const jump = root.querySelector('[data-jump]');
   const practiceStatus = root.querySelector('[data-practice-status]');
   const keyInput = root.querySelector('[data-key]');
   const valueInput = root.querySelector('[data-value]');
-  const previous = root.querySelector('[data-action="previous"]');
-  const next = root.querySelector('[data-action="next"]');
+  const previous = tracePanel.querySelector('[data-action="previous"]');
+  const next = tracePanel.querySelector('[data-action="next"]');
   const mainSource = root.querySelector('[data-main-source]');
   const mainCodeScroll = root.querySelector('[data-main-code-scroll]');
   const mainLineStatus = root.querySelector('[data-main-line-status]');
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const nodeElements = new Map();
   const CAPACITY = 3;
 
   const mainCodeLines = [];
+  const sourceKeyBySource = new Map();
   let sourceMethod = '';
   const rawSource = mainSource.textContent.replace(/^\n|\n$/g, '').split('\n');
   mainSource.replaceChildren();
-  for (const source of rawSource) {
+  for (const [lineIndex, source] of rawSource.entries()) {
     const trimmed = source.trim();
     const methodMatch = trimmed.match(/^def ([a-z_]+)\(/);
     if (methodMatch) sourceMethod = methodMatch[1];
@@ -501,8 +487,11 @@ class LRUCache:
     const row = document.createElement('span');
     row.className = 'main-code-line';
     row.textContent = source || ' ';
-    row.dataset.sourceId = `${sourceMethod}|${trimmed}`;
+    const sourceId = `${sourceMethod}|${trimmed}`;
+    row.dataset.sourceId = `main-${lineIndex}`;
+    row.dataset.originalSourceId = sourceId;
     row.dataset.codeLine = row.dataset.sourceId;
+    if (!sourceKeyBySource.has(sourceId)) sourceKeyBySource.set(sourceId, row.dataset.sourceId);
     mainSource.append(row);
     mainCodeLines.push(row);
   }
@@ -615,44 +604,11 @@ class LRUCache:
   let practiceOpCount = 0;
   let step = 0;
   let inspectedId = null;
-  let raf = null;
+  let trace;
   const frames = () => mode === 'script' ? scriptedFrames : practiceFrames;
   const current = () => frames()[step];
 
-  function highlightMainCode(sourceIds, label) {
-    const activeIds = new Set(sourceIds);
-    let firstActiveLine = null;
-    for (const row of mainCodeLines) {
-      const active = activeIds.has(row.dataset.sourceId);
-      row.classList.toggle('is-current', active);
-      row.classList.toggle('is-active', active);
-      if (active) {
-        row.setAttribute('aria-current', 'step');
-        firstActiveLine ||= row;
-      } else row.removeAttribute('aria-current');
-    }
-    mainLineStatus.textContent = ` 当前：${label}`;
-    if (firstActiveLine && mainCodeScroll.clientHeight) {
-      const top = firstActiveLine.offsetTop - mainCodeScroll.clientHeight / 2 + firstActiveLine.offsetHeight / 2;
-      mainCodeScroll.scrollTop = Math.max(0, top);
-    }
-  }
-
-  root.addEventListener('lru-code-step', event => {
-    highlightMainCode(event.detail.sourceIds, event.detail.label);
-  });
-
-  function refreshJump() {
-    jump.replaceChildren();
-    const all = frames();
-    const starts = all.map((f, index) => ({...f, index})).filter((f, index) => index === 0 || all[index - 1].opIndex !== f.opIndex);
-    for (const frame of starts) {
-      const option = document.createElement('option');
-      option.value = String(frame.index);
-      option.textContent = frame.opTitle;
-      jump.append(option);
-    }
-  }
+  function refreshJump() { /* createTrace owns the shared direct-step selector. */ }
 
   function positionOf(id, state, width) {
     const margin = width < 440 ? 26 : 57;
@@ -674,8 +630,7 @@ class LRUCache:
     const mainY = width < 440 ? 111 : 115;
     for (const [name, x] of [['head', margin], ['tail', width - margin]]) {
       const sentinel = root.querySelector(`[data-sentinel="${name}"]`);
-      sentinel.style.left = `${x}px`;
-      sentinel.style.top = `${mainY}px`;
+      position(sentinel, x, mainY);
     }
     const ids = [...state.order, ...state.detached];
     for (const [id, element] of nodeElements) {
@@ -704,14 +659,7 @@ class LRUCache:
       button.classList.toggle('is-focused', frame.focusId === id);
       button.classList.toggle('is-inspected', inspectedId === id);
       const p = positionOf(id, state, width);
-      if (!button.dataset.positioned) {
-        button.style.left = `${p.x}px`;
-        button.style.top = `${p.y}px`;
-        button.dataset.positioned = 'yes';
-      } else {
-        button.style.left = `${p.x}px`;
-        button.style.top = `${p.y}px`;
-      }
+      position(button, p.x, p.y);
     }
   }
 
@@ -771,31 +719,25 @@ class LRUCache:
       const left = a.x + a.r + 4, right = b.x - b.r - 4;
       if (right - left < 7) continue;
       const y1 = (a.y + b.y) / 2 - 8, y2 = (a.y + b.y) / 2 + 8;
-      paths.push(`<path d="M ${left} ${y1} L ${right} ${y1}" marker-end="url(#next-arrow)"/>`);
-      paths.push(`<path d="M ${right} ${y2} L ${left} ${y2}" marker-end="url(#prev-arrow)"/>`);
+      paths.push({id: `next-${i}`, d: `M ${left} ${y1} L ${right} ${y1}`, marker: 'next-arrow'});
+      paths.push({id: `prev-${i}`, d: `M ${right} ${y2} L ${left} ${y2}`, marker: 'prev-arrow'});
     }
     const width = stage.clientWidth, height = stage.clientHeight;
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    svg.innerHTML = `<defs><marker id="next-arrow" viewBox="0 0 7 7" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#333"/></marker><marker id="prev-arrow" viewBox="0 0 7 7" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#555"/></marker></defs><g fill="none" stroke="#333" stroke-width="1.5">${paths.join('')}</g>`;
+    linkScene.defineMarker('next-arrow', {fill: '#333', viewBox: '0 0 7 7', refX: 6, refY: 3.5});
+    linkScene.defineMarker('prev-arrow', {fill: '#555', viewBox: '0 0 7 7', refX: 6, refY: 3.5});
+    linkScene.update(({path}) => paths.forEach(item => path(item.id, {d: item.d, fill: 'none', stroke: '#333', 'stroke-width': 1.5, 'marker-end': `url(#${item.marker})`})));
   }
 
   function keepLinksWithMotion() {
-    if (raf !== null) cancelAnimationFrame(raf);
-    if (reducedMotion.matches) { drawLinks(); return; }
-    const start = performance.now();
-    const tick = now => {
-      drawLinks();
-      if (now - start < 520) raf = requestAnimationFrame(tick);
-      else raf = null;
-    };
-    raf = requestAnimationFrame(tick);
+    linkMotion.cancel();
+    drawLinks();
+    if (linkMotion.reduced) return;
+    linkMotion.tween({duration: 520, update: drawLinks});
   }
 
   function render() {
     const all = frames(), frame = current(), state = frame.state;
-    previous.disabled = step === 0;
-    next.disabled = step === all.length - 1;
-    count.textContent = `${step} / ${all.length - 1}`;
     modeLabel.textContent = mode === 'script' ? '示例演示' : '自由练习';
     code.textContent = frame.code;
     explanation.textContent = frame.explanation;
@@ -807,8 +749,8 @@ class LRUCache:
       result.append(badge);
     }
     inspectedId = null;
-    highlightMainCode([frame.sourceId], frame.code);
-    inspection.textContent = '点一个 hashmap 表项或节点，可对照它们的对象身份。';
+    mainLineStatus.textContent = ` 当前步骤：${frame.code}`;
+    inspection.textContent = '';
     renderNodes(state, frame);
     renderMap(state, frame);
     const options = [...jump.options].map(option => Number(option.value));
@@ -816,17 +758,32 @@ class LRUCache:
     keepLinksWithMotion();
   }
 
-  previous.addEventListener('click', () => { if (step > 0) { step--; render(); } });
-  next.addEventListener('click', () => { if (step < frames().length - 1) { step++; render(); } });
-  jump.addEventListener('change', () => { step = Number(jump.value); render(); });
+  trace = createTrace({
+    root: tracePanel,
+    cloneState: clone,
+    motion: linkMotion,
+    codeKeyAttribute: 'data-source-id',
+    getCodeLines: () => mainCodeLines,
+    getCodeScroll: () => mainCodeScroll,
+    getFrameSourceKeys: frame => [sourceKeyBySource.get(frame.sourceId)].filter(Boolean),
+    formatStepOption: frame => frame.opTitle || frame.code,
+    onBeforeStep: () => linkMotion.cancel(),
+    onRender: context => { step = context.step; render(); }
+  });
+  root.addEventListener('lru-trace-return', () => trace.render());
+  root.addEventListener('lru-trace-permalink', () => {
+    const url = new URL(location.href);
+    url.hash = `step=${trace.step}`;
+    history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
+  });
   root.querySelector('[data-action="reset"]').addEventListener('click', () => {
-    mode = 'script'; step = 0; refreshJump(); render();
+    mode = 'script'; trace.setFrames(scriptedFrames, {initialStep: 0});
     practiceStatus.textContent = '已回到示例的初始状态。';
   });
   root.querySelector('[data-action="practice"]').addEventListener('click', () => {
-    mode = 'practice'; practiceFrames = [initialFrame()]; practiceOpCount = 0; step = 0;
-    refreshJump(); render();
-    practiceStatus.textContent = '自由练习已开始：容量 3，缓存为空。输入 key / value 后加入操作。';
+    mode = 'practice'; practiceFrames = [initialFrame()]; practiceOpCount = 0;
+    trace.setFrames(practiceFrames, {initialStep: 0});
+    practiceStatus.textContent = '容量 3，缓存为空。';
   });
 
   function validInteger(input, name, minimum, maximum) {
@@ -841,7 +798,7 @@ class LRUCache:
   }
   function addPractice(type) {
     if (mode !== 'practice') {
-      practiceStatus.textContent = '请先点「开始自由练习」，建立独立的空缓存。';
+      practiceStatus.textContent = '先开始自由练习。';
       return;
     }
     const key = validInteger(keyInput, 'key', 0, 10000);
@@ -850,37 +807,30 @@ class LRUCache:
     if (type === 'put' && value === null) return;
     const base = practiceFrames.at(-1).state;
     const newFrames = makeOperation(base, type, key, value, practiceOpCount++);
-    step = practiceFrames.length;
+    const initialStep = practiceFrames.length;
     practiceFrames.push(...newFrames);
-    refreshJump(); render();
-    practiceStatus.textContent = `已加入 ${type === 'get' ? `get(${key})` : `put(${key}, ${value})`}；从第一小步开始，点「下一步」继续。`;
+    trace.setFrames(practiceFrames, {initialStep});
+    practiceStatus.textContent = `已加入 ${type === 'get' ? `get(${key})` : `put(${key}, ${value})`}。`;
   }
   root.querySelector('[data-action="get"]').addEventListener('click', () => addPractice('get'));
   root.querySelector('[data-action="put"]').addEventListener('click', () => addPractice('put'));
-  root.addEventListener('keydown', event => {
-    if (event.target.closest('input, select, button')) return;
-    if (event.key === 'ArrowRight') { next.click(); event.preventDefault(); }
-    if (event.key === 'ArrowLeft') { previous.click(); event.preventDefault(); }
-  });
   new ResizeObserver(() => {
     stage.classList.add('no-motion');
     renderNodes(current().state, current());
     drawLinks();
     requestAnimationFrame(() => stage.classList.remove('no-motion'));
   }).observe(stage);
-  reducedMotion.addEventListener('change', () => { if (raf !== null) cancelAnimationFrame(raf); raf = null; drawLinks(); });
-  refreshJump();
-  render();
+  linkMotion.onPreferenceChange(() => drawLinks());
+  trace.setFrames(scriptedFrames);
 })();
 </script>
 <script>
 (() => {
   const helper = document.getElementById('pointer-helpers');
   const code = helper.querySelector('[data-helper-code]');
+  const codeScroll = helper.querySelector('[data-helper-code-scroll]');
   const diagram = helper.querySelector('[data-helper-diagram]');
   const diagramSvg = helper.querySelector('[data-helper-svg]');
-  const constructorLegend = helper.querySelector('[data-helper-constructor-legend]');
-  const diagramLegend = helper.querySelector('[data-helper-diagram-legend]');
   const fieldDetail = helper.querySelector('[data-helper-fields]');
   const cards = helper.querySelector('[data-helper-cards]');
   const walk = helper.querySelector('[data-helper-walk]');
@@ -940,7 +890,7 @@ class LRUCache:
         },
         prevNode: undefined
       }),
-      intro: '开始前：head ⇄ 2|250 ⇄ 4|300 ⇄ tail。新节点 3|200 悬在插入位置上方；它的 prev/next 仍是 None。',
+      intro: '开始前：head ⇄ 2|250 ⇄ 4|300 ⇄ tail。新节点 3|200 位于插入位置；它的 prev/next 仍是 None。',
       steps: [
         {code: 5, label: 'prev_node = self.tail.prev', explain: '读取 tail.prev，得到 4|300。只让局部变量 prev_node 指向它；节点里的字段都没变。', changed: ['local'], run: s => { s.prevNode = 'P'; }},
         {code: 8, label: 'node.prev = prev_node', explain: '新节点 3|200 的 prev 指向 4|300。原有的 4.next 仍指向 tail；主链尚未改变。', changed: ['N.prev'], run: s => { s.nodes.N.prev = s.prevNode; }},
@@ -1073,22 +1023,82 @@ class LRUCache:
     definition.code.forEach((source, index) => {
       const row = document.createElement('span');
       row.className = 'helper-code-line';
+      row.dataset.codeLine = `${mode}-${index}`;
       row.classList.toggle('is-current', index === activeLine);
+      if (index === activeLine) row.setAttribute('aria-current', 'step');
       row.textContent = source || ' ';
       code.append(row);
     });
+    const active = code.querySelector('[aria-current="step"]');
+    if (active) {
+      const activeRect = active.getBoundingClientRect();
+      const scrollRect = codeScroll.getBoundingClientRect();
+      const top = activeRect.top - scrollRect.top - codeScroll.clientTop + codeScroll.scrollTop;
+      const bottom = top + activeRect.height;
+      if (top < codeScroll.scrollTop || bottom > codeScroll.scrollTop + codeScroll.clientHeight) {
+        codeScroll.scrollTo({top: Math.max(0, top - (codeScroll.clientHeight - activeRect.height) / 2), behavior: diagramMotion.matches ? 'auto' : 'smooth'});
+      }
+    }
   }
 
   const svgNS = 'http://www.w3.org/2000/svg';
   const diagramMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let diagramRaf = null;
+  const {createMotionController, createSvgScene} = window.AlgorithmVisualCore;
+  const diagramMotionController = createMotionController(diagramMotion);
+  const diagramScene = createSvgScene(diagramSvg);
+  const retained = new Map();
+  let retainedVisible = new Set();
+  let linkPointState = new Map();
   let drawnMode = null;
 
-  function svgElement(tag, attributes = {}, content) {
-    const element = document.createElementNS(svgNS, tag);
-    for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, String(value));
-    if (content !== undefined) element.textContent = content;
+  function setSvgAttributes(element, attributes) {
+    for (const [name, value] of Object.entries(attributes)) {
+      if (value === null || value === undefined || value === false) element.removeAttribute(name);
+      else element.setAttribute(name, String(value));
+    }
     return element;
+  }
+
+  // Keep node groups and their labels in the SVG between frames. The shared
+  // scene below does the same for paths/text; this companion also retains the
+  // rect/line structure needed by the pointer-helper diagram.
+  function retainedElement(type, id, parent = diagramSvg, attributes = {}, content) {
+    let record = retained.get(id);
+    if (!record || record.type !== type || record.node.parentNode !== parent) {
+      record?.node.remove();
+      record = {type, node: document.createElementNS(svgNS, type)};
+      record.node.dataset.visualElement = id;
+      parent.append(record.node);
+      retained.set(id, record);
+    }
+    setSvgAttributes(record.node, attributes);
+    if (content !== undefined) record.node.textContent = content;
+    retainedVisible.add(id);
+    return record.node;
+  }
+
+  function beginRetainedFrame() {
+    retainedVisible = new Set();
+  }
+
+  function finishRetainedFrame() {
+    for (const [id, record] of retained) {
+      if (retainedVisible.has(id)) continue;
+      record.node.remove();
+      retained.delete(id);
+    }
+  }
+
+  function updateDescription(title, description) {
+    retainedElement('title', 'helper:title', diagramSvg, {id: 'helper-svg-title'}, title);
+    retainedElement('desc', 'helper:desc', diagramSvg, {id: 'helper-svg-desc'}, description);
+    diagramSvg.setAttribute('aria-labelledby', 'helper-svg-title helper-svg-desc');
+  }
+
+  function updateMarkers() {
+    diagramScene.defineMarker('helper-link-arrow', {fill: '#333'});
+    diagramScene.defineMarker('helper-stale-arrow', {fill: '#777'});
+    diagramScene.defineMarker('helper-variable-arrow', {fill: '#777'});
   }
 
   function diagramLayout(kind) {
@@ -1142,147 +1152,111 @@ class LRUCache:
     return `M ${points[0].toFixed(2)} ${points[1].toFixed(2)} C ${points[2].toFixed(2)} ${points[3].toFixed(2)} ${points[4].toFixed(2)} ${points[5].toFixed(2)} ${points[6].toFixed(2)} ${points[7].toFixed(2)}`;
   }
 
-  function renderConstructorDiagram(state, current) {
-    const layout = diagramLayout('constructor');
-    const [x, y] = layout.positions.N;
-    const halfW = layout.boxW / 2;
-    const halfH = layout.boxH / 2;
-    const node = state.nodes.N;
-    const changed = current?.changed ?? [];
-    const svg = document.createDocumentFragment();
-    svg.append(svgElement('title', {id: 'helper-svg-title'}, '逐行建立双向链表节点'));
-    svg.append(svgElement('desc', {id: 'helper-svg-desc'},
-      `${current?.label ?? '执行前'}。self 指向新建的节点 N；key ${targetText(node.key)}，val ${targetText(node.val)}，prev ${targetText(node.prev)}，next ${targetText(node.next)}。prev 和 next 没有指向其他节点。`));
-    const defs = svgElement('defs');
-    const marker = svgElement('marker', {id: 'helper-variable-arrow', viewBox: '0 0 7 7', markerWidth: 7, markerHeight: 7, refX: 6, refY: 3.5, orient: 'auto'});
-    marker.append(svgElement('path', {d: 'M0 0 L7 3.5 L0 7 Z', fill: '#777'}));
-    defs.append(marker);
-    svg.append(defs);
-    svg.append(svgElement('text', {class: 'helper-svg-label', x, y: 38}, 'self'));
-    svg.append(svgElement('path', {class: 'helper-svg-reference', d: `M ${x} 48 L ${x} ${y - halfH - 7}`, 'marker-end': 'url(#helper-variable-arrow)', 'aria-hidden': 'true'}));
-    const group = svgElement('g', {class: `helper-svg-node${changed.length ? ' is-changed' : ''}`, 'data-node-id': 'N', 'aria-hidden': 'true'});
-    group.append(svgElement('rect', {x: x - halfW, y: y - halfH, width: layout.boxW, height: layout.boxH, rx: 4}));
-    if (changed.includes('N.key')) group.append(svgElement('path', {class: 'helper-svg-cell-change', d: `M ${x - halfW + 2} ${y - halfH + 2} H ${x - layout.boxW * .13} V ${y + halfH - 2} H ${x - halfW + 2} Z`}));
-    if (changed.includes('N.val')) group.append(svgElement('path', {class: 'helper-svg-cell-change', d: `M ${x - layout.boxW * .13} ${y - halfH + 2} H ${x + halfW - 2} V ${y + halfH - 2} H ${x - layout.boxW * .13} Z`}));
-    const split = x - layout.boxW * .13;
-    group.append(svgElement('line', {class: 'divider', x1: split, x2: split, y1: y - halfH, y2: y + halfH}));
-    group.append(svgElement('text', {x: x - layout.boxW * .31, y: y + 1}, node.key === undefined ? '—' : node.key));
-    group.append(svgElement('text', {x: x + layout.boxW * .2, y: y + 1}, node.val === undefined ? '—' : node.val));
-    svg.append(group);
-    svg.append(svgElement('text', {class: 'helper-svg-attribute', x: x - layout.boxW * .31, y: y + halfH + 23}, 'key'));
-    svg.append(svgElement('text', {class: 'helper-svg-attribute', x: x + layout.boxW * .2, y: y + halfH + 23}, 'val'));
-    const sideOffset = layout.width === 360 ? 88 : 130;
-    for (const [field, fieldX] of [['prev', x - sideOffset], ['next', x + sideOffset]]) {
-      svg.append(svgElement('text', {class: 'helper-svg-attribute', x: fieldX, y: 207}, `N.${field}`));
-      svg.append(svgElement('text', {class: `helper-svg-attribute-value${node[field] === undefined ? ' is-unset' : ''}${changed.includes(`N.${field}`) ? ' is-changed' : ''}`, x: fieldX, y: 230}, targetText(node[field])));
-    }
-    diagramSvg.replaceChildren(svg);
-    diagramSvg.setAttribute('viewBox', `0 0 ${layout.width} ${layout.height}`);
-  }
-
   function renderDiagram(state, current, animate) {
-    if (diagramRaf !== null) cancelAnimationFrame(diagramRaf);
-    diagramRaf = null;
-    if (mode === 'constructor') { renderConstructorDiagram(state, current); return; }
-    const old = new Map([...diagramSvg.querySelectorAll('.helper-svg-link')].map(path => [path.dataset.linkId,
-      {points: path._points, opacity: Number(path.style.opacity || 1)}]));
+    diagramMotionController.cancel();
     const layout = diagramLayout(mode);
-    const outgoing = new Map();
-    const svg = document.createDocumentFragment();
-    const title = svgElement('title', {id: 'helper-svg-title'}, mode === 'add' ? '逐行插入到双向链表尾部' : '逐行从双向链表摘下节点');
-    const description = Object.entries(state.nodes).map(([id, node]) =>
-      `${id}${node.key === undefined ? '' : `(${node.key}, ${node.val})`}: prev ${targetText(node.prev)}, next ${targetText(node.next)}`).join('；');
-    svg.append(title, svgElement('desc', {id: 'helper-svg-desc'}, `${current?.label ?? '执行前'}。${description}。灰色虚线是局部变量引用。`));
-    const defs = svgElement('defs');
-    for (const [id, color] of [['helper-link-arrow', '#333'], ['helper-stale-arrow', '#777'], ['helper-variable-arrow', '#777']]) {
-      const marker = svgElement('marker', {id, viewBox: '0 0 7 7', markerWidth: 7, markerHeight: 7, refX: 6, refY: 3.5, orient: 'auto'});
-      marker.append(svgElement('path', {d: 'M0 0 L7 3.5 L0 7 Z', fill: color}));
-      defs.append(marker);
-    }
-    svg.append(defs);
-    const linkGroup = svgElement('g', {'aria-hidden': 'true'});
     const changed = current?.changed ?? [];
-    for (const [id, node] of Object.entries(state.nodes)) {
-      for (const field of ['next', 'prev']) {
-        const target = node[field];
-        if (!target || !layout.positions[target]) continue;
-        const linkId = `${id}.${field}`;
-        const stale = mode === 'remove' && step === 2 && id === 'N';
-        const path = svgElement('path', {
-          class: `helper-svg-link${stale ? ' is-stale' : ''}${changed.includes(linkId) ? ' is-changed' : ''}`,
-          'data-link-id': linkId,
-          'data-target': target,
-          'marker-end': `url(#${stale ? 'helper-stale-arrow' : 'helper-link-arrow'})`
-        });
-        const targetPoints = linkPoints(layout, mode, id, field, target);
-        const previous = old.get(linkId);
-        const starts = animate && previous?.points?.length === 8 ? previous.points : targetPoints;
-        path._points = starts.slice();
-        path.setAttribute('d', pathData(starts));
-        path.style.opacity = animate && !previous ? '0' : '1';
-        outgoing.set(linkId, {path, from: starts, to: targetPoints, fadeIn: animate && !previous});
-        linkGroup.append(path);
-      }
+    const old = new Map(linkPointState);
+    const outgoing = new Map();
+    const nextPoints = new Map();
+    const title = mode === 'add' ? '逐行插入到双向链表尾部' : mode === 'remove' ? '逐行从链表摘下节点' : '逐行建立双向链表节点';
+    beginRetainedFrame();
+    if (mode === 'constructor') {
+      const node = state.nodes.N;
+      const x = layout.positions.N[0], y = layout.positions.N[1];
+      const halfW = layout.boxW / 2, halfH = layout.boxH / 2;
+      updateDescription(title, (current?.label ?? '执行前') + '。self 指向新建的节点 N；key ' + targetText(node.key) + '，val ' + targetText(node.val) + '，prev ' + targetText(node.prev) + '，next ' + targetText(node.next) + '。');
+      updateMarkers();
+      diagramScene.update(draw => {
+        draw.text('constructor:self-label', {class: 'helper-svg-label', x, y: 38}, 'self');
+        draw.path('constructor:self-reference', {class: 'helper-svg-reference', d: 'M ' + x + ' 48 L ' + x + ' ' + (y - halfH - 7), 'marker-end': 'url(#helper-variable-arrow)', 'aria-hidden': 'true'});
+      });
+      const group = retainedElement('g', 'constructor:node', diagramSvg, {class: 'helper-svg-node' + (changed.length ? ' is-changed' : ''), 'data-node-id': 'N', 'aria-hidden': 'true'});
+      retainedElement('rect', 'constructor:node:rect', group, {x: x - halfW, y: y - halfH, width: layout.boxW, height: layout.boxH, rx: 4});
+      if (changed.includes('N.key')) retainedElement('path', 'constructor:node:key-change', group, {class: 'helper-svg-cell-change', d: 'M ' + (x - halfW + 2) + ' ' + (y - halfH + 2) + ' H ' + (x - layout.boxW * .13) + ' V ' + (y + halfH - 2) + ' H ' + (x - halfW + 2) + ' Z'});
+      if (changed.includes('N.val')) retainedElement('path', 'constructor:node:val-change', group, {class: 'helper-svg-cell-change', d: 'M ' + (x - layout.boxW * .13) + ' ' + (y - halfH + 2) + ' H ' + (x + halfW - 2) + ' V ' + (y + halfH - 2) + ' H ' + (x - layout.boxW * .13) + ' Z'});
+      const split = x - layout.boxW * .13;
+      retainedElement('line', 'constructor:node:divider', group, {class: 'divider', x1: split, x2: split, y1: y - halfH, y2: y + halfH});
+      retainedElement('text', 'constructor:node:key', group, {x: x - layout.boxW * .31, y: y + 1}, node.key === undefined ? '—' : node.key);
+      retainedElement('text', 'constructor:node:val', group, {x: x + layout.boxW * .2, y: y + 1}, node.val === undefined ? '—' : node.val);
+      retainedElement('text', 'constructor:key-label', diagramSvg, {class: 'helper-svg-attribute', x: x - layout.boxW * .31, y: y + halfH + 23}, 'key');
+      retainedElement('text', 'constructor:val-label', diagramSvg, {class: 'helper-svg-attribute', x: x + layout.boxW * .2, y: y + halfH + 23}, 'val');
+      const sideOffset = layout.width === 360 ? 88 : 130;
+      ['prev', 'next'].forEach(field => {
+        const fieldX = x + (field === 'prev' ? -sideOffset : sideOffset);
+        retainedElement('text', 'constructor:' + field + '-label', diagramSvg, {class: 'helper-svg-attribute', x: fieldX, y: 207}, 'N.' + field);
+        retainedElement('text', 'constructor:' + field + '-value', diagramSvg, {class: 'helper-svg-attribute-value' + (node[field] === undefined ? ' is-unset' : '') + (changed.includes('N.' + field) ? ' is-changed' : ''), x: fieldX, y: 230}, targetText(node[field]));
+      });
+      finishRetainedFrame();
+      linkPointState = new Map();
+      diagramSvg.setAttribute('viewBox', '0 0 ' + layout.width + ' ' + layout.height);
+      return;
     }
-    svg.append(linkGroup);
-    const referenceGroup = svgElement('g', {'aria-hidden': 'true'});
-    const nodeGroup = svgElement('g', {'aria-hidden': 'true'});
-    const [nx, ny] = layout.positions.N;
-    if (mode === 'add') {
-      referenceGroup.append(svgElement('text', {class: 'helper-svg-label', x: nx, y: ny - layout.boxH / 2 - 30}, 'node'));
-      referenceGroup.append(svgElement('path', {class: 'helper-svg-reference', d: `M ${nx} ${ny - layout.boxH / 2 - 25} L ${nx} ${ny - layout.boxH / 2 - 4}`, 'marker-end': 'url(#helper-variable-arrow)'}));
-      if (state.prevNode) {
-        const [px, py] = layout.positions.P;
-        referenceGroup.append(svgElement('text', {class: 'helper-svg-label', x: px, y: py + layout.boxH / 2 + 42}, 'prev_node'));
-        referenceGroup.append(svgElement('path', {class: 'helper-svg-reference', d: `M ${px} ${py + layout.boxH / 2 + 28} L ${px} ${py + layout.boxH / 2 + 5}`, 'marker-end': 'url(#helper-variable-arrow)'}));
+
+    const description = Object.entries(state.nodes).map(([id, node]) => id + (node.key === undefined ? '' : '(' + node.key + ', ' + node.val + ')') + ': prev ' + targetText(node.prev) + ', next ' + targetText(node.next)).join('；');
+    updateDescription(title, (current?.label ?? '执行前') + '。' + description + '。');
+    updateMarkers();
+    diagramScene.update(draw => {
+      for (const [id, node] of Object.entries(state.nodes)) {
+        for (const field of ['next', 'prev']) {
+          const target = node[field];
+          if (!target || !layout.positions[target]) continue;
+          const linkId = id + '.' + field;
+          const stale = mode === 'remove' && step === 2 && id === 'N';
+          const targetPoints = linkPoints(layout, mode, id, field, target);
+          const previous = old.get(linkId);
+          const starts = animate && previous?.length === 8 ? previous : targetPoints;
+          const path = draw.path('helper:link:' + linkId, {class: 'helper-svg-link' + (stale ? ' is-stale' : '') + (changed.includes(linkId) ? ' is-changed' : ''), 'data-link-id': linkId, 'data-target': target, 'marker-end': 'url(#' + (stale ? 'helper-stale-arrow' : 'helper-link-arrow') + ')', d: pathData(starts), 'aria-hidden': 'true'});
+          path._points = starts.slice();
+          path.style.opacity = animate && !previous ? '0' : '1';
+          outgoing.set(linkId, {path, from: starts, to: targetPoints, fadeIn: animate && !previous});
+          nextPoints.set(linkId, starts.slice());
+        }
       }
-    } else {
-      referenceGroup.append(svgElement('text', {class: 'helper-svg-label', x: nx, y: ny - layout.boxH / 2 - 28}, 'node'));
-      referenceGroup.append(svgElement('path', {class: 'helper-svg-reference', d: `M ${nx} ${ny - layout.boxH / 2 - 24} L ${nx} ${ny - layout.boxH / 2 - 4}`, 'marker-end': 'url(#helper-variable-arrow)'}));
-    }
-    svg.append(referenceGroup);
+      const nx = layout.positions.N[0], ny = layout.positions.N[1];
+      const topOffset = mode === 'add' ? 30 : 28;
+      draw.text('helper:reference:node:label', {class: 'helper-svg-label', x: nx, y: ny - layout.boxH / 2 - topOffset}, 'node');
+      draw.path('helper:reference:node:path', {class: 'helper-svg-reference', d: 'M ' + nx + ' ' + (ny - layout.boxH / 2 - topOffset + 5) + ' L ' + nx + ' ' + (ny - layout.boxH / 2 - 4), 'marker-end': 'url(#helper-variable-arrow)', 'aria-hidden': 'true'});
+      if (mode === 'add' && state.prevNode) {
+        const px = layout.positions.P[0], py = layout.positions.P[1];
+        draw.text('helper:reference:prev:label', {class: 'helper-svg-label', x: px, y: py + layout.boxH / 2 + 42}, 'prev_node');
+        draw.path('helper:reference:prev:path', {class: 'helper-svg-reference', d: 'M ' + px + ' ' + (py + layout.boxH / 2 + 28) + ' L ' + px + ' ' + (py + layout.boxH / 2 + 5), 'marker-end': 'url(#helper-variable-arrow)', 'aria-hidden': 'true'});
+      }
+    });
     for (const [id, [x, y]] of Object.entries(layout.positions)) {
       const node = state.nodes[id];
       const muted = mode === 'remove' && step === 2 && id === 'N';
-      const group = svgElement('g', {class: `helper-svg-node${muted ? ' is-dim' : ''}${changed.some(item => item.startsWith(id + '.')) ? ' is-changed' : ''}`, 'data-node-id': id});
-      group.append(svgElement('rect', {x: x - layout.boxW / 2, y: y - layout.boxH / 2, width: layout.boxW, height: layout.boxH, rx: 4}));
-      if (id === 'head' || id === 'tail') {
-        group.append(svgElement('text', {x, y: y + 1}, id));
-      } else {
+      const group = retainedElement('g', 'node:' + id, diagramSvg, {class: 'helper-svg-node' + (muted ? ' is-dim' : '') + (changed.some(item => item.startsWith(id + '.')) ? ' is-changed' : ''), 'data-node-id': id, 'aria-hidden': 'true'});
+      retainedElement('rect', 'node:' + id + ':rect', group, {x: x - layout.boxW / 2, y: y - layout.boxH / 2, width: layout.boxW, height: layout.boxH, rx: 4});
+      if (id === 'head' || id === 'tail') retainedElement('text', 'node:' + id + ':label', group, {x, y: y + 1}, id);
+      else {
         const split = x - layout.boxW * .13;
-        group.append(svgElement('line', {class: 'divider', x1: split, x2: split, y1: y - layout.boxH / 2, y2: y + layout.boxH / 2}));
-        group.append(svgElement('text', {x: x - layout.boxW * .31, y: y + 1}, node.key));
-        group.append(svgElement('text', {x: x + layout.boxW * .2, y: y + 1}, node.val));
+        retainedElement('line', 'node:' + id + ':divider', group, {class: 'divider', x1: split, x2: split, y1: y - layout.boxH / 2, y2: y + layout.boxH / 2});
+        retainedElement('text', 'node:' + id + ':key', group, {x: x - layout.boxW * .31, y: y + 1}, node.key);
+        retainedElement('text', 'node:' + id + ':val', group, {x: x + layout.boxW * .2, y: y + 1}, node.val);
       }
-      nodeGroup.append(group);
     }
-    svg.append(nodeGroup);
     if (mode === 'remove' && step === 2) {
-      const r = Math.min(layout.boxW, layout.boxH) * .54;
-      svg.append(svgElement('path', {class: 'helper-svg-cross', d: `M ${nx-r} ${ny-r} L ${nx+r} ${ny+r} M ${nx+r} ${ny-r} L ${nx-r} ${ny+r}`, 'aria-hidden': 'true'}));
+      const nx = layout.positions.N[0], ny = layout.positions.N[1], r = Math.min(layout.boxW, layout.boxH) * .54;
+      retainedElement('path', 'helper:remove-cross', diagramSvg, {class: 'helper-svg-cross', d: 'M ' + (nx-r) + ' ' + (ny-r) + ' L ' + (nx+r) + ' ' + (ny+r) + ' M ' + (nx+r) + ' ' + (ny-r) + ' L ' + (nx-r) + ' ' + (ny+r), 'aria-hidden': 'true'});
     }
-    if (mode === 'add') svg.append(svgElement('text', {class: 'helper-svg-hint', x: layout.width / 2, y: layout.height - 15}, '节点位置保持不动；箭头表示字段何时真正改变'));
-    diagramSvg.replaceChildren(svg);
-    diagramSvg.setAttribute('viewBox', `0 0 ${layout.width} ${layout.height}`);
-    const shouldAnimate = animate && !diagramMotion.matches;
-    if (shouldAnimate) {
-      const begin = performance.now();
-      const duration = 250;
-      const tick = now => {
-        const p = Math.min(1, (now - begin) / duration);
-        const eased = 1 - Math.pow(1 - p, 3);
+    finishRetainedFrame();
+    diagramSvg.setAttribute('viewBox', '0 0 ' + layout.width + ' ' + layout.height);
+    linkPointState = nextPoints;
+    if (animate && !diagramMotion.matches) {
+      diagramMotionController.tween({duration: 250, update: eased => {
         for (const {path, from, to, fadeIn} of outgoing.values()) {
           const points = from.map((value, index) => value + (to[index] - value) * eased);
           path._points = points;
+          linkPointState.set(path.dataset.linkId, points);
           path.setAttribute('d', pathData(points));
           if (fadeIn) path.style.opacity = String(eased);
         }
-        if (p < 1) diagramRaf = requestAnimationFrame(tick);
-        else diagramRaf = null;
-      };
-      diagramRaf = requestAnimationFrame(tick);
+      }, complete: () => {
+        for (const {path, to} of outgoing.values()) { path._points = to; linkPointState.set(path.dataset.linkId, to); path.setAttribute('d', pathData(to)); path.style.opacity = '1'; }
+      }});
     } else {
-      for (const {path, to} of outgoing.values()) { path._points = to; path.setAttribute('d', pathData(to)); path.style.opacity = '1'; }
+      for (const {path, to} of outgoing.values()) { path._points = to; linkPointState.set(path.dataset.linkId, to); path.setAttribute('d', pathData(to)); path.style.opacity = '1'; }
     }
   }
 
@@ -1291,12 +1265,14 @@ class LRUCache:
     const state = stateAt(definition, step);
     const current = step ? definition.steps[step - 1] : null;
     const reached = reachable(state);
+    const hadPreviousFocus = document.activeElement === previous;
+    const hadNextFocus = document.activeElement === next;
     previous.disabled = step === 0;
     next.disabled = step === definition.steps.length;
     count.textContent = `${step} / ${definition.steps.length}`;
+    if (next.disabled && hadNextFocus && !previous.disabled) previous.focus({preventScroll: true});
+    if (previous.disabled && hadPreviousFocus && !next.disabled) next.focus({preventScroll: true});
     for (const button of modes) button.setAttribute('aria-pressed', String(button.dataset.helperMode === mode));
-    constructorLegend.hidden = mode !== 'constructor';
-    diagramLegend.hidden = mode === 'constructor';
     renderDiagram(state, current, drawnMode === mode);
     drawnMode = mode;
     renderWalk(state, reached);
@@ -1316,7 +1292,7 @@ class LRUCache:
     renderCards(state, reached, current?.changed ?? []);
     line.textContent = current?.label ?? '执行前';
     explanation.textContent = current?.explain ?? definition.intro;
-    renderCode(definition, current?.code ?? -1);
+    renderCode(definition, current?.code ?? 0);
   }
 
   modes.forEach(button => button.addEventListener('click', () => {
@@ -1328,9 +1304,11 @@ class LRUCache:
   previous.addEventListener('click', () => { if (step > 0) { step--; render(); } });
   next.addEventListener('click', () => { if (step < definitions[mode].steps.length) { step++; render(); } });
   helper.addEventListener('keydown', event => {
-    if (event.target !== helper) return;
+    if (event.target.closest('input, select, textarea, [contenteditable="true"], [data-code-scroll]')) return;
     if (event.key === 'ArrowRight') { next.click(); event.preventDefault(); event.stopPropagation(); }
     if (event.key === 'ArrowLeft') { previous.click(); event.preventDefault(); event.stopPropagation(); }
+    if (event.key === 'Home') { step = 0; render(); event.preventDefault(); event.stopPropagation(); }
+    if (event.key === 'End') { step = definitions[mode].steps.length; render(); event.preventDefault(); event.stopPropagation(); }
   });
   let observedDiagramWidth = 0;
   new ResizeObserver(entries => {
@@ -1404,14 +1382,18 @@ class LRUCache:
     return element;
   }
 
-  function render(syncCode = true) {
+  function render() {
     const frames = examples[mode];
     const frame = frames[step];
+    const hadPreviousFocus = document.activeElement === previous;
+    const hadNextFocus = document.activeElement === next;
     overview.dataset.overviewStep = String(step);
     modes.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.overviewMode === mode)));
     previous.disabled = step === 0;
     next.disabled = step === frames.length - 1;
     count.textContent = `${step} / ${frames.length - 1}`;
+    if (next.disabled && hadNextFocus && !previous.disabled) previous.focus({preventScroll: true});
+    if (previous.disabled && hadPreviousFocus && !next.disabled) next.focus({preventScroll: true});
     operation.textContent = mode === 'put' ? 'put(3, 200) →' : 'get(2) →';
     floating.replaceChildren();
     if (frame.floating) {
@@ -1439,11 +1421,6 @@ class LRUCache:
     }
     code.textContent = frame.code;
     explanation.textContent = frame.explain;
-    if (syncCode) {
-      document.getElementById('lru-lab').dispatchEvent(new CustomEvent('lru-code-step', {
-        detail: {sourceIds: frame.sourceIds, label: `操作概览 · ${frame.code}`}
-      }));
-    }
     const orderText = frame.order.map(item => `${item.key}|${item.val}`).join('，');
     const extra = frame.floating ? `；缓存外有 ${frame.floating.key}|${frame.floating.val}` : '';
     const evicted = frame.evicted ? `；已淘汰 ${frame.evicted.key}|${frame.evicted.val}` : '';
@@ -1459,13 +1436,71 @@ class LRUCache:
   previous.addEventListener('click', () => { if (step > 0) { step--; render(); } });
   next.addEventListener('click', () => { if (step < examples[mode].length - 1) { step++; render(); } });
   overview.addEventListener('keydown', event => {
-    if (event.target !== overview) return;
+    if (event.target.closest('input, select, textarea, [contenteditable="true"], [data-code-scroll]')) return;
     if (event.key === 'ArrowRight') { next.click(); event.preventDefault(); event.stopPropagation(); }
     if (event.key === 'ArrowLeft') { previous.click(); event.preventDefault(); event.stopPropagation(); }
+    if (event.key === 'Home') { step = 0; render(); event.preventDefault(); event.stopPropagation(); }
+    if (event.key === 'End') { step = examples[mode].length - 1; render(); event.preventDefault(); event.stopPropagation(); }
   });
-  // The main trace owns the initial source highlight. Overview controls take
-  // ownership only after the learner interacts with this smaller walkthrough.
-  render(false);
+  render();
+})();
+</script>
+<script>
+(() => {
+  const root = document.getElementById('lru-lab');
+  const tabs = [...root.querySelectorAll('[data-lru-tab]')];
+  const primaryPanels = new Map([
+    ['overview', root.querySelector('#get-put-overview')],
+    ['trace', root.querySelector('#lru-code-trace')],
+    ['helper', root.querySelector('#pointer-helpers')]
+  ]);
+  const allPanels = [...root.querySelectorAll('[data-lru-panel]')];
+  const helperPanel = primaryPanels.get('helper');
+
+  function selectPanel(name, {focus = false} = {}) {
+    for (const panel of allPanels) panel.hidden = panel.dataset.lruPanel !== name;
+    for (const tab of tabs) {
+      const selected = tab.dataset.lruTab === name;
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    }
+    if (name !== 'helper' && location.hash === '#pointer-helpers') {
+      root.dispatchEvent(new CustomEvent('lru-trace-permalink'));
+    }
+    if (name === 'trace') root.dispatchEvent(new CustomEvent('lru-trace-return'));
+    if (focus) primaryPanels.get(name)?.focus({preventScroll: true});
+  }
+
+  function openHelperFromAnchor({updateHash = false} = {}) {
+    selectPanel('helper');
+    if (updateHash && location.hash !== '#pointer-helpers') {
+      history.pushState(history.state, '', `${location.pathname}${location.search}#pointer-helpers`);
+    }
+    requestAnimationFrame(() => helperPanel.scrollIntoView({block: 'start'}));
+  }
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectPanel(tab.dataset.lruTab));
+    tab.addEventListener('keydown', event => {
+      let nextIndex = null;
+      if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+      if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+      if (event.key === 'Home') nextIndex = 0;
+      if (event.key === 'End') nextIndex = tabs.length - 1;
+      if (nextIndex === null) return;
+      event.preventDefault();
+      tabs[nextIndex].focus();
+      selectPanel(tabs[nextIndex].dataset.lruTab);
+    });
+  });
+
+  window.addEventListener('hashchange', () => {
+    if (location.hash === '#pointer-helpers') openHelperFromAnchor();
+    else if (new URLSearchParams(location.hash.slice(1)).has('step')) selectPanel('trace');
+  });
+
+  if (location.hash === '#pointer-helpers') openHelperFromAnchor();
+  else selectPanel('trace');
 })();
 </script>
 </body>

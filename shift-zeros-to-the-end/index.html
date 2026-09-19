@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="Interactive bilingual visualization of shifting zeros to the end with two pointers. 双指针原地移动零。" />
-    <title>Shift Zeros to the End · Algo Visual</title>
+    <title>Shift Zeros to the End · Algorithm Visuals</title>
     <link rel="stylesheet" href="../assets/guide.css" />
     <link rel="stylesheet" href="../assets/visual.css" />
     <style>
@@ -54,7 +54,7 @@
   <body>
     <main id="shift-lab">
       <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
-      <header class="heading"><div><h1>Shift Zeros to the End · 移动零到末尾</h1><p class="subtitle">Chapter 01 · Two Pointers / 双指针</p></div></header>
+      <header class="heading"><div><h1>Shift Zeros to the End · 移动零到末尾</h1></div></header>
       <p class="problem">Modify <code>nums = [0, 1, 0, 3, 2]</code> in place so every zero moves to the end while the non-zero values keep their relative order.<span lang="zh-CN">原地修改数组，把所有零移到末尾，同时保持非零元素的相对顺序。</span></p>
 
       <div class="learning-layout" data-learning-layout>
@@ -65,8 +65,8 @@
             <button type="button" data-action="next">下一步 →</button>
             <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
           </div>
-          <div class="step-meta"><span data-phase></span><span data-array></span></div>
-          <div class="stage" data-stage tabindex="0" aria-label="Use arrow keys, Home, or End to navigate the trace.">
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="Algorithm trace / 算法演示">
             <div class="prefix-band" data-prefix hidden></div>
             <div class="track" data-track></div>
             <span class="pointer left" data-left>left</span>
@@ -92,7 +92,6 @@
       <section class="section" aria-labelledby="shift-why"><h2 id="shift-why">Why the order stays stable / 为什么顺序不会改变</h2><ol class="reason-list"><li><code>right</code> reads values from left to right.</li><li>Every non-zero value is placed at the current <code>left</code> position.</li><li><code>left</code> advances only after a non-zero value is placed.</li><li>Therefore non-zero values are written in the same order in which they are found.</li></ol></section>
       <section class="section" aria-labelledby="shift-edge"><h2 id="shift-edge">Edge cases / 边界情况</h2><div class="edge-grid"><article class="paper-card"><code>[0, 0, 0]</code><p><code>left</code> never moves; the array is already correct. / <span lang="zh-CN">没有非零元素，left 不移动。</span></p></article><article class="paper-card"><code>[1, 3, 2]</code><p>Each value swaps with itself, preserving the array. / <span lang="zh-CN">每个元素与自身交换，数组保持不变。</span></p></article></div></section>
       <section class="section" aria-labelledby="shift-complexity"><h2 id="shift-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(n)</strong><p><code>right</code> visits each index once.</p></article><article class="paper-card"><strong>Extra space · O(1)</strong><p>The mutation is in place; only two indexes are stored.</p></article></div></section>
-      <details class="guide-help"><summary>图例与操作说明</summary><div class="legend"><span>实线标签：<code>left</code> 写入位置</span><span>虚线标签：<code>right</code> 扫描位置</span><span>双线框：本步交换位置</span></div><p>使用按钮、步骤菜单、方向键、Home 或 End 浏览；数组格子位置保持固定，格子中的值才会交换。</p></details>
       <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../longest-unique-substring/">无重复字符的最长子串</a><a href="../substring-anagrams/">字母异位子串</a><a href="../">返回目录</a></nav>
     </main>
 
@@ -108,7 +107,6 @@
         const rightPointer = root.querySelector('[data-right]');
         const endLabel = root.querySelector('[data-end]');
         const phase = root.querySelector('[data-phase]');
-        const arrayText = root.querySelector('[data-array]');
         const invariant = root.querySelector('[data-invariant]');
         const leftValue = root.querySelector('[data-left-value]');
         const rightValue = root.querySelector('[data-right-value]');
@@ -172,7 +170,8 @@
           const top = 108;
           positions = nums.map((_, index) => ({ x: start + index * (cellWidth + gap), center: start + index * (cellWidth + gap) + cellWidth / 2, width: cellWidth, top }));
           cells.forEach((cell, index) => { cell.style.left = `${positions[index].x}px`; cell.style.top = `${top}px`; cell.style.width = `${cellWidth}px`; });
-          endLabel.style.left = `${Math.min(width - 58, start + total + 10)}px`;
+          const endLabelWidth = endLabel.getBoundingClientRect().width;
+          endLabel.style.left = `${Math.max(0, Math.min(width - endLabelWidth - 4, start + total + 10))}px`;
           endLabel.style.top = `${top + 23}px`;
           paint(trace?.state || buildFrames()[0].state);
         }
@@ -227,7 +226,6 @@
 
         function render({ frame, state, step, frames }) {
           phase.textContent = `${state.iteration ? `第 ${state.iteration} 轮 · ` : ''}${frame.stepLabel}`;
-          arrayText.textContent = `nums = [${state.nums.join(', ')}]`;
           invariant.textContent = state.swap ? `nums[0:${state.left}] is stable; nums[${state.left}] has just been written and joins the prefix only after left += 1. / 已写入 nums[${state.left}]，执行 left += 1 后才正式扩展前缀。` : state.left === 0 ? 'The stable non-zero prefix is empty. / 已就位的非零前缀为空。' : `nums[0:${state.left}] = [${state.nums.slice(0, state.left).join(', ')}] is final and keeps the original order. / 这一段已经就位且顺序不变。`;
           leftValue.textContent = state.left;
           rightValue.textContent = state.right === null ? '—' : state.right >= nums.length ? 'end' : state.right;

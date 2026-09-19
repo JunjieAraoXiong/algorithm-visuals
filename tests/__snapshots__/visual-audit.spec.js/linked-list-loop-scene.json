@@ -1,0 +1,1408 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "Interactive pointer animation / 指针交互演示"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "Choose an example / 选择例子"
+        ],
+        [
+          "class",
+          "examples"
+        ],
+        [
+          "role",
+          "group"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "true"
+            ],
+            [
+              "class",
+              "example"
+            ],
+            [
+              "data-example",
+              "delayed"
+            ]
+          ],
+          "children": [
+            "Delayed cycle / 延迟入环"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "class",
+              "example"
+            ],
+            [
+              "data-example",
+              "perfect"
+            ]
+          ],
+          "children": [
+            "Perfect cycle / 完整环"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "class",
+              "example"
+            ],
+            [
+              "data-example",
+              "noneEven"
+            ]
+          ],
+          "children": [
+            "No cycle · even / 无环偶数"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "class",
+              "example"
+            ],
+            [
+              "data-example",
+              "noneOdd"
+            ]
+          ],
+          "children": [
+            "No cycle · odd / 无环奇数"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "Animation controls / 演示控制"
+        ],
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "class",
+              "step-count"
+            ],
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 22"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "jump-label"
+            ]
+          ],
+          "children": [
+            "跳到步骤"
+          ]
+        },
+        {
+          "tag": "select",
+          "attributes": [
+            [
+              "aria-label",
+              "跳到步骤"
+            ],
+            [
+              "data-step-select",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "0"
+                ]
+              ],
+              "children": [
+                "步骤 1 · slow = fast = head"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "1"
+                ]
+              ],
+              "children": [
+                "步骤 2 · while fast and fast.next:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "2"
+                ]
+              ],
+              "children": [
+                "步骤 3 · slow = slow.next"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "3"
+                ]
+              ],
+              "children": [
+                "步骤 4 · fast = fast.next.next · hop 1 / 第 1 跳"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "4"
+                ]
+              ],
+              "children": [
+                "步骤 5 · fast = fast.next.next · hop 2 / 第 2 跳"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "5"
+                ]
+              ],
+              "children": [
+                "步骤 6 · if fast == slow:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "6"
+                ]
+              ],
+              "children": [
+                "步骤 7 · while fast and fast.next:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "7"
+                ]
+              ],
+              "children": [
+                "步骤 8 · slow = slow.next"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "8"
+                ]
+              ],
+              "children": [
+                "步骤 9 · fast = fast.next.next · hop 1 / 第 1 跳"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "9"
+                ]
+              ],
+              "children": [
+                "步骤 10 · fast = fast.next.next · hop 2 / 第 2 跳"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "10"
+                ]
+              ],
+              "children": [
+                "步骤 11 · if fast == slow:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "11"
+                ]
+              ],
+              "children": [
+                "步骤 12 · while fast and fast.next:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "12"
+                ]
+              ],
+              "children": [
+                "步骤 13 · slow = slow.next"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "13"
+                ]
+              ],
+              "children": [
+                "步骤 14 · fast = fast.next.next · hop 1 / 第 1 跳"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "14"
+                ]
+              ],
+              "children": [
+                "步骤 15 · fast = fast.next.next · hop 2 / 第 2 跳"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "15"
+                ]
+              ],
+              "children": [
+                "步骤 16 · if fast == slow:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "16"
+                ]
+              ],
+              "children": [
+                "步骤 17 · while fast and fast.next:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "17"
+                ]
+              ],
+              "children": [
+                "步骤 18 · slow = slow.next"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "18"
+                ]
+              ],
+              "children": [
+                "步骤 19 · fast = fast.next.next · hop 1 / 第 1 跳"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "19"
+                ]
+              ],
+              "children": [
+                "步骤 20 · fast = fast.next.next · hop 2 / 第 2 跳"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "20"
+                ]
+              ],
+              "children": [
+                "步骤 21 · if fast == slow:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "21"
+                ]
+              ],
+              "children": [
+                "步骤 22 · return True"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "phase-line"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "Delayed cycle / 延迟入环 · Setup / 初始化"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "distance"
+            ],
+            [
+              "data-distance",
+              ""
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "condition"
+        ],
+        [
+          "data-condition",
+          ""
+        ],
+        [
+          "hidden",
+          ""
+        ]
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "Step 1 of 22. Both variables reference head. Do not compare here: they are equal only because both were initialized to head. slow references node 0; fast references node 0. Use left and right arrow keys."
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "stage-lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 781 409"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#333"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#666"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 288.59000000000003 48 H 632.99 Q 656.99 48 656.99 72 V 336 Q 656.99 360 632.99 360 H 288.59000000000003 Q 264.59000000000003 360 264.59000000000003 336 V 72 Q 264.59000000000003 48 288.59000000000003 48"
+                ],
+                [
+                  "data-visual-element",
+                  "cycle-outline"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#aaa"
+                ],
+                [
+                  "stroke-dasharray",
+                  "6 6"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "cycle-label"
+                ],
+                [
+                  "fill",
+                  "#666"
+                ],
+                [
+                  "x",
+                  "270.59000000000003"
+                ],
+                [
+                  "y",
+                  "43"
+                ]
+              ],
+              "children": [
+                "cycle / 环"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 77.67 205 L 145.82 205"
+                ],
+                [
+                  "data-visual-element",
+                  "stored-n0"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#stored-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.8"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "stored-label-n0"
+                ],
+                [
+                  "fill",
+                  "#686864"
+                ],
+                [
+                  "x",
+                  "113.245"
+                ],
+                [
+                  "y",
+                  "215"
+                ]
+              ],
+              "children": [
+                "next"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 194.82 205 L 278.59000000000003 205"
+                ],
+                [
+                  "data-visual-element",
+                  "stored-n1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#stored-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.8"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "stored-label-n1"
+                ],
+                [
+                  "fill",
+                  "#686864"
+                ],
+                [
+                  "x",
+                  "238.205"
+                ],
+                [
+                  "y",
+                  "215"
+                ]
+              ],
+              "children": [
+                "next"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 322.29766475920246 190.32217288643508 L 432.96263983742335 98.59232630229077"
+                ],
+                [
+                  "data-visual-element",
+                  "stored-n2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#stored-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.8"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "stored-label-n2"
+                ],
+                [
+                  "fill",
+                  "#686864"
+                ],
+                [
+                  "x",
+                  "385.1666639624195"
+                ],
+                [
+                  "y",
+                  "151.1989846779141"
+                ]
+              ],
+              "children": [
+                "next"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 471.380403878797 95.7994614785198 L 596.1895434413599 189.4006087634124"
+                ],
+                [
+                  "data-visual-element",
+                  "stored-n3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#stored-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.8"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "stored-label-n3"
+                ],
+                [
+                  "fill",
+                  "#686864"
+                ],
+                [
+                  "x",
+                  "528.985234139774"
+                ],
+                [
+                  "y",
+                  "151.50017559947696"
+                ]
+              ],
+              "children": [
+                "next"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 598.4818310895481 218.65458470925358 L 473.9022778987717 310.56438250258293"
+                ],
+                [
+                  "data-visual-element",
+                  "stored-n4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#stored-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.8"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "stored-label-n4"
+                ],
+                [
+                  "fill",
+                  "#686864"
+                ],
+                [
+                  "x",
+                  "529.048224039455"
+                ],
+                [
+                  "y",
+                  "257.4529700389339"
+                ]
+              ],
+              "children": [
+                "next"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 435.1548688706895 311.46505245200774 L 324.74014823313365 221.43081027164342"
+                ],
+                [
+                  "data-visual-element",
+                  "stored-n5"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#stored-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.8"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "stored-label-n5"
+                ],
+                [
+                  "fill",
+                  "#686864"
+                ],
+                [
+                  "x",
+                  "385.10454241217053"
+                ],
+                [
+                  "y",
+                  "257.7499429872563"
+                ]
+              ],
+              "children": [
+                "next"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "cycle-entry-en"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "304.59000000000003"
+                ],
+                [
+                  "y",
+                  "253"
+                ]
+              ],
+              "children": [
+                "cycle entry"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "cycle-entry-zh"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "304.59000000000003"
+                ],
+                [
+                  "y",
+                  "262"
+                ]
+              ],
+              "children": [
+                "/ 环入口"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 54.67 161 L 54.67 180"
+                ],
+                [
+                  "data-visual-element",
+                  "reference-slow"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#reference-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#666"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 54.67 249 L 54.67 230"
+                ],
+                [
+                  "data-visual-element",
+                  "reference-fast"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#reference-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#666"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "null-target mono"
+            ],
+            [
+              "data-null",
+              ""
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ],
+          "children": [
+            "None"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "variable slow visual-positioned"
+            ],
+            [
+              "data-pointer",
+              "slow"
+            ],
+            [
+              "style",
+              "--visual-x: 54.67px; --visual-y: 147px;"
+            ]
+          ],
+          "children": [
+            "slow"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "variable fast visual-positioned"
+            ],
+            [
+              "data-pointer",
+              "fast"
+            ],
+            [
+              "style",
+              "--visual-x: 54.67px; --visual-y: 263px;"
+            ]
+          ],
+          "children": [
+            "fast"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-id",
+              "#0"
+            ],
+            [
+              "data-node",
+              "n0"
+            ],
+            [
+              "style",
+              "--visual-x: 54.67px; --visual-y: 205px;"
+            ]
+          ],
+          "children": [
+            "0"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-id",
+              "#1"
+            ],
+            [
+              "data-node",
+              "n1"
+            ],
+            [
+              "style",
+              "--visual-x: 171.82px; --visual-y: 205px;"
+            ]
+          ],
+          "children": [
+            "1"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-id",
+              "#2"
+            ],
+            [
+              "data-node",
+              "n2"
+            ],
+            [
+              "style",
+              "--visual-x: 304.59000000000003px; --visual-y: 205px;"
+            ]
+          ],
+          "children": [
+            "2"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-id",
+              "#3"
+            ],
+            [
+              "data-node",
+              "n3"
+            ],
+            [
+              "style",
+              "--visual-x: 452.97999999999996px; --visual-y: 82px;"
+            ]
+          ],
+          "children": [
+            "3"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-id",
+              "#4"
+            ],
+            [
+              "data-node",
+              "n4"
+            ],
+            [
+              "style",
+              "--visual-x: 616.99px; --visual-y: 205px;"
+            ]
+          ],
+          "children": [
+            "4"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-id",
+              "#5"
+            ],
+            [
+              "data-node",
+              "n5"
+            ],
+            [
+              "style",
+              "--visual-x: 452.97999999999996px; --visual-y: 326px;"
+            ]
+          ],
+          "children": [
+            "5"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "callout"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-code",
+              ""
+            ]
+          ],
+          "children": [
+            "slow = fast = head"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-note-en",
+              ""
+            ]
+          ],
+          "children": [
+            "Both variables reference head. Do not compare here: they are equal only because both were initialized to head."
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "zh"
+            ],
+            [
+              "data-note-zh",
+              ""
+            ]
+          ],
+          "children": [
+            "两个变量都引用 head。这里先不比较：它们相同只是因为都刚被初始化为 head。"
+          ]
+        }
+      ]
+    }
+  ]
+}

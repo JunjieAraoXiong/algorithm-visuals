@@ -5,39 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="逐步观察两个指针如何找到链表相交节点，以及相同节点值为何不代表相交">
   <title>Linked List Intersection · Algorithm Visuals</title>
+  <link rel="stylesheet" href="../assets/visual.css">
   <style>
-    :root {
-      --paper: #fffdf8;
-      --ink: #272727;
-      --arrow: #333;
-      --quiet: #555;
-      --rule: #b7b7b1;
-      --node-size: 42px;
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; padding: 18px; background: var(--paper); color: var(--ink); font: 15px/1.45 Arial, Helvetica, sans-serif; }
-    main { width: min(100%, 1480px); margin: 0 auto; }
-    button, select { color: var(--ink); font: inherit; }
-    button:focus-visible, select:focus-visible, .back-link:focus-visible, .code-panel pre:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-    .back-nav { margin: 0 3px 13px; }
-    .back-link { display: inline-block; min-height: 34px; padding: 6px 10px; border: 1px solid #777; border-radius: 2px; color: var(--ink); font-size: 13px; text-decoration: none; }
-    .back-link:hover { background: #f5f2e9; }
-    .heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin: 0 3px 8px; }
-    h1 { margin: 0; font-size: 18px; font-weight: 500; }
-    .subtitle { margin: 3px 0 0; color: var(--quiet); font-size: 12px; }
-    .learning-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(360px, 2fr); gap: clamp(18px, 2vw, 30px); align-items: start; }
-    .animation-panel, .code-panel { min-width: 0; }
-    .settings { display: flex; width: fit-content; align-items: center; gap: 6px; margin: 0 3px 4px; font: 13px monospace; white-space: nowrap; }
-    select { border: 1px solid #777; border-radius: 2px; padding: 4px 6px; background: var(--paper); }
-    .controls { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; padding: 8px 3px; border-bottom: 1px solid var(--rule); font: 13px monospace; }
-    .controls button { border: 1px solid #777; border-radius: 2px; padding: 5px 9px; background: transparent; cursor: pointer; }
-    .controls button:disabled { opacity: .42; cursor: default; }
-    .controls output { min-width: 55px; text-align: center; }
+    :root { --node-size: 42px; }
     .round { margin-left: auto; color: var(--quiet); }
-    .stage { position: relative; width: 100%; height: 400px; border-bottom: 1px solid var(--rule); touch-action: none; }
-    .lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-    .stage button { position: absolute; z-index: 1; transform: translate(-50%, -50%); user-select: none; touch-action: none; }
-    .pointer { min-width: 76px; min-height: 30px; padding: 3px 7px; border: 1.5px solid #595959; border-radius: 3px; background: var(--paper); font: 13px monospace; cursor: grab; will-change: left, top, opacity; }
+    .stage { height: 400px; border-bottom: 1px solid var(--rule); }
+    .pointer { min-width: 76px; min-height: 30px; padding: 3px 7px; border: 1.5px solid #595959; border-radius: 3px; background: var(--paper); font: 13px monospace; cursor: grab; will-change: transform, opacity; }
     .pointer:active { cursor: grabbing; }
     .pointer.b { border-style: dashed; }
     .pointer.selected { outline: 2px solid #555; outline-offset: 3px; }
@@ -48,19 +21,8 @@
     .none { min-width: 40px; padding: 3px; border: 0; background: var(--paper); font: 15px Arial, Helvetica, sans-serif; cursor: pointer; }
     .positions { display: flex; flex-wrap: wrap; gap: 5px 24px; padding: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
     .positions strong { color: var(--ink); font-weight: 500; }
-    .operation { min-height: 68px; margin: 10px 3px 0; padding: 9px 11px; border: 1px dashed #999; font-size: 14px; }
-    .operation code { display: block; font: 13px/1.5 monospace; overflow-wrap: anywhere; }
-    .operation span { display: block; margin-top: 3px; }
-    .legend { display: flex; flex-wrap: wrap; gap: 5px 18px; margin: 10px 3px 0; color: var(--quiet); font-size: 12px; }
-    .hint, .note { margin: 7px 3px 0; color: var(--quiet); font-size: 12px; }
+    .operation { min-height: 68px; }
     .note { padding-top: 8px; border-top: 1px solid var(--rule); }
-    .code-panel { position: sticky; top: 18px; border: 1px solid var(--rule); padding: 13px; }
-    .code-panel h2 { margin: 0 0 5px; font-size: 15px; font-weight: 500; }
-    .code-status { min-height: 36px; margin: 0 0 9px; color: var(--quiet); font-size: 12px; line-height: 1.45; }
-    .code-panel pre { max-height: calc(100svh - 135px); margin: 0; overflow: auto; border-left: 2px solid var(--rule); background: #f8f6f0; font: 12px/1.55 monospace; }
-    .code-panel pre code { display: block; min-width: max-content; padding: 9px 0; }
-    .code-line { display: block; width: max-content; min-width: 100%; padding: 0 11px 0 9px; border-left: 3px solid transparent; white-space: pre; }
-    .code-line.is-active { border-left-color: var(--ink); background: #e9e5d9; outline: 1px dashed #777; outline-offset: -1px; }
     .reasoning { margin: 17px 3px 8px; padding-top: 11px; border-top: 1px solid var(--rule); font-size: 13px; }
     .reasoning h2 { margin: 0 0 7px; font-size: 15px; font-weight: 500; }
     .reasoning ol { max-width: 90ch; margin: 0; padding-left: 21px; }
@@ -68,36 +30,24 @@
     .reasoning strong { font-weight: 600; }
     .reasoning code { font: 12px/1.55 monospace; }
     .reasoning p { max-width: 90ch; margin: 5px 0; color: var(--quiet); }
-    @media (max-width: 1000px) {
-      main { width: min(100%, 900px); }
-      .learning-layout { grid-template-columns: minmax(0, 1fr); }
-      .code-panel { position: static; }
-      .code-panel pre { max-height: none; }
-    }
     @media (max-width: 480px) {
       :root { --node-size: 33px; }
-      body { padding: 7px; }
-      h1 { font-size: 16px; }
-      .controls { gap: 6px; font-size: 12px; }
-      .controls button { padding: 5px 7px; }
       .round { width: 100%; margin-left: 0; }
       .stage { height: 400px; }
       .pointer { min-width: 69px; font-size: 11px; }
       .node { font-size: 17px; }
       .node::after { font-size: 10px; }
       .none { min-width: 32px; font-size: 12px; }
-      .operation { font-size: 13px; }
-      .operation code { font-size: 12px; }
     }
   </style>
+<link rel="stylesheet" href="../assets/guide.css">
 </head>
 <body>
 <main id="intersection-lab">
-  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← 返回主页</a></nav>
+  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
   <div class="heading">
     <div>
-      <h1>两条链表在哪里相交？</h1>
-      <p class="subtitle">节点固定在原位；每一步只移动 <code>ptr_A</code> 或 <code>ptr_B</code> 的引用。</p>
+      <h1>Linked List Intersection · 链表相交</h1>
     </div>
   </div>
 
@@ -111,13 +61,13 @@
       </label>
 
       <div class="controls">
-        <button type="button" data-action="previous">上一步</button>
+        <button type="button" data-action="previous">← 上一步</button>
         <output data-count aria-live="polite">0 / 0</output>
-        <button type="button" data-action="next">下一步</button>
+        <button type="button" data-action="next">下一步 →</button>
         <span class="round" data-round>第 0 轮</span>
       </div>
 
-      <div class="stage" data-stage aria-label="A、B 两条链表的节点和可移动指针">
+      <div class="stage" data-stage tabindex="0" aria-label="A、B 两条链表的节点和可移动指针；按左右方向键切换步骤">
         <svg class="lines" data-lines aria-hidden="true"></svg>
         <button type="button" class="pointer a" data-source="a">ptr_A</button>
         <button type="button" class="pointer b" data-source="b">ptr_B</button>
@@ -126,20 +76,12 @@
 
       <div class="positions" data-positions></div>
       <p class="operation" data-operation aria-live="polite"></p>
-      <div class="legend">
-        <span>圆圈间黑色实线：节点保存的 <code>.next</code></span>
-        <span>方框灰色细箭头：变量当前指向</span>
-        <span>虚线方框／箭头：<code>ptr_B</code></span>
-        <span>方框跟着目标节点移动；短箭头只表示当前引用</span>
-        <span>圆圈旁小字：对象身份（S = 共享）</span>
-      </div>
-      <p class="hint">点 <code>ptr_A</code> 或 <code>ptr_B</code>，再点节点／None，可自由练习；也可拖动指针。键盘使用 Tab 和 Enter。自由练习不推进演示。</p>
       <p class="note" data-note></p>
     </div>
 
     <aside class="code-panel" data-code-panel aria-labelledby="code-title">
       <h2 id="code-title">完整 Python 代码</h2>
-      <p class="code-status" data-code-status aria-live="polite">当前步骤对应的代码行会在下方标出。</p>
+      <p class="code-status" data-code-status aria-live="polite"></p>
       <pre data-code-scroll tabindex="0" aria-label="完整 Python 代码，当前步骤会高亮"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val, next_node=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next_node</span><span class="code-line"> </span><span class="code-line"> </span><span class="code-line">def get_intersection_node(head_A, head_B):</span><span class="code-line" data-source-key="intersection-init">    ptr_A, ptr_B = head_A, head_B</span><span class="code-line"> </span><span class="code-line" data-source-key="intersection-loop">    while ptr_A is not ptr_B:</span><span class="code-line" data-source-key="intersection-move-a">        ptr_A = ptr_A.next if ptr_A else head_B</span><span class="code-line" data-source-key="intersection-move-b">        ptr_B = ptr_B.next if ptr_B else head_A</span><span class="code-line"> </span><span class="code-line" data-source-key="intersection-return">    return ptr_A</span></code></pre>
     </aside>
   </div>
@@ -152,70 +94,47 @@
       <li><strong>让路程相等。</strong>设 A 独有 <code>a</code> 个节点，B 独有 <code>b</code> 个，共同尾部有 <code>c</code> 个。从各自头部开始，到共同节点前，<code>ptr_A</code> 更新 <code>a+c+1+b</code> 次，<code>ptr_B</code> 更新 <code>b+c+1+a</code> 次。中间的 <code>+1</code> 是从 <code>None</code> 换到对方头部；两边次数相等。</li>
       <li><strong>到 None 后换头。</strong>只把指针变量改指向另一条链表的头，完全不修改任何节点的 <code>.next</code>。如果没有共同节点，两者走完 A 和 B 后会同时指向 <code>None</code>。</li>
     </ol>
-    <p>右侧完整代码与上方步骤同步。每一轮先更新 <code>ptr_A</code>，再更新 <code>ptr_B</code>；回到 <code>while</code> 顶部才比较。时间 <code>O(len(A) + len(B))</code>，额外空间 <code>O(1)</code>。</p>
+    <p>每一轮先更新 <code>ptr_A</code>，再更新 <code>ptr_B</code>；回到 <code>while</code> 顶部才比较。时间 <code>O(len(A) + len(B))</code>，额外空间 <code>O(1)</code>。</p>
   </section>
+  <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../linked-list-loop/">链表环检测</a><a href="../linked-list-midpoint/">链表中点</a><a href="../">全部题目</a></nav>
 </main>
 
+<script src="../assets/core.js"></script>
 <script>
 (() => {
+  const {
+    createManualInteraction,
+    createMotionController,
+    createSvgScene,
+    createTrace,
+    position
+  } = window.AlgorithmVisualCore;
   const root = document.getElementById('intersection-lab');
   const stage = root.querySelector('[data-stage]');
   const lines = root.querySelector('[data-lines]');
-  const count = root.querySelector('[data-count]');
   const roundLabel = root.querySelector('[data-round]');
   const positions = root.querySelector('[data-positions]');
   const operation = root.querySelector('[data-operation]');
   const note = root.querySelector('[data-note]');
-  const codeStatus = root.querySelector('[data-code-status]');
-  const codeScroll = root.querySelector('[data-code-scroll]');
-  const codeLines = [...root.querySelectorAll('[data-source-key]')];
-  const previous = root.querySelector('[data-action="previous"]');
-  const next = root.querySelector('[data-action="next"]');
   const choice = root.querySelector('#case-choice');
   const pointerButtons = [...stage.querySelectorAll('[data-source]')];
-  const noneButton = stage.querySelector('[data-target="null"]');
   const names = {a1: '1_A', a3: '3_A', a4: '4_A', a8: '8_A', a7: '7_A', a2: '2_A', b6: '6_B', b4: '4_B', b8: '8_B', b7: '7_B', b2: '2_B', s8: '8（共同）', s7: '7（共同）', s2: '2（共同）'};
   const values = {a1: '1', a3: '3', a4: '4', a8: '8', a7: '7', a2: '2', b6: '6', b4: '4', b8: '8', b7: '7', b2: '2', s8: '8', s7: '7', s2: '2'};
   const description = id => id === null ? 'None' : `节点 ${names[id]}`;
   const copy = state => ({a: state.a, b: state.b});
-  let config, frames, state, step = 0, selected = null, manualMessage = '', drag = null, ignoreClick = false, places = {};
+  let config, frames, places = {};
   let targetButtons = [];
-  let motionFrame = null, motionToken = 0, activeTween = null;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  function syncCode(sourceKeys = []) {
-    const activeKeys = new Set(sourceKeys);
-    const activeLines = [];
-    for (const line of codeLines) {
-      const active = activeKeys.has(line.dataset.sourceKey);
-      line.classList.toggle('is-active', active);
-      if (active) {
-        line.setAttribute('aria-current', 'step');
-        activeLines.push(line);
-      } else {
-        line.removeAttribute('aria-current');
-      }
-    }
-    if (!activeLines.length) {
-      codeStatus.textContent = '自由练习不会执行右侧源码；选择上一步或下一步可恢复同步。';
-      return;
-    }
-    codeStatus.textContent = `当前执行：${activeLines.map(line => line.textContent.trim()).join('；')}`;
-    const first = activeLines[0];
-    const top = first.offsetTop;
-    const bottom = top + first.offsetHeight;
-    if (top < codeScroll.scrollTop || bottom > codeScroll.scrollTop + codeScroll.clientHeight) {
-      codeScroll.scrollTo({
-        top: Math.max(0, top - (codeScroll.clientHeight - first.offsetHeight) / 2),
-        behavior: reducedMotion.matches ? 'auto' : 'smooth'
-      });
-    }
-  }
+  let activeTween = null;
+  let transitionHandoff = null;
+  let trace, interaction;
+  const pointerMotion = createMotionController();
+  const scene = createSvgScene(lines);
+  scene.defineMarker('node-arrow', {fill: '#333'});
+  scene.defineMarker('ref-arrow', {markerWidth: 7, markerHeight: 7, refX: 6, fill: '#555'});
+  pointerMotion.onPreferenceChange(() => { activeTween = null; draw(); });
 
   function cancelMotion() {
-    motionToken++;
-    if (motionFrame !== null) cancelAnimationFrame(motionFrame);
-    motionFrame = null;
+    pointerMotion.cancel();
     activeTween = null;
   }
 
@@ -230,35 +149,30 @@
 
   function startMotion(source, fromId, toId, fromGeometry) {
     cancelMotion();
-    if (!source || fromId === toId || reducedMotion.matches || !places.a1) return;
+    if (!source || fromId === toId || pointerMotion.reduced || !places.a1) return;
     const starting = fromGeometry || pointerGeometry(source, fromId);
     const ending = pointerGeometry(source, toId);
     // The None-to-head assignment changes only a variable. Fade out and
     // reappear beside the other head instead of drawing a link across lists.
     const switchHead = fromId === null && toId !== null;
-    const token = motionToken;
-    const started = performance.now();
     activeTween = {source, geometry: starting, opacity: 1};
     draw();
-    const tick = now => {
-      if (token !== motionToken) return;
-      const progress = Math.min(1, (now - started) / (switchHead ? 380 : 340));
-      const eased = progress * progress * (3 - 2 * progress);
-      activeTween.geometry = switchHead
-        ? eased < .5 ? starting : ending
-        : interpolateGeometry(starting, ending, eased);
-      activeTween.opacity = switchHead
-        ? eased < .5 ? 1 - 2 * eased : 2 * eased - 1
-        : 1;
-      draw();
-      if (progress < 1) motionFrame = requestAnimationFrame(tick);
-      else {
+    pointerMotion.tween({
+      duration: switchHead ? 380 : 340,
+      update(eased) {
+        activeTween.geometry = switchHead
+          ? eased < .5 ? starting : ending
+          : interpolateGeometry(starting, ending, eased);
+        activeTween.opacity = switchHead
+          ? eased < .5 ? 1 - 2 * eased : 2 * eased - 1
+          : 1;
+        draw();
+      },
+      complete() {
         activeTween = null;
-        motionFrame = null;
         draw();
       }
-    };
-    motionFrame = requestAnimationFrame(tick);
+    });
   }
 
   function makeConfig(mode) {
@@ -312,7 +226,6 @@
       button.dataset.caption = id === 'a1' ? 'head_A' : id === 'b6' ? 'head_B' : id.startsWith('s') ? id.toUpperCase() : names[id];
       button.textContent = values[id];
       button.setAttribute('aria-label', `${description(id)}，对象标识 ${id}。点击让所选指针指向它。`);
-      button.addEventListener('click', () => { if (selected) apply(selected, id); });
       stage.append(button);
     }
     targetButtons = [...stage.querySelectorAll('[data-target]')];
@@ -331,8 +244,7 @@
     config.b.forEach((id, i) => { if (!places[id]) places[id] = {x: width * bx[i], y: bottom}; });
     for (const button of targetButtons) {
       const key = button.dataset.target;
-      button.style.left = `${places[key].x}px`;
-      button.style.top = `${places[key].y}px`;
+      position(button, places[key].x, places[key].y);
     }
     lines.setAttribute('viewBox', `0 0 ${width} ${height}`);
     draw();
@@ -387,40 +299,47 @@
 
   function draw() {
     if (!places.a1) return;
-    const paths = [];
-    for (const id of new Set([...config.a, ...config.b])) {
-      paths.push(`<path d="${lineTo(id, config.links[id])}" fill="none" stroke="#333" stroke-width="2" marker-end="url(#node-arrow)"/>`);
-    }
-    for (const key of ['a', 'b']) {
-      const button = pointerButtons.find(item => item.dataset.source === key);
-      const tween = activeTween?.source === key ? activeTween : null;
-      const geometry = tween ? tween.geometry : pointerGeometry(key, state[key]);
-      button.style.left = `${geometry.x}px`;
-      button.style.top = `${geometry.y}px`;
-      button.style.opacity = `${tween ? tween.opacity : 1}`;
-      if (drag?.moved && drag.source === key) continue;
-      const changed = !manualMessage && frames[step].changed === key;
-      paths.push(`<path data-ref="${key}" d="${referencePath(geometry)}" fill="none" stroke="${changed ? '#333' : '#666'}" stroke-width="${changed ? 2 : 1.35}" opacity="${tween ? tween.opacity : 1}" ${key === 'b' ? 'stroke-dasharray="5 3"' : ''} marker-end="url(#ref-arrow)"/>`);
-    }
-    if (drag?.moved) {
-      const ready = targetButtons.find(button => button.classList.contains('ready'));
-      if (ready) {
-        const target = places[ready.dataset.target];
-        paths.push(`<path d="M ${drag.x} ${drag.y} L ${target.x} ${target.y}" fill="none" stroke="#777" stroke-width="1.35" stroke-dasharray="4 3" marker-end="url(#ref-arrow)"/>`);
+    const state = trace?.state;
+    if (!state) return;
+    const frame = trace.frame;
+    const drag = interaction?.drag;
+    scene.update(({path}) => {
+      for (const id of new Set([...config.a, ...config.b])) {
+        path(`node-link-${id}`, {
+          d: lineTo(id, config.links[id]), fill: 'none', stroke: '#333', 'stroke-width': 2,
+          'marker-end': 'url(#node-arrow)'
+        });
       }
-    }
-    lines.innerHTML = `<defs>
-      <marker id="node-arrow" viewBox="0 0 8 8" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker>
-      <marker id="ref-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker>
-    </defs>${paths.join('')}`;
+      for (const key of ['a', 'b']) {
+        const button = pointerButtons.find(item => item.dataset.source === key);
+        const tween = activeTween?.source === key ? activeTween : null;
+        const geometry = tween ? tween.geometry : pointerGeometry(key, state[key]);
+        position(button, geometry.x, geometry.y);
+        button.style.opacity = `${tween ? tween.opacity : 1}`;
+        if (drag?.moved && drag.source === key) continue;
+        const changed = !trace.manualMessage && frame.changed === key;
+        path(`reference-${key}`, {
+          d: referencePath(geometry), fill: 'none', stroke: changed ? '#333' : '#666',
+          'stroke-width': changed ? 2 : 1.35, opacity: tween ? tween.opacity : 1,
+          'stroke-dasharray': key === 'b' ? '5 3' : null, 'marker-end': 'url(#ref-arrow)'
+        });
+      }
+      if (drag?.moved) {
+        const ready = targetButtons.find(button => button.classList.contains('ready'));
+        if (ready) {
+          const target = places[ready.dataset.target];
+          path('drag-preview', {
+            d: `M ${drag.x} ${drag.y} L ${target.x} ${target.y}`, fill: 'none', stroke: '#777',
+            'stroke-width': 1.35, 'stroke-dasharray': '4 3', 'marker-end': 'url(#ref-arrow)'
+          });
+        }
+      }
+    });
   }
 
-  function render() {
-    const frame = frames[step];
-    count.textContent = `${step} / ${frames.length - 1}${manualMessage ? ' · 练习' : ''}`;
+  function renderScene({frame, state, manualMessage}) {
+    const selected = interaction?.selected;
     roundLabel.textContent = `第 ${frame.round} 轮${frame.changed === 'a' ? ' · 移动 ptr_A' : frame.changed === 'b' ? ' · 移动 ptr_B' : ''}`;
-    previous.disabled = step === 0;
-    next.disabled = step === frames.length - 1;
     positions.replaceChildren();
     for (const key of ['a', 'b']) {
       const item = document.createElement('span');
@@ -435,7 +354,6 @@
     const explanation = document.createElement('span');
     explanation.textContent = manualMessage || frame.explanation;
     operation.append(code, explanation);
-    syncCode(manualMessage ? [] : frame.sourceKeys);
     for (const button of pointerButtons) {
       const key = button.dataset.source;
       button.classList.toggle('selected', selected === key);
@@ -451,105 +369,83 @@
     layout();
   }
 
-  function showStep(index, animate = true) {
-    const targetStep = Math.max(0, Math.min(frames.length - 1, index));
-    const source = manualMessage ? null : targetStep > step ? frames[targetStep].changed : targetStep < step ? frames[step].changed : null;
-    const fromId = source && state ? state[source] : null;
-    const fromGeometry = source && places.a1
-      ? (activeTween?.source === source ? {...activeTween.geometry} : pointerGeometry(source, fromId))
+  function prepareStep({nextStep, previousStep, previousFrame, beforeState, wasManual}) {
+    const source = !wasManual && beforeState
+      ? nextStep > previousStep ? frames[nextStep].changed : nextStep < previousStep ? previousFrame.changed : null
       : null;
-    step = targetStep;
-    state = copy(frames[step].state);
-    selected = null;
-    manualMessage = '';
-    render();
-    if (animate && source) startMotion(source, fromId, state[source], fromGeometry);
+    transitionHandoff = {
+      source,
+      fromId: source ? beforeState[source] : null,
+      fromGeometry: source && places.a1
+        ? (activeTween?.source === source ? {...activeTween.geometry} : pointerGeometry(source, beforeState[source]))
+        : null
+    };
+    cancelMotion();
+    interaction?.clearSelection({notify: false});
   }
+
+  function animateStep({state}) {
+    const handoff = transitionHandoff;
+    transitionHandoff = null;
+    if (handoff?.source) startMotion(handoff.source, handoff.fromId, state[handoff.source], handoff.fromGeometry);
+  }
+
   function reset() {
     cancelMotion();
     config = makeConfig(choice.value);
     makeNodes();
     frames = buildFrames();
-    showStep(0, false);
+    interaction?.clearSelection({notify: false});
+    trace.setFrames(frames);
   }
 
   function apply(source, id, animate = true) {
-    const fromId = state[source];
+    const fromId = trace.state[source];
     const fromGeometry = activeTween?.source === source
       ? {...activeTween.geometry}
       : pointerGeometry(source, fromId);
-    state[source] = id;
-    selected = null;
-    manualMessage = `ptr_${source.toUpperCase()} 现在指向${description(id)}。只移动变量的引用，节点间的 .next 未变。${state.a === state.b ? (id === null ? '两个变量都是 None。' : '两个变量指向同一个对象。') : '两个变量指向不同对象，即使节点值相同也不能停止。'}`;
-    render();
+    const nextState = {...trace.state, [source]: id};
+    const message = `ptr_${source.toUpperCase()} 现在指向${description(id)}。只移动变量的引用，节点间的 .next 未变。${nextState.a === nextState.b ? (id === null ? '两个变量都是 None。' : '两个变量指向同一个对象。') : '两个变量指向不同对象，即使节点值相同也不能停止。'}`;
+    cancelMotion();
+    interaction.clearSelection({notify: false});
+    trace.updatePractice(state => { state[source] = id; }, message);
     if (animate) startMotion(source, fromId, id, fromGeometry);
   }
 
-  function nearestTarget(clientX, clientY) {
-    const rect = stage.getBoundingClientRect();
-    const x = clientX - rect.left, y = clientY - rect.top;
-    let best = null, bestDistance = 39;
-    for (const button of targetButtons) {
-      const key = button.dataset.target;
-      const point = places[key];
-      const distance = Math.hypot(x - point.x, y - point.y);
-      if (distance < bestDistance) { best = key; bestDistance = distance; }
-    }
-    return best;
-  }
-
-  previous.addEventListener('click', () => showStep(step - 1));
-  next.addEventListener('click', () => showStep(step + 1));
-  choice.addEventListener('change', reset);
-  noneButton.addEventListener('click', () => { if (selected) apply(selected, null); });
-  for (const button of pointerButtons) {
-    button.addEventListener('click', () => {
-      if (ignoreClick) { ignoreClick = false; return; }
-      selected = selected === button.dataset.source ? null : button.dataset.source;
-      manualMessage = selected ? `已选择 ptr_${selected.toUpperCase()}；请点一个节点或 None，也可以拖动。` : '';
-      render();
-    });
-    button.addEventListener('pointerdown', event => {
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      cancelMotion();
-      syncCode([]);
-      draw();
-      drag = {source: button.dataset.source, button, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
-      button.setPointerCapture(event.pointerId);
-    });
-    button.addEventListener('pointermove', event => {
-      if (!drag || drag.button !== button) return;
-      const dx = event.clientX - drag.startX, dy = event.clientY - drag.startY;
-      if (!drag.moved && Math.hypot(dx, dy) < 5) return;
-      drag.moved = true;
-      const rect = stage.getBoundingClientRect();
-      drag.x = event.clientX - rect.left;
-      drag.y = event.clientY - rect.top;
-      button.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px)`;
-      const ready = nearestTarget(event.clientX, event.clientY);
-      for (const target of targetButtons) target.classList.toggle('ready', target.dataset.target === ready);
-      draw();
-    });
-    button.addEventListener('pointerup', event => {
-      if (!drag || drag.button !== button) return;
-      const moved = drag.moved, source = drag.source;
-      button.style.transform = '';
-      drag = null;
-      if (moved) {
-        const target = nearestTarget(event.clientX, event.clientY);
-        if (target !== null) apply(source, target === 'null' ? null : target, false);
-        else render();
-        ignoreClick = true;
-        setTimeout(() => { ignoreClick = false; }, 0);
-      }
-    });
-    button.addEventListener('pointercancel', () => { button.style.transform = ''; drag = null; render(); });
-  }
-  root.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && selected) { selected = null; manualMessage = ''; render(); }
+  trace = createTrace({
+    root,
+    cloneState: copy,
+    motion: pointerMotion,
+    onRender: renderScene,
+    onBeforeStep: prepareStep,
+    onTransition: animateStep
   });
-  new ResizeObserver(layout).observe(stage);
-  reducedMotion.addEventListener('change', () => { cancelMotion(); draw(); });
+
+  interaction = createManualInteraction({
+    root,
+    stage,
+    sources: pointerButtons,
+    targets: () => targetButtons,
+    getTargetPoint: target => places[target.dataset.target],
+    targetReadyClass: 'ready',
+    maxDistance: 39,
+    onSelectionChange: ({selected}) => {
+      if (selected) trace.setPreviewMessage(`已选择 ptr_${selected.toUpperCase()}；请点一个节点或 None，也可以拖动。`);
+      else trace.clearPreviewMessage();
+    },
+    onPointerStart: () => {
+      cancelMotion();
+      trace.clearCodeHighlight();
+      draw();
+    },
+    onPointerMove: () => draw(),
+    onPointerEnd: () => trace.render(),
+    onPointerCancel: () => trace.render(),
+    onDrop: ({source, value, drag}) => apply(source, value, !drag)
+  });
+
+  choice.addEventListener('change', reset);
+  new ResizeObserver(() => { cancelMotion(); layout(); }).observe(stage);
   reset();
 })();
 </script>

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="逐步观察回文链表：找中点、原地反转后半段，再比较节点。">
   <title>Palindromic Linked List · Algorithm Visuals</title>
+  <link rel="stylesheet" href="../assets/visual.css">
   <style>
     :root { --paper:#fffdf8; --ink:#272727; --link:#333; --muted:#555; --line:#b7b7b1; --soft:#e5e5df; --node:42px; }
     * { box-sizing:border-box; }
@@ -42,6 +43,7 @@
     .stage .node.compare { background:#e9e9e4; }
     @keyframes change-node { from { background:#d8d8d1; border-color:#272727; } to { background:var(--paper); border-color:#777; } }
     .stage .variable { min-width:55px; padding:2px 5px; font:11px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; border:1px solid #777; border-radius:3px; background:var(--paper); text-align:center; white-space:nowrap; pointer-events:none; }
+    .stage .variable.visual-positioned { left:0 !important; top:0 !important; transform:translate3d(var(--visual-x,0px),var(--visual-y,0px),0) translate(-50%,-50%) !important; }
     .stage .variable.long { font-size:10px; }
     .stage .next-field { padding:3px 5px; border-style:dashed; font:10px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:nowrap; touch-action:none; cursor:grab; }
     .stage .next-field.selected { outline:2px solid #555; outline-offset:2px; }
@@ -51,9 +53,6 @@
     .callout { min-height:67px; border:1px dashed #999; padding:10px 12px; margin:14px 0 8px; }
     .callout code { display:block; margin-bottom:3px; font-size:13px; }
     .callout span { display:block; }
-    .legend,.hint { font-size:12px; color:var(--muted); }
-    .legend { display:flex; flex-wrap:wrap; gap:7px 20px; }
-    .legend b { font-weight:400; color:var(--ink); }
     .note { border-left:3px solid #999; padding:7px 12px; margin:18px 0; }
     .reason { grid-column:1/-1; grid-row:2; border-top:1px solid var(--line); padding-top:17px; margin-top:0; }
     .reason ol { padding-left:22px; margin:8px 0; }
@@ -84,11 +83,12 @@
       .stage .next-field.changed { animation:none; }
     }
   </style>
+<link rel="stylesheet" href="../assets/guide.css">
 </head>
 <body>
 <main>
-  <nav class="site-nav" aria-label="页面导航"><a class="back-link" href="../">← 返回主页</a></nav>
-  <h1>Palindromic Linked List</h1>
+  <nav class="site-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+  <h1>Palindromic Linked List · 回文链表</h1>
   <p class="lede">判断单链表从前往后、从后往前读是否相同。用 <code>fast</code>/<code>slow</code> 找中点，把从 <code>mid</code> 开始的后半段原地反转，再让两个指针逐个比较。</p>
   <div class="workspace" data-learning-layout>
   <div class="demo-pane" data-animation-panel>
@@ -97,11 +97,11 @@
     <button type="button" class="example" data-example="even" aria-pressed="false">1 → 2 → 1 → 2 · False</button>
   </div>
   <div class="controls" aria-label="演示控制">
-    <button type="button" data-previous>上一步</button>
-    <span class="step-count" data-count aria-live="off"></span>
-    <button type="button" data-next>下一步</button>
-    <label class="small" for="jump">跳到阶段</label>
-    <select id="jump" data-jump aria-label="跳到阶段"><option value="start">开始</option><option value="middle">找中点</option><option value="reverse">反转后半段</option><option value="compare">逐个比较</option><option value="result">结果</option></select>
+    <button type="button" data-previous data-action="previous">← 上一步</button>
+    <span class="step-count" data-count aria-live="polite"></span>
+    <button type="button" data-next data-action="next">下一步 →</button>
+    <label class="small" for="jump">跳到步骤</label>
+    <select id="jump" data-jump data-step-select aria-label="跳到步骤"></select>
   </div>
   <p class="phase"><span data-phase></span><span class="result-flag" data-res hidden></span></p>
   <div class="stage" data-stage tabindex="0" aria-label="回文链表逐步图，按左右方向键切换步骤">
@@ -109,8 +109,6 @@
     <button type="button" class="null-target" data-target="null" aria-label="目标 None">None</button>
   </div>
   <div class="callout" data-callout role="status" aria-live="polite"><code data-code data-current-code></code><span data-explain></span></div>
-  <div class="legend"><span><b>圆圈间的深色实线：</b> 节点保存的 <code>.next</code></span><span><b>方框与细灰箭头：</b> 变量引用节点</span><span><b>虚线方框：</b> 可修改的 <code>.next</code> 字段</span></div>
-  <p class="hint">点一个 <code>节点.next</code>，再点目标圆圈或 <code>None</code>，可自行改线；也可拖动字段到目标。自由练习不会推进演示，按上/下一步可回到对应代码状态。焦点在图上时可用 ← / → 切换。</p>
   <p class="note"><strong>同一个节点 ≠ 相同的值。</strong> 圆圈在所有步骤中保持位置与身份；反转只改 <code>.next</code> 实线。奇数例子里左右两条路径在中间的<strong>同一个</strong>节点 3 相遇。代码会修改原链表的连接，而且<strong>不会恢复</strong>它。</p>
   </div>
   <section class="reason" aria-label="解题思路">
@@ -118,337 +116,294 @@
     <ol>
       <li><code>slow</code> 一次走一步，<code>fast</code> 一次走两步；循环停止时 <code>slow</code> 指向 <code>mid</code>。偶数长度时它是后半段第一个节点。</li>
       <li>从 <code>mid</code> 反转：先存 <code>nextNode</code>，再把 <code>currNode.next</code> 改为 <code>prevNode</code>；仅这一行改变节点里的连接。奇数长度包含中间节点。</li>
-      <li><code>ptr1</code> 从原 <code>head</code> 开始，<code>ptr2</code> 从反转后的 <code>second_head</code> 开始。只要 <code>ptr2</code> 未到 <code>None</code> 就逐个比较。即使某次不等，截图中的代码也继续比较，然后返回 <code>False</code>。</li>
+      <li><code>ptr1</code> 从原 <code>head</code> 开始，<code>ptr2</code> 从反转后的 <code>second_head</code> 开始。只要 <code>ptr2</code> 未到 <code>None</code> 就逐个比较。即使某次不等，代码也继续比较，然后返回 <code>False</code>。</li>
     </ol>
     <p>空链表时比较循环不执行，结果为 <code>True</code>。单节点也为 <code>True</code>。时间 <code>O(n)</code>，额外空间 <code>O(1)</code>。</p>
   </section>
   <section class="code-wrap" data-code-panel aria-label="完整 Python 代码">
     <h2>完整 Python 代码</h2>
-    <p class="small">以下保留截图中的找中点、反转、比较逻辑；<code>ListNode</code> 定义补全了独立运行所需的节点类型。</p>
     <pre data-code-scroll tabindex="0" aria-label="完整 Python 代码，当前步骤同步高亮"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val: int, next=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line"> </span><span class="code-line"> </span><span class="code-line" data-code-line="main-def">def palindromic_linked_list(head: ListNode) -&gt; bool:</span><span class="code-line">    # Find the middle and reverse the list starting there.</span><span class="code-line" data-code-line="main-mid">    mid = find_middle(head)</span><span class="code-line" data-code-line="main-second">    second_head = reverse_list(mid)</span><span class="code-line"> </span><span class="code-line">    # Compare the first half with the reversed second half.</span><span class="code-line" data-code-line="main-pointers">    ptr1, ptr2 = head, second_head</span><span class="code-line" data-code-line="main-res">    res = True</span><span class="code-line" data-code-line="main-while">    while ptr2:</span><span class="code-line" data-code-line="main-if">        if ptr1.val != ptr2.val:</span><span class="code-line" data-code-line="main-false">            res = False</span><span class="code-line" data-code-line="main-advance">        ptr1, ptr2 = ptr1.next, ptr2.next</span><span class="code-line" data-code-line="main-return">    return res</span><span class="code-line"> </span><span class="code-line"> </span><span class="code-line" data-code-line="reverse-def">def reverse_list(head: ListNode) -&gt; ListNode:</span><span class="code-line" data-code-line="reverse-init">    prevNode, currNode = None, head</span><span class="code-line">    while currNode:</span><span class="code-line" data-code-line="reverse-next">        nextNode = currNode.next</span><span class="code-line" data-code-line="reverse-link">        currNode.next = prevNode</span><span class="code-line" data-code-line="reverse-prev">        prevNode = currNode</span><span class="code-line" data-code-line="reverse-curr">        currNode = nextNode</span><span class="code-line" data-code-line="reverse-return">    return prevNode</span><span class="code-line"> </span><span class="code-line"> </span><span class="code-line" data-code-line="middle-def">def find_middle(head: ListNode) -&gt; ListNode:</span><span class="code-line" data-code-line="middle-init">    slow = fast = head</span><span class="code-line">    while fast and fast.next:</span><span class="code-line" data-code-line="middle-slow">        slow = slow.next</span><span class="code-line" data-code-line="middle-fast">        fast = fast.next.next</span><span class="code-line" data-code-line="middle-return">    return slow</span></code></pre>
   </section>
   </div>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../reverse-linked-list/">反转链表</a><a href="../linked-list-midpoint/">链表中点</a><a href="../">全部题目</a></nav>
 </main>
+<script src="../assets/core.js"></script>
 <script>
 (() => {
   'use strict';
+  const {createManualInteraction, createMotionController, createSvgScene, createTrace, position} = window.AlgorithmVisualCore;
+  const root = document.querySelector('[data-learning-layout]');
   const stage = document.querySelector('[data-stage]');
   const svg = document.querySelector('[data-lines]');
-  const previous = document.querySelector('[data-previous]');
-  const next = document.querySelector('[data-next]');
-  const count = document.querySelector('[data-count]');
   const phase = document.querySelector('[data-phase]');
   const resFlag = document.querySelector('[data-res]');
-  const jump = document.querySelector('[data-jump]');
   const code = document.querySelector('[data-code]');
   const explain = document.querySelector('[data-explain]');
-  const codeScroll = document.querySelector('[data-code-scroll]');
-  const codeRows = [...document.querySelectorAll('[data-code-line]')];
   const nullButton = stage.querySelector('[data-target="null"]');
-  const modes = {odd:[1,2,3,2,1], even:[1,2,1,2]};
-  let mode='odd', frames=[], index=0, state, manual='', selected=null, drag=null, positions={}, lastChanged=null;
-  let sourceButtons=[], targetButtons=[], variableBoxes=new Map(), paintedRefs=new Map(), motion=null, motionFrame=null;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const clone = s => ({link:{...s.link}, refs:{...s.refs}, res:s.res, compared:s.compared ? [...s.compared] : [], mismatch:s.mismatch});
-  const id = i => i === null ? null : `n${i+1}`;
+  const modes = {odd: [1, 2, 3, 2, 1], even: [1, 2, 1, 2]};
+  const clone = s => ({link: {...s.link}, refs: {...s.refs}, res: s.res, compared: s.compared ? [...s.compared] : [], mismatch: s.mismatch});
+  const id = i => i === null ? null : `n${i + 1}`;
+  let mode = 'odd', frames = [], state, positions = {}, lastChanged = null;
+  let sourceButtons = [], targetButtons = [], variableBoxes = new Map(), paintedRefs = new Map(), activeMotion = null;
+  let trace, interaction, transitionHandoff = null;
+  const tween = createMotionController();
+  const scene = createSvgScene(svg);
+  scene.defineMarker('solid-arrow', {markerWidth: 7, fill: '#333'});
+  scene.defineMarker('ref-arrow', {markerWidth: 7, fill: '#777'});
   function makeFrames(values) {
-    const n=values.length, output=[], s={link:{},refs:{head:'n1'},res:true,compared:[],mismatch:false};
-    for(let i=0;i<n;i++) s.link[id(i)]=id(i+1<n?i+1:null);
-    const add=(group,line,note,update,changed=null,sourceLines=[]) => {if(update)update();output.push({group,line,note,state:clone(s),changed,sourceLines});};
-    add('start','开始',`原始节点依次为 ${values.join(' → ')}。圆圈的身份固定；实线表示保存于节点中的 .next。`,null,null,['main-def']);
-    s.refs.slow='n1';s.refs.fast='n1';
-    add('middle','slow = fast = head','两个变量都引用第一个节点；节点的 .next 没变。',null,'refs',['middle-init']);
-    let slow=0,fast=0;
-    while(fast<n && fast+1<n){
-      slow++;fast+=2;s.refs.slow=id(slow);s.refs.fast=id(fast<n?fast:null);
-      add('middle','slow = slow.next; fast = fast.next.next',`slow 到节点 #${slow+1}；fast ${fast<n?`到节点 #${fast+1}`:'到 None'}。只移动变量引用。`,null,'refs',['middle-slow','middle-fast']);
+    const n = values.length, output = [], s = {link: {}, refs: {head: 'n1'}, res: true, compared: [], mismatch: false};
+    for (let i = 0; i < n; i++) s.link[id(i)] = id(i + 1 < n ? i + 1 : null);
+    const add = (group, line, note, update, changed = null, sourceKeys = []) => { if (update) update(); output.push({group, line, note, state: clone(s), changed, sourceKeys}); };
+    add('start', '开始', `原始节点依次为 ${values.join(' → ')}。圆圈的身份固定；实线表示保存于节点中的 .next。`, null, null, ['main-def']);
+    s.refs.slow = 'n1'; s.refs.fast = 'n1';
+    add('middle', 'slow = fast = head', '两个变量都引用第一个节点；节点的 .next 没变。', null, 'refs', ['middle-init']);
+    let slow = 0, fast = 0;
+    while (fast < n && fast + 1 < n) {
+      slow++; fast += 2; s.refs.slow = id(slow); s.refs.fast = id(fast < n ? fast : null);
+      add('middle', 'slow = slow.next; fast = fast.next.next', `slow 到节点 #${slow + 1}；fast ${fast < n ? `到节点 #${fast + 1}` : '到 None'}。只移动变量引用。`, null, 'refs', ['middle-slow', 'middle-fast']);
     }
-    const mid=slow;delete s.refs.slow;delete s.refs.fast;s.refs.mid=id(mid);
-    add('middle','return slow  →  mid = find_middle(head)',`mid 引用节点 #${mid+1}（值 ${values[mid]}）。${n%2?'奇数长度：它是中间节点，反转时也包含它。':'偶数长度：它是后半段第一个节点。'}`,null,'refs',['middle-return','main-mid']);
-    let prev=null,curr=id(mid),nextNode;
-    s.refs.prevNode=prev;s.refs.currNode=curr;
-    add('reverse','prevNode, currNode = None, head','这里 reverse_list 的 head 是 mid；prevNode 引用 None，currNode 引用 mid。',null,'refs',['reverse-init']);
-    for(let i=mid;i<n;i++){
-      nextNode=s.link[curr];s.refs.nextNode=nextNode;
-      add('reverse','nextNode = currNode.next',`先保存节点 #${i+1} 原来的 .next：${nextNode?`节点 #${i+2}`:'None'}；还没有改线。`,null,'refs',['reverse-next']);
-      const old=s.link[curr];s.link[curr]=prev;
-      add('reverse','currNode.next = prevNode',`把节点 #${i+1}.next 从 ${old?`节点 #${i+2}`:'None'} 改为 ${prev?`节点 #${Number(prev.slice(1))}`:'None'}。这是实际改动实线的一步。`,null,curr,['reverse-link']);
-      prev=curr;s.refs.prevNode=prev;
-      add('reverse','prevNode = currNode',`prevNode 现在引用节点 #${i+1}；它本身没移动，.next 也没再变化。`,null,'refs',['reverse-prev']);
-      curr=nextNode;s.refs.currNode=curr;
-      add('reverse','currNode = nextNode',`currNode ${curr?`到节点 #${Number(curr.slice(1))}`:'到 None'}；下一轮继续。`,null,'refs',['reverse-curr']);
+    const mid = slow;
+    add('middle', 'return slow', `find_middle 返回 slow 所引用的节点 #${mid + 1}（值 ${values[mid]}）；调用方尚未把返回值赋给 mid。`, null, null, ['middle-return']);
+    delete s.refs.slow; delete s.refs.fast; s.refs.mid = id(mid);
+    add('middle', 'mid = find_middle(head)', `调用方把返回值保存到 mid，mid 引用节点 #${mid + 1}。${n % 2 ? '奇数长度：它是中间节点，反转时也包含它。' : '偶数长度：它是后半段第一个节点。'}`, null, 'refs', ['main-mid']);
+    let prev = null, curr = id(mid), nextNode;
+    s.refs.prevNode = prev; s.refs.currNode = curr;
+    add('reverse', 'prevNode, currNode = None, head', '这里 reverse_list 的 head 是 mid；prevNode 引用 None，currNode 引用 mid。', null, 'refs', ['reverse-init']);
+    for (let i = mid; i < n; i++) {
+      nextNode = s.link[curr]; s.refs.nextNode = nextNode;
+      add('reverse', 'nextNode = currNode.next', `先保存节点 #${i + 1} 原来的 .next：${nextNode ? `节点 #${i + 2}` : 'None'}；还没有改线。`, null, 'refs', ['reverse-next']);
+      const old = s.link[curr]; s.link[curr] = prev;
+      add('reverse', 'currNode.next = prevNode', `把节点 #${i + 1}.next 从 ${old ? `节点 #${i + 2}` : 'None'} 改为 ${prev ? `节点 #${Number(prev.slice(1))}` : 'None'}。这是实际改动实线的一步。`, null, curr, ['reverse-link']);
+      prev = curr; s.refs.prevNode = prev;
+      add('reverse', 'prevNode = currNode', `prevNode 现在引用节点 #${i + 1}；它本身没移动，.next 也没再变化。`, null, 'refs', ['reverse-prev']);
+      curr = nextNode; s.refs.currNode = curr;
+      add('reverse', 'currNode = nextNode', `currNode ${curr ? `到节点 #${Number(curr.slice(1))}` : '到 None'}；下一轮继续。`, null, 'refs', ['reverse-curr']);
     }
-    const second=prev;
-    delete s.refs.prevNode;delete s.refs.currNode;delete s.refs.nextNode;
-    s.refs.second_head=second;
-    add('reverse','return prevNode  →  second_head = reverse_list(mid)',`second_head 引用原节点 #${Number(second.slice(1))}。后半段方向已反转，原 head 仍引用节点 #1。`,null,'refs',['reverse-return','main-second']);
-    let p1='n1',p2=second;
-    s.refs.ptr1=p1;s.refs.ptr2=p2;
-    add('compare','ptr1, ptr2 = head, second_head; res = True','两个变量分别引用两条路径的开头；尚未开始比较。',null,'refs',['main-pointers','main-res']);
-    while(p2){
-      const a=Number(p1.slice(1))-1,b=Number(p2.slice(1))-1;
-      s.compared=[p1,p2];
-      if(values[a]!==values[b]){s.res=false;s.mismatch=true;}
-      add('compare','if ptr1.val != ptr2.val: res = False',`节点 #${a+1} 的值 ${values[a]} 与节点 #${b+1} 的值 ${values[b]} ${values[a]===values[b]?'相同':'不同，res 设为 False'}。${p1===p2?'这次两边引用的是同一个中间节点。':''}`,null,'compare',values[a]===values[b]?['main-if']:['main-if','main-false']);
-      p1=s.link[p1];p2=s.link[p2];s.refs.ptr1=p1;s.refs.ptr2=p2;s.compared=[];
-      add('compare','ptr1, ptr2 = ptr1.next, ptr2.next',`ptr1 ${p1?`到节点 #${Number(p1.slice(1))}`:'到 None'}，ptr2 ${p2?`到节点 #${Number(p2.slice(1))}`:'到 None'}；只改变变量引用。`,null,'refs',['main-advance']);
+    const second = prev;
+    add('reverse', 'return prevNode', `reverse_list 返回 prevNode，它引用原节点 #${Number(second.slice(1))}；调用方尚未把返回值赋给 second_head。`, null, null, ['reverse-return']);
+    delete s.refs.prevNode; delete s.refs.currNode; delete s.refs.nextNode; s.refs.second_head = second;
+    add('reverse', 'second_head = reverse_list(mid)', `调用方把返回值保存到 second_head，second_head 引用原节点 #${Number(second.slice(1))}。后半段方向已反转，原 head 仍引用节点 #1。`, null, 'refs', ['main-second']);
+    let p1 = 'n1', p2 = second;
+    s.refs.ptr1 = p1; s.refs.ptr2 = p2;
+    add('compare', 'ptr1, ptr2 = head, second_head; res = True', '两个变量分别引用两条路径的开头；尚未开始比较。', null, 'refs', ['main-pointers', 'main-res']);
+    while (p2) {
+      const a = Number(p1.slice(1)) - 1, b = Number(p2.slice(1)) - 1;
+      s.compared = [p1, p2];
+      if (values[a] !== values[b]) { s.res = false; s.mismatch = true; }
+      add('compare', 'if ptr1.val != ptr2.val: res = False', `节点 #${a + 1} 的值 ${values[a]} 与节点 #${b + 1} 的值 ${values[b]} ${values[a] === values[b] ? '相同' : '不同，res 设为 False'}。${p1 === p2 ? '这次两边引用的是同一个中间节点。' : ''}`, null, 'compare', values[a] === values[b] ? ['main-if'] : ['main-if', 'main-false']);
+      p1 = s.link[p1]; p2 = s.link[p2]; s.refs.ptr1 = p1; s.refs.ptr2 = p2; s.compared = [];
+      add('compare', 'ptr1, ptr2 = ptr1.next, ptr2.next', `ptr1 ${p1 ? `到节点 #${Number(p1.slice(1))}` : '到 None'}，ptr2 ${p2 ? `到节点 #${Number(p2.slice(1))}` : '到 None'}；只改变变量引用。`, null, 'refs', ['main-advance']);
     }
-    add('result','return res',`返回 ${s.res?'True':'False'}。此实现没有把反转过的后半段恢复；输入链表的 .next 已被修改。`,null,null,['main-return']);
+    add('result', 'return res', `返回 ${s.res ? 'True' : 'False'}。此实现没有把反转过的后半段恢复；输入链表的 .next 已被修改。`, null, null, ['main-return']);
     return output;
   }
-  function point(idOrNull){return idOrNull===null?positions.null:positions[idOrNull];}
-  const arrow=(marker,color,width=1.5)=>`<marker id="${marker}" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="${color}"/></marker>`;
-  const between=(a,b,t)=>a+(b-a)*t;
-  function linkMarkup(source,target,fraction=1){
-    if(fraction<=0)return '';
-    const a=point(source),b=point(target),nodeRadius=stage.clientWidth<440?17:21;
-    const marker=fraction>.11?' marker-end="url(#solid-arrow)"':'';
-    if(target===null){
-      const y=a.y+nodeRadius;
-      return `<path data-link="${source}" d="M ${a.x} ${y} L ${a.x} ${y+18*fraction}" stroke="#333" stroke-width="1.6" fill="none"${marker}/>`+
-        (fraction>.98?`<text x="${a.x+3}" y="${y+37}" font-size="10" fill="#555">None</text>`:'');
+  const between = (a, b, t) => a + (b - a) * t;
+  const point = idOrNull => idOrNull === null ? positions.null : positions[idOrNull];
+  function plotLink(api, source, target, fraction = 1) {
+    if (fraction <= 0) return;
+    const a = point(source), b = point(target), nodeRadius = stage.clientWidth < 440 ? 17 : 21;
+    const attrs = {stroke: '#333', fill: 'none', 'stroke-width': target === null ? 1.6 : 1.8, 'marker-end': fraction > .11 ? 'url(#solid-arrow)' : null};
+    if (target === null) {
+      const y = a.y + nodeRadius;
+      api.path(`link-${source}`, {...attrs, d: `M ${a.x} ${y} L ${a.x} ${y + 18 * fraction}`});
+      if (fraction > .98) api.text(`link-label-${source}`, {x: a.x + 3, y: y + 37, 'font-size': 10, fill: '#555'}, 'None');
+      return;
     }
-    if(b.x>a.x){
-      const x0=a.x+nodeRadius+2,x1=b.x-nodeRadius-5;
-      return `<path data-link="${source}" d="M ${x0} ${a.y} L ${between(x0,x1,fraction)} ${between(a.y,b.y,fraction)}" stroke="#333" stroke-width="1.8" fill="none"${marker}/>`;
+    if (b.x > a.x) {
+      const x0 = a.x + nodeRadius + 2, x1 = b.x - nodeRadius - 5;
+      api.path(`link-${source}`, {...attrs, d: `M ${x0} ${a.y} L ${between(x0, x1, fraction)} ${between(a.y, b.y, fraction)}`});
+      return;
     }
-    const y=a.y+nodeRadius-2;
-    const start={x:a.x-10,y},control={x:(a.x+b.x)/2,y:y+34},end={x:b.x+10,y};
-    const first={x:between(start.x,control.x,fraction),y:between(start.y,control.y,fraction)};
-    const second={x:between(control.x,end.x,fraction),y:between(control.y,end.y,fraction)};
-    const tip={x:between(first.x,second.x,fraction),y:between(first.y,second.y,fraction)};
-    return `<path data-link="${source}" d="M ${start.x} ${start.y} Q ${first.x} ${first.y} ${tip.x} ${tip.y}" stroke="#333" stroke-width="1.8" fill="none"${marker}/>`;
+    const y = a.y + nodeRadius - 2;
+    const start = {x: a.x - 10, y}, control = {x: (a.x + b.x) / 2, y: y + 34}, end = {x: b.x + 10, y};
+    const first = {x: between(start.x, control.x, fraction), y: between(start.y, control.y, fraction)};
+    const second = {x: between(control.x, end.x, fraction), y: between(control.y, end.y, fraction)};
+    api.path(`link-${source}`, {...attrs, d: `M ${start.x} ${start.y} Q ${first.x} ${first.y} ${between(first.x, second.x, fraction)} ${between(first.y, second.y, fraction)}`});
   }
-  function draw(linkChange=null,progress=1){
-    const w=stage.clientWidth,h=stage.clientHeight, nodeRadius=w<440?17:21;
-    svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
-    const paths=[`<defs>${arrow('solid-arrow','#333')}${arrow('ref-arrow','#777')}</defs>`];
-    for(const [source,target] of Object.entries(state.link)){
-      if(linkChange?.source===source){
-        if(progress<.38)paths.push(linkMarkup(source,linkChange.before,1-progress/.38));
-        else paths.push(linkMarkup(source,target,Math.min(1,(progress-.38)/.46)));
-      }else paths.push(linkMarkup(source,target));
-    }
-    for(const [name,visual] of paintedRefs){
-      if(visual.kind!=='node'||visual.opacity<=.01)continue;
-      const startY=visual.y+(visual.up?11:-11);
-      paths.push(`<path data-ref="${name}" d="M ${visual.x} ${startY} L ${visual.targetX} ${visual.targetY}" stroke="#777" stroke-width="1.2" opacity="${visual.opacity}" fill="none" marker-end="url(#ref-arrow)"/>`);
-    }
-    if(drag?.moved){
-      const p=point(drag.source);
-      paths.push(`<path d="M ${p.x} ${p.y+nodeRadius+18} L ${drag.x} ${drag.y}" stroke="#777" stroke-width="1.5" stroke-dasharray="4 4" fill="none" marker-end="url(#ref-arrow)"/>`);
-    }
-    svg.innerHTML=paths.join('');
+  function draw(linkChange = null, progress = 1) {
+    if (!state || !positions.n1) return;
+    const width = stage.clientWidth, height = stage.clientHeight, nodeRadius = width < 440 ? 17 : 21, drag = interaction?.drag;
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    scene.update(({path, text}) => {
+      const api = {path, text};
+      for (const [source, target] of Object.entries(state.link)) {
+        if (linkChange?.source === source) {
+          if (progress < .38) plotLink(api, source, linkChange.before, 1 - progress / .38);
+          else plotLink(api, source, target, Math.min(1, (progress - .38) / .46));
+        } else plotLink(api, source, target);
+      }
+      for (const [name, visual] of paintedRefs) {
+        if (visual.kind !== 'node' || visual.opacity <= .01) continue;
+        path(`reference-${name}`, {d: `M ${visual.x} ${visual.y + (visual.up ? 11 : -11)} L ${visual.targetX} ${visual.targetY}`, stroke: '#777', 'stroke-width': 1.2, opacity: visual.opacity, fill: 'none', 'marker-end': 'url(#ref-arrow)'});
+      }
+      if (drag?.moved) {
+        const p = point(drag.source);
+        path('drag-preview', {d: `M ${p.x} ${p.y + nodeRadius + 18} L ${drag.x} ${drag.y}`, stroke: '#777', 'stroke-width': 1.5, 'stroke-dasharray': '4 4', fill: 'none', 'marker-end': 'url(#ref-arrow)'});
+      }
+    });
   }
-  function variablePlacements(refs,links=state.link){
-    const w=stage.clientWidth, tiny=w<440;
-    const config={head:95,mid:95,second_head:95,slow:62,fast:230,prevNode:62,currNode:131,nextNode:230,ptr1:62,ptr2:230};
-    const nullRefs=Object.entries(refs).filter(([,target])=>target===null).map(([name])=>name);
-    const placements=new Map();
-    for(const name of variableBoxes.keys()){
-      const target=refs[name];
-      if(target===undefined)continue;
-      if(target===null){
-        const order=nullRefs.indexOf(name);
-        const xx=20+(w-110)*(order+.5)/nullRefs.length;
-        placements.set(name,{kind:'none',text:`${name} = None`,x:xx,y:318,opacity:1});
+  function variablePlacements(refs, links = state.link) {
+    const width = stage.clientWidth, tiny = width < 440;
+    const config = {head: 95, mid: 95, second_head: 95, slow: 62, fast: 230, prevNode: 62, currNode: 131, nextNode: 230, ptr1: 62, ptr2: 230};
+    const nullRefs = Object.entries(refs).filter(([, target]) => target === null).map(([name]) => name), placements = new Map();
+    for (const name of variableBoxes.keys()) {
+      const target = refs[name];
+      if (target === undefined) continue;
+      if (target === null) {
+        const order = nullRefs.indexOf(name);
+        placements.set(name, {kind: 'none', text: `${name} = None`, x: 20 + (width - 110) * (order + .5) / nullRefs.length, y: 318, opacity: 1});
         continue;
       }
-      const p=point(target), yy=config[name]||100;
-      let xx=p.x;
-      if(['slow','prevNode','currNode','ptr1'].includes(name)) xx+=p.x>w-70?-34:34;
-      if(['fast','nextNode','ptr2'].includes(name)&&links[target]===null) xx+=p.x>w/2?-50:50;
-      // On narrow screens the permanent endpoints need room from the edge.
-      xx=Math.max(tiny?29:46,Math.min(w-(tiny?29:46),xx));
-      const up=yy<p.y,nodeRadius=w<440?17:21;
-      placements.set(name,{kind:'node',text:name,target,x:xx,y:yy,targetX:p.x,targetY:p.y+(up?-nodeRadius-5:nodeRadius+5),up,opacity:1});
+      const p = point(target), yy = config[name] || 100;
+      let xx = p.x;
+      if (['slow', 'prevNode', 'currNode', 'ptr1'].includes(name)) xx += p.x > width - 70 ? -34 : 34;
+      if (['fast', 'nextNode', 'ptr2'].includes(name) && links[target] === null) xx += p.x > width / 2 ? -50 : 50;
+      xx = Math.max(tiny ? 29 : 46, Math.min(width - (tiny ? 29 : 46), xx));
+      const up = yy < p.y, nodeRadius = width < 440 ? 17 : 21;
+      placements.set(name, {kind: 'node', text: name, target, x: xx, y: yy, targetX: p.x, targetY: p.y + (up ? -nodeRadius - 5 : nodeRadius + 5), up, opacity: 1});
     }
     return placements;
   }
-  function paintVariables(visuals){
-    paintedRefs=visuals;
-    for(const [name,box] of variableBoxes){
-      const visual=visuals.get(name);
-      box.hidden=!visual||visual.opacity<=.01;
-      if(!visual)continue;
-      box.textContent=visual.text;
-      box.style.left=visual.x+'px';box.style.top=visual.y+'px';box.style.opacity=visual.opacity;
-      box.setAttribute('aria-label',visual.kind==='none'?`${name} 引用 None`:`${name} 引用节点 ${visual.target.slice(1)}`);
+  function paintVariables(visuals) {
+    paintedRefs = visuals;
+    for (const [name, box] of variableBoxes) {
+      const visual = visuals.get(name);
+      box.hidden = !visual || visual.opacity <= .01;
+      if (!visual) continue;
+      box.textContent = visual.text;
+      position(box, visual.x, visual.y);
+      box.style.opacity = visual.opacity;
+      box.setAttribute('aria-label', visual.kind === 'none' ? `${name} 引用 None` : `${name} 引用节点 ${visual.target.slice(1)}`);
     }
   }
-  function betweenPlacements(from,to,t){
-    const visuals=new Map();
-    for(const name of new Set([...from.keys(),...to.keys()])){
-      const start=from.get(name),end=to.get(name);
-      if(start?.kind==='node'&&end?.kind==='node'){
-        visuals.set(name,{...end,x:between(start.x,end.x,t),y:between(start.y,end.y,t),targetX:between(start.targetX,end.targetX,t),targetY:between(start.targetY,end.targetY,t)});
-      }else if(start&&end){
-        visuals.set(name,t<.5?{...start,opacity:1-2*t}:{...end,opacity:2*t-1});
-      }else if(start)visuals.set(name,{...start,opacity:1-t});
-      else if(end)visuals.set(name,{...end,opacity:t});
+  function betweenPlacements(from, to, t) {
+    const visuals = new Map();
+    for (const name of new Set([...from.keys(), ...to.keys()])) {
+      const start = from.get(name), end = to.get(name);
+      if (start?.kind === 'node' && end?.kind === 'node') visuals.set(name, {...end, x: between(start.x, end.x, t), y: between(start.y, end.y, t), targetX: between(start.targetX, end.targetX, t), targetY: between(start.targetY, end.targetY, t)});
+      else if (start && end) visuals.set(name, t < .5 ? {...start, opacity: 1 - 2 * t} : {...end, opacity: 2 * t - 1});
+      else if (start) visuals.set(name, {...start, opacity: 1 - t});
+      else if (end) visuals.set(name, {...end, opacity: t});
     }
     return visuals;
   }
-  function cancelMotion(){
-    if(motionFrame!==null)cancelAnimationFrame(motionFrame);
-    motionFrame=null;motion=null;
-    if(state&&positions.n1){paintVariables(variablePlacements(state.refs));draw();}
+  function cancelMotion() {
+    tween.cancel(); activeMotion = null;
+    if (state && positions.n1) { paintVariables(variablePlacements(state.refs)); draw(); }
   }
-  function startMotion(previousState){
-    const from=variablePlacements(previousState.refs,previousState.link),to=variablePlacements(state.refs);
-    const changedSources=Object.keys(state.link).filter(source=>previousState.link[source]!==state.link[source]);
-    const changedSource=changedSources[0];
-    const refChanged=Object.keys({...previousState.refs,...state.refs}).some(name=>previousState.refs[name]!==state.refs[name]);
-    if(reduced.matches||changedSources.length>1||(!changedSource&&!refChanged)){paintVariables(to);draw();return;}
-    const linkChange=changedSource?{source:changedSource,before:previousState.link[changedSource]}:null;
-    const currentMotion={from,to,linkChange,start:performance.now()};
-    motion=currentMotion;
-    const tick=now=>{
-      if(motion!==currentMotion)return;
-      const raw=Math.min(1,(now-currentMotion.start)/320);
-      const progress=raw<.5?2*raw*raw:1-2*(1-raw)*(1-raw);
-      paintVariables(betweenPlacements(from,to,progress));draw(linkChange,progress);
-      if(raw<1)motionFrame=requestAnimationFrame(tick);
-      else {motionFrame=null;motion=null;paintVariables(to);draw();}
-    };
-    paintVariables(betweenPlacements(from,to,0));draw(linkChange,0);
-    motionFrame=requestAnimationFrame(tick);
+  function startMotion(previousState) {
+    const from = variablePlacements(previousState.refs, previousState.link), to = variablePlacements(state.refs);
+    const changedSources = Object.keys(state.link).filter(source => previousState.link[source] !== state.link[source]);
+    const changedSource = changedSources[0];
+    const refChanged = Object.keys({...previousState.refs, ...state.refs}).some(name => previousState.refs[name] !== state.refs[name]);
+    if (tween.reduced || changedSources.length > 1 || (!changedSource && !refChanged)) { paintVariables(to); draw(); return; }
+    const current = {from, to, linkChange: changedSource ? {source: changedSource, before: previousState.link[changedSource]} : null};
+    activeMotion = current;
+    paintVariables(betweenPlacements(from, to, 0)); draw(current.linkChange, 0);
+    tween.tween({duration: 320, update(progress) { if (activeMotion !== current) return; paintVariables(betweenPlacements(from, to, progress)); draw(current.linkChange, progress); }, complete() { if (activeMotion !== current) return; activeMotion = null; paintVariables(to); draw(); }});
   }
-  function layout(previousState=null){
-    const w=stage.clientWidth,n=modes[mode].length;
-    const margin=w<440?35:62, spacing=(w-2*margin)/(n-1);
-    positions={null:{x:w-(w<440?35:62),y:320}};
-    for(let i=0;i<n;i++)positions[id(i)]={x:margin+i*spacing,y:180};
-    for(let i=0;i<n;i++){
-      const p=positions[id(i)],button=targetButtons[i],field=sourceButtons[i];
-      button.style.left=p.x+'px';button.style.top=p.y+'px';
-      field.style.left=p.x+'px';field.style.top='269px';
+  function layout() {
+    const width = stage.clientWidth, n = modes[mode].length, margin = width < 440 ? 35 : 62, spacing = (width - 2 * margin) / (n - 1);
+    positions = {null: {x: width - (width < 440 ? 35 : 62), y: 320}};
+    for (let i = 0; i < n; i++) positions[id(i)] = {x: margin + i * spacing, y: 180};
+    for (let i = 0; i < n; i++) {
+      const p = positions[id(i)];
+      position(targetButtons[i], p.x, p.y);
+      position(sourceButtons[i], p.x, 269);
     }
-    nullButton.style.left=positions.null.x+'px';nullButton.style.top=positions.null.y+'px';
-    if(previousState)startMotion(previousState);
-    else {paintVariables(variablePlacements(state.refs));draw();}
+    position(nullButton, positions.null.x, positions.null.y);
+    paintVariables(variablePlacements(state.refs));
+    draw();
   }
-  function rebuild(){
-    for(const el of stage.querySelectorAll('.node,.next-field,.variable'))el.remove();
-    sourceButtons=[];targetButtons=[];variableBoxes=new Map();
-    modes[mode].forEach((value,i)=>{
-      const node=document.createElement('button');node.type='button';node.className='node';node.textContent=value;node.dataset.target=id(i);
-      node.setAttribute('aria-label',`节点 #${i+1}，值 ${value}。${selected?'点击设为目标。':''}`);
-      const field=document.createElement('button');field.type='button';field.className='next-field';field.textContent=`#${i+1}.next`;field.dataset.source=id(i);
-      field.setAttribute('aria-label',`节点 #${i+1} 的 next 字段，点击或拖动后选择目标`);
-      stage.append(node,field);targetButtons.push(node);sourceButtons.push(field);
+  function rebuild() {
+    for (const element of stage.querySelectorAll('.node,.next-field,.variable')) element.remove();
+    sourceButtons = []; targetButtons = []; variableBoxes = new Map();
+    modes[mode].forEach((value, i) => {
+      const node = document.createElement('button');
+      node.type = 'button'; node.className = 'node'; node.textContent = value; node.dataset.target = id(i);
+      const field = document.createElement('button');
+      field.type = 'button'; field.className = 'next-field'; field.textContent = `#${i + 1}.next`; field.dataset.source = id(i);
+      stage.append(node, field); targetButtons.push(node); sourceButtons.push(field);
     });
-    for(const name of ['head','mid','second_head','slow','fast','prevNode','currNode','nextNode','ptr1','ptr2']){
-      const label=document.createElement('span');label.className=`variable${name.length>8?' long':''}`;label.textContent=name;label.dataset.variable=name;
-      label.setAttribute('aria-hidden','true');stage.append(label);variableBoxes.set(name,label);
+    for (const name of ['head', 'mid', 'second_head', 'slow', 'fast', 'prevNode', 'currNode', 'nextNode', 'ptr1', 'ptr2']) {
+      const label = document.createElement('span');
+      label.className = `variable${name.length > 8 ? ' long' : ''}`; label.textContent = name; label.dataset.variable = name;
+      label.setAttribute('aria-hidden', 'true'); stage.append(label); variableBoxes.set(name, label);
     }
-    for(const button of sourceButtons){
-      button.addEventListener('click',()=>{
-        if(button.dataset.suppress){delete button.dataset.suppress;return;}
+  }
+  function bindInteraction() {
+    interaction?.destroy();
+    interaction = createManualInteraction({
+      root, stage, sources: sourceButtons, targets: () => [...targetButtons, nullButton],
+      getTargetPoint: target => point(target.dataset.target === 'null' ? null : target.dataset.target),
+      targetReadyClass: 'available', maxDistance: 42,
+      onSelectionChange: ({selected, source}) => {
         cancelMotion();
-        selected=button.dataset.source;manual=`已选 #${selected.slice(1)}.next；点击一个节点或 None。`;render();
-      });
-      button.addEventListener('pointerdown',event=>{
-        if(event.pointerType==='mouse'&&event.button!==0)return;
-        cancelMotion();
-        drag={source:button.dataset.source,button,x:0,y:0,startX:event.clientX,startY:event.clientY,moved:false,ignoreClick:false};
-        selected=button.dataset.source;
-        manual=`已选 #${selected.slice(1)}.next；点击节点或 None，也可拖到目标。`;
-        render();
-        button.setPointerCapture(event.pointerId);
-      });
-      button.addEventListener('pointermove',event=>{
-        if(!drag||drag.button!==button)return;
-        const d=Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY);
-        if(d<5&&!drag.moved)return;
-        drag.moved=true;
-        const rect=stage.getBoundingClientRect();drag.x=event.clientX-rect.left;drag.y=event.clientY-rect.top;
-        draw();
-      });
-      button.addEventListener('pointerup',event=>{
-        if(!drag||drag.button!==button)return;
-        const moved=drag.moved,source=drag.source,hit=nearest(event.clientX,event.clientY);
-        drag=null;
-        if(moved){if(hit!==undefined)apply(source,hit);else draw();button.dataset.suppress='1';setTimeout(()=>delete button.dataset.suppress,0);}
-      });
-      button.addEventListener('pointercancel',()=>{drag=null;draw();});
-    }
-    for(const button of [...targetButtons,nullButton])button.addEventListener('click',()=>{if(selected)apply(selected,button.dataset.target==='null'?null:button.dataset.target);});
+        if (selected) trace.setPreviewMessage(`已选 #${source.dataset.source.slice(1)}.next；点击一个节点或 None，也可以拖动字段。`);
+        else trace.clearPreviewMessage();
+      },
+      onPointerStart: () => { cancelMotion(); trace.clearCodeHighlight(); draw(); },
+      onPointerMove: draw, onPointerEnd: () => trace.render(), onPointerCancel: () => trace.render(),
+      onDrop: ({source, value}) => apply(source, value)
+    });
   }
-  function nearest(clientX,clientY){
-    const rect=stage.getBoundingClientRect(),x=clientX-rect.left,y=clientY-rect.top;
-    let best,bestDistance=42;
-    for(const key of [...targetButtons.map(b=>b.dataset.target),'null']){
-      const p=point(key==='null'?null:key),distance=Math.hypot(x-p.x,y-p.y);
-      if(distance<bestDistance){bestDistance=distance;best=key==='null'?null:key;}
-    }
-    return best;
-  }
-  function apply(source,target){
+  function apply(source, target) {
     cancelMotion();
-    const previousState=clone(state);
-    const before=state.link[source];state.link[source]=target;selected=null;
-    manual=`自由练习：把节点 #${source.slice(1)}.next 从 ${before?`节点 #${before.slice(1)}`:'None'} 改为 ${target?`节点 #${target.slice(1)}`:'None'}。这条深色实线是节点保存的连接；变量方框没有改变。`;
-    lastChanged=source;render(previousState);
+    const previousState = clone(state), before = state.link[source];
+    interaction.clearSelection({notify: false});
+    lastChanged = source;
+    trace.updatePractice(nextState => { nextState.link[source] = target; }, `自由练习：把节点 #${source.slice(1)}.next 从 ${before ? `节点 #${before.slice(1)}` : 'None'} 改为 ${target ? `节点 #${target.slice(1)}` : 'None'}。这条深色实线是节点保存的连接；变量方框没有改变。`);
+    startMotion(previousState);
   }
-  function render(previousState=null){
-    const frame=frames[index];
-    count.textContent=`${index+1} / ${frames.length}`;
-    previous.disabled=index===0;next.disabled=index===frames.length-1;
-    phase.textContent=`${{start:'起点',middle:'找中点',reverse:'反转后半段',compare:'比较两条路径',result:'结果'}[frame.group]} · ${manual?'自由练习 · 演示步骤保持不变':`节点 #1 到 #${modes[mode].length} 始终是同一批对象`}`;
-    const references=Object.entries(state.refs).map(([name,target])=>`${name} 指向${target?`节点 #${target.slice(1)}`:'None'}`).join('；');
-    stage.setAttribute('aria-label',`步骤 ${index+1} / ${frames.length}。${manual||frame.note}。${references}。按左右方向键切换步骤。`);
-    resFlag.hidden=frame.group!=='compare'&&frame.group!=='result';
-    resFlag.textContent=`res = ${state.res?'True':'False'}`;
-    code.textContent=manual?'手动修改 .next':frame.line;
-    explain.textContent=manual||frame.note;
-    const activeSourceLines=new Set(manual?[]:frame.sourceLines);
-    let firstActiveLine=null;
-    for(const row of codeRows){
-      const active=activeSourceLines.has(row.dataset.codeLine);
-      row.classList.toggle('is-active',active);
-      if(active){row.setAttribute('aria-current','step');firstActiveLine ||= row;}
-      else row.removeAttribute('aria-current');
+  function renderScene({frame, state: nextState, manualMessage, step}) {
+    state = nextState;
+    if (!manualMessage) lastChanged = frame.changed;
+    const selected = interaction?.selected;
+    phase.textContent = `${{start: '起点', middle: '找中点', reverse: '反转后半段', compare: '比较两条路径', result: '结果'}[frame.group]} · ${manualMessage ? '自由练习 · 演示步骤保持不变' : `节点 #1 到 #${modes[mode].length} 始终是同一批对象`}`;
+    const references = Object.entries(state.refs).map(([name, target]) => `${name} 指向${target ? `节点 #${target.slice(1)}` : 'None'}`).join('；');
+    stage.setAttribute('aria-label', `步骤 ${step + 1} / ${frames.length}。${manualMessage || frame.note}。${references}。按左右方向键、Home 或 End 切换步骤。`);
+    resFlag.hidden = frame.group !== 'compare' && frame.group !== 'result';
+    resFlag.textContent = `res = ${state.res ? 'True' : 'False'}`;
+    code.textContent = manualMessage ? '手动修改 .next' : frame.line;
+    explain.textContent = manualMessage || frame.note;
+    for (let i = 0; i < targetButtons.length; i++) {
+      const button = targetButtons[i], node = id(i), isCompared = state.compared.includes(node);
+      button.classList.toggle('compare', isCompared);
+      button.classList.toggle('same-node', state.refs.ptr1 === node && state.refs.ptr2 === node);
+      button.classList.toggle('available', selected !== null);
+      button.setAttribute('aria-label', `节点 #${i + 1}，值 ${modes[mode][i]}，next 指向${state.link[node] ? `节点 #${state.link[node].slice(1)}` : 'None'}。${selected ? '点击设为目标。' : ''}`);
+      sourceButtons[i].classList.toggle('selected', selected === node);
+      sourceButtons[i].classList.toggle('changed', lastChanged === node);
+      sourceButtons[i].setAttribute('aria-label', `节点 #${i + 1}.next 当前指向${state.link[node] ? `节点 #${state.link[node].slice(1)}` : 'None'}。点击或拖动后选择目标。`);
     }
-    if(firstActiveLine&&codeScroll.clientHeight){
-      codeScroll.scrollTop=Math.max(0,firstActiveLine.offsetTop-codeScroll.clientHeight/2+firstActiveLine.offsetHeight/2);
-    }
-    jump.value=frame.group;
-    for(let i=0;i<targetButtons.length;i++){
-      const b=targetButtons[i],node=id(i),isCompared=state.compared.includes(node);
-      b.classList.toggle('compare',isCompared);
-      b.classList.toggle('same-node',state.refs.ptr1===node&&state.refs.ptr2===node);
-      b.classList.toggle('available',selected!==null);
-      b.setAttribute('aria-label',`节点 #${i+1}，值 ${modes[mode][i]}，next 指向${state.link[node]?`节点 #${state.link[node].slice(1)}`:'None'}。${selected?'点击设为目标。':''}`);
-      sourceButtons[i].classList.toggle('selected',selected===node);
-      sourceButtons[i].classList.toggle('changed',lastChanged===node);
-      sourceButtons[i].setAttribute('aria-label',`节点 #${i+1}.next 当前指向${state.link[node]?`节点 #${state.link[node].slice(1)}`:'None'}。点击或拖动后选择目标。`);
-    }
-    nullButton.classList.toggle('available',selected!==null);
-    nullButton.hidden=selected===null;
-    layout(previousState);
+    nullButton.classList.toggle('available', selected !== null);
+    nullButton.hidden = selected === null;
+    layout();
   }
-  function show(step){
+  function prepareStep({beforeState}) {
+    transitionHandoff = beforeState ? clone(beforeState) : null;
     cancelMotion();
-    const previousIndex=index,wasManual=!!manual;
-    const previousState=clone(state);
-    index=Math.max(0,Math.min(frames.length-1,step));state=clone(frames[index].state);
-    selected=null;drag=null;manual='';lastChanged=frames[index].changed;
-    render(!wasManual&&Math.abs(index-previousIndex)===1?previousState:null);
+    interaction?.clearSelection({notify: false});
   }
-  function switchMode(value){
+  function animateStep() {
+    const before = transitionHandoff;
+    transitionHandoff = null;
+    if (before) startMotion(before);
+  }
+  trace = createTrace({
+    root, cloneState: clone, motion: tween, onRender: renderScene, onBeforeStep: prepareStep, onTransition: animateStep,
+    codeKeyAttribute: 'data-code-line',
+    formatStepOption: (frame, index) => `${index + 1}. ${{start: '起点', middle: '中点', reverse: '反转', compare: '比较', result: '结果'}[frame.group]} · ${frame.line}`
+  });
+  function switchMode(value) {
     cancelMotion();
-    mode=value;frames=makeFrames(modes[mode]);index=0;state=clone(frames[0].state);selected=null;drag=null;manual='';lastChanged=null;
-    for(const button of document.querySelectorAll('[data-example]'))button.setAttribute('aria-pressed',button.dataset.example===mode?'true':'false');
-    rebuild();render();
+    mode = value; frames = makeFrames(modes[mode]); state = clone(frames[0].state); lastChanged = null;
+    for (const button of document.querySelectorAll('[data-example]')) button.setAttribute('aria-pressed', button.dataset.example === mode ? 'true' : 'false');
+    rebuild(); bindInteraction(); trace.setFrames(frames);
   }
-  previous.addEventListener('click',()=>show(index-1));
-  next.addEventListener('click',()=>show(index+1));
-  for(const button of document.querySelectorAll('[data-example]'))button.addEventListener('click',()=>switchMode(button.dataset.example));
-  jump.addEventListener('change',()=>{const at=frames.findIndex(f=>f.group===jump.value);if(at>=0)show(at);});
-  stage.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();show(index+(event.key==='ArrowRight'?1:-1));}});
-  new ResizeObserver(()=>{cancelMotion();drag=null;layout();}).observe(stage);
-  reduced.addEventListener('change',()=>{cancelMotion();layout();});
+  for (const button of document.querySelectorAll('[data-example]')) button.addEventListener('click', () => switchMode(button.dataset.example));
+  tween.onPreferenceChange(() => { activeMotion = null; if (state) layout(); });
+  new ResizeObserver(() => { cancelMotion(); if (state) layout(); }).observe(stage);
   switchMode('odd');
 })();
 </script>

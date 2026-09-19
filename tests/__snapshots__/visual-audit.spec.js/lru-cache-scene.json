@@ -1,0 +1,1537 @@
+{
+  "tag": "div",
+  "attributes": [
+    [
+      "class",
+      "detail-demo"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "section",
+      "attributes": [
+        [
+          "aria-label",
+          "get 和 put 的缓存顺序概览，可按左右方向键切换步骤"
+        ],
+        [
+          "class",
+          "overview"
+        ],
+        [
+          "data-lru-panel",
+          "overview"
+        ],
+        [
+          "data-overview-step",
+          "0"
+        ],
+        [
+          "hidden",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "h2",
+          "children": [
+            "get / put 的顺序变化"
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "overview-controls"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "aria-label",
+                  "选择缓存操作"
+                ],
+                [
+                  "class",
+                  "overview-modes"
+                ],
+                [
+                  "role",
+                  "group"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-pressed",
+                      "true"
+                    ],
+                    [
+                      "class",
+                      "plain-button"
+                    ],
+                    [
+                      "data-overview-mode",
+                      "put"
+                    ]
+                  ],
+                  "children": [
+                    "put(3, 200)"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-pressed",
+                      "false"
+                    ],
+                    [
+                      "class",
+                      "plain-button"
+                    ],
+                    [
+                      "data-overview-mode",
+                      "get"
+                    ]
+                  ],
+                  "children": [
+                    "get(2)"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "aria-label",
+                  "缓存操作步骤"
+                ],
+                [
+                  "class",
+                  "overview-stepper"
+                ],
+                [
+                  "role",
+                  "group"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "class",
+                      "plain-button"
+                    ],
+                    [
+                      "data-overview-prev",
+                      ""
+                    ],
+                    [
+                      "disabled",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "← 上一步"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "step-count"
+                    ],
+                    [
+                      "data-overview-count",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "0 / 3"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "class",
+                      "plain-button"
+                    ],
+                    [
+                      "data-overview-next",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "下一步 →"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "aria-label",
+              "capacity 3。put 3, 200，第 0 步。缓存从最久未使用到最近使用依次是 1|100，2|250，4|300；缓存外有 3|200。"
+            ],
+            [
+              "class",
+              "overview-figure"
+            ],
+            [
+              "data-overview-figure",
+              ""
+            ],
+            [
+              "role",
+              "img"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "overview-capacity"
+                ]
+              ],
+              "children": [
+                "capacity = 3"
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "overview-operation"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "strong",
+                  "attributes": [
+                    [
+                      "data-overview-operation",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "put(3, 200) →"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "overview-floating"
+                    ],
+                    [
+                      "data-overview-floating",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "aria-hidden",
+                          "true"
+                        ],
+                        [
+                          "class",
+                          "overview-node"
+                        ],
+                        [
+                          "data-overview-identity",
+                          "entry-3"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "span",
+                          "children": [
+                            "3"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "200"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "overview-floating-label"
+                        ]
+                      ],
+                      "children": [
+                        "待加入"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "overview-bracket"
+                ],
+                [
+                  "data-overview-chain",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "aria-hidden",
+                      "true"
+                    ],
+                    [
+                      "class",
+                      "overview-node"
+                    ],
+                    [
+                      "data-overview-identity",
+                      "entry-1"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "children": [
+                        "1"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "children": [
+                        "100"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "aria-hidden",
+                      "true"
+                    ],
+                    [
+                      "class",
+                      "overview-node"
+                    ],
+                    [
+                      "data-overview-identity",
+                      "entry-2"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "children": [
+                        "2"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "children": [
+                        "250"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "aria-hidden",
+                      "true"
+                    ],
+                    [
+                      "class",
+                      "overview-node"
+                    ],
+                    [
+                      "data-overview-identity",
+                      "entry-4"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "children": [
+                        "4"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "children": [
+                        "300"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "aria-hidden",
+                  "true"
+                ],
+                [
+                  "class",
+                  "overview-direction"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "span",
+                  "children": [
+                    "LRU · 最久未使用"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "overview-direction-arrow"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "children": [
+                    "MRU · 最近使用"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "overview-outcome"
+                ],
+                [
+                  "data-overview-outcome",
+                  ""
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "attributes": [
+            [
+              "class",
+              "overview-callout"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "attributes": [
+                [
+                  "data-overview-code",
+                  ""
+                ]
+              ],
+              "children": [
+                "put(3, 200) 执行前"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "data-overview-explanation",
+                  ""
+                ]
+              ],
+              "children": [
+                "缓存已有 3 项。左端 1|100 是最久未使用；新键 3|200 还在缓存外。"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "section",
+      "attributes": [
+        [
+          "data-lru-panel",
+          "trace"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "h2",
+          "attributes": [
+            [
+              "class",
+              "detail-heading"
+            ]
+          ],
+          "children": [
+            "代码逐行"
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "aria-label",
+              "演示控制"
+            ],
+            [
+              "class",
+              "toolbar"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "button",
+              "attributes": [
+                [
+                  "class",
+                  "plain-button"
+                ],
+                [
+                  "data-action",
+                  "previous"
+                ],
+                [
+                  "disabled",
+                  ""
+                ]
+              ],
+              "children": [
+                "← 上一步"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "step-count"
+                ],
+                [
+                  "data-count",
+                  ""
+                ]
+              ],
+              "children": [
+                "步骤 1 / 42"
+              ]
+            },
+            {
+              "tag": "button",
+              "attributes": [
+                [
+                  "class",
+                  "plain-button"
+                ],
+                [
+                  "data-action",
+                  "next"
+                ]
+              ],
+              "children": [
+                "下一步 →"
+              ]
+            },
+            {
+              "tag": "button",
+              "attributes": [
+                [
+                  "data-action",
+                  "copy-link"
+                ]
+              ],
+              "children": [
+                "复制本步骤链接"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "mode-label"
+                ],
+                [
+                  "data-mode",
+                  ""
+                ]
+              ],
+              "children": [
+                "示例演示"
+              ]
+            },
+            {
+              "tag": "label",
+              "attributes": [
+                [
+                  "class",
+                  "jump-wrap"
+                ]
+              ],
+              "children": [
+                "跳到步骤",
+                {
+                  "tag": "select",
+                  "attributes": [
+                    [
+                      "aria-label",
+                      "跳到步骤"
+                    ],
+                    [
+                      "class",
+                      "jump"
+                    ],
+                    [
+                      "data-jump",
+                      ""
+                    ],
+                    [
+                      "data-step-select",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "0"
+                        ]
+                      ],
+                      "children": [
+                        "初始状态"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "1"
+                        ]
+                      ],
+                      "children": [
+                        "put(1, 100)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "2"
+                        ]
+                      ],
+                      "children": [
+                        "put(1, 100)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "3"
+                        ]
+                      ],
+                      "children": [
+                        "put(1, 100)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "4"
+                        ]
+                      ],
+                      "children": [
+                        "put(1, 100)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "5"
+                        ]
+                      ],
+                      "children": [
+                        "put(1, 100)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "6"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 250)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "7"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 250)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "8"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 250)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "9"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 250)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "10"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 250)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "11"
+                        ]
+                      ],
+                      "children": [
+                        "get(2)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "12"
+                        ]
+                      ],
+                      "children": [
+                        "get(2)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "13"
+                        ]
+                      ],
+                      "children": [
+                        "get(2)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "14"
+                        ]
+                      ],
+                      "children": [
+                        "get(2)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "15"
+                        ]
+                      ],
+                      "children": [
+                        "get(2)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "16"
+                        ]
+                      ],
+                      "children": [
+                        "put(4, 300)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "17"
+                        ]
+                      ],
+                      "children": [
+                        "put(4, 300)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "18"
+                        ]
+                      ],
+                      "children": [
+                        "put(4, 300)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "19"
+                        ]
+                      ],
+                      "children": [
+                        "put(4, 300)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "20"
+                        ]
+                      ],
+                      "children": [
+                        "put(4, 300)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "21"
+                        ]
+                      ],
+                      "children": [
+                        "put(3, 200)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "22"
+                        ]
+                      ],
+                      "children": [
+                        "put(3, 200)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "23"
+                        ]
+                      ],
+                      "children": [
+                        "put(3, 200)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "24"
+                        ]
+                      ],
+                      "children": [
+                        "put(3, 200)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "25"
+                        ]
+                      ],
+                      "children": [
+                        "put(3, 200)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "26"
+                        ]
+                      ],
+                      "children": [
+                        "put(3, 200)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "27"
+                        ]
+                      ],
+                      "children": [
+                        "put(3, 200)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "28"
+                        ]
+                      ],
+                      "children": [
+                        "put(3, 200)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "29"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 260)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "30"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 260)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "31"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 260)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "32"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 260)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "33"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 260)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "34"
+                        ]
+                      ],
+                      "children": [
+                        "put(2, 260)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "35"
+                        ]
+                      ],
+                      "children": [
+                        "get(4)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "36"
+                        ]
+                      ],
+                      "children": [
+                        "get(4)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "37"
+                        ]
+                      ],
+                      "children": [
+                        "get(4)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "38"
+                        ]
+                      ],
+                      "children": [
+                        "get(4)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "39"
+                        ]
+                      ],
+                      "children": [
+                        "get(4)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "40"
+                        ]
+                      ],
+                      "children": [
+                        "get(1)"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "41"
+                        ]
+                      ],
+                      "children": [
+                        "get(1)"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "section",
+          "attributes": [
+            [
+              "aria-label",
+              "LRU 缓存状态图"
+            ],
+            [
+              "class",
+              "visual"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "diagram-label"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "span",
+                  "children": [
+                    "LRU · 最久未使用"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "children": [
+                    "最近使用 · MRU"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "aria-label",
+                  "双向链表，从左侧 head 到右侧 tail；可按左右方向键逐行查看"
+                ],
+                [
+                  "class",
+                  "stage"
+                ],
+                [
+                  "data-stage",
+                  ""
+                ],
+                [
+                  "role",
+                  "group"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "svg",
+                  "attributes": [
+                    [
+                      "aria-hidden",
+                      "true"
+                    ],
+                    [
+                      "data-links",
+                      ""
+                    ],
+                    [
+                      "viewBox",
+                      "0 0 787 320"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "defs",
+                      "children": [
+                        {
+                          "tag": "marker",
+                          "attributes": [
+                            [
+                              "viewBox",
+                              "0 0 7 7"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "path",
+                              "attributes": [
+                                [
+                                  "d",
+                                  "M0 0 L8 4 L0 8 Z"
+                                ],
+                                [
+                                  "fill",
+                                  "#333"
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "marker",
+                          "attributes": [
+                            [
+                              "viewBox",
+                              "0 0 7 7"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "path",
+                              "attributes": [
+                                [
+                                  "d",
+                                  "M0 0 L8 4 L0 8 Z"
+                                ],
+                                [
+                                  "fill",
+                                  "#555"
+                                ]
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M 91 107 L 696 107"
+                        ],
+                        [
+                          "data-visual-element",
+                          "next-0"
+                        ],
+                        [
+                          "fill",
+                          "none"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#next-arrow)"
+                        ],
+                        [
+                          "stroke",
+                          "#333"
+                        ],
+                        [
+                          "stroke-width",
+                          "1.5"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M 696 123 L 91 123"
+                        ],
+                        [
+                          "data-visual-element",
+                          "prev-0"
+                        ],
+                        [
+                          "fill",
+                          "none"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#prev-arrow)"
+                        ],
+                        [
+                          "stroke",
+                          "#333"
+                        ],
+                        [
+                          "stroke-width",
+                          "1.5"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "aria-hidden",
+                      "true"
+                    ],
+                    [
+                      "class",
+                      "stage-rule"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "sentinel visual-positioned"
+                    ],
+                    [
+                      "data-sentinel",
+                      "head"
+                    ],
+                    [
+                      "style",
+                      "--visual-x: 57px; --visual-y: 115px;"
+                    ]
+                  ],
+                  "children": [
+                    "head"
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "sentinel visual-positioned"
+                    ],
+                    [
+                      "data-sentinel",
+                      "tail"
+                    ],
+                    [
+                      "style",
+                      "--visual-x: 730px; --visual-y: 115px;"
+                    ]
+                  ],
+                  "children": [
+                    "tail"
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "data-nodes",
+                      ""
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "map-wrap"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "map-head"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "h2",
+                      "children": [
+                        "hashmap"
+                      ]
+                    },
+                    {
+                      "tag": "p",
+                      "children": [
+                        "键 → 同一链表节点"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "map-rows"
+                    ],
+                    [
+                      "data-map",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "empty-map"
+                        ]
+                      ],
+                      "children": [
+                        "∅ 还没有表项"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "attributes": [
+                    [
+                      "class",
+                      "inspection"
+                    ],
+                    [
+                      "data-inspection",
+                      ""
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "callout"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "operation-title"
+                ],
+                [
+                  "data-code",
+                  ""
+                ],
+                [
+                  "data-current-code",
+                  ""
+                ]
+              ],
+              "children": [
+                "LRUCache.__init__(capacity=3) 执行后"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "explanation"
+                ],
+                [
+                  "data-explanation",
+                  ""
+                ]
+              ],
+              "children": [
+                "capacity 是 3，hashmap 为空；哨兵 head.next 指向 tail，tail.prev 指向 head。"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "data-result",
+                  ""
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

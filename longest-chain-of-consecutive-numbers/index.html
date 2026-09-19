@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="Interactive bilingual visualization of the longest consecutive-number chain using a hash set. 哈希集合求最长连续序列。" />
-    <title>Longest Chain of Consecutive Numbers · Algo Visual</title>
+    <title>Longest Chain of Consecutive Numbers · Algorithm Visuals</title>
     <link rel="stylesheet" href="../assets/guide.css" />
     <link rel="stylesheet" href="../assets/visual.css" />
     <style>
@@ -30,7 +30,7 @@
       .number-slot.in-chain { background:var(--wash); }
       .number-slot.walker { border-width:2px; background:#efede5; }
       .chain-band { position:absolute; z-index:1; height:74px; border:1px solid #888; background:rgba(229,227,220,.22); transition:left .32s ease,width .32s ease; }
-      .chain-band::after { content:attr(data-label); position:absolute; left:50%; bottom:-22px; transform:translateX(-50%); color:var(--quiet); font:9px/1 monospace; white-space:nowrap; }
+      .chain-band::after { content:attr(data-label); position:absolute; left:100%; bottom:-22px; transform:translateX(-100%); color:var(--quiet); font:9px/1 monospace; white-space:nowrap; }
       .pointer { position:absolute; z-index:5; min-width:54px; padding:3px 5px; border:1px solid #666; border-radius:3px; background:var(--paper); font:9px/1.15 monospace; text-align:center; transform:translateX(-50%); transition:left .32s ease,top .2s ease,opacity .18s; }
       .pointer::after { content:""; position:absolute; top:100%; left:50%; height:22px; border-left:1px solid #666; }
       .pointer.pred { border-style:dashed; }
@@ -69,7 +69,7 @@
   <body>
     <main id="chain-lab">
       <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
-      <header class="heading"><div><h1>Longest Chain of Consecutive Numbers · 最长连续数字链</h1><p class="subtitle">Chapter 02 · Hash Maps and Sets / 哈希表与集合</p></div></header>
+      <header class="heading"><div><h1>Longest Chain of Consecutive Numbers · 最长连续数字链</h1></div></header>
       <p class="problem">For <code>nums = [1, 6, 2, 5, 8, 7, 10, 3]</code>, find the longest chain whose neighboring values differ by exactly 1.<span lang="zh-CN">在数组中寻找最长的连续数字链，相邻数字的差必须恰好为 1。</span></p>
 
       <div class="learning-layout" data-learning-layout>
@@ -81,7 +81,7 @@
             <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
           </div>
           <div class="step-meta"><span data-phase></span><span data-query></span></div>
-          <div class="stage" data-stage tabindex="0" aria-label="Use arrow keys, Home, or End to navigate the trace.">
+          <div class="stage" data-stage tabindex="0" aria-label="Algorithm trace / 算法演示">
             <div class="input-row" data-input-row></div>
             <div class="set-caption">membership picture sorted for clarity · the hash set itself has no order<br><span lang="zh-CN">为了看清连续关系而排序展示；哈希集合本身没有顺序</span></div>
             <div class="chain-band" data-chain-band hidden></div>
@@ -116,7 +116,6 @@
       <section class="section" aria-labelledby="chain-rule"><h2 id="chain-rule">Why the predecessor test works / 为什么检查前一个数字</h2><div class="proof-grid"><article class="paper-card"><h3><code>num = 6</code></h3><div class="mini-chain"><span>5</span>→<span>6</span>→<span>7</span>→<span>8</span></div><p><code>5</code> exists, so 6 is inside an existing chain. Starting here would repeat work.</p></article><article class="paper-card"><h3><code>num = 5</code></h3><div class="mini-chain"><span>5</span>→<span>6</span>→<span>7</span>→<span>8</span></div><p><code>4</code> is absent, so 5 is the unique start of this chain.</p></article></div><ol class="rule-list"><li>Every finite consecutive chain has exactly one smallest value.</li><li>Only that smallest value has no predecessor in the set.</li><li>Therefore every chain is expanded exactly once.</li></ol></section>
       <section class="section" aria-labelledby="chain-edge"><h2 id="chain-edge">Edge cases / 边界情况</h2><div class="edge-grid"><article class="paper-card"><code>[] → 0</code><p>The early return handles an empty input. / <span lang="zh-CN">空数组直接返回 0。</span></p></article><article class="paper-card"><code>[1, 2, 2, 3] → 3</code><p>The set removes duplicates; the chain remains 1, 2, 3. / <span lang="zh-CN">集合去重，不影响连续链长度。</span></p></article><article class="paper-card"><code>[-2, -1, 0] → 3</code><p>The predecessor rule works the same for negative values.</p></article><article class="paper-card"><code>[10] → 1</code><p>A single value is a chain of length one.</p></article></div></section>
       <section class="section" aria-labelledby="chain-complexity"><h2 id="chain-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(n) average</strong><p>The outer loop checks every unique value once, and all chain-growth steps together visit at most every unique value once.</p></article><article class="paper-card"><strong>Extra space · O(n)</strong><p><code>num_set</code> stores the unique input values.</p></article></div></section>
-      <details class="guide-help"><summary>图例与操作说明</summary><div class="legend"><span>实线框：集合中存在</span><span>虚线框：集合中不存在</span><span>虚线指针：检查 <code>num - 1</code></span><span>双线框：检查下一个连续值</span></div><p>使用按钮、步骤菜单、方向键、Home 或 End 浏览。图中的数字按大小排列只是为了展示连续关系，不代表 Python 集合的遍历顺序。</p></details>
       <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../substring-anagrams/">字母异位子串</a><a href="../longest-unique-substring/">无重复字符的最长子串</a><a href="../">返回目录</a></nav>
     </main>
 
@@ -272,6 +271,11 @@
           return positions[value - 1].center;
         }
 
+        function pointerCenter(element, x) {
+          const halfWidth = element.getBoundingClientRect().width / 2;
+          return Math.max(halfWidth + 2, Math.min(stage.clientWidth - halfWidth - 2, x));
+        }
+
         function paint(state) {
           if (!positions.length) return;
           inputCells.forEach((cell, index) => cell.classList.toggle('inspecting', state.iteration === index));
@@ -288,9 +292,9 @@
           numPointer.hidden = state.num === null;
           predPointer.hidden = state.queryType !== 'predecessor';
           walkPointer.hidden = state.currentNum === null;
-          if (!numPointer.hidden) { numPointer.style.left = `${xFor(state.num)}px`; numPointer.style.top = '91px'; }
-          if (!predPointer.hidden) { predPointer.style.left = `${xFor(state.predecessor)}px`; predPointer.style.top = '114px'; predPointer.textContent = `${state.predecessor} · num − 1`; }
-          if (!walkPointer.hidden) { walkPointer.style.left = `${xFor(state.currentNum)}px`; walkPointer.style.top = '242px'; }
+          if (!numPointer.hidden) { numPointer.style.left = `${pointerCenter(numPointer, xFor(state.num))}px`; numPointer.style.top = '91px'; }
+          if (!predPointer.hidden) { predPointer.textContent = `${state.predecessor} · num − 1`; predPointer.style.left = `${pointerCenter(predPointer, xFor(state.predecessor))}px`; predPointer.style.top = '114px'; }
+          if (!walkPointer.hidden) { walkPointer.style.left = `${pointerCenter(walkPointer, xFor(state.currentNum))}px`; walkPointer.style.top = '242px'; }
 
           chainBand.hidden = state.chainStart === null;
           if (!chainBand.hidden) {
@@ -322,7 +326,7 @@
           phase.textContent = `${phaseLabels[state.phase]} · ${frame.stepLabel}`;
           if (state.queryType === 'predecessor') query.textContent = `query: ${state.predecessor} ${state.predecessorExists ? '∈' : '∉'} num_set`;
           else if (state.queryType === 'next') query.textContent = `query: ${state.queryValue} ${present.has(state.queryValue) ? '∈' : '∉'} num_set`;
-          else query.textContent = state.done ? 'answer = 4' : 'teaching order shown · set order does not affect the answer';
+          else query.textContent = '';
           invariant.textContent = state.num === null ? 'Expand only when the predecessor is missing. / 只有前一个数字不存在时，才从当前数字开始扩展。' : state.predecessorExists ? `${state.num} is not a start because ${state.predecessor} exists. / ${state.predecessor} 已存在，所以 ${state.num} 不是链头。` : `${state.num} can start a chain because ${state.predecessor} is absent. / ${state.predecessor} 不存在，所以 ${state.num} 可以作为链头。`;
           numValue.textContent = state.num ?? '—';
           predValue.textContent = state.predecessor === null ? '—' : `${state.predecessor} ${state.predecessorExists ? '∈ set' : '∉ set'}`;

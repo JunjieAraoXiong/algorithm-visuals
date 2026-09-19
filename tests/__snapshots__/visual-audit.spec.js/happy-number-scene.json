@@ -1,0 +1,1001 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "Interactive Happy Number animation / 快乐数交互演示"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "Choose an example / 选择例子"
+        ],
+        [
+          "class",
+          "examples"
+        ],
+        [
+          "role",
+          "group"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "true"
+            ],
+            [
+              "class",
+              "example"
+            ],
+            [
+              "data-example",
+              "happy"
+            ]
+          ],
+          "children": [
+            "Happy · n = 23 / 快乐数"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "class",
+              "example"
+            ],
+            [
+              "data-example",
+              "unhappy"
+            ]
+          ],
+          "children": [
+            "Cycle · n = 116 / 非快乐数"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "class",
+              "example"
+            ],
+            [
+              "data-example",
+              "one"
+            ]
+          ],
+          "children": [
+            "Already 1 / 已为 1"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "Animation controls / 演示控制"
+        ],
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "class",
+              "step-count"
+            ],
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 13"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "jump-label"
+            ]
+          ],
+          "children": [
+            "跳到步骤"
+          ]
+        },
+        {
+          "tag": "select",
+          "attributes": [
+            [
+              "aria-label",
+              "跳到步骤"
+            ],
+            [
+              "data-step-select",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "0"
+                ]
+              ],
+              "children": [
+                "步骤 1 · slow = fast = n"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "1"
+                ]
+              ],
+              "children": [
+                "步骤 2 · while True:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "2"
+                ]
+              ],
+              "children": [
+                "步骤 3 · slow = get_next_num(slow)"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "3"
+                ]
+              ],
+              "children": [
+                "步骤 4 · fast = get_next_num(get_next_num(fast)) · call 1 / 第 1 次"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "4"
+                ]
+              ],
+              "children": [
+                "步骤 5 · fast = get_next_num(get_next_num(fast)) · call 2 / 第 2 次"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "5"
+                ]
+              ],
+              "children": [
+                "步骤 6 · if fast == 1:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "6"
+                ]
+              ],
+              "children": [
+                "步骤 7 · if fast == slow:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "7"
+                ]
+              ],
+              "children": [
+                "步骤 8 · while True:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "8"
+                ]
+              ],
+              "children": [
+                "步骤 9 · slow = get_next_num(slow)"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "9"
+                ]
+              ],
+              "children": [
+                "步骤 10 · fast = get_next_num(get_next_num(fast)) · call 1 / 第 1 次"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "10"
+                ]
+              ],
+              "children": [
+                "步骤 11 · fast = get_next_num(get_next_num(fast)) · call 2 / 第 2 次"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "11"
+                ]
+              ],
+              "children": [
+                "步骤 12 · if fast == 1:"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "12"
+                ]
+              ],
+              "children": [
+                "步骤 13 · return True"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "phase-line"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "Happy · n = 23 / 快乐数 · Setup / 初始化"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-pointers",
+              ""
+            ]
+          ],
+          "children": [
+            "slow = 23 · fast = 23"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "equation"
+        ],
+        [
+          "data-equation",
+          ""
+        ]
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "condition"
+        ],
+        [
+          "data-condition",
+          ""
+        ],
+        [
+          "hidden",
+          ""
+        ]
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "Step 1 of 13. Both variables start at 23. Treat each number as a state with one calculated next state."
+        ],
+        [
+          "class",
+          "stage is-compact"
+        ],
+        [
+          "data-stage",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "stage-lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 781 319"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#333"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#666"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 109.91 175.45000000000002 L 242.74666666666667 175.45000000000002"
+                ],
+                [
+                  "data-visual-element",
+                  "state-23"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#state-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.7"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "state-label-23"
+                ],
+                [
+                  "fill",
+                  "#666"
+                ],
+                [
+                  "x",
+                  "178.32833333333332"
+                ],
+                [
+                  "y",
+                  "184.45000000000002"
+                ]
+              ],
+              "children": [
+                "next"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 294.74666666666667 175.45000000000002 L 427.58333333333337 175.45000000000002"
+                ],
+                [
+                  "data-visual-element",
+                  "state-13"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#state-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.7"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "state-label-13"
+                ],
+                [
+                  "fill",
+                  "#666"
+                ],
+                [
+                  "x",
+                  "363.165"
+                ],
+                [
+                  "y",
+                  "184.45000000000002"
+                ]
+              ],
+              "children": [
+                "next"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 479.58333333333337 175.45000000000002 L 612.42 175.45000000000002"
+                ],
+                [
+                  "data-visual-element",
+                  "state-10"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#state-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.7"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "state-label-10"
+                ],
+                [
+                  "fill",
+                  "#666"
+                ],
+                [
+                  "x",
+                  "548.0016666666667"
+                ],
+                [
+                  "y",
+                  "184.45000000000002"
+                ]
+              ],
+              "children": [
+                "next"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 625.02 157.85000000000002 C 592.02 109.45000000000002, 688.8199999999999 109.45000000000002, 655.8199999999999 157.85000000000002"
+                ],
+                [
+                  "data-visual-element",
+                  "state-self-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#state-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.6"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "state-label-1"
+                ],
+                [
+                  "fill",
+                  "#666"
+                ],
+                [
+                  "x",
+                  "640.42"
+                ],
+                [
+                  "y",
+                  "111.65000000000002"
+                ]
+              ],
+              "children": [
+                "next"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 85.91 135.45000000000002 L 85.91 150.45000000000002"
+                ],
+                [
+                  "data-visual-element",
+                  "reference-slow"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#ref-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#666"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 85.91 215.45000000000002 L 85.91 200.45000000000002"
+                ],
+                [
+                  "data-visual-element",
+                  "reference-fast"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#ref-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#666"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "variable slow visual-positioned"
+            ],
+            [
+              "data-pointer",
+              "slow"
+            ],
+            [
+              "style",
+              "--visual-x: 85.91px; --visual-y: 121.45000000000002px;"
+            ]
+          ],
+          "children": [
+            "slow"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "variable fast visual-positioned"
+            ],
+            [
+              "data-pointer",
+              "fast"
+            ],
+            [
+              "style",
+              "--visual-x: 85.91px; --visual-y: 229.45000000000002px;"
+            ]
+          ],
+          "children": [
+            "fast"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-id",
+              "state / 状态"
+            ],
+            [
+              "data-value",
+              "23"
+            ],
+            [
+              "style",
+              "--visual-x: 85.91px; --visual-y: 175.45000000000002px;"
+            ]
+          ],
+          "children": [
+            "23"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-id",
+              "state / 状态"
+            ],
+            [
+              "data-value",
+              "13"
+            ],
+            [
+              "style",
+              "--visual-x: 270.74666666666667px; --visual-y: 175.45000000000002px;"
+            ]
+          ],
+          "children": [
+            "13"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-id",
+              "state / 状态"
+            ],
+            [
+              "data-value",
+              "10"
+            ],
+            [
+              "style",
+              "--visual-x: 455.58333333333337px; --visual-y: 175.45000000000002px;"
+            ]
+          ],
+          "children": [
+            "10"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "node visual-positioned terminal"
+            ],
+            [
+              "data-id",
+              "state / 状态"
+            ],
+            [
+              "data-value",
+              "1"
+            ],
+            [
+              "style",
+              "--visual-x: 640.42px; --visual-y: 175.45000000000002px;"
+            ]
+          ],
+          "children": [
+            "1"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "callout"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-code",
+              ""
+            ]
+          ],
+          "children": [
+            "slow = fast = n"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-note-en",
+              ""
+            ]
+          ],
+          "children": [
+            "Both variables start at 23. Treat each number as a state with one calculated next state."
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "zh"
+            ],
+            [
+              "data-note-zh",
+              ""
+            ]
+          ],
+          "children": [
+            "两个变量都从 23 开始。把每个数字看成只有一个确定下一状态的节点。"
+          ]
+        }
+      ]
+    }
+  ]
+}

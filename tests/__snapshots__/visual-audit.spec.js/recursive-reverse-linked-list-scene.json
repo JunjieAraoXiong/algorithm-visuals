@@ -1,0 +1,732 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "递归反转链表交互演示"
+    ],
+    [
+      "class",
+      "demo-pane"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "lab-head"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "h1",
+          "children": [
+            "Recursive Reverse Linked List · 递归反转链表"
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "controls"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "button",
+              "attributes": [
+                [
+                  "data-action",
+                  "previous"
+                ],
+                [
+                  "disabled",
+                  ""
+                ]
+              ],
+              "children": [
+                "← 上一步"
+              ]
+            },
+            {
+              "tag": "output",
+              "attributes": [
+                [
+                  "data-count",
+                  ""
+                ]
+              ],
+              "children": [
+                "步骤 1 / 17"
+              ]
+            },
+            {
+              "tag": "button",
+              "attributes": [
+                [
+                  "data-action",
+                  "next"
+                ]
+              ],
+              "children": [
+                "下一步 →"
+              ]
+            },
+            {
+              "tag": "button",
+              "attributes": [
+                [
+                  "data-action",
+                  "copy-link"
+                ]
+              ],
+              "children": [
+                "复制本步骤链接"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "递归链表反转：固定位置的四个节点及其指针"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "arrows"
+            ],
+            [
+              "data-arrows",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 788 291"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#333"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#555"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 185.60000000000002 176 L 285.20000000000005 176"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 343.20000000000005 176 L 442.79999999999995 176"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 500.79999999999995 176 L 600.4000000000001 176"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 658.4000000000001 176 L 742 176"
+                ],
+                [
+                  "data-visual-element",
+                  "node-link-4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#node-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 197 65 L 157.60000000000002 146"
+                ],
+                [
+                  "data-visual-element",
+                  "reference-head"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#var-arrow)"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "head 当前指向节点 1。点击后选节点或 None，也可拖动。"
+            ],
+            [
+              "class",
+              "source visual-positioned"
+            ],
+            [
+              "data-source",
+              "head"
+            ],
+            [
+              "style",
+              "--visual-x: 197px; --visual-y: 48px;"
+            ]
+          ],
+          "children": [
+            "head"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "new_head = — 当前指向未赋值。点击后选节点或 None，也可拖动。"
+            ],
+            [
+              "class",
+              "source unset visual-positioned"
+            ],
+            [
+              "data-source",
+              "newHead"
+            ],
+            [
+              "style",
+              "--visual-x: 591px; --visual-y: 48px;"
+            ]
+          ],
+          "children": [
+            "new_head = —"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 1"
+            ],
+            [
+              "class",
+              "node active visual-positioned"
+            ],
+            [
+              "data-target",
+              "1"
+            ],
+            [
+              "style",
+              "--visual-x: 157.60000000000002px; --visual-y: 176px;"
+            ]
+          ],
+          "children": [
+            "1"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 2"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-target",
+              "2"
+            ],
+            [
+              "style",
+              "--visual-x: 315.20000000000005px; --visual-y: 176px;"
+            ]
+          ],
+          "children": [
+            "2"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 3"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-target",
+              "3"
+            ],
+            [
+              "style",
+              "--visual-x: 472.79999999999995px; --visual-y: 176px;"
+            ]
+          ],
+          "children": [
+            "3"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "节点 4"
+            ],
+            [
+              "class",
+              "node visual-positioned"
+            ],
+            [
+              "data-target",
+              "4"
+            ],
+            [
+              "style",
+              "--visual-x: 630.4000000000001px; --visual-y: 176px;"
+            ]
+          ],
+          "children": [
+            "4"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "左侧 None"
+            ],
+            [
+              "class",
+              "null visual-positioned"
+            ],
+            [
+              "data-target",
+              "null-left"
+            ],
+            [
+              "style",
+              "--visual-x: 32px; --visual-y: 176px;"
+            ]
+          ],
+          "children": [
+            "None"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "右侧 None"
+            ],
+            [
+              "class",
+              "null visual-positioned"
+            ],
+            [
+              "data-target",
+              "null-right"
+            ],
+            [
+              "style",
+              "--visual-x: 756px; --visual-y: 176px;"
+            ]
+          ],
+          "children": [
+            "None"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "1.next 当前指向节点 2。点击后选节点或 None，也可拖动。"
+            ],
+            [
+              "class",
+              "source link visual-positioned"
+            ],
+            [
+              "data-source",
+              "link1"
+            ],
+            [
+              "style",
+              "--visual-x: 157.60000000000002px; --visual-y: 263px;"
+            ]
+          ],
+          "children": [
+            "1.next"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "2.next 当前指向节点 3。点击后选节点或 None，也可拖动。"
+            ],
+            [
+              "class",
+              "source link visual-positioned"
+            ],
+            [
+              "data-source",
+              "link2"
+            ],
+            [
+              "style",
+              "--visual-x: 315.20000000000005px; --visual-y: 263px;"
+            ]
+          ],
+          "children": [
+            "2.next"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "3.next 当前指向节点 4。点击后选节点或 None，也可拖动。"
+            ],
+            [
+              "class",
+              "source link visual-positioned"
+            ],
+            [
+              "data-source",
+              "link3"
+            ],
+            [
+              "style",
+              "--visual-x: 472.79999999999995px; --visual-y: 263px;"
+            ]
+          ],
+          "children": [
+            "3.next"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "4.next 当前指向None。点击后选节点或 None，也可拖动。"
+            ],
+            [
+              "class",
+              "source link visual-positioned"
+            ],
+            [
+              "data-source",
+              "link4"
+            ],
+            [
+              "style",
+              "--visual-x: 630.4000000000001px; --visual-y: 263px;"
+            ]
+          ],
+          "children": [
+            "4.next"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "section",
+      "attributes": [
+        [
+          "aria-label",
+          "递归调用栈"
+        ],
+        [
+          "class",
+          "stack"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "stack-label"
+            ]
+          ],
+          "children": [
+            "调用栈（右端正在执行）"
+          ]
+        },
+        {
+          "tag": "ol",
+          "attributes": [
+            [
+              "data-stack",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "li",
+              "attributes": [
+                [
+                  "class",
+                  "current"
+                ]
+              ],
+              "children": [
+                "f(1)"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "data-operation",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-current-code",
+              ""
+            ]
+          ],
+          "children": [
+            "linked_list_reversal_recursive(head=1)"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "explanation"
+            ]
+          ],
+          "children": [
+            "从节点 1 开始。每个递归调用都先处理 head.next 后面的较短链表。"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "base-note"
+        ]
+      ],
+      "children": [
+        "f(k) 表示 linked_list_reversal_recursive(head=节点 k)。基本情况：空链表或只有一个节点时，直接返回原来的 head；本例在 f(4) 遇到单节点。"
+      ]
+    }
+  ]
+}
