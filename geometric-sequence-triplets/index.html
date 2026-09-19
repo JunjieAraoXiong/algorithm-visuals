@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of counting geometric-sequence triplets with two frequency maps. 双哈希表统计等比数列三元组。" />
+    <title>Geometric Sequence Triplets · Algo Visual</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      :root { --soft:#e5e3dc; --wash:#f5f2e9; }
+      .problem { max-width:920px; margin:0 3px 12px; color:#41413e; }
+      .problem span { display:block; margin-top:3px; color:var(--quiet); }
+      .step-meta { display:flex; flex-wrap:wrap; gap:8px 18px; min-height:28px; margin:8px 3px 0; color:var(--quiet); font:12px/1.5 monospace; }
+      .step-picker { margin-left:auto; }
+      .stage { height:410px; overflow:hidden; border-bottom:1px solid var(--rule); touch-action:pan-y; }
+      .array-track { position:absolute; inset:0; }
+      .array-cell { position:absolute; z-index:2; display:grid; place-items:center; height:48px; border:1.5px solid var(--ink); background:var(--paper); font:16px/1 monospace; transition:left .32s ease,background-color .2s,border-color .2s; }
+      .array-cell::after { content:attr(data-index); position:absolute; top:calc(100% + 5px); color:var(--quiet); font:9px/1 monospace; }
+      .array-cell.past { background:var(--wash); }
+      .array-cell.current { border-width:2px; outline:2px dashed #777; outline-offset:3px; }
+      .x-pointer { position:absolute; z-index:5; min-width:50px; padding:3px 6px; border:1px solid #666; border-radius:3px; background:var(--paper); font:10px/1 monospace; text-align:center; transform:translateX(-50%); transition:left .32s ease,opacity .18s; }
+      .x-pointer::after { content:""; position:absolute; top:100%; left:50%; height:23px; border-left:1px solid #666; }
+      .partition-label { position:absolute; top:135px; color:var(--quiet); font:9px/1.25 monospace; transition:left .32s ease,width .32s ease; }
+      .partition-label.left { text-align:left; }
+      .partition-label.right { text-align:right; }
+      .maps { position:absolute; top:172px; left:50%; display:grid; grid-template-columns:repeat(2,minmax(150px,210px)); gap:18px; width:min(94%,438px); transform:translateX(-50%); }
+      .map-box { min-width:0; border:1px solid #777; background:var(--paper); }
+      .map-box h3 { margin:0; padding:7px 8px 5px; border-bottom:1px solid var(--rule); font:11px/1.2 monospace; font-weight:500; text-align:center; }
+      .map-head,.map-row { display:grid; grid-template-columns:1fr 1fr; }
+      .map-head { color:var(--quiet); font:9px/1 monospace; }
+      .map-head span,.map-row span { padding:4px 7px; text-align:center; }
+      .map-head span + span,.map-row span + span { border-left:1px solid var(--soft); }
+      .map-row { min-height:27px; border-top:1px solid var(--soft); font:11px/1.2 monospace; transition:background-color .2s,opacity .2s; }
+      .map-row.zero { color:#92928d; }
+      .map-row.changed { background:var(--wash); outline:2px solid var(--ink); outline-offset:-2px; }
+      .map-row.lookup { outline:3px double #666; outline-offset:-3px; }
+      .formula { position:absolute; left:50%; bottom:16px; width:min(94%,590px); min-height:48px; padding:7px 10px; border:1px dashed #999; transform:translateX(-50%); font:11px/1.45 monospace; text-align:center; }
+      .formula strong { display:block; font-weight:500; }
+      .state-grid { display:grid; grid-template-columns:minmax(0,1fr) 255px; gap:10px; margin:12px 3px; }
+      .invariant,.metrics { padding:10px 12px; border:1px solid var(--rule); }
+      .invariant strong { display:block; margin-bottom:5px; font:12px/1.4 monospace; }
+      .invariant p { margin:0; color:var(--quiet); font-size:13px; }
+      .metrics { display:grid; gap:5px; margin:0; font:11px/1.45 monospace; }
+      .metrics div { display:flex; justify-content:space-between; gap:10px; }
+      .metrics dt { color:var(--quiet); }
+      .metrics dd { margin:0; text-align:right; }
+      .section { margin-top:24px; padding-top:18px; border-top:1px solid var(--rule); }
+      .section h2 { margin:0 0 8px; font-size:20px; }
+      .section-intro { max-width:930px; color:var(--quiet); }
+      .idea-grid,.frequency-grid,.edge-grid,.complexity { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:12px; }
+      .frequency-grid,.edge-grid,.complexity { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .paper-card { min-width:0; padding:12px; border:1px solid var(--rule); }
+      .paper-card h3 { margin:0 0 7px; font-size:14px; font-weight:500; }
+      .paper-card p { margin:5px 0 0; }
+      .paper-card strong { font:13px/1.4 monospace; }
+      .triplet-diagram { display:flex; align-items:center; justify-content:center; gap:7px; margin:12px 0; font:13px/1 monospace; }
+      .triplet-diagram span { display:grid; place-items:center; min-width:46px; height:38px; border:1px solid #777; background:var(--wash); }
+      .contribution-list { display:grid; gap:5px; margin:10px 0 0; font:12px/1.45 monospace; }
+      .contribution-list div { display:grid; grid-template-columns:60px 1fr 44px; gap:8px; border-bottom:1px solid var(--soft); padding:4px 0; }
+      .contribution-list strong { text-align:right; }
+      @media(max-width:760px){.stage{height:430px}.state-grid,.idea-grid,.frequency-grid,.edge-grid,.complexity{grid-template-columns:1fr}.step-picker{width:100%;margin-left:0}.step-picker select{width:100%}.array-cell{height:43px;font-size:13px}.maps{top:178px;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:98%}.map-row{min-height:25px}.formula{bottom:10px}.partition-label{top:132px}}
+      @media(max-width:370px){.maps{font-size:10px}.map-head span,.map-row span{padding-inline:3px}.formula{font-size:10px}.contribution-list div{grid-template-columns:45px 1fr 34px}}
+      @media(prefers-reduced-motion:reduce){.array-cell,.x-pointer,.partition-label,.map-row{transition:none}}
+    </style>
+  </head>
+  <body>
+    <main id="triplet-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Geometric Sequence Triplets · 等比数列三元组</h1><p class="subtitle">Chapter 02 · Hash Maps and Sets / 哈希表与集合</p></div></header>
+      <p class="problem">For <code>nums = [2, 1, 2, 4, 8, 8]</code> and <code>r = 2</code>, count index triplets <code>i &lt; j &lt; k</code> whose values are <code>(x / r, x, x · r)</code>.<span lang="zh-CN">统计下标满足 i &lt; j &lt; k、数值构成 (x / r, x, x · r) 的三元组；重复数字代表不同下标选择。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="Geometric triplet frequency-map trace / 等比三元组频率表演示">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span><span data-position></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="Use arrow keys, Home, or End to navigate the trace.">
+            <div class="array-track" data-array-track></div>
+            <span class="x-pointer" data-x-pointer hidden>x</span>
+            <span class="partition-label left" data-left-zone></span>
+            <span class="partition-label right" data-right-zone></span>
+            <div class="maps">
+              <section class="map-box" aria-label="left map"><h3><code>left_map</code> · x 左侧</h3><div class="map-head"><span>value</span><span>freq</span></div><div data-left-map></div></section>
+              <section class="map-box" aria-label="right map"><h3><code>right_map</code> · x 右侧</h3><div class="map-head"><span>value</span><span>freq</span></div><div data-right-map></div></section>
+            </div>
+            <div class="formula" data-formula><strong>frequency product / 频率乘积</strong><span>等待选择中间值 x</span></div>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>Order invariant / 顺序不变量</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>x</code></dt><dd data-x-value></dd></div>
+              <div><dt><code>x / r</code></dt><dd data-left-need></dd></div>
+              <div><dt><code>x · r</code></dt><dd data-right-need></dd></div>
+              <div><dt>this contribution</dt><dd data-contribution></dd></div>
+              <div><dt><code>count</code></dt><dd data-total></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="triplet-code-title">
+          <h2 id="triplet-code-title">Final Python / 最终代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="import">from collections import defaultdict</span><span class="code-line" data-source-key="function">def geometric_sequence_triplets(nums: list[int], r: int) -&gt; int:</span><span class="code-line" data-source-key="left-init">    left_map = defaultdict(int)</span><span class="code-line" data-source-key="right-init">    right_map = defaultdict(int)</span><span class="code-line" data-source-key="count-init">    count = 0</span><span class="code-line" data-source-key="populate-loop">    for x in nums:</span><span class="code-line" data-source-key="right-add">        right_map[x] += 1</span><span class="code-line" data-source-key="search-loop">    for x in nums:</span><span class="code-line" data-source-key="right-remove">        right_map[x] -= 1</span><span class="code-line" data-source-key="divisible-check">        if x % r == 0:</span><span class="code-line" data-source-key="count-add">            count += left_map[x // r] * right_map[x * r]</span><span class="code-line" data-source-key="left-add">        left_map[x] += 1</span><span class="code-line" data-source-key="return">    return count</span></code></pre>
+          <p class="note"><code>right_map[x]</code> is decremented before counting, so the current index can never be chosen as its own right-hand element. / <span lang="zh-CN">计数前先从 right_map 移除当前 x，因此当前下标不会被误当成自己的右侧元素。</span></p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="triplet-middle"><h2 id="triplet-middle">Choose the middle value / 固定中间值</h2><p class="section-intro">Once <code>x</code> is fixed as the middle value, the other two values are forced. The maps answer how many valid choices exist on the correct side of the current index.</p><div class="idea-grid"><article class="paper-card"><h3>Left value / 左值</h3><div class="triplet-diagram"><span>x / r</span>←<span>x</span></div><p>It must appear before x, so read its frequency from <code>left_map</code>.</p></article><article class="paper-card"><h3>Middle value / 中间值</h3><div class="triplet-diagram"><span>x</span></div><p>Require <code>x % r == 0</code> so <code>x / r</code> is an integer.</p></article><article class="paper-card"><h3>Right value / 右值</h3><div class="triplet-diagram"><span>x</span>→<span>x · r</span></div><p>It must appear after x, so read its frequency from <code>right_map</code>.</p></article></div></section>
+      <section class="section" aria-labelledby="triplet-frequency"><h2 id="triplet-frequency">Why multiply the frequencies? / 为什么频率相乘</h2><div class="frequency-grid"><article class="paper-card"><h3>When <code>x = 4</code></h3><div class="triplet-diagram"><span>2 × 2</span><span>4</span><span>2 × 8</span></div><p>There are two earlier 2s and two later 8s. Every earlier choice can pair with every later choice: <code>2 × 2 = 4</code> triplets.</p></article><article class="paper-card"><h3>Contribution by middle index</h3><div class="contribution-list"><div><span>x = 2₀</span><span>0 × 1</span><strong>0</strong></div><div><span>x = 1</span><span>not divisible</span><strong>0</strong></div><div><span>x = 2₂</span><span>1 × 1</span><strong>1</strong></div><div><span>x = 4</span><span>2 × 2</span><strong>4</strong></div><div><span>x = 8₄</span><span>1 × 0</span><strong>0</strong></div><div><span>x = 8₅</span><span>1 × 0</span><strong>0</strong></div></div><p>Total: <code>0 + 0 + 1 + 4 + 0 + 0 = 5</code>.</p></article></div></section>
+      <section class="section" aria-labelledby="triplet-edge"><h2 id="triplet-edge">Important details / 重要细节</h2><div class="edge-grid"><article class="paper-card"><code>defaultdict(int)</code><p>A missing key reads as frequency 0. / <span lang="zh-CN">不存在的键默认频率为 0。</span></p></article><article class="paper-card"><code>x % r != 0</code><p>No integer left value exists, so this x contributes nothing.</p></article><article class="paper-card"><code>r = 1</code><p>All three values are equal; the same frequency logic counts different index choices.</p></article><article class="paper-card"><code>r ≠ 0</code><p>This implementation assumes a nonzero common ratio because it divides by r.</p></article></div></section>
+      <section class="section" aria-labelledby="triplet-complexity"><h2 id="triplet-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(n) average</strong><p>Two array passes perform average constant-time hash-map operations.</p></article><article class="paper-card"><strong>Extra space · O(n)</strong><p>The two frequency maps can contain up to O(n) distinct keys.</p></article></div></section>
+      <details class="guide-help"><summary>图例与操作说明</summary><div class="legend"><span>浅色数组格：已经移入 left_map</span><span>虚线框：当前中间值 x</span><span>粗框表格行：本步更新</span><span>双线表格行：本步查询</span></div><p>使用按钮、步骤菜单、方向键、Home 或 End 浏览。数组元素位置不变；只有 x 指针和两个频率表随遍历更新。</p></details>
+      <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../longest-chain-of-consecutive-numbers/">最长连续数字链</a><a href="../substring-anagrams/">字母异位子串</a><a href="../">返回目录</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.querySelector('#triplet-lab');
+        const nums = [2, 1, 2, 4, 8, 8];
+        const ratio = 2;
+        const keys = [1, 2, 4, 8, 16];
+        const stage = root.querySelector('[data-stage]');
+        const arrayTrack = root.querySelector('[data-array-track]');
+        const xPointer = root.querySelector('[data-x-pointer]');
+        const leftZone = root.querySelector('[data-left-zone]');
+        const rightZone = root.querySelector('[data-right-zone]');
+        const leftMapRoot = root.querySelector('[data-left-map]');
+        const rightMapRoot = root.querySelector('[data-right-map]');
+        const formula = root.querySelector('[data-formula]');
+        const phase = root.querySelector('[data-phase]');
+        const position = root.querySelector('[data-position]');
+        const invariant = root.querySelector('[data-invariant]');
+        const xValue = root.querySelector('[data-x-value]');
+        const leftNeed = root.querySelector('[data-left-need]');
+        const rightNeed = root.querySelector('[data-right-need]');
+        const contributionValue = root.querySelector('[data-contribution]');
+        const totalValue = root.querySelector('[data-total]');
+        const expression = root.querySelector('[data-expression]');
+        const explanation = root.querySelector('[data-explanation]');
+        const explanationZh = root.querySelector('[data-explanation-zh]');
+        const clone = value => JSON.parse(JSON.stringify(value));
+        const motion = AlgorithmVisualCore.createMotionController();
+        let arrayCells = [];
+        let positions = [];
+        let leftRows = new Map();
+        let rightRows = new Map();
+        let trace;
+
+        const frequency = values => values.reduce((map, value) => ({...map, [value]:(map[value] || 0) + 1}), {});
+
+        function buildFrames() {
+          const frames = [];
+          const state = { left:{}, right:{}, index:null, processedThrough:-1, x:null, leftNeed:null, rightNeed:null, divisible:null, contribution:0, count:0, changed:null, lookups:[], phase:'setup', mapsReady:false, done:false };
+          const add = (kind, sourceKeys, label, line, en, zh) => frames.push({ kind, sourceKeys:Array.isArray(sourceKeys)?sourceKeys:[sourceKeys], stepLabel:label, line, en, zh, state:clone(state) });
+
+          add('left-init', 'left-init', '建立 left_map', 'left_map = defaultdict(int)', 'left_map starts empty because no values are to the left of the first index.', 'left_map 起初为空，因为第一个下标左侧没有元素。');
+          add('right-init', 'right-init', '建立 right_map', 'right_map = defaultdict(int)', 'right_map will hold the frequencies of values still to be processed.', 'right_map 将保存尚未处理的右侧元素频率。');
+          add('count-init', 'count-init', '初始化 count', 'count = 0', 'No valid triplet has been counted yet.', '目前还没有统计任何有效三元组。');
+          state.right = frequency(nums);
+          state.mapsReady = true;
+          state.changed = {map:'right', key:null};
+          add('populate', ['populate-loop','right-add'], '填充 right_map', 'for x in nums: right_map[x] += 1', 'Count all array values: {1: 1, 2: 2, 4: 1, 8: 2}.', '统计整个数组的频率：{1: 1, 2: 2, 4: 1, 8: 2}。');
+          state.changed = null;
+
+          nums.forEach((x, index) => {
+            state.phase = 'select';
+            state.index = index;
+            state.x = x;
+            state.leftNeed = null;
+            state.rightNeed = null;
+            state.divisible = null;
+            state.contribution = 0;
+            state.lookups = [];
+            state.changed = null;
+            add('select', 'search-loop', `选择 x = ${x} · 下标 ${index}`, `for x in nums:  # x = ${x}`, 'Treat this array value as the middle member of a possible triplet.', '把当前数组元素当作潜在三元组的中间值。');
+
+            state.right[x] = (state.right[x] || 0) - 1;
+            state.changed = {map:'right', key:x};
+            state.phase = 'move-boundary';
+            add('right-remove', 'right-remove', `从 right_map 移除一个 ${x}`, `right_map[${x}] -= 1`, `Index ${index} is the current middle position, so it is no longer available on the right.`, `下标 ${index} 已成为当前中间位置，因此它不再属于右侧候选。`);
+            state.changed = null;
+
+            state.divisible = x % ratio === 0;
+            state.leftNeed = state.divisible ? x / ratio : null;
+            state.rightNeed = state.divisible ? x * ratio : null;
+            state.phase = 'count';
+            add('divisible', 'divisible-check', state.divisible ? `${x} 可以作为中间值` : `${x} 不能整除 r`, `${x} % ${ratio} == 0  # ${state.divisible}`, state.divisible ? `${x} / ${ratio} is an integer, so look up both required values.` : `${x} / ${ratio} is not an integer, so no valid integer triplet can use this middle value.`, state.divisible ? `${x} / ${ratio} 是整数，可以查询左右两侧需要的值。` : `${x} / ${ratio} 不是整数，当前中间值无法形成整数三元组。`);
+
+            if (state.divisible) {
+              const leftFrequency = state.left[state.leftNeed] || 0;
+              const rightFrequency = state.right[state.rightNeed] || 0;
+              state.lookups = [{map:'left',key:state.leftNeed},{map:'right',key:state.rightNeed}];
+              state.contribution = leftFrequency * rightFrequency;
+              state.count += state.contribution;
+              add('count-add', 'count-add', `增加 ${state.contribution} 个三元组`, `count += ${leftFrequency} * ${rightFrequency}  # count = ${state.count}`, `There are ${leftFrequency} earlier ${state.leftNeed}${leftFrequency === 1 ? '' : 's'} and ${rightFrequency} later ${state.rightNeed}${rightFrequency === 1 ? '' : 's'}, contributing ${state.contribution}.`, `左侧有 ${leftFrequency} 个 ${state.leftNeed}，右侧有 ${rightFrequency} 个 ${state.rightNeed}，本步贡献 ${state.contribution}。`);
+              state.lookups = [];
+            }
+
+            state.left[x] = (state.left[x] || 0) + 1;
+            state.processedThrough = index;
+            state.changed = {map:'left', key:x};
+            state.phase = 'advance';
+            add('left-add', 'left-add', `把 ${x} 加入 left_map`, `left_map[${x}] += 1`, `After counting, index ${index} becomes available to future middle positions on their left side.`, `完成计数后，下标 ${index} 进入 left_map，供后面的中间位置使用。`);
+            state.changed = null;
+          });
+
+          state.phase = 'done';
+          state.index = null;
+          state.x = null;
+          state.leftNeed = null;
+          state.rightNeed = null;
+          state.divisible = null;
+          state.contribution = 0;
+          state.lookups = [];
+          state.changed = null;
+          state.done = true;
+          add('return', 'return', '返回 5', 'return count  # 5', 'The five valid index triplets contribute 1 + 4, so return 5.', '有效下标三元组共贡献 1 + 4，因此返回 5。');
+          return frames;
+        }
+
+        function makeArray() {
+          arrayTrack.replaceChildren();
+          arrayCells = nums.map((value, index) => {
+            const cell = document.createElement('span');
+            cell.className = 'array-cell';
+            cell.dataset.index = String(index);
+            cell.textContent = value;
+            arrayTrack.append(cell);
+            return cell;
+          });
+        }
+
+        function makeMap(rootElement) {
+          rootElement.replaceChildren();
+          const map = new Map();
+          keys.forEach(key => {
+            const row = document.createElement('div');
+            row.className = 'map-row zero';
+            row.dataset.key = String(key);
+            const keyCell = document.createElement('span');
+            keyCell.textContent = key;
+            const frequencyCell = document.createElement('span');
+            frequencyCell.textContent = '0';
+            row.append(keyCell, frequencyCell);
+            rootElement.append(row);
+            map.set(key, {row, frequencyCell});
+          });
+          return map;
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const cellWidth = width < 520 ? 36 : 50;
+          const gap = width < 520 ? 5 : 9;
+          const total = cellWidth * nums.length + gap * (nums.length - 1);
+          const start = Math.max(5, (width - total) / 2);
+          const top = 67;
+          positions = nums.map((_, index) => ({x:start + index * (cellWidth + gap),center:start + index * (cellWidth + gap) + cellWidth / 2,width:cellWidth,top}));
+          arrayCells.forEach((cell,index) => { cell.style.left = `${positions[index].x}px`; cell.style.top = `${top}px`; cell.style.width = `${cellWidth}px`; });
+          paint(trace?.state || buildFrames()[0].state);
+        }
+
+        function paintMap(rows, frequencies, mapName, state) {
+          rows.forEach(({row,frequencyCell},key) => {
+            const value = frequencies[key] || 0;
+            frequencyCell.textContent = value;
+            row.classList.toggle('zero', value === 0);
+            row.classList.toggle('changed', state.changed?.map === mapName && (state.changed.key === null || state.changed.key === key));
+            row.classList.toggle('lookup', state.lookups.some(lookup => lookup.map === mapName && lookup.key === key));
+          });
+        }
+
+        function paint(state) {
+          if (!positions.length) return;
+          arrayCells.forEach((cell,index) => {
+            cell.classList.toggle('past', index <= state.processedThrough);
+            cell.classList.toggle('current', state.index === index);
+          });
+          xPointer.hidden = state.index === null;
+          if (!xPointer.hidden) { xPointer.style.left = `${positions[state.index].center}px`; xPointer.style.top = '25px'; }
+
+          if (state.index === null) {
+            leftZone.textContent = state.done ? 'all values processed / 全部处理完毕' : 'left side / 左侧';
+            leftZone.style.left = `${positions[0].x}px`;
+            leftZone.style.width = `${positions.at(-1).x + positions.at(-1).width - positions[0].x}px`;
+            rightZone.textContent = '';
+          } else {
+            const leftEndIndex = state.phase === 'advance' ? state.index : state.index - 1;
+            const leftWidth = leftEndIndex < 0 ? 0 : positions[leftEndIndex].x + positions[leftEndIndex].width - positions[0].x;
+            leftZone.textContent = leftEndIndex < 0 ? 'left_map empty / 左侧为空' : 'stored in left_map / 已进入左表';
+            leftZone.style.left = `${positions[0].x}px`;
+            leftZone.style.width = `${Math.max(72,leftWidth)}px`;
+            const rightStartIndex = state.phase === 'select' ? state.index : state.index + 1;
+            const rightStart = rightStartIndex >= nums.length ? positions[state.index].x + positions[state.index].width : positions[rightStartIndex].x;
+            rightZone.textContent = state.phase === 'select' ? 'current x still in right_map / 当前仍在右表' : state.index === nums.length - 1 ? 'right_map empty / 右侧为空' : 'still in right_map / 仍在右表';
+            rightZone.style.left = `${Math.min(rightStart,stage.clientWidth - 92)}px`;
+            rightZone.style.width = `${Math.max(92,positions.at(-1).x + positions.at(-1).width - rightStart)}px`;
+          }
+
+          paintMap(leftRows,state.left,'left',state);
+          paintMap(rightRows,state.right,'right',state);
+          if (state.x === null) {
+            formula.innerHTML = `<strong>frequency product / 频率乘积</strong><span>${state.done ? '1 + 4 = 5 valid triplets / 共 5 个有效三元组' : '等待选择中间值 x'}</span>`;
+          } else if (state.divisible === null) {
+            formula.innerHTML = state.phase === 'select'
+              ? `<strong>move the boundary first / 先移动边界</strong><span>next: remove the current x from right_map / 下一步：把当前 x 从右表移除</span>`
+              : `<strong>x removed from right_map / x 已移出右表</strong><span>next: check whether x / r is an integer / 下一步：检查 x / r 是否为整数</span>`;
+          } else if (!state.divisible) {
+            formula.innerHTML = `<strong>${state.x} % ${ratio} ≠ 0</strong><span>no integer x / r · contribution = 0 / 左值不是整数，本步贡献 0</span>`;
+          } else {
+            const leftFrequency = state.left[state.leftNeed] || 0;
+            const rightFrequency = state.right[state.rightNeed] || 0;
+            formula.innerHTML = `<strong>left_map[${state.leftNeed}] × right_map[${state.rightNeed}]</strong><span>${leftFrequency} × ${rightFrequency} = ${state.contribution} · count = ${state.count}</span>`;
+          }
+        }
+
+        function render({frame,state,step,frames}) {
+          const phaseLabels = {setup:'Setup / 准备',select:'Choose x / 选择 x', 'move-boundary':'Move boundary / 移动边界',count:'Count choices / 统计选择',advance:'Advance / 前进',done:'Result / 结果'};
+          phase.textContent = `${phaseLabels[state.phase]} · ${frame.stepLabel}`;
+          position.textContent = state.index === null ? (state.done ? 'answer = 5' : `r = ${ratio}`) : `index = ${state.index} · r = ${ratio}`;
+          if (state.index === null) invariant.textContent = 'left_map stores processed indexes; right_map stores unprocessed indexes. / left_map 保存已处理下标，right_map 保存未处理下标。';
+          else if (state.phase === 'select') invariant.textContent = `Index ${state.index} is still counted in right_map until the next line removes it. / 下标 ${state.index} 此时仍计入 right_map，下一行才会移除。`;
+          else if (state.phase === 'advance') invariant.textContent = `Index ${state.index} has finished counting and now belongs to left_map. / 下标 ${state.index} 已完成计数，现在进入 left_map。`;
+          else invariant.textContent = `While counting index ${state.index}, x is in neither map: only strictly earlier and strictly later indexes remain. / 统计下标 ${state.index} 时，x 不在任一表中，只保留严格位于左侧和右侧的下标。`;
+          xValue.textContent = state.x ?? '—';
+          leftNeed.textContent = state.leftNeed ?? '—';
+          rightNeed.textContent = state.rightNeed ?? '—';
+          contributionValue.textContent = state.x === null || state.divisible === null ? '—' : state.contribution;
+          totalValue.textContent = state.count;
+          expression.textContent = frame.line;
+          explanation.textContent = frame.en;
+          explanationZh.textContent = frame.zh;
+          paint(state);
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+        }
+
+        makeArray();
+        leftRows = makeMap(leftMapRoot);
+        rightRows = makeMap(rightMapRoot);
+        const resizeObserver = new ResizeObserver(layout);
+        resizeObserver.observe(stage);
+        layout();
+        trace = AlgorithmVisualCore.createTrace({root,cloneState:clone,motion,onRender:render,formatStepOption:frame=>frame.stepLabel});
+        trace.setFrames(buildFrames());
+      })();
+    </script>
+  </body>
+</html>
