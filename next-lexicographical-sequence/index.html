@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of the next lexicographical sequence. 下一字典序双指针图解。" />
+    <title>Next Lexicographical Sequence · Algo Visual</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      :root { --soft:#e5e3dc; --wash:#f5f2e9; }
+      .problem { max-width:920px; margin:0 3px 12px; color:#41413e; }
+      .problem span { display:block; margin-top:3px; color:var(--quiet); }
+      .step-meta { display:flex; flex-wrap:wrap; gap:8px 18px; min-height:28px; margin:8px 3px 0; color:var(--quiet); font:12px/1.5 monospace; }
+      .step-picker { margin-left:auto; }
+      .stage { height:280px; overflow:hidden; border-bottom:1px solid var(--rule); touch-action:pan-y; }
+      .track { position:absolute; inset:0; }
+      .cell { position:absolute; z-index:2; display:grid; place-items:center; width:58px; height:58px; border:1.5px solid var(--ink); background:var(--paper); font:21px/1 monospace; transition:background-color .2s; }
+      .cell::after { content:attr(data-index); position:absolute; top:calc(100% + 6px); color:var(--quiet); font:9px/1 monospace; }
+      .cell.in-suffix { background:var(--wash); }
+      .cell.comparing { outline:2px dashed #777; outline-offset:4px; }
+      .cell.pivot { border-width:3px; }
+      .cell.successor { outline:3px double var(--ink); outline-offset:4px; }
+      .cell.rearranging { border-style:dashed; }
+      .suffix-band { position:absolute; z-index:1; height:86px; border:1px solid #888; background:rgba(229,227,220,.22); transition:left .32s ease,width .32s ease; }
+      .suffix-band::after { content:attr(data-label); position:absolute; left:50%; bottom:-22px; transform:translateX(-50%); color:var(--quiet); font:9px/1 monospace; white-space:nowrap; }
+      .pointer { position:absolute; z-index:4; min-width:70px; padding:3px 6px; border:1px solid #666; border-radius:3px; background:var(--paper); font:10px/1.15 monospace; text-align:center; transform:translateX(-50%); transition:left .32s ease,top .2s ease; }
+      .pointer.successor { border-style:dashed; }
+      .pointer::after { content:""; position:absolute; top:100%; left:50%; height:25px; border-left:1px solid #666; }
+      .moving-token { position:absolute; z-index:8; display:grid; place-items:center; height:58px; border:2px solid var(--ink); background:var(--paper); font:21px/1 monospace; pointer-events:none; }
+      .state-grid { display:grid; grid-template-columns:minmax(0,1fr) 245px; gap:10px; margin:12px 3px; }
+      .meaning,.metrics { padding:10px 12px; border:1px solid var(--rule); }
+      .meaning strong { display:block; margin-bottom:5px; font:12px/1.4 monospace; }
+      .meaning p { margin:0; color:var(--quiet); font-size:13px; }
+      .metrics { display:grid; gap:5px; margin:0; font:11px/1.45 monospace; }
+      .metrics div { display:flex; justify-content:space-between; gap:10px; }
+      .metrics dt { color:var(--quiet); }
+      .metrics dd { margin:0; text-align:right; }
+      .section { margin-top:24px; padding-top:18px; border-top:1px solid var(--rule); }
+      .section h2 { margin:0 0 8px; font-size:20px; }
+      .section-intro { max-width:940px; color:var(--quiet); }
+      .lex-order,.three-steps,.edge-grid,.complexity { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:12px; }
+      .three-steps { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .paper-card { min-width:0; padding:12px; border:1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom:0; }
+      .mini-word { display:flex; align-items:center; gap:4px; margin:10px 0; }
+      .mini-char { display:grid; place-items:center; width:34px; height:38px; border:1px solid #777; font:14px/1 monospace; }
+      .mini-char.mark { border-width:2px; background:var(--wash); }
+      .mini-arrow { color:var(--quiet); font:13px/1 monospace; }
+      .sequence-list { margin:8px 0 0; padding-left:25px; font:13px/1.6 monospace; }
+      .sequence-list li.current { font-weight:700; }
+      .reason-list { margin:8px 0 0; padding-left:24px; }
+      .reason-list li { margin:6px 0; }
+      .complexity strong { font:13px/1.4 monospace; }
+      @media(max-width:760px){.stage{height:250px}.state-grid,.lex-order,.three-steps,.edge-grid,.complexity{grid-template-columns:1fr}.step-picker{width:100%;margin-left:0}.step-picker select{width:100%}.cell,.moving-token{width:42px;height:50px}.pointer{min-width:58px;font-size:9px}}
+      @media(prefers-reduced-motion:reduce){.pointer,.suffix-band{transition:none}}
+    </style>
+  </head>
+  <body>
+    <main id="lex-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Next Lexicographical Sequence · 下一字典序</h1><p class="subtitle">Chapter 01 · Two Pointers / 双指针</p></div></header>
+      <p class="problem">Rearrange the same letters to produce the immediate next string in lexicographical order. If no larger arrangement exists, return the smallest arrangement.<span lang="zh-CN">使用相同字符组成字典序中紧接着的下一个字符串；如果已经是最大排列，就返回最小排列。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="Next lexicographical sequence trace / 下一字典序演示">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span><span data-word></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="Use arrow keys, Home, or End to navigate the trace.">
+            <div class="suffix-band" data-suffix hidden></div>
+            <div class="track" data-track></div>
+            <span class="pointer pivot" data-pivot>pivot</span>
+            <span class="pointer successor" data-successor>successor</span>
+          </div>
+          <div class="state-grid">
+            <article class="meaning"><strong>What this phase proves / 本阶段证明什么</strong><p data-meaning></p></article>
+            <dl class="metrics"><div><dt><code>pivot</code></dt><dd data-pivot-value></dd></div><div><dt><code>rightmost_successor</code></dt><dd data-successor-value></dd></div><div><dt>suffix</dt><dd data-suffix-value></dd></div><div><dt>result so far</dt><dd data-result></dd></div></dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="lex-code-title">
+          <h2 id="lex-code-title">Final Python / 最终代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="function">def next_lexicographical_sequence(s: str) -&gt; str:</span><span class="code-line" data-source-key="letters">    letters = list(s)</span><span class="code-line" data-source-key="pivot-init">    pivot = len(letters) - 2</span><span class="code-line" data-source-key="pivot-check">    while pivot &gt;= 0 and letters[pivot] &gt;= letters[pivot + 1]:</span><span class="code-line" data-source-key="pivot-move">        pivot -= 1</span><span class="code-line" data-source-key="no-pivot">    if pivot == -1:</span><span class="code-line" data-source-key="reverse-all">        return ''.join(reversed(letters))</span><span class="code-line" data-source-key="successor-init">    rightmost_successor = len(letters) - 1</span><span class="code-line" data-source-key="successor-check">    while letters[rightmost_successor] &lt;= letters[pivot]:</span><span class="code-line" data-source-key="successor-move">        rightmost_successor -= 1</span><span class="code-line" data-source-key="swap">    letters[pivot], letters[rightmost_successor] = (</span><span class="code-line" data-source-key="swap-continued">        letters[rightmost_successor], letters[pivot]</span><span class="code-line" data-source-key="swap-close">    )</span><span class="code-line" data-source-key="reverse-suffix">    letters[pivot + 1:] = reversed(letters[pivot + 1:])</span><span class="code-line" data-source-key="return">    return ''.join(letters)</span></code></pre>
+          <p class="note"><strong>non-increasing</strong> means every next character is smaller than or equal to the previous one; repeated characters are allowed. / <span lang="zh-CN">“非递增”允许相邻字符相等。</span></p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="lex-order-title"><h2 id="lex-order-title">What “next” means / “下一个”是什么意思</h2><p class="section-intro">The answer is the first permutation larger than the input, so it must make the smallest possible increase.</p><div class="lex-order"><article class="paper-card"><strong>All permutations of <code>abc</code></strong><ol class="sequence-list"><li>abc</li><li class="current">acb ← next after abc</li><li>bac</li><li>bca</li><li>cab</li><li>cba</li></ol></article><article class="paper-card"><strong>Change as far right as possible</strong><div class="mini-word"><span class="mini-char">a</span><span class="mini-char">b</span><span class="mini-char mark">c</span><span class="mini-char">e</span><span class="mini-char">d</span><span class="mini-char">d</span><span class="mini-char">a</span></div><p>Changing a later position creates a smaller lexicographical increase than changing an earlier one. / <span lang="zh-CN">越靠右的位置发生变化，整体增幅越小。</span></p></article></div></section>
+      <section class="section" aria-labelledby="lex-steps-title"><h2 id="lex-steps-title">Three transformations / 三个关键变换</h2><div class="three-steps"><article class="paper-card"><strong>1 · Find pivot</strong><p>Scan right to left until one character is smaller than the next.</p><code>c &lt; e</code></article><article class="paper-card"><strong>2 · Smallest increase</strong><p>Swap the pivot with the rightmost character larger than it.</p><code>c ↔ d</code></article><article class="paper-card"><strong>3 · Smallest suffix</strong><p>Reverse the still non-increasing suffix.</p><code>edca → acde</code></article></div></section>
+      <section class="section" aria-labelledby="lex-why-title"><h2 id="lex-why-title">Why reversing is enough / 为什么反转就够了</h2><p class="section-intro">Before the swap, the suffix is non-increasing, which is its largest ordering. After swapping with the rightmost successor it remains non-increasing. Reversing it therefore produces its smallest ordering in O(n), with no sort.</p><ol class="reason-list"><li>The pivot makes the overall string larger.</li><li>Choosing the rightmost successor makes that increase as small as possible.</li><li>Reversing the suffix minimizes everything after the pivot.</li></ol></section>
+      <section class="section" aria-labelledby="lex-edge-title"><h2 id="lex-edge-title">No pivot: wrap around / 找不到 pivot：回到最小排列</h2><div class="edge-grid"><article class="paper-card"><div class="mini-word"><span class="mini-char">d</span><span class="mini-char">c</span><span class="mini-char">b</span><span class="mini-char">a</span><span class="mini-arrow">→ reverse →</span><span class="mini-char">a</span><span class="mini-char">b</span><span class="mini-char">c</span><span class="mini-char">d</span></div><p><code>dcba</code> is already the largest permutation, so the next sequence wraps to <code>abcd</code>.</p></article><article class="paper-card"><code>aaaa → aaaa</code><p>Equal adjacent letters are part of a non-increasing suffix; reversing identical characters changes nothing.</p></article></div></section>
+      <section class="section" aria-labelledby="lex-complexity"><h2 id="lex-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(n)</strong><p>At most two right-to-left scans and one suffix reversal.</p></article><article class="paper-card"><strong>Extra space · O(n) in Python</strong><p>Strings are immutable, so <code>letters = list(s)</code> stores a mutable copy.</p></article></div></section>
+      <details class="guide-help"><summary>图例与操作说明</summary><div class="legend"><span>粗边框：<code>pivot</code></span><span>双线框：<code>rightmost_successor</code></span><span>浅色区间：已确认的非递增后缀</span></div><p>使用按钮、步骤菜单、方向键、Home 或 End 浏览。字符格的位置固定；交换和反转时只有字符值移动。</p></details>
+      <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../shift-zeros-to-the-end/">移动零到末尾</a><a href="../reverse-linked-list/">反转链表</a><a href="../">返回目录</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.querySelector('#lex-lab');
+        const input = 'abcedda';
+        const stage = root.querySelector('[data-stage]');
+        const track = root.querySelector('[data-track]');
+        const suffixBand = root.querySelector('[data-suffix]');
+        const pivotPointer = root.querySelector('[data-pivot]');
+        const successorPointer = root.querySelector('[data-successor]');
+        const phase = root.querySelector('[data-phase]');
+        const word = root.querySelector('[data-word]');
+        const meaning = root.querySelector('[data-meaning]');
+        const pivotValue = root.querySelector('[data-pivot-value]');
+        const successorValue = root.querySelector('[data-successor-value]');
+        const suffixValue = root.querySelector('[data-suffix-value]');
+        const resultValue = root.querySelector('[data-result]');
+        const expression = root.querySelector('[data-expression]');
+        const explanation = root.querySelector('[data-explanation]');
+        const explanationZh = root.querySelector('[data-explanation-zh]');
+        const clone = value => JSON.parse(JSON.stringify(value));
+        const motion = AlgorithmVisualCore.createMotionController();
+        let cells = [];
+        let positions = [];
+        let trace;
+
+        function buildFrames() {
+          const frames = [];
+          const state = { letters:[...input], pivot:null, successor:null, suffixStart:null, comparing:[], action:null, phase:'setup', done:false };
+          const add = (kind, sourceKeys, label, line, en, zh) => frames.push({ kind, sourceKeys:Array.isArray(sourceKeys)?sourceKeys:[sourceKeys], stepLabel:label, line, en, zh, state:clone(state) });
+          add('letters', 'letters', '建立字符数组', 'letters = list(s)', `Strings are immutable, so copy '${input}' into a mutable list.`, `字符串不可变，因此先把 '${input}' 复制成可修改列表。`);
+          state.pivot = state.letters.length - 2;
+          state.suffixStart = state.pivot + 1;
+          state.phase = 'pivot';
+          add('pivot-init', 'pivot-init', '从倒数第二位开始', `pivot = ${state.pivot}`, 'The final character alone is already a non-increasing suffix.', '最后一个字符本身就是非递增后缀。');
+          while (state.pivot >= 0) {
+            const p = state.pivot;
+            state.comparing = [p, p + 1];
+            const nonIncreasing = state.letters[p] >= state.letters[p + 1];
+            add('pivot-check', 'pivot-check', `检查 pivot = ${p}`, `letters[${p}] >= letters[${p + 1}]  # '${state.letters[p]}' ${nonIncreasing ? '>=' : '<'} '${state.letters[p + 1]}'`, nonIncreasing ? `'${state.letters[p]}' belongs to the non-increasing suffix, so keep scanning left.` : `'${state.letters[p]}' is smaller than '${state.letters[p + 1]}'. This is the rightmost place where the string can increase.`, nonIncreasing ? `'${state.letters[p]}' 属于非递增后缀，继续向左扫描。` : `'${state.letters[p]}' 小于 '${state.letters[p + 1]}'；这是最靠右、还能让字符串变大的位置。`);
+            if (!nonIncreasing) break;
+            state.comparing = [];
+            state.pivot -= 1;
+            state.suffixStart = state.pivot + 1;
+            add('pivot-move', 'pivot-move', `pivot → ${state.pivot}`, 'pivot -= 1', `Extend the confirmed suffix left to index ${state.suffixStart}.`, `已确认的非递增后缀向左扩展到下标 ${state.suffixStart}。`);
+          }
+          state.comparing = [];
+          add('no-pivot', 'no-pivot', '确认 pivot 存在', 'if pivot == -1:', `pivot = ${state.pivot}, so this input is not the largest permutation.`, `pivot = ${state.pivot}，说明当前字符串还不是最大排列。`);
+          state.successor = state.letters.length - 1;
+          state.phase = 'successor';
+          add('successor-init', 'successor-init', '从末尾寻找 successor', `rightmost_successor = ${state.successor}`, 'The suffix is non-increasing, so scan it from the right for the first character larger than the pivot.', '后缀是非递增的；从最右侧开始，第一个大于 pivot 的字符就是最小可用增量。');
+          while (state.letters[state.successor] <= state.letters[state.pivot]) {
+            const r = state.successor;
+            state.comparing = [state.pivot, r];
+            add('successor-check', 'successor-check', `检查 successor = ${r}`, `letters[${r}] <= letters[${state.pivot}]  # '${state.letters[r]}' <= '${state.letters[state.pivot]}'`, `'${state.letters[r]}' is not larger than pivot '${state.letters[state.pivot]}'.`, `'${state.letters[r]}' 不大于 pivot '${state.letters[state.pivot]}'，不能作为后继。`);
+            state.comparing = [];
+            state.successor -= 1;
+            add('successor-move', 'successor-move', `successor → ${state.successor}`, 'rightmost_successor -= 1', 'Move one position left inside the suffix.', '在后缀中向左移动一位。');
+          }
+          state.comparing = [state.pivot, state.successor];
+          add('successor-check', 'successor-check', '找到最右后继', `letters[${state.successor}] > letters[${state.pivot}]  # '${state.letters[state.successor]}' > '${state.letters[state.pivot]}'`, `'${state.letters[state.successor]}' is the rightmost character larger than pivot '${state.letters[state.pivot]}'.`, `'${state.letters[state.successor]}' 是最靠右且大于 pivot '${state.letters[state.pivot]}' 的字符。`);
+          state.comparing = [];
+          const beforeSwap = [...state.letters];
+          [state.letters[state.pivot], state.letters[state.successor]] = [state.letters[state.successor], state.letters[state.pivot]];
+          state.action = { type:'swap', before:beforeSwap, moves:[{from:state.pivot,to:state.successor},{from:state.successor,to:state.pivot}] };
+          add('swap', ['swap','swap-continued','swap-close'], '交换 pivot 与 successor', `letters[${state.pivot}], letters[${state.successor}] = letters[${state.successor}], letters[${state.pivot}]`, 'The pivot increases from c to d, making the whole string larger by the smallest available amount.', 'pivot 从 c 增加到 d，使整个字符串以最小可用幅度变大。');
+          state.action = null;
+          state.phase = 'reverse';
+          const start = state.pivot + 1;
+          const beforeReverse = [...state.letters];
+          const reversed = state.letters.slice(start).reverse();
+          state.letters.splice(start, reversed.length, ...reversed);
+          state.action = { type:'reverse', before:beforeReverse, moves:beforeReverse.slice(start).map((_, offset) => ({ from:start + offset, to:state.letters.length - 1 - offset })) };
+          add('reverse', 'reverse-suffix', '反转后缀', `letters[${start}:] = reversed(letters[${start}:])`, `Reverse '${beforeReverse.slice(start).join('')}' into '${state.letters.slice(start).join('')}', the smallest ordering of the suffix.`, `把后缀 '${beforeReverse.slice(start).join('')}' 反转成 '${state.letters.slice(start).join('')}'，得到后缀的最小排列。`);
+          state.action = null;
+          state.done = true;
+          state.phase = 'done';
+          add('return', 'return', '返回结果', "return ''.join(letters)", `Return '${state.letters.join('')}', the immediate next lexicographical sequence.`, `返回 '${state.letters.join('')}'，它就是紧接着的下一字典序。`);
+          return frames;
+        }
+
+        function makeCells() {
+          track.replaceChildren();
+          cells = [...input].map((_, index) => {
+            const cell = document.createElement('span');
+            cell.className = 'cell';
+            cell.dataset.index = String(index);
+            track.append(cell);
+            return cell;
+          });
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const cellWidth = width < 560 ? 42 : 58;
+          const gap = width < 560 ? 6 : 10;
+          const total = cellWidth * input.length + gap * (input.length - 1);
+          const start = Math.max(5, (width - total) / 2);
+          const top = 122;
+          positions = [...input].map((_, index) => ({ x:start + index * (cellWidth + gap), center:start + index * (cellWidth + gap) + cellWidth / 2, width:cellWidth, top }));
+          cells.forEach((cell, index) => { cell.style.left = `${positions[index].x}px`; cell.style.top = `${top}px`; cell.style.width = `${cellWidth}px`; });
+          paint(trace?.state || buildFrames()[0].state);
+        }
+
+        function paint(state) {
+          if (!positions.length) return;
+          cells.forEach((cell, index) => {
+            cell.textContent = state.letters[index];
+            cell.classList.toggle('in-suffix', state.suffixStart !== null && index >= state.suffixStart);
+            cell.classList.toggle('comparing', state.comparing.includes(index));
+            cell.classList.toggle('pivot', state.pivot === index && state.phase !== 'setup');
+            cell.classList.toggle('successor', state.successor === index && state.phase === 'successor');
+            cell.classList.toggle('rearranging', Boolean(state.action && state.action.moves.some(move => move.to === index || move.from === index)));
+          });
+          pivotPointer.hidden = state.pivot === null || state.pivot < 0 || state.done;
+          successorPointer.hidden = state.successor === null || !['successor','reverse'].includes(state.phase) || state.done;
+          if (!pivotPointer.hidden) {
+            pivotPointer.style.left = `${positions[state.pivot].center}px`;
+            pivotPointer.style.top = '43px';
+          }
+          if (!successorPointer.hidden) {
+            successorPointer.style.left = `${positions[state.successor].center}px`;
+            successorPointer.style.top = state.successor === state.pivot ? '75px' : '43px';
+          }
+          suffixBand.hidden = state.suffixStart === null;
+          suffixBand.dataset.label = ['reverse','done'].includes(state.phase) ? 'minimum suffix / 最小后缀' : 'non-increasing suffix / 非递增后缀';
+          if (state.suffixStart !== null) {
+            const first = positions[Math.min(state.suffixStart, positions.length - 1)];
+            const last = positions.at(-1);
+            suffixBand.style.left = `${first.x - 4}px`;
+            suffixBand.style.top = `${first.top - 14}px`;
+            suffixBand.style.width = `${last.x + last.width - first.x + 8}px`;
+          }
+        }
+
+        function clearMovingTokens() { stage.querySelectorAll('.moving-token').forEach(token => token.remove()); }
+        function animateAction(state) {
+          clearMovingTokens();
+          if (motion.reduced || !state.action) return;
+          for (const move of state.action.moves) {
+            if (move.from === move.to) continue;
+            const token = document.createElement('span');
+            token.className = 'moving-token';
+            token.textContent = state.action.before[move.from];
+            token.style.left = `${positions[move.from].x}px`;
+            token.style.top = `${positions[move.from].top}px`;
+            token.style.width = `${positions[move.from].width}px`;
+            stage.append(token);
+            const vertical = state.action.type === 'reverse' ? (move.from % 2 ? -20 : 20) : (move.from < move.to ? -24 : 24);
+            const animation = token.animate([{ transform:'translate3d(0,0,0)' }, { transform:`translate3d(${positions[move.to].x - positions[move.from].x}px,${vertical}px,0)`, offset:.5 }, { transform:`translate3d(${positions[move.to].x - positions[move.from].x}px,0,0)` }], { duration:430, easing:'ease-in-out' });
+            animation.finished.finally(() => token.remove());
+          }
+        }
+
+        function phaseMeaning(state) {
+          if (state.phase === 'setup') return 'Create mutable storage for the same characters. / 为相同字符建立可修改的存储。';
+          if (state.phase === 'pivot') return 'Find the shortest right-hand suffix that is already at its largest ordering. / 找到已经处于最大排列的最短右侧后缀。';
+          if (state.phase === 'successor') return 'Find the smallest available character that can increase the pivot. / 找到能让 pivot 增大的最小可用字符。';
+          if (state.phase === 'reverse') return 'Minimize everything after the increased pivot. / 把增大的 pivot 之后全部最小化。';
+          return 'The smallest possible increase has been completed. / 最小幅度的增大已经完成。';
+        }
+
+        function render({ frame, state, step, frames }) {
+          const phaseLabels = { setup:'Setup / 准备', pivot:'Find pivot / 寻找 pivot', successor:'Find successor / 寻找后继', reverse:'Minimize suffix / 最小化后缀', done:'Result / 结果' };
+          phase.textContent = `${phaseLabels[state.phase]} · ${frame.stepLabel}`;
+          word.textContent = `letters = "${state.letters.join('')}"`;
+          meaning.textContent = phaseMeaning(state);
+          pivotValue.textContent = state.pivot === null ? '—' : state.pivot;
+          successorValue.textContent = state.successor === null ? '—' : state.successor;
+          suffixValue.textContent = state.suffixStart === null ? '—' : `"${state.letters.slice(state.suffixStart).join('')}"`;
+          resultValue.textContent = `"${state.letters.join('')}"`;
+          expression.textContent = frame.line;
+          explanation.textContent = frame.en;
+          explanationZh.textContent = frame.zh;
+          paint(state);
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+        }
+
+        makeCells();
+        const resizeObserver = new ResizeObserver(layout);
+        resizeObserver.observe(stage);
+        layout();
+        trace = AlgorithmVisualCore.createTrace({
+          root,
+          cloneState: clone,
+          motion,
+          onRender: render,
+          onBeforeStep: clearMovingTokens,
+          onTransition: ({ frame, state }) => { if (['swap','reverse'].includes(frame.kind)) animateAction(state); },
+          formatStepOption: frame => frame.stepLabel,
+        });
+        trace.setFrames(buildFrames());
+      })();
+    </script>
+  </body>
+</html>

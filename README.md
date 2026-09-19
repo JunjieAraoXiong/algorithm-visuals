@@ -6,6 +6,8 @@ Each question has a standalone page at `<problem-slug>/index.html`. The root `in
 
 ## Visuals
 
+- [Shift Zeros to the End / 移动零到末尾](shift-zeros-to-the-end/index.html)
+- [Next Lexicographical Sequence / 下一字典序](next-lexicographical-sequence/index.html)
 - [Reverse Linked List · Iterative](reverse-linked-list/index.html)
 - [Reverse Linked List · Recursive](recursive-reverse-linked-list/index.html)
 

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of shifting zeros to the end with two pointers. 双指针原地移动零。" />
+    <title>Shift Zeros to the End · Algo Visual</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      :root { --soft:#e5e3dc; --wash:#f5f2e9; }
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display:block; margin-top:3px; color:var(--quiet); }
+      .step-meta { display:flex; flex-wrap:wrap; gap:8px 18px; min-height:28px; margin:8px 3px 0; color:var(--quiet); font:12px/1.5 monospace; }
+      .step-picker { margin-left:auto; }
+      .stage { height:250px; overflow:hidden; border-bottom:1px solid var(--rule); touch-action:pan-y; }
+      .track { position:absolute; inset:0; }
+      .cell { position:absolute; z-index:2; display:grid; place-items:center; width:64px; height:58px; border:1.5px solid var(--ink); background:var(--paper); font:21px/1 monospace; transition:left .32s ease, background-color .2s; }
+      .cell::after { content:attr(data-index); position:absolute; top:calc(100% + 6px); color:var(--quiet); font:9px/1 monospace; }
+      .cell.committed { background:var(--wash); border-width:2px; }
+      .cell.current { outline:2px dashed #777; outline-offset:4px; }
+      .cell.swap { outline:3px double var(--ink); outline-offset:4px; }
+      .prefix-band { position:absolute; z-index:1; height:86px; border:1px solid #888; background:rgba(229,227,220,.24); transition:left .32s ease,width .32s ease; }
+      .prefix-band::after { content:"stable non-zero prefix / 已就位非零前缀"; position:absolute; left:50%; bottom:-22px; transform:translateX(-50%); color:var(--quiet); font:9px/1 monospace; white-space:nowrap; }
+      .pointer { position:absolute; z-index:4; min-width:58px; padding:3px 6px; border:1px solid #666; border-radius:3px; background:var(--paper); font:10px/1.15 monospace; text-align:center; transform:translateX(-50%); transition:left .32s ease,top .2s ease; }
+      .pointer.right { border-style:dashed; }
+      .pointer::after { content:""; position:absolute; top:100%; left:50%; height:25px; border-left:1px solid #666; }
+      .end-label { position:absolute; color:var(--quiet); font:11px/1 monospace; }
+      .moving-token { position:absolute; z-index:8; display:grid; place-items:center; width:64px; height:58px; border:2px solid var(--ink); background:var(--paper); font:21px/1 monospace; pointer-events:none; }
+      .state-grid { display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:10px; margin:12px 3px; }
+      .invariant,.metrics { padding:10px 12px; border:1px solid var(--rule); }
+      .invariant strong { display:block; margin-bottom:5px; font:12px/1.4 monospace; }
+      .invariant p { margin:0; color:var(--quiet); font-size:13px; }
+      .metrics { display:grid; gap:5px; margin:0; font:11px/1.45 monospace; }
+      .metrics div { display:flex; justify-content:space-between; gap:10px; }
+      .metrics dt { color:var(--quiet); }
+      .metrics dd { margin:0; text-align:right; }
+      .section { margin-top:24px; padding-top:18px; border-top:1px solid var(--rule); }
+      .section h2 { margin:0 0 8px; font-size:20px; }
+      .section-intro { max-width:900px; color:var(--quiet); }
+      .before-after,.edge-grid,.complexity { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:12px; }
+      .paper-card { min-width:0; padding:12px; border:1px solid var(--rule); }
+      .mini-array { display:flex; flex-wrap:wrap; gap:4px; margin:10px 0; }
+      .mini-cell { display:grid; place-items:center; width:34px; height:38px; border:1px solid #777; font:14px/1 monospace; }
+      .mini-cell.nonzero { background:var(--wash); }
+      .order { color:var(--quiet); font:11px/1.4 monospace; }
+      .reason-list { margin:8px 0 0; padding-left:24px; }
+      .reason-list li { margin:6px 0; }
+      .complexity strong { font:13px/1.4 monospace; }
+      @media(max-width:700px){.stage{height:225px}.state-grid,.before-after,.edge-grid,.complexity{grid-template-columns:1fr}.step-picker{width:100%;margin-left:0}.step-picker select{width:100%}.cell,.moving-token{width:48px;height:52px}.pointer{min-width:48px;font-size:9px}}
+      @media(prefers-reduced-motion:reduce){.cell,.pointer,.prefix-band{transition:none}}
+    </style>
+  </head>
+  <body>
+    <main id="shift-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Shift Zeros to the End · 移动零到末尾</h1><p class="subtitle">Chapter 01 · Two Pointers / 双指针</p></div></header>
+      <p class="problem">Modify <code>nums = [0, 1, 0, 3, 2]</code> in place so every zero moves to the end while the non-zero values keep their relative order.<span lang="zh-CN">原地修改数组，把所有零移到末尾，同时保持非零元素的相对顺序。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="Shift zeros two-pointer trace / 移动零双指针演示">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span><span data-array></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="Use arrow keys, Home, or End to navigate the trace.">
+            <div class="prefix-band" data-prefix hidden></div>
+            <div class="track" data-track></div>
+            <span class="pointer left" data-left>left</span>
+            <span class="pointer right" data-right>right</span>
+            <span class="end-label" data-end>len(nums)</span>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>Invariant / 不变量</strong><p data-invariant></p></article>
+            <dl class="metrics"><div><dt><code>left</code></dt><dd data-left-value></dd></div><div><dt><code>right</code></dt><dd data-right-value></dd></div><div><dt><code>nums[right]</code></dt><dd data-current></dd></div><div><dt>placed non-zeros</dt><dd data-placed></dd></div></dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="shift-code-title">
+          <h2 id="shift-code-title">Final Python / 最终代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="function">def shift_zeros_to_the_end(nums: list[int]) -&gt; None:</span><span class="code-line" data-source-key="left-init">    left = 0</span><span class="code-line" data-source-key="loop">    for right in range(len(nums)):</span><span class="code-line" data-source-key="nonzero-check">        if nums[right] != 0:</span><span class="code-line" data-source-key="swap">            nums[left], nums[right] = nums[right], nums[left]</span><span class="code-line" data-source-key="left-move">            left += 1</span><span class="code-line" data-source-key="return">    return None</span></code></pre>
+          <p class="note">The swap writes two array positions. Moving <code>left</code> or <code>right</code> changes only a variable reference. / <span lang="zh-CN">交换会写入两个数组位置；移动指针只改变变量引用。</span></p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="shift-idea"><h2 id="shift-idea">Focus on non-zero values / 只搬运非零元素</h2><p class="section-intro">Instead of searching for zeros and pushing them right, let <code>left</code> mark the next position that should receive a non-zero value. <code>right</code> scans every item exactly once.</p><div class="before-after"><article class="paper-card"><strong>Input / 输入</strong><div class="mini-array"><span class="mini-cell">0</span><span class="mini-cell nonzero">1</span><span class="mini-cell">0</span><span class="mini-cell nonzero">3</span><span class="mini-cell nonzero">2</span></div><span class="order">non-zero order = 1 → 3 → 2</span></article><article class="paper-card"><strong>Output / 输出</strong><div class="mini-array"><span class="mini-cell nonzero">1</span><span class="mini-cell nonzero">3</span><span class="mini-cell nonzero">2</span><span class="mini-cell">0</span><span class="mini-cell">0</span></div><span class="order">same order = 1 → 3 → 2</span></article></div></section>
+      <section class="section" aria-labelledby="shift-why"><h2 id="shift-why">Why the order stays stable / 为什么顺序不会改变</h2><ol class="reason-list"><li><code>right</code> reads values from left to right.</li><li>Every non-zero value is placed at the current <code>left</code> position.</li><li><code>left</code> advances only after a non-zero value is placed.</li><li>Therefore non-zero values are written in the same order in which they are found.</li></ol></section>
+      <section class="section" aria-labelledby="shift-edge"><h2 id="shift-edge">Edge cases / 边界情况</h2><div class="edge-grid"><article class="paper-card"><code>[0, 0, 0]</code><p><code>left</code> never moves; the array is already correct. / <span lang="zh-CN">没有非零元素，left 不移动。</span></p></article><article class="paper-card"><code>[1, 3, 2]</code><p>Each value swaps with itself, preserving the array. / <span lang="zh-CN">每个元素与自身交换，数组保持不变。</span></p></article></div></section>
+      <section class="section" aria-labelledby="shift-complexity"><h2 id="shift-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(n)</strong><p><code>right</code> visits each index once.</p></article><article class="paper-card"><strong>Extra space · O(1)</strong><p>The mutation is in place; only two indexes are stored.</p></article></div></section>
+      <details class="guide-help"><summary>图例与操作说明</summary><div class="legend"><span>实线标签：<code>left</code> 写入位置</span><span>虚线标签：<code>right</code> 扫描位置</span><span>双线框：本步交换位置</span></div><p>使用按钮、步骤菜单、方向键、Home 或 End 浏览；数组格子位置保持固定，格子中的值才会交换。</p></details>
+      <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../longest-unique-substring/">无重复字符的最长子串</a><a href="../substring-anagrams/">字母异位子串</a><a href="../">返回目录</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.querySelector('#shift-lab');
+        const nums = [0, 1, 0, 3, 2];
+        const stage = root.querySelector('[data-stage]');
+        const track = root.querySelector('[data-track]');
+        const prefix = root.querySelector('[data-prefix]');
+        const leftPointer = root.querySelector('[data-left]');
+        const rightPointer = root.querySelector('[data-right]');
+        const endLabel = root.querySelector('[data-end]');
+        const phase = root.querySelector('[data-phase]');
+        const arrayText = root.querySelector('[data-array]');
+        const invariant = root.querySelector('[data-invariant]');
+        const leftValue = root.querySelector('[data-left-value]');
+        const rightValue = root.querySelector('[data-right-value]');
+        const currentValue = root.querySelector('[data-current]');
+        const placed = root.querySelector('[data-placed]');
+        const expression = root.querySelector('[data-expression]');
+        const explanation = root.querySelector('[data-explanation]');
+        const explanationZh = root.querySelector('[data-explanation-zh]');
+        const clone = value => JSON.parse(JSON.stringify(value));
+        const motion = AlgorithmVisualCore.createMotionController();
+        let positions = [];
+        let cells = [];
+        let trace;
+
+        function buildFrames() {
+          const frames = [];
+          const state = { nums: [...nums], left: 0, right: null, swap: null, iteration: 0, done: false };
+          const add = (kind, sourceKey, label, line, en, zh) => frames.push({ kind, sourceKeys: [sourceKey], stepLabel: label, line, en, zh, state: clone(state) });
+          add('left-init', 'left-init', '初始化 left', 'left = 0', 'left marks the next position that should receive a non-zero value.', 'left 指向下一个应该放入非零元素的位置。');
+          for (let right = 0; right < state.nums.length; right += 1) {
+            state.iteration = right + 1;
+            state.right = right;
+            state.swap = null;
+            add('loop', 'loop', `扫描下标 ${right}`, `for right in range(len(nums)):  # right = ${right}`, `right now inspects index ${right}.`, `right 现在检查下标 ${right}。`);
+            const nonzero = state.nums[right] !== 0;
+            add('check', 'nonzero-check', `${nonzero ? '发现非零' : '遇到零'} · ${right}`, `if nums[${right}] != 0:  # ${state.nums[right]} ${nonzero ? '!=' : '=='} 0`, nonzero ? `Value ${state.nums[right]} must move into the stable prefix.` : 'This zero stays in place for now. Only right advances.', nonzero ? `值 ${state.nums[right]} 需要放进已就位的非零前缀。` : '这个零暂时不动；只有 right 继续扫描。');
+            if (!nonzero) continue;
+            const from = right;
+            const to = state.left;
+            const before = [...state.nums];
+            [state.nums[to], state.nums[from]] = [state.nums[from], state.nums[to]];
+            state.swap = { from, to, before };
+            add('swap', 'swap', `交换 ${to} ↔ ${from}`, `nums[${to}], nums[${from}] = nums[${from}], nums[${to}]`, from === to ? 'The value is already at the placement position, so the self-swap changes nothing.' : `Swap ${before[from]} into index ${to}; the displaced zero moves to index ${from}.`, from === to ? '该值已经位于写入位置；与自身交换不会改变数组。' : `把 ${before[from]} 交换到下标 ${to}，原来的零移动到下标 ${from}。`);
+            state.swap = null;
+            state.left += 1;
+            add('left-move', 'left-move', `left → ${state.left}`, 'left += 1', `The stable non-zero prefix now contains ${state.left} value${state.left === 1 ? '' : 's'}.`, `已就位的非零前缀现在包含 ${state.left} 个值。`);
+          }
+          state.right = state.nums.length;
+          state.done = true;
+          add('return', 'return', '完成', 'return None', 'The array is [1, 3, 2, 0, 0]. It was modified in place.', '数组变为 [1, 3, 2, 0, 0]，修改在原数组中完成。');
+          return frames;
+        }
+
+        function makeCells() {
+          track.replaceChildren();
+          cells = nums.map((_, index) => {
+            const cell = document.createElement('span');
+            cell.className = 'cell';
+            cell.dataset.index = String(index);
+            track.append(cell);
+            return cell;
+          });
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const cellWidth = width < 520 ? 48 : 64;
+          const gap = width < 520 ? 7 : 11;
+          const total = cellWidth * nums.length + gap * (nums.length - 1);
+          const start = Math.max(8, (width - total) / 2);
+          const top = 108;
+          positions = nums.map((_, index) => ({ x: start + index * (cellWidth + gap), center: start + index * (cellWidth + gap) + cellWidth / 2, width: cellWidth, top }));
+          cells.forEach((cell, index) => { cell.style.left = `${positions[index].x}px`; cell.style.top = `${top}px`; cell.style.width = `${cellWidth}px`; });
+          endLabel.style.left = `${Math.min(width - 58, start + total + 10)}px`;
+          endLabel.style.top = `${top + 23}px`;
+          paint(trace?.state || buildFrames()[0].state);
+        }
+
+        function pointerX(index) {
+          if (index === null) return positions[0].center;
+          if (index >= nums.length) return Math.min(stage.clientWidth - 45, positions.at(-1).center + positions.at(-1).width);
+          return positions[index].center;
+        }
+
+        function paint(state) {
+          if (!positions.length) return;
+          cells.forEach((cell, index) => {
+            cell.textContent = state.nums[index];
+            cell.classList.toggle('committed', index < state.left);
+            cell.classList.toggle('current', state.right === index && !state.done);
+            cell.classList.toggle('swap', Boolean(state.swap && (state.swap.from === index || state.swap.to === index)));
+          });
+          leftPointer.style.left = `${pointerX(state.left)}px`;
+          rightPointer.style.left = `${pointerX(state.right)}px`;
+          const shared = state.left === state.right && !state.done;
+          leftPointer.style.top = shared ? '27px' : '48px';
+          rightPointer.style.top = shared ? '65px' : '48px';
+          rightPointer.textContent = state.done ? 'right · end' : 'right';
+          prefix.hidden = state.left === 0;
+          if (state.left > 0) {
+            const first = positions[0];
+            const last = positions[state.left - 1];
+            prefix.style.left = `${first.x - 4}px`;
+            prefix.style.top = `${first.top - 14}px`;
+            prefix.style.width = `${last.x + last.width - first.x + 8}px`;
+          }
+        }
+
+        function clearMovingTokens() { stage.querySelectorAll('.moving-token').forEach(token => token.remove()); }
+        function animateSwap(state) {
+          clearMovingTokens();
+          if (motion.reduced || !state.swap || state.swap.from === state.swap.to) return;
+          const moves = [{ from: state.swap.from, to: state.swap.to }, { from: state.swap.to, to: state.swap.from }];
+          for (const move of moves) {
+            const token = document.createElement('span');
+            token.className = 'moving-token';
+            token.textContent = state.swap.before[move.from];
+            token.style.left = `${positions[move.from].x}px`;
+            token.style.top = `${positions[move.from].top}px`;
+            token.style.width = `${positions[move.from].width}px`;
+            stage.append(token);
+            const animation = token.animate([{ transform:'translate3d(0,0,0)' }, { transform:`translate3d(${positions[move.to].x - positions[move.from].x}px,0,0)` }], { duration:360, easing:'ease-in-out' });
+            animation.finished.finally(() => token.remove());
+          }
+        }
+
+        function render({ frame, state, step, frames }) {
+          phase.textContent = `${state.iteration ? `第 ${state.iteration} 轮 · ` : ''}${frame.stepLabel}`;
+          arrayText.textContent = `nums = [${state.nums.join(', ')}]`;
+          invariant.textContent = state.swap ? `nums[0:${state.left}] is stable; nums[${state.left}] has just been written and joins the prefix only after left += 1. / 已写入 nums[${state.left}]，执行 left += 1 后才正式扩展前缀。` : state.left === 0 ? 'The stable non-zero prefix is empty. / 已就位的非零前缀为空。' : `nums[0:${state.left}] = [${state.nums.slice(0, state.left).join(', ')}] is final and keeps the original order. / 这一段已经就位且顺序不变。`;
+          leftValue.textContent = state.left;
+          rightValue.textContent = state.right === null ? '—' : state.right >= nums.length ? 'end' : state.right;
+          currentValue.textContent = state.right !== null && state.right < nums.length ? state.nums[state.right] : '—';
+          placed.textContent = state.left;
+          expression.textContent = frame.line;
+          explanation.textContent = frame.en;
+          explanationZh.textContent = frame.zh;
+          paint(state);
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+        }
+
+        makeCells();
+        const resizeObserver = new ResizeObserver(layout);
+        resizeObserver.observe(stage);
+        layout();
+        trace = AlgorithmVisualCore.createTrace({
+          root,
+          cloneState: clone,
+          motion,
+          onRender: render,
+          onBeforeStep: clearMovingTokens,
+          onTransition: ({ frame, state }) => { if (frame.kind === 'swap') animateSwap(state); },
+          formatStepOption: frame => frame.stepLabel,
+        });
+        trace.setFrames(buildFrames());
+      })();
+    </script>
+  </body>
+</html>
