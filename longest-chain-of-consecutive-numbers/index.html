@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of the longest consecutive-number chain using a hash set. 哈希集合求最长连续序列。" />
+    <title>Longest Chain of Consecutive Numbers · Algo Visual</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      :root { --soft:#e5e3dc; --wash:#f5f2e9; }
+      .problem { max-width:900px; margin:0 3px 12px; color:#41413e; }
+      .problem span { display:block; margin-top:3px; color:var(--quiet); }
+      .step-meta { display:flex; flex-wrap:wrap; gap:8px 18px; min-height:28px; margin:8px 3px 0; color:var(--quiet); font:12px/1.5 monospace; }
+      .step-picker { margin-left:auto; }
+      .stage { height:352px; overflow:hidden; border-bottom:1px solid var(--rule); touch-action:pan-y; }
+      .input-row { position:absolute; top:22px; left:50%; display:flex; gap:5px; transform:translateX(-50%); }
+      .input-row::before { content:"nums"; position:absolute; right:calc(100% + 9px); top:8px; color:var(--quiet); font:10px/1 monospace; }
+      .input-cell { display:grid; place-items:center; width:29px; height:32px; border:1px solid #999; background:var(--paper); font:12px/1 monospace; transition:background-color .2s,border-color .2s; }
+      .input-cell.inspecting { border:2px solid var(--ink); background:var(--wash); }
+      .set-caption { position:absolute; top:77px; left:50%; width:min(96%,650px); transform:translateX(-50%); color:var(--quiet); font:10px/1.35 monospace; text-align:center; }
+      .set-track { position:absolute; inset:0; }
+      .number-slot { position:absolute; z-index:2; display:grid; place-items:center; height:50px; border:1.5px solid var(--ink); background:var(--paper); font:16px/1 monospace; transition:left .32s ease,background-color .2s,border-color .2s,opacity .2s; }
+      .number-slot::after { content:attr(data-value); position:absolute; top:calc(100% + 6px); color:var(--quiet); font:9px/1 monospace; }
+      .number-slot.absent { border-style:dashed; color:#999; opacity:.56; }
+      .number-slot.absent::before { content:"∅"; font:15px/1 monospace; }
+      .number-slot.active-num { border-width:2px; }
+      .number-slot.predecessor { outline:2px dashed #777; outline-offset:3px; }
+      .number-slot.probe { outline:3px double #666; outline-offset:3px; }
+      .number-slot.in-chain { background:var(--wash); }
+      .number-slot.walker { border-width:2px; background:#efede5; }
+      .chain-band { position:absolute; z-index:1; height:74px; border:1px solid #888; background:rgba(229,227,220,.22); transition:left .32s ease,width .32s ease; }
+      .chain-band::after { content:attr(data-label); position:absolute; left:50%; bottom:-22px; transform:translateX(-50%); color:var(--quiet); font:9px/1 monospace; white-space:nowrap; }
+      .pointer { position:absolute; z-index:5; min-width:54px; padding:3px 5px; border:1px solid #666; border-radius:3px; background:var(--paper); font:9px/1.15 monospace; text-align:center; transform:translateX(-50%); transition:left .32s ease,top .2s ease,opacity .18s; }
+      .pointer::after { content:""; position:absolute; top:100%; left:50%; height:22px; border-left:1px solid #666; }
+      .pointer.pred { border-style:dashed; }
+      .pointer.walk { border-width:2px; }
+      .pointer.walk::after { top:auto; bottom:100%; height:36px; }
+      .best-row { position:absolute; left:50%; top:300px; display:flex; align-items:center; gap:5px; transform:translateX(-50%); }
+      .best-label { margin-right:4px; color:var(--quiet); font:10px/1.3 monospace; white-space:nowrap; }
+      .best-token { display:grid; place-items:center; width:30px; height:30px; border:1px solid #777; background:var(--wash); font:12px/1 monospace; animation:settle .24s ease-out; }
+      @keyframes settle { from { transform:translateY(6px); opacity:.25; } to { transform:none; opacity:1; } }
+      .state-grid { display:grid; grid-template-columns:minmax(0,1fr) 250px; gap:10px; margin:12px 3px; }
+      .invariant,.metrics { padding:10px 12px; border:1px solid var(--rule); }
+      .invariant strong { display:block; margin-bottom:5px; font:12px/1.4 monospace; }
+      .invariant p { margin:0; color:var(--quiet); font-size:13px; }
+      .metrics { display:grid; gap:5px; margin:0; font:11px/1.45 monospace; }
+      .metrics div { display:flex; justify-content:space-between; gap:10px; }
+      .metrics dt { color:var(--quiet); }
+      .metrics dd { margin:0; text-align:right; }
+      .section { margin-top:24px; padding-top:18px; border-top:1px solid var(--rule); }
+      .section h2 { margin:0 0 8px; font-size:20px; }
+      .section-intro { max-width:930px; color:var(--quiet); }
+      .approaches,.proof-grid,.edge-grid,.complexity { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:12px; }
+      .proof-grid,.edge-grid,.complexity { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .paper-card { min-width:0; padding:12px; border:1px solid var(--rule); }
+      .paper-card h3 { margin:0 0 7px; font-size:14px; font-weight:500; }
+      .paper-card p { margin:5px 0 0; }
+      .paper-card strong { font:13px/1.4 monospace; }
+      .mini-chain { display:flex; gap:4px; align-items:center; margin:9px 0; font:12px/1 monospace; }
+      .mini-chain span { display:grid; place-items:center; width:30px; height:30px; border:1px solid #777; background:var(--wash); }
+      .rule-list { margin:8px 0 0; padding-left:24px; }
+      .rule-list li { margin:6px 0; }
+      @media(max-width:760px){.stage{height:360px}.state-grid,.approaches,.proof-grid,.edge-grid,.complexity{grid-template-columns:1fr}.step-picker{width:100%;margin-left:0}.step-picker select{width:100%}.number-slot{height:44px;font-size:13px}.input-cell{width:25px}.best-row{top:304px}.best-token{width:27px;height:27px}}
+      @media(max-width:370px){.input-row{gap:3px}.input-cell{width:23px}.set-caption{font-size:9px}.pointer{min-width:48px;padding-inline:3px}.best-label{white-space:normal;width:62px}}
+      @media(prefers-reduced-motion:reduce){.number-slot,.pointer,.chain-band{transition:none}.best-token{animation:none}}
+    </style>
+  </head>
+  <body>
+    <main id="chain-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Longest Chain of Consecutive Numbers · 最长连续数字链</h1><p class="subtitle">Chapter 02 · Hash Maps and Sets / 哈希表与集合</p></div></header>
+      <p class="problem">For <code>nums = [1, 6, 2, 5, 8, 7, 10, 3]</code>, find the longest chain whose neighboring values differ by exactly 1.<span lang="zh-CN">在数组中寻找最长的连续数字链，相邻数字的差必须恰好为 1。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="Longest consecutive chain hash-set trace / 最长连续数字链哈希集合演示">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span><span data-query></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="Use arrow keys, Home, or End to navigate the trace.">
+            <div class="input-row" data-input-row></div>
+            <div class="set-caption">membership picture sorted for clarity · the hash set itself has no order<br><span lang="zh-CN">为了看清连续关系而排序展示；哈希集合本身没有顺序</span></div>
+            <div class="chain-band" data-chain-band hidden></div>
+            <div class="set-track" data-set-track></div>
+            <span class="pointer num" data-num-pointer hidden>num</span>
+            <span class="pointer pred" data-pred-pointer hidden>num − 1</span>
+            <span class="pointer walk" data-walk-pointer hidden>current_num</span>
+            <div class="best-row" data-best-row><span class="best-label">best so far / 当前最长</span></div>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>Start rule / 链头规则</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>num</code></dt><dd data-num-value></dd></div>
+              <div><dt><code>num - 1</code></dt><dd data-pred-value></dd></div>
+              <div><dt><code>current_num</code></dt><dd data-current-num></dd></div>
+              <div><dt><code>current_chain</code></dt><dd data-current-chain></dd></div>
+              <div><dt><code>longest_chain</code></dt><dd data-longest></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="chain-code-title">
+          <h2 id="chain-code-title">Final Python / 最终代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="function">def longest_chain_of_consecutive_numbers(nums: list[int]) -&gt; int:</span><span class="code-line" data-source-key="empty-check">    if not nums:</span><span class="code-line" data-source-key="empty-return">        return 0</span><span class="code-line" data-source-key="set-build">    num_set = set(nums)</span><span class="code-line" data-source-key="longest-init">    longest_chain = 0</span><span class="code-line" data-source-key="loop">    for num in num_set:</span><span class="code-line" data-source-key="start-check">        if num - 1 not in num_set:</span><span class="code-line" data-source-key="current-init">            current_num = num</span><span class="code-line" data-source-key="chain-init">            current_chain = 1</span><span class="code-line" data-source-key="while-check">            while current_num + 1 in num_set:</span><span class="code-line" data-source-key="current-move">                current_num += 1</span><span class="code-line" data-source-key="chain-grow">                current_chain += 1</span><span class="code-line" data-source-key="longest-update">            longest_chain = max(longest_chain, current_chain)</span><span class="code-line" data-source-key="return">    return longest_chain</span></code></pre>
+          <p class="note">A set membership check is average <code>O(1)</code>. We expand a chain only from its smallest value. / <span lang="zh-CN">集合查询平均为 O(1)；只有链中最小的数字才会向后扩展。</span></p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="chain-improve"><h2 id="chain-improve">From repeated searching to one pass / 从重复搜索到一次扩展</h2><p class="section-intro">The decisive improvement has two parts: put every value in a hash set, then refuse to expand from the middle of a chain.</p><div class="approaches"><article class="paper-card"><h3>Sort first / 先排序</h3><strong>O(n log n)</strong><p>Consecutive values become neighbors, but sorting costs more than a linear scan.</p></article><article class="paper-card"><h3>Set, every value starts / 每个值都起步</h3><strong>O(n²)</strong><p>Membership is fast, but the same chain is walked again from 5, 6, 7, and 8.</p></article><article class="paper-card"><h3>Set, only real starts / 只从真正链头起步</h3><strong>O(n)</strong><p>Expand from <code>num</code> only when <code>num - 1</code> is absent.</p></article></div></section>
+      <section class="section" aria-labelledby="chain-rule"><h2 id="chain-rule">Why the predecessor test works / 为什么检查前一个数字</h2><div class="proof-grid"><article class="paper-card"><h3><code>num = 6</code></h3><div class="mini-chain"><span>5</span>→<span>6</span>→<span>7</span>→<span>8</span></div><p><code>5</code> exists, so 6 is inside an existing chain. Starting here would repeat work.</p></article><article class="paper-card"><h3><code>num = 5</code></h3><div class="mini-chain"><span>5</span>→<span>6</span>→<span>7</span>→<span>8</span></div><p><code>4</code> is absent, so 5 is the unique start of this chain.</p></article></div><ol class="rule-list"><li>Every finite consecutive chain has exactly one smallest value.</li><li>Only that smallest value has no predecessor in the set.</li><li>Therefore every chain is expanded exactly once.</li></ol></section>
+      <section class="section" aria-labelledby="chain-edge"><h2 id="chain-edge">Edge cases / 边界情况</h2><div class="edge-grid"><article class="paper-card"><code>[] → 0</code><p>The early return handles an empty input. / <span lang="zh-CN">空数组直接返回 0。</span></p></article><article class="paper-card"><code>[1, 2, 2, 3] → 3</code><p>The set removes duplicates; the chain remains 1, 2, 3. / <span lang="zh-CN">集合去重，不影响连续链长度。</span></p></article><article class="paper-card"><code>[-2, -1, 0] → 3</code><p>The predecessor rule works the same for negative values.</p></article><article class="paper-card"><code>[10] → 1</code><p>A single value is a chain of length one.</p></article></div></section>
+      <section class="section" aria-labelledby="chain-complexity"><h2 id="chain-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(n) average</strong><p>The outer loop checks every unique value once, and all chain-growth steps together visit at most every unique value once.</p></article><article class="paper-card"><strong>Extra space · O(n)</strong><p><code>num_set</code> stores the unique input values.</p></article></div></section>
+      <details class="guide-help"><summary>图例与操作说明</summary><div class="legend"><span>实线框：集合中存在</span><span>虚线框：集合中不存在</span><span>虚线指针：检查 <code>num - 1</code></span><span>双线框：检查下一个连续值</span></div><p>使用按钮、步骤菜单、方向键、Home 或 End 浏览。图中的数字按大小排列只是为了展示连续关系，不代表 Python 集合的遍历顺序。</p></details>
+      <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../substring-anagrams/">字母异位子串</a><a href="../longest-unique-substring/">无重复字符的最长子串</a><a href="../">返回目录</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.querySelector('#chain-lab');
+        const nums = [1, 6, 2, 5, 8, 7, 10, 3];
+        const values = Array.from({length:10}, (_, index) => index + 1);
+        const present = new Set(nums);
+        const stage = root.querySelector('[data-stage]');
+        const inputRow = root.querySelector('[data-input-row]');
+        const setTrack = root.querySelector('[data-set-track]');
+        const chainBand = root.querySelector('[data-chain-band]');
+        const numPointer = root.querySelector('[data-num-pointer]');
+        const predPointer = root.querySelector('[data-pred-pointer]');
+        const walkPointer = root.querySelector('[data-walk-pointer]');
+        const bestRow = root.querySelector('[data-best-row]');
+        const phase = root.querySelector('[data-phase]');
+        const query = root.querySelector('[data-query]');
+        const invariant = root.querySelector('[data-invariant]');
+        const numValue = root.querySelector('[data-num-value]');
+        const predValue = root.querySelector('[data-pred-value]');
+        const currentNumValue = root.querySelector('[data-current-num]');
+        const currentChainValue = root.querySelector('[data-current-chain]');
+        const longestValue = root.querySelector('[data-longest]');
+        const expression = root.querySelector('[data-expression]');
+        const explanation = root.querySelector('[data-explanation]');
+        const explanationZh = root.querySelector('[data-explanation-zh]');
+        const clone = value => JSON.parse(JSON.stringify(value));
+        const motion = AlgorithmVisualCore.createMotionController();
+        let inputCells = [];
+        let setCells = [];
+        let positions = [];
+        let trace;
+        let bestSignature = null;
+
+        function buildFrames() {
+          const frames = [];
+          const state = { setReady:false, iteration:null, num:null, predecessor:null, predecessorExists:null, currentNum:null, currentChain:null, chainStart:null, chainEnd:null, longest:0, best:[], queryType:null, queryValue:null, phase:'setup', done:false };
+          const add = (kind, sourceKeys, label, line, en, zh) => frames.push({ kind, sourceKeys:Array.isArray(sourceKeys)?sourceKeys:[sourceKeys], stepLabel:label, line, en, zh, state:clone(state) });
+
+          add('empty-check', 'empty-check', '检查空数组', 'if not nums:  # False', 'The input is not empty, so continue instead of returning 0.', '输入不为空，因此继续执行，不返回 0。');
+          state.setReady = true;
+          add('set-build', 'set-build', '建立哈希集合', 'num_set = set(nums)', 'Store every unique value for average O(1) membership checks.', '把所有不同的数字放入集合，使成员查询平均为 O(1)。');
+          add('longest-init', 'longest-init', '初始化最长长度', 'longest_chain = 0', 'No chain has been completed yet.', '目前还没有完成任何连续链。');
+
+          const inspect = (num, iteration) => {
+            state.phase = 'inspect';
+            state.iteration = iteration;
+            state.num = num;
+            state.predecessor = num - 1;
+            state.predecessorExists = present.has(num - 1);
+            state.currentNum = null;
+            state.currentChain = null;
+            state.chainStart = null;
+            state.chainEnd = null;
+            state.queryType = 'predecessor';
+            state.queryValue = num - 1;
+            const starts = !state.predecessorExists;
+            add(starts ? 'start-found' : 'skip', ['loop','start-check'], starts ? `${num} 是链头` : `跳过 ${num}`, `num = ${num};  ${num - 1} ${starts ? 'not in' : 'in'} num_set`, starts ? `${num - 1} is absent, so ${num} is the smallest value in a chain.` : `${num - 1} exists, so ${num} sits inside a chain that will be expanded from an earlier value.`, starts ? `${num - 1} 不存在，因此 ${num} 是一条连续链中最小的数字。` : `${num - 1} 已存在，所以 ${num} 位于链中间；从更小的值起步即可覆盖它。`);
+            if (!starts) return;
+
+            state.phase = 'grow';
+            state.currentNum = num;
+            state.currentChain = 1;
+            state.chainStart = num;
+            state.chainEnd = num;
+            state.queryType = null;
+            state.queryValue = null;
+            add('chain-init', ['current-init','chain-init'], `从 ${num} 开始计数`, `current_num = ${num}; current_chain = 1`, 'A confirmed chain starts with this one value.', '已经确认的连续链先包含这一个数字。');
+
+            while (true) {
+              const next = state.currentNum + 1;
+              const exists = present.has(next);
+              state.queryType = 'next';
+              state.queryValue = next;
+              add(exists ? 'while-yes' : 'while-no', 'while-check', exists ? `找到下一个值 ${next}` : `${next} 不存在`, `while ${next} in num_set:  # ${exists}`, exists ? `${next} exists, so the chain can grow by one.` : `${next} is missing, so the chain ends at ${state.currentNum}.`, exists ? `${next} 存在，连续链可以再增长一位。` : `${next} 不存在，因此这条链结束在 ${state.currentNum}。`);
+              if (!exists) break;
+              state.currentNum = next;
+              state.currentChain += 1;
+              state.chainEnd = next;
+              state.queryType = null;
+              state.queryValue = null;
+              add('grow', ['current-move','chain-grow'], `链扩展到 ${next}`, `current_num = ${next}; current_chain = ${state.currentChain}`, `Advance the walker to ${next}; this chain now has length ${state.currentChain}.`, `游标前进到 ${next}；当前连续链长度变为 ${state.currentChain}。`);
+            }
+
+            state.queryType = null;
+            state.queryValue = null;
+            const previousLongest = state.longest;
+            if (state.currentChain > state.longest) {
+              state.longest = state.currentChain;
+              state.best = Array.from({length:state.currentChain}, (_, index) => state.chainStart + index);
+            }
+            state.phase = 'update';
+            add('longest-update', 'longest-update', `更新最长长度为 ${state.longest}`, `longest_chain = max(${previousLongest}, ${state.currentChain})`, state.longest > previousLongest ? `This chain becomes the new best: [${state.best.join(', ')}].` : `This chain has length ${state.currentChain}, so the best length stays ${state.longest}.`, state.longest > previousLongest ? `这条链成为新的最长链：[${state.best.join(', ')}]。` : `这条链长度为 ${state.currentChain}，最长长度仍然是 ${state.longest}。`);
+          };
+
+          nums.forEach((num, index) => inspect(num, index));
+          state.phase = 'done';
+          state.iteration = null;
+          state.num = null;
+          state.predecessor = null;
+          state.predecessorExists = null;
+          state.currentNum = null;
+          state.currentChain = null;
+          state.chainStart = null;
+          state.chainEnd = null;
+          state.queryType = null;
+          state.queryValue = null;
+          state.done = true;
+          add('return', 'return', '返回 4', 'return longest_chain  # 4', 'The longest chain is [5, 6, 7, 8], so return 4.', '最长连续链是 [5, 6, 7, 8]，因此返回 4。');
+          return frames;
+        }
+
+        function makeCells() {
+          inputRow.replaceChildren();
+          inputCells = nums.map((value, index) => {
+            const cell = document.createElement('span');
+            cell.className = 'input-cell';
+            cell.dataset.index = String(index);
+            cell.textContent = value;
+            inputRow.append(cell);
+            return cell;
+          });
+          setTrack.replaceChildren();
+          setCells = values.map(value => {
+            const cell = document.createElement('span');
+            cell.className = 'number-slot';
+            cell.dataset.value = String(value);
+            if (present.has(value)) cell.textContent = value;
+            else cell.classList.add('absent');
+            setTrack.append(cell);
+            return cell;
+          });
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const cellWidth = width < 520 ? 24 : 42;
+          const gap = width < 520 ? 4 : 8;
+          const total = cellWidth * values.length + gap * (values.length - 1);
+          const start = Math.max(5, (width - total) / 2);
+          const top = 145;
+          positions = values.map((_, index) => ({ x:start + index * (cellWidth + gap), center:start + index * (cellWidth + gap) + cellWidth / 2, width:cellWidth, top }));
+          setCells.forEach((cell, index) => { cell.style.left = `${positions[index].x}px`; cell.style.top = `${top}px`; cell.style.width = `${cellWidth}px`; });
+          paint(trace?.state || buildFrames()[0].state);
+        }
+
+        function xFor(value) {
+          if (value < 1) return Math.max(13, positions[0].center - positions[0].width - 8);
+          if (value > 10) return Math.min(stage.clientWidth - 13, positions.at(-1).center + positions.at(-1).width + 8);
+          return positions[value - 1].center;
+        }
+
+        function paint(state) {
+          if (!positions.length) return;
+          inputCells.forEach((cell, index) => cell.classList.toggle('inspecting', state.iteration === index));
+          setCells.forEach((cell, index) => {
+            const value = index + 1;
+            cell.classList.toggle('active-num', state.num === value);
+            cell.classList.toggle('predecessor', state.queryType === 'predecessor' && state.queryValue === value);
+            cell.classList.toggle('probe', state.queryType === 'next' && state.queryValue === value);
+            cell.classList.toggle('in-chain', state.chainStart !== null && value >= state.chainStart && value <= state.chainEnd);
+            cell.classList.toggle('walker', state.currentNum === value);
+            cell.style.opacity = state.setReady ? '' : '.22';
+          });
+
+          numPointer.hidden = state.num === null;
+          predPointer.hidden = state.queryType !== 'predecessor';
+          walkPointer.hidden = state.currentNum === null;
+          if (!numPointer.hidden) { numPointer.style.left = `${xFor(state.num)}px`; numPointer.style.top = '91px'; }
+          if (!predPointer.hidden) { predPointer.style.left = `${xFor(state.predecessor)}px`; predPointer.style.top = '114px'; predPointer.textContent = `${state.predecessor} · num − 1`; }
+          if (!walkPointer.hidden) { walkPointer.style.left = `${xFor(state.currentNum)}px`; walkPointer.style.top = '242px'; }
+
+          chainBand.hidden = state.chainStart === null;
+          if (!chainBand.hidden) {
+            const first = positions[Math.max(1, state.chainStart) - 1];
+            const last = positions[Math.min(10, state.chainEnd) - 1];
+            chainBand.style.left = `${first.x - 4}px`;
+            chainBand.style.top = `${first.top - 12}px`;
+            chainBand.style.width = `${last.x + last.width - first.x + 8}px`;
+            chainBand.dataset.label = `current chain · ${state.currentChain} / 当前链`;
+          }
+
+          const nextBestSignature = state.best.join(',');
+          if (nextBestSignature !== bestSignature) {
+            bestSignature = nextBestSignature;
+            bestRow.querySelectorAll('.best-token').forEach(token => token.remove());
+            const fragment = document.createDocumentFragment();
+            state.best.forEach(value => {
+              const token = document.createElement('span');
+              token.className = 'best-token';
+              token.textContent = value;
+              fragment.append(token);
+            });
+            bestRow.append(fragment);
+          }
+        }
+
+        function render({ frame, state, step, frames }) {
+          const phaseLabels = { setup:'Setup / 准备', inspect:'Find a start / 寻找链头', grow:'Grow one chain / 扩展连续链', update:'Save the best / 更新答案', done:'Result / 结果' };
+          phase.textContent = `${phaseLabels[state.phase]} · ${frame.stepLabel}`;
+          if (state.queryType === 'predecessor') query.textContent = `query: ${state.predecessor} ${state.predecessorExists ? '∈' : '∉'} num_set`;
+          else if (state.queryType === 'next') query.textContent = `query: ${state.queryValue} ${present.has(state.queryValue) ? '∈' : '∉'} num_set`;
+          else query.textContent = state.done ? 'answer = 4' : 'teaching order shown · set order does not affect the answer';
+          invariant.textContent = state.num === null ? 'Expand only when the predecessor is missing. / 只有前一个数字不存在时，才从当前数字开始扩展。' : state.predecessorExists ? `${state.num} is not a start because ${state.predecessor} exists. / ${state.predecessor} 已存在，所以 ${state.num} 不是链头。` : `${state.num} can start a chain because ${state.predecessor} is absent. / ${state.predecessor} 不存在，所以 ${state.num} 可以作为链头。`;
+          numValue.textContent = state.num ?? '—';
+          predValue.textContent = state.predecessor === null ? '—' : `${state.predecessor} ${state.predecessorExists ? '∈ set' : '∉ set'}`;
+          currentNumValue.textContent = state.currentNum ?? '—';
+          currentChainValue.textContent = state.currentChain ?? '—';
+          longestValue.textContent = state.longest;
+          expression.textContent = frame.line;
+          explanation.textContent = frame.en;
+          explanationZh.textContent = frame.zh;
+          paint(state);
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+        }
+
+        makeCells();
+        const resizeObserver = new ResizeObserver(layout);
+        resizeObserver.observe(stage);
+        layout();
+        trace = AlgorithmVisualCore.createTrace({
+          root,
+          cloneState: clone,
+          motion,
+          onRender: render,
+          formatStepOption: frame => frame.stepLabel,
+        });
+        trace.setFrames(buildFrames());
+      })();
+    </script>
+  </body>
+</html>
