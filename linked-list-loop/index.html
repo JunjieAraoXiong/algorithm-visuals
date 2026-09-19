@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Bilingual interactive visualization of Floyd's fast and slow pointer algorithm for detecting a linked-list cycle. 快慢指针判断链表环。">
+<title>Linked List Loop · Algorithm Visuals</title>
+<style>
+:root{--paper:#fffdf8;--ink:#272727;--quiet:#5b5b57;--rule:#b7b7b1;--soft:#e5e3dc;--wash:#f5f2e9;--node:42px}
+*{box-sizing:border-box}
+body{margin:0;padding:22px 14px 52px;background:var(--paper);color:var(--ink);font:15px/1.55 Arial,Helvetica,sans-serif}
+main{width:min(100%,1180px);margin:auto}
+h1,h2,h3,p{margin-top:0}h1{margin-bottom:5px;font-size:clamp(25px,4vw,34px);line-height:1.12}h1 span,h2 span{color:var(--quiet);font-weight:400}h2{margin-bottom:10px;font-size:20px}h3{margin-bottom:6px;font-size:15px}p{margin-bottom:9px}
+code,pre,.mono,.step-count,.variable,.phase-line,.condition,.shelf{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+a{color:inherit}.back-link{display:inline-block;margin-bottom:10px;color:var(--quiet);font-size:12px;text-underline-offset:3px}.back-link:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+button,select{color:inherit;font:inherit;background:var(--paper);border:1px solid #777;border-radius:3px}button{padding:6px 10px;cursor:pointer}button:disabled{opacity:.4;cursor:default}button:focus-visible,select:focus-visible,[tabindex="0"]:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.lede{max-width:820px;color:#41413e}.lede span{display:block;color:var(--quiet)}
+.learning-layout{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(300px,.85fr);gap:20px;align-items:start;margin-top:17px}.animation-panel,.code-panel{min-width:0}.code-panel{position:sticky;top:12px;padding-left:15px;border-left:1px solid var(--rule)}.code-panel h2{margin-bottom:6px}.code-panel pre{max-height:calc(100vh - 155px);overflow:auto;overscroll-behavior:contain}.source-code{display:block;min-width:max-content}.code-line{display:block;min-height:17px;padding:0 7px;border-left:2px solid transparent;white-space:pre}.code-line.is-active{border-left-color:var(--ink);background:var(--wash)}.code-line.code-comment{color:var(--quiet)}
+.examples{display:flex;flex-wrap:wrap;gap:7px;margin:17px 0 9px}.example{font-size:13px}.example[aria-pressed=true]{border-color:var(--ink);background:var(--wash)}
+.controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}.controls select{max-width:100%;padding:6px}.step-count{min-width:76px;text-align:center;font-size:12px}.jump-label{margin-left:auto;color:var(--quiet);font-size:12px}
+.phase-line{display:flex;flex-wrap:wrap;gap:7px 15px;min-height:24px;margin:8px 1px 3px;color:var(--quiet);font-size:12px}.distance{color:var(--ink)}.distance[hidden],.condition[hidden]{display:none}.condition{min-height:24px;margin:0 1px 3px;color:var(--quiet);font-size:11px}
+.stage{position:relative;width:100%;height:410px;overflow:hidden;border-bottom:1px solid var(--rule);touch-action:pan-y}.stage-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.node,.null-target,.variable{position:absolute;z-index:1;transform:translate(-50%,-50%)}.node{display:grid;place-items:center;width:var(--node);height:var(--node);border:1.8px solid var(--ink);border-radius:50%;background:var(--paper);font-size:18px;font-weight:500}.node:after{content:attr(data-id);position:absolute;top:calc(100% + 3px);left:50%;transform:translateX(-50%);color:var(--quiet);font:9px/1 ui-monospace,monospace}.node.compared{outline:1px dashed #777;outline-offset:5px}.node.meet{outline:3px double var(--ink);outline-offset:5px}.null-target{color:var(--quiet);font-size:13px}
+.variable{min-width:57px;padding:3px 6px;border:1.4px solid #595959;border-radius:3px;background:var(--paper);font:11px/1.2 ui-monospace,monospace;text-align:center;white-space:nowrap;pointer-events:none;will-change:left,top}.variable.fast{border-style:dashed}.variable.moving{min-width:84px}
+.callout{min-height:78px;margin:13px 0 8px;padding:10px 12px;border:1px dashed #999}.callout code,.callout span{display:block}.callout code{margin-bottom:4px;font-size:13px;overflow-wrap:anywhere}.callout .zh{margin-top:2px;color:var(--quiet)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--quiet);font-size:12px}.legend b{color:var(--ink);font-weight:400}.hint,.small{color:var(--quiet);font-size:12px}
+.section{margin-top:24px;padding-top:18px;border-top:1px solid var(--rule)}.section-intro{max-width:850px;color:var(--quiet)}
+.paper-card{min-width:0;padding:11px;border:1px solid var(--rule)}.paper-card p:last-child{margin-bottom:0}.card-kicker{margin-bottom:8px;color:var(--quiet);font:10px/1.2 ui-monospace,monospace;letter-spacing:.07em;text-transform:uppercase}
+.baseline-demo{padding:12px;border:1px solid var(--rule)}.mini-controls{display:flex;align-items:center;gap:7px;margin-bottom:11px}.mini-controls button{padding:4px 7px;font-size:12px}.mini-controls output{min-width:48px;text-align:center;font:11px/1 monospace}
+.baseline-state{display:grid;grid-template-columns:145px 1fr;gap:12px;align-items:center}.current-box{display:flex;align-items:center;gap:8px;min-height:55px}.mini-pointer{padding:2px 5px;border:1px solid #666;border-radius:2px;font:10px/1.1 ui-monospace,monospace}.mini-node{display:inline-grid;place-items:center;width:32px;height:32px;border:1.5px solid var(--ink);border-radius:50%;font-size:13px}.mini-node.repeat{outline:2px dashed #777;outline-offset:3px}.shelf-wrap{min-width:0}.shelf-label{margin-bottom:5px;color:var(--quiet);font-size:11px}.shelf{display:flex;min-height:38px;flex-wrap:wrap;gap:5px;padding:6px;border:1px dashed #999}.shelf-item{display:grid;place-items:center;width:27px;height:27px;border:1px solid #777;background:var(--paper);font-size:11px}.shelf-item.new{animation:shelf-in .35s ease-out}.baseline-note{margin:10px 0 0;font-size:13px}@keyframes shelf-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.proof-grid,.guard-grid,.edge-gallery,.complexity,.speed-contrast{display:grid;gap:9px;margin:13px 0}.proof-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.guard-grid,.complexity,.speed-contrast{grid-template-columns:repeat(2,minmax(0,1fr))}.edge-gallery{grid-template-columns:repeat(4,minmax(0,1fr))}
+.speed-frames{display:flex;align-items:center;justify-content:center;gap:10px;min-height:82px}.runner-state{display:grid;grid-template-columns:auto auto;align-items:center;gap:5px}.runner-badges{display:grid;gap:2px}.runner-badge{padding:1px 4px;border:1px solid #666;border-radius:2px;font:9px/1.1 ui-monospace,monospace;text-align:center}.runner-badge.fast{border-style:dashed}.runner-state.split{grid-template-columns:auto auto auto auto}.speed-arrow{color:var(--quiet);font-size:18px}
+.proof-card{text-align:center}.proof-card svg{display:block;width:100%;height:154px}.proof-card strong{display:block;margin-bottom:3px;font:12px/1.3 ui-monospace,monospace}.proof-card p{color:var(--quiet);font-size:11px;text-align:left}.proof-rule{margin:12px 0 0;padding:9px 11px;border-left:3px solid #999;font-size:13px}
+.guard-visual,.edge-visual{display:flex;align-items:center;flex-wrap:wrap;gap:7px;min-height:58px;margin-bottom:7px}.guard-stop{padding:2px 5px;border:1px dashed #888;font:10px/1.2 ui-monospace,monospace}.loop-arrow{font-size:24px;line-height:1}.object-id{display:block;color:var(--quiet);font:9px/1 monospace}
+.reason-list{margin:10px 0 0;padding-left:22px}.reason-list li{margin-bottom:7px}.scope-note{margin-top:13px;padding:9px 11px;border-left:3px solid #999}
+.code-grid{display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);gap:12px;align-items:start}pre{margin:0;padding:12px;overflow:auto;border:1px solid var(--soft);background:#faf9f4;font-size:11px;line-height:1.55;tab-size:4}.complexity strong{font:13px/1.3 ui-monospace,monospace}
+@media(max-width:960px){.learning-layout{grid-template-columns:1fr}.code-panel{position:static;padding:18px 0 0;border-left:0;border-top:1px solid var(--rule)}.code-panel pre{max-height:330px}.jump-label{width:100%;margin-left:0}}
+@media(max-width:760px){.proof-grid{grid-template-columns:1fr}.edge-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.code-grid{grid-template-columns:1fr}.proof-card svg{height:170px}}
+@media(max-width:520px){:root{--node:34px}body{padding:12px 8px 38px;font-size:14px}.example{flex:1 1 46%;text-align:left}.controls{gap:6px}.controls button{padding:5px 7px}.stage{height:382px}.variable{min-width:49px;padding:2px 4px;font-size:9px}.variable.moving{min-width:70px}.baseline-state{grid-template-columns:1fr}.guard-grid,.complexity,.edge-gallery,.speed-contrast{grid-template-columns:1fr}.proof-card svg{height:160px}}
+@media(prefers-reduced-motion:reduce){.variable{will-change:auto}.shelf-item.new{animation:none}}
+</style>
+</head>
+<body>
+<main id="loop-lab">
+<header>
+<a class="back-link" href="../">← Algo Visual / 返回目录</a>
+<h1>Linked List Loop <span lang="zh-CN">· 链表环</span></h1>
+<p class="lede">Detect whether following <code>.next</code> eventually revisits an earlier node. Watch <code>slow</code> move one edge and <code>fast</code> move two edges, one real edge at a time.<span lang="zh-CN">判断沿着 <code>.next</code> 是否会再次回到旧节点。图中把 <code>slow</code> 的一步和 <code>fast</code> 的两步拆开，沿真实连接逐跳播放。</span></p>
+</header>
+
+<div class="learning-layout" data-learning-layout>
+<section class="animation-panel" data-animation-panel aria-label="Interactive pointer animation / 指针交互演示">
+<div class="examples" role="group" aria-label="Choose an example / 选择例子">
+<button class="example" type="button" data-example="delayed" aria-pressed="true">Delayed cycle / 延迟入环</button>
+<button class="example" type="button" data-example="perfect" aria-pressed="false">Perfect cycle / 完整环</button>
+<button class="example" type="button" data-example="noneEven" aria-pressed="false">No cycle · even / 无环偶数</button>
+<button class="example" type="button" data-example="noneOdd" aria-pressed="false">No cycle · odd / 无环奇数</button>
+</div>
+<div class="controls" aria-label="Animation controls / 演示控制">
+<button type="button" data-previous>← Previous / 上一步</button>
+<output class="step-count" data-count aria-live="off"></output>
+<button type="button" data-next>Next / 下一步 →</button>
+<label class="jump-label" for="jump">Jump / 跳到</label>
+<select id="jump" data-jump><option value="">Choose phase / 选择阶段</option><option value="start">Start / 开始</option><option value="first">First iteration / 第一轮</option><option value="last-check">Last check / 最后检查</option><option value="result">Result / 结果</option></select>
+</div>
+<div class="phase-line"><span data-phase></span><span class="distance" data-distance hidden></span></div>
+<div class="condition" data-condition hidden></div>
+<div class="stage" data-stage tabindex="0" aria-label="Fast and slow pointer trace. Use left and right arrow keys to change step.">
+<svg class="stage-lines" data-lines aria-hidden="true"></svg>
+<span class="null-target mono" data-null aria-hidden="true">None</span>
+<span class="variable slow" data-pointer="slow" aria-hidden="true">slow</span>
+<span class="variable fast" data-pointer="fast" aria-hidden="true">fast</span>
+</div>
+<div class="callout" role="status" aria-live="polite" aria-atomic="true"><code data-code></code><span data-note-en></span><span class="zh" lang="zh-CN" data-note-zh></span></div>
+<div class="legend"><span><b>Solid arrow / 深色实线：</b> stored <code>.next</code></span><span><b>Solid box / 实线框：</b> <code>slow</code></span><span><b>Dashed box / 虚线框：</b> <code>fast</code></span><span><b>Double ring / 双圈：</b> same node object / 同一个对象</span></div>
+<p class="hint">Use the buttons, or click/focus the diagram and then press ← / →. Nodes and solid links stay fixed; only variable references move. / <span lang="zh-CN">可使用按钮；也可先点击或聚焦图，再按左右方向键。节点和实线连接始终固定，移动的只有变量引用。</span></p>
+</section>
+
+<aside class="code-panel" data-code-panel aria-labelledby="code-panel-title">
+<h2 id="code-panel-title">Final Python <span lang="zh-CN">/ 最终代码</span></h2>
+<p class="small">Both visual fast hops map to the same executable line. / <span lang="zh-CN">图中的 fast 两跳都对应同一行代码。</span></p>
+<pre data-code-scroll tabindex="0" aria-label="Complete Python implementation with synchronized current line"><code class="source-code"><span class="code-line" id="source-function" data-code-line="function">def linked_list_loop(head: ListNode) -&gt; bool:</span><span class="code-line" id="source-init" data-code-line="init">    slow = fast = head</span><span class="code-line" aria-hidden="true"> </span><span class="code-line code-comment" id="source-guard-comment" data-code-line="guard-comment">    # Check both 'fast' and 'fast.next' before taking two hops</span><span class="code-line code-comment" id="source-guard-comment-2" data-code-line="guard-comment-2">    # so we never access '.next' on None.</span><span class="code-line" id="source-guard" data-code-line="guard">    while fast and fast.next:</span><span class="code-line" id="source-slow-move" data-code-line="slow-move">        slow = slow.next</span><span class="code-line" id="source-fast-move" data-code-line="fast-move">        fast = fast.next.next</span><span class="code-line" aria-hidden="true"> </span><span class="code-line" id="source-compare" data-code-line="compare">        if fast == slow:</span><span class="code-line" id="source-return-true" data-code-line="return-true">            return True</span><span class="code-line" aria-hidden="true"> </span><span class="code-line" id="source-return-false" data-code-line="return-false">    return False</span></code></pre>
+<p class="small"><strong>Identity assumption / 身份比较前提：</strong> the source keeps <code>fast == slow</code>, which acts as identity when <code>ListNode</code> uses Python’s default equality. If <code>__eq__</code> is overridden, use <code>fast is slow</code> to state object identity explicitly. / <span lang="zh-CN">源码保留 <code>fast == slow</code>；只有在 <code>ListNode</code> 使用默认相等规则时，它才等同于身份比较。若类重写了 <code>__eq__</code>，应使用 <code>fast is slow</code> 明确比较对象身份。</span></p>
+</aside>
+</div>
+
+<section class="section" aria-labelledby="baseline-title">
+<h2 id="baseline-title">Baseline: remember every node <span lang="zh-CN">/ 基础解法：记住每个节点</span></h2>
+<p class="section-intro">A hash set asks whether the current node object is already stored. Step through the shelf below. It takes linear time, but the shelf can grow to <code>n</code> nodes. / <span lang="zh-CN">哈希集合会检查当前节点对象是否已经存过。下面逐步观察集合变大；时间为线性，但最多需要保存 <code>n</code> 个节点。</span></p>
+<div class="baseline-demo">
+<div class="mini-controls"><button type="button" data-baseline-prev aria-label="Previous hash-set step / 哈希集合上一步">←</button><output data-baseline-count aria-live="off"></output><button type="button" data-baseline-next aria-label="Next hash-set step / 哈希集合下一步">→</button></div>
+<div class="baseline-state">
+<div class="current-box"><span class="mini-pointer">curr</span><span>→</span><span class="mini-node" data-baseline-current></span></div>
+<div class="shelf-wrap"><div class="shelf-label">visited / 已访问</div><div class="shelf" data-shelf></div></div>
+</div>
+<p class="baseline-note" data-baseline-note aria-live="polite"></p>
+</div>
+<pre><code>def linked_list_loop_naive(head: ListNode) -&gt; bool:
+    visited = set()
+    curr = head
+    while curr:
+        if curr in visited:
+            return True
+        visited.add(curr)
+        curr = curr.next
+    return False</code></pre>
+<p class="small">Time <code>O(n)</code>, extra space <code>O(n)</code>. Floyd keeps the time and removes the growing set. / 时间 <code>O(n)</code>，额外空间 <code>O(n)</code>；Floyd 方法去掉了不断增长的集合。</p>
+</section>
+
+<section class="section" aria-labelledby="proof-title">
+<h2 id="proof-title">Race intuition and distance countdown <span lang="zh-CN">/ 跑道直觉与距离倒计时</span></h2>
+<p class="section-intro">First use a zoomed one-edge excerpt to compare equal and unequal speeds; the complete five-node circular track appears immediately below and in “Perfect cycle.” Equal speeds preserve the gap, while a two-edge <code>fast</code> gains one node per iteration. / <span lang="zh-CN">先用一段连接的放大图比较相同与不同速度；完整的五节点环形跑道就在下方和“完整环”例子中。速度相同会保持距离，而每轮走两步的 <code>fast</code> 会追近一个节点。</span></p>
+<div class="speed-contrast" aria-label="Equal speed versus fast two-times speed">
+<article class="paper-card"><p class="card-kicker">1× and 1× / 同速</p><div class="speed-frames"><span class="runner-state"><span class="runner-badges"><span class="runner-badge">slow</span><span class="runner-badge fast">fast</span></span><span class="mini-node">0</span></span><span class="speed-arrow">→</span><span class="runner-state"><span class="runner-badges"><span class="runner-badge">slow</span><span class="runner-badge fast">fast</span></span><span class="mini-node">1</span></span></div><p>Both move one edge; the gap stays <code>0</code>. / 都走一步，距离保持 <code>0</code>。</p></article>
+<article class="paper-card"><p class="card-kicker">1× and 2× / 快慢速</p><div class="speed-frames"><span class="runner-state"><span class="runner-badges"><span class="runner-badge">slow</span><span class="runner-badge fast">fast</span></span><span class="mini-node">0</span></span><span class="speed-arrow">→</span><span class="runner-state split"><span class="runner-badge">slow</span><span class="mini-node">1</span><span class="runner-badge fast">fast</span><span class="mini-node">2</span></span></div><p><code>fast</code> gains one node each iteration. / <code>fast</code> 每轮多走一个节点。</p></article>
+</div>
+<p class="section-intro">Now measure forward from <code>fast</code> to <code>slow</code> inside a cycle of length <code>k</code>. The final states are <code>2 → 1 → 0</code>. / <span lang="zh-CN">现在按环方向量出从 <code>fast</code> 到 <code>slow</code> 的距离；最后三步是 <code>2 → 1 → 0</code>。</span></p>
+<div class="proof-grid" data-proof-grid></div>
+<p class="proof-rule"><code>d → (d - 1) mod k</code>. There are only <code>k</code> possible distances, so after both enter the cycle they meet within at most <code>k</code> iterations. / <span lang="zh-CN">环内只有 <code>k</code> 种距离；两者都入环后，最多再经过 <code>k</code> 轮就会相遇。</span></p>
+</section>
+
+<section class="section" aria-labelledby="guard-title">
+<h2 id="guard-title">Why the guard is safe <span lang="zh-CN">/ 为什么循环条件安全</span></h2>
+<p class="section-intro"><code>while fast and fast.next:</code> short-circuits from left to right. The body reads <code>fast.next.next</code> only when both required references exist. / <span lang="zh-CN"><code>and</code> 从左到右短路求值；只有两段引用都存在时，循环体才会读取 <code>fast.next.next</code>。</span></p>
+<div class="guard-grid">
+<article class="paper-card"><p class="card-kicker">fast is None / fast 为空</p><div class="guard-visual"><span class="mini-pointer">fast</span><span>→</span><code>None</code><span class="guard-stop">stop / 停止</span></div><p><code>fast.next</code> is never evaluated. / 不会读取 <code>fast.next</code>。</p></article>
+<article class="paper-card"><p class="card-kicker">fast.next is None / 下一段为空</p><div class="guard-visual"><span class="mini-pointer">fast</span><span>→</span><span class="mini-node">last</span><span>→</span><code>None</code><span class="guard-stop">stop / 停止</span></div><p>The loop body does not run. / 不会进入循环体。</p></article>
+</div>
+</section>
+
+<section class="section" aria-labelledby="steps-title">
+<h2 id="steps-title">Solving steps <span lang="zh-CN">/ 解题步骤</span></h2>
+<ol class="reason-list">
+<li><strong>Start together / 同时起跑：</strong> <code>slow = fast = head</code>. Do not compare yet: they are equal only because both were initialized to <code>head</code>. / 此时先不比较；它们相同只是因为都刚被设为 <code>head</code>。</li>
+<li><strong>Check two-hop room / 确认能走两步：</strong> require <code>fast</code> and <code>fast.next</code>. / 必须确认 <code>fast</code> 与 <code>fast.next</code> 都存在。</li>
+<li><strong>Move / 移动：</strong> <code>slow</code> takes one stored edge; <code>fast</code> takes two. / <code>slow</code> 沿实线走一步，<code>fast</code> 沿实线走两步。</li>
+<li><strong>Compare identity / 比较身份：</strong> compare only after movement. <code>fast == slow</code> means the same node object, not merely equal values. / 移动后才比较；相等必须表示同一个节点对象。</li>
+<li><strong>Exit / 退出：</strong> meeting returns <code>True</code>; reaching <code>None</code> returns <code>False</code>. / 相遇返回 <code>True</code>；到达 <code>None</code> 返回 <code>False</code>。</li>
+</ol>
+<p class="scope-note"><strong>Scope / 范围：</strong> this function only detects whether a cycle exists. Finding the cycle’s entry node is a separate second phase and is not part of this question. / <span lang="zh-CN">本题只判断是否有环；寻找入环节点属于另一阶段，不要混在这段代码里。</span></p>
+</section>
+
+<section class="section" aria-labelledby="complexity-title">
+<h2 id="complexity-title">Complexity <span lang="zh-CN">/ 复杂度</span></h2>
+<div class="complexity"><article class="paper-card"><strong>Time / 时间 · O(n)</strong><p><code>fast</code> reaches <code>None</code>, or both pointers meet after the prefix plus at most one cycle of catch-up. / 到达 None，或走过前缀并至多追赶一圈后相遇。</p></article><article class="paper-card"><strong>Extra space / 额外空间 · O(1)</strong><p>Only two references are stored. / 只保存两个变量引用。</p></article></div>
+</section>
+
+<section class="section" aria-labelledby="edge-title">
+<h2 id="edge-title">Edge gallery <span lang="zh-CN">/ 边界情况图</span></h2>
+<div class="edge-gallery">
+<article class="paper-card"><p class="card-kicker">empty / 空链表</p><div class="edge-visual"><span class="mini-pointer">head</span><span>→</span><code>None</code></div><p>Guard fails → <code>False</code>. / 条件立即失败。</p></article>
+<article class="paper-card"><p class="card-kicker">one node / 单节点</p><div class="edge-visual"><span class="mini-pointer">head</span><span>→</span><span class="mini-node">7</span><span>→</span><code>None</code></div><p><code>fast.next</code> is None → <code>False</code>. / 下一段为空，返回 <code>False</code>。</p></article>
+<article class="paper-card"><p class="card-kicker">self-loop / 自环</p><div class="edge-visual"><span class="mini-pointer">head</span><span>→</span><span class="mini-node">7</span><span class="loop-arrow">↻</span></div><p>Both return to the same object → <code>True</code>. / 两者都回到同一对象。</p></article>
+<article class="paper-card"><p class="card-kicker">identity / 节点身份</p><div class="edge-visual"><span class="mini-node">7<span class="object-id">A</span></span><span>≠</span><span class="mini-node">7<span class="object-id">B</span></span></div><p>Equal values, different objects: not a meeting yet. / 值相同但对象不同，此刻不算相遇。</p></article>
+</div>
+</section>
+</main>
+<script>
+(() => {
+'use strict';
+const root=document.getElementById('loop-lab');
+const stage=root.querySelector('[data-stage]');
+const svg=root.querySelector('[data-lines]');
+const nullTarget=root.querySelector('[data-null]');
+const previousButton=root.querySelector('[data-previous]');
+const nextButton=root.querySelector('[data-next]');
+const count=root.querySelector('[data-count]');
+const phase=root.querySelector('[data-phase]');
+const distanceLabel=root.querySelector('[data-distance]');
+const condition=root.querySelector('[data-condition]');
+const code=root.querySelector('[data-code]');
+const noteEn=root.querySelector('[data-note-en]');
+const noteZh=root.querySelector('[data-note-zh]');
+const jump=root.querySelector('[data-jump]');
+const proofGrid=root.querySelector('[data-proof-grid]');
+const codeScroll=root.querySelector('[data-code-scroll]');
+const sourceLines=new Map([...root.querySelectorAll('[data-code-line]')].map(line=>[line.dataset.codeLine,line]));
+const pointerElements={slow:root.querySelector('[data-pointer=slow]'),fast:root.querySelector('[data-pointer=fast]')};
+const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+
+const cases={
+ delayed:{label:'Delayed cycle / 延迟入环',values:[0,1,2,3,4,5],links:{n0:'n1',n1:'n2',n2:'n3',n3:'n4',n4:'n5',n5:'n2'},start:'n0',cycle:['n2','n3','n4','n5']},
+ perfect:{label:'Perfect cycle / 完整环',values:[0,1,2,3,4],links:{n0:'n1',n1:'n2',n2:'n3',n3:'n4',n4:'n0'},start:'n0',cycle:['n0','n1','n2','n3','n4']},
+ noneEven:{label:'No cycle · even / 无环偶数',values:[0,1,2,3],links:{n0:'n1',n1:'n2',n2:'n3',n3:null},start:'n0',cycle:[]},
+ noneOdd:{label:'No cycle · odd / 无环奇数',values:[0,1,2,3,4],links:{n0:'n1',n1:'n2',n2:'n3',n3:'n4',n4:null},start:'n0',cycle:[]}
+};
+let mode='delayed',config=cases[mode],frames=[],index=0,state=null,positions={},nodeElements=new Map();
+let motion=null,motionFrame=null,motionToken=0;
+
+const cloneState=value=>({slow:value.slow,fast:value.fast,iteration:value.iteration,result:value.result,compare:value.compare,guard:value.guard});
+const nodeName=target=>target===null?'None':`node #${target.slice(1)}`;
+const nodeNameZh=target=>target===null?'None':`节点 #${target.slice(1)}`;
+
+function cycleDistance(fast,slow){
+ if(!config.cycle.includes(fast)||!config.cycle.includes(slow))return null;
+ let cursor=fast;
+ for(let amount=0;amount<=config.cycle.length;amount++){
+  if(cursor===slow)return amount;
+  cursor=config.links[cursor];
+ }
+ return null;
+}
+
+function buildFrames(){
+ const output=[];
+ const work={slow:config.start,fast:config.start,iteration:0,result:null,compare:false,guard:null};
+ const add=(kind,line,en,zh,options={})=>output.push({kind,line,en,zh,state:cloneState(work),move:options.move||null,distance:options.distance??null,condition:options.condition||'',jump:options.jump||'',sourceLine:options.sourceLine});
+ add('start','slow = fast = head',
+  'Both variables reference head. Do not compare here: they are equal only because both were initialized to head.',
+  '两个变量都引用 head。这里先不比较：它们相同只是因为都刚被初始化为 head。',
+  {jump:'start',sourceLine:'init'});
+
+ for(let iteration=1;iteration<=30;iteration++){
+  work.iteration=iteration;work.compare=false;
+  const fastNext=work.fast===null?null:config.links[work.fast];
+  const passes=work.fast!==null&&fastNext!==null;
+  work.guard=passes;
+  const guardText=work.fast===null
+   ?'fast = None  →  stop; fast.next is skipped'
+   :fastNext===null
+    ?`fast = #${work.fast.slice(1)} ✓   fast.next = None  →  stop`
+    :`fast = #${work.fast.slice(1)} ✓   fast.next = #${fastNext.slice(1)} ✓   →  enter loop`;
+  add('guard','while fast and fast.next:',
+   passes?`fast references ${nodeName(work.fast)}, and its next link reaches ${nodeName(fastNext)}. Both checks pass.`
+    :work.fast===null?'fast is None. Python short-circuits, so fast.next is never read.'
+    :`fast references ${nodeName(work.fast)}, but that node's next link is None. The body is skipped.`,
+   passes?`fast 引用${nodeNameZh(work.fast)}，它的 next 到达${nodeNameZh(fastNext)}；两个条件都成立。`
+    :work.fast===null?'fast 是 None。Python 会短路，因此不会读取 fast.next。'
+    :`fast 引用${nodeNameZh(work.fast)}，但该节点的 next 是 None；不会进入循环体。`,
+   {condition:guardText,jump:iteration===1?'first':(!passes?'last-check':''),sourceLine:'guard'});
+  if(!passes){
+   work.result=false;work.guard=null;
+   add('result','return False','The path reached its end, so following .next cannot revisit an earlier node.','路径已经结束，继续沿 .next 不可能回到先前节点。',{jump:'result',sourceLine:'return-false'});
+   break;
+  }
+
+  const oldSlow=work.slow;
+  work.slow=config.links[work.slow];work.guard=null;
+  add('slow','slow = slow.next',
+   `slow follows one stored edge: ${nodeName(oldSlow)} → ${nodeName(work.slow)}. Only the variable reference changes.`,
+   `slow 沿一条已保存的连接移动：${nodeNameZh(oldSlow)} → ${nodeNameZh(work.slow)}。改变的只有变量引用。`,
+   {move:{name:'slow',from:oldSlow,to:work.slow,label:'slow · +1'},sourceLine:'slow-move'});
+
+  const fastStart=work.fast,fastMiddle=config.links[fastStart];
+  work.fast=fastMiddle;
+  add('fast-1','fast = fast.next.next  ·  hop 1 / 第 1 跳',
+   `First follow fast.next: ${nodeName(fastStart)} → ${nodeName(fastMiddle)}. This intermediate pause makes the first real edge visible; the assignment is not complete yet.`,
+   `先沿 fast.next：${nodeNameZh(fastStart)} → ${nodeNameZh(fastMiddle)}。中间暂停用于看清第一条真实连接；赋值尚未完成。`,
+   {move:{name:'fast',from:fastStart,to:fastMiddle,label:'fast · 1/2'},sourceLine:'fast-move'});
+
+  const fastEnd=config.links[fastMiddle];
+  work.fast=fastEnd;
+  add('fast-2','fast = fast.next.next  ·  hop 2 / 第 2 跳',
+   `Then follow the second stored edge: ${nodeName(fastMiddle)} → ${nodeName(fastEnd)}. The two-hop assignment is complete.`,
+   `再沿第二条实线：${nodeNameZh(fastMiddle)} → ${nodeNameZh(fastEnd)}。两步赋值现在完成。`,
+   {move:{name:'fast',from:fastMiddle,to:fastEnd,label:'fast · 2/2'},sourceLine:'fast-move'});
+
+  work.compare=true;
+  const equal=work.fast===work.slow;
+  const gap=cycleDistance(work.fast,work.slow);
+  add('compare','if fast == slow:',
+   equal?`Both variables reference the same object, ${nodeName(work.slow)}. A cycle is confirmed.`
+    :`slow references ${nodeName(work.slow)} and fast references ${nodeName(work.fast)}. They are different objects, so continue.`,
+   equal?`两个变量都引用同一个对象——${nodeNameZh(work.slow)}。可以确认存在环。`
+    :`slow 引用${nodeNameZh(work.slow)}，fast 引用${nodeNameZh(work.fast)}。它们是不同对象，继续下一轮。`,
+   {distance:gap,jump:equal?'last-check':'',sourceLine:'compare'});
+  if(equal){
+   work.compare=false;work.result=true;
+   add('result','return True','The pointers met after moving inside the cycle. Return True.','两个指针移动后在环内相遇，返回 True。',{jump:'result',sourceLine:'return-true'});
+   break;
+  }
+ }
+ const comparisons=output.map((frame,frameIndex)=>({frame,frameIndex})).filter(item=>item.frame.kind==='compare');
+ if(comparisons.length&&!output.some(frame=>frame.jump==='last-check'))comparisons.at(-1).frame.jump='last-check';
+ return output;
+}
+
+function cancelMotion(settle=true){
+ motionToken++;
+ if(motionFrame!==null)cancelAnimationFrame(motionFrame);
+ motionFrame=null;motion=null;
+ if(settle&&state&&positions[config.start])paintDiagram();
+}
+
+function makeNodes(){
+ for(const element of nodeElements.values())element.remove();
+ nodeElements=new Map();
+ config.values.forEach((value,nodeIndex)=>{
+  const id=`n${nodeIndex}`,node=document.createElement('span');
+  node.className='node';node.dataset.node=id;node.dataset.id=`#${nodeIndex}`;node.textContent=value;node.setAttribute('aria-hidden','true');
+  stage.append(node);nodeElements.set(id,node);
+ });
+}
+
+function calculatePositions(){
+ const width=stage.clientWidth,mobile=width<520,height=stage.clientHeight;
+ if(mode==='delayed'){
+  positions=mobile
+   ?{n0:{x:34,y:92},n1:{x:width*.34,y:92},n2:{x:width*.66,y:92},n3:{x:width-35,y:193},n4:{x:width*.68,y:302},n5:{x:width*.32,y:280},null:{x:width-38,y:height-30}}
+   :{n0:{x:width*.07,y:205},n1:{x:width*.22,y:205},n2:{x:width*.39,y:205},n3:{x:width*.58,y:82},n4:{x:width*.79,y:205},n5:{x:width*.58,y:326},null:{x:width*.92,y:326}};
+ }else if(mode==='perfect'){
+  positions=mobile
+   ?{n0:{x:39,y:190},n1:{x:width*.33,y:83},n2:{x:width-40,y:125},n3:{x:width-53,y:282},n4:{x:width*.34,y:311},null:{x:width-35,y:height-30}}
+   :{n0:{x:width*.22,y:205},n1:{x:width*.39,y:75},n2:{x:width*.68,y:105},n3:{x:width*.74,y:285},n4:{x:width*.42,y:326},null:{x:width*.9,y:326}};
+ }else if(mode==='noneOdd'&&mobile){
+  positions={n0:{x:31,y:108},n1:{x:width*.34,y:108},n2:{x:width*.66,y:108},n3:{x:width-31,y:108},n4:{x:width*.65,y:274},null:{x:width*.25,y:274}};
+ }else if(mode==='noneEven'&&mobile){
+  positions={n0:{x:31,y:120},n1:{x:width*.34,y:120},n2:{x:width*.66,y:120},n3:{x:width-31,y:120},null:{x:width*.67,y:282}};
+ }else{
+  const count=config.values.length,left=mobile?30:width*.08,right=mobile?width-54:width*.80,step=(right-left)/(count-1);
+  positions={null:{x:mobile?width-18:width*.92,y:190}};
+  config.values.forEach((_,i)=>{positions[`n${i}`]={x:left+step*i,y:190};});
+ }
+}
+
+function placeNodes(){
+ for(const [id,element] of nodeElements){
+  element.style.left=`${positions[id].x}px`;element.style.top=`${positions[id].y}px`;
+ }
+ const showNull=Object.values(config.links).includes(null);
+ nullTarget.hidden=!showNull;
+ if(showNull){nullTarget.style.left=`${positions.null.x}px`;nullTarget.style.top=`${positions.null.y}px`;}
+}
+
+const pointFor=target=>positions[target===null?'null':target];
+
+function pointAlongLink(from,to,progress){
+ const a=pointFor(from),b=pointFor(to);
+ return{x:a.x+(b.x-a.x)*progress,y:a.y+(b.y-a.y)*progress};
+}
+
+function trimmedLine(from,to){
+ const a=pointFor(from),b=pointFor(to),radius=stage.clientWidth<520?17:21,targetRadius=to===null?20:radius+5;
+ const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy)||1;
+ return{x1:a.x+dx/length*(radius+2),y1:a.y+dy/length*(radius+2),x2:b.x-dx/length*targetRadius,y2:b.y-dy/length*targetRadius,midX:(a.x+b.x)/2,midY:(a.y+b.y)/2,nx:-dy/length,ny:dx/length};
+}
+
+function pointerPlacement(name,targetPoint,target){
+ const mobile=stage.clientWidth<520,vertical=name==='slow'?-(mobile?47:58):(mobile?47:58);
+ let horizontal=target===null&&name==='fast'?-(mobile?35:46):0;
+ return{x:Math.max(30,Math.min(stage.clientWidth-30,targetPoint.x+horizontal)),y:Math.max(17,Math.min(stage.clientHeight-17,targetPoint.y+vertical)),targetX:targetPoint.x,targetY:targetPoint.y};
+}
+
+function referenceLine(placement,target,moving=false){
+ const radius=moving?4:(target===null?22:(stage.clientWidth<520?20:25)),dx=placement.targetX-placement.x,dy=placement.targetY-placement.y,length=Math.hypot(dx,dy)||1;
+ return{x1:placement.x+dx/length*14,y1:placement.y+dy/length*14,x2:placement.targetX-dx/length*radius,y2:placement.targetY-dy/length*radius};
+}
+
+function cycleOutline(){
+ if(!config.cycle.length)return'';
+ const points=config.cycle.map(id=>positions[id]),minX=Math.min(...points.map(p=>p.x)),maxX=Math.max(...points.map(p=>p.x)),minY=Math.min(...points.map(p=>p.y)),maxY=Math.max(...points.map(p=>p.y));
+ const px=stage.clientWidth<520?24:40,py=stage.clientWidth<520?28:34;
+ return`<rect x="${minX-px}" y="${minY-py}" width="${maxX-minX+2*px}" height="${maxY-minY+2*py}" rx="24" fill="none" stroke="#aaa" stroke-width="1" stroke-dasharray="6 6"/><text x="${minX-px+6}" y="${Math.max(11,minY-py-5)}" fill="#666" font-size="10" font-family="ui-monospace,monospace">cycle / 环</text>`;
+}
+
+function cycleEntryLabel(){
+ if(mode!=='delayed')return'';
+ const point=positions.n2,y=point.y+(stage.clientWidth<520?68:48);
+ return`<text data-cycle-entry x="${point.x}" y="${y}" fill="#555" font-size="8" font-family="ui-monospace,monospace" text-anchor="middle"><tspan x="${point.x}">cycle entry</tspan><tspan x="${point.x}" dy="9">/ 环入口</tspan></text>`;
+}
+
+function diagramMarkup(placements){
+ const width=stage.clientWidth,height=stage.clientHeight;
+ const parts=[`<defs><marker id="stored-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker><marker id="reference-arrow" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#666"/></marker></defs>`,cycleOutline()];
+ for(const [from,to] of Object.entries(config.links)){
+  const line=trimmedLine(from,to),movingHere=motion&&motion.from===from&&motion.to===to;
+  if(movingHere)parts.push(`<line x1="${line.x1}" y1="${line.y1}" x2="${line.x2}" y2="${line.y2}" stroke="#777" stroke-width="7" opacity=".12"/>`);
+  parts.push(`<line x1="${line.x1}" y1="${line.y1}" x2="${line.x2}" y2="${line.y2}" stroke="#333" stroke-width="1.8" marker-end="url(#stored-arrow)"/>`);
+  parts.push(`<text x="${line.midX+line.nx*10}" y="${line.midY+line.ny*10}" fill="#686864" font-size="9" font-family="ui-monospace,monospace" text-anchor="middle">next</text>`);
+ }
+ parts.push(cycleEntryLabel());
+ for(const name of ['slow','fast']){
+  const placement=placements[name],moving=motion?.name===name,reference=referenceLine(placement,state[name],moving);
+  parts.push(`<line data-ref="${name}" x1="${reference.x1}" y1="${reference.y1}" x2="${reference.x2}" y2="${reference.y2}" stroke="#666" stroke-width="1.2" ${name==='fast'?'stroke-dasharray="4 3"':''} marker-end="url(#reference-arrow)"/>`);
+ }
+ svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+ return parts.join('');
+}
+
+function paintDiagram(){
+ if(!state||!positions[config.start])return;
+ const placements={};
+ for(const name of ['slow','fast']){
+  const moving=motion?.name===name,target=moving?motion.to:state[name],targetPoint=moving?motion.point:pointFor(state[name]);
+  placements[name]=pointerPlacement(name,targetPoint,target);
+  const element=pointerElements[name];
+  element.style.left=`${placements[name].x}px`;element.style.top=`${placements[name].y}px`;
+  element.textContent=moving?motion.label:name;element.classList.toggle('moving',moving);
+ }
+ svg.innerHTML=diagramMarkup(placements);
+ for(const [id,element] of nodeElements){
+  const compared=frames[index]?.kind==='compare'&&(id===state.slow||id===state.fast);
+  const meet=(frames[index]?.kind==='compare'||state.result===true)&&state.slow===state.fast&&id===state.slow;
+  element.classList.toggle('compared',compared);element.classList.toggle('meet',meet);
+ }
+}
+
+function startMove(move){
+ cancelMotion(false);
+ if(reducedMotion.matches||!pointFor(move.from)||!pointFor(move.to)){paintDiagram();return;}
+ const token=++motionToken,started=performance.now(),duration=move.name==='fast'?430:360;
+ motion={...move,point:pointAlongLink(move.from,move.to,0)};paintDiagram();
+ const tick=now=>{
+  if(token!==motionToken||!motion)return;
+  const raw=Math.min(1,(now-started)/duration),eased=raw<.5?2*raw*raw:1-2*(1-raw)*(1-raw);
+  motion.point=pointAlongLink(move.from,move.to,eased);paintDiagram();
+  if(raw<1)motionFrame=requestAnimationFrame(tick);
+  else{motionFrame=null;motion=null;paintDiagram();}
+ };
+ motionFrame=requestAnimationFrame(tick);
+}
+
+function phaseLabel(frame){
+ const labels={start:'Setup / 初始化',guard:'Guard / 循环条件',slow:'slow · 1 hop / slow · 1 步','fast-1':'fast · hop 1 of 2 / fast · 第 1 跳','fast-2':'fast · hop 2 of 2 / fast · 第 2 跳',compare:'Identity check / 节点身份比较',result:'Result / 结果'};
+ return(frame.state.iteration?`Iteration ${frame.state.iteration} / 第 ${frame.state.iteration} 轮 · `:'')+labels[frame.kind];
+}
+
+function syncCode(frame){
+ for(const line of sourceLines.values()){
+  line.classList.remove('is-active');
+  line.removeAttribute('aria-current');
+ }
+ const active=sourceLines.get(frame.sourceLine);
+ if(!active)return;
+ active.classList.add('is-active');
+ active.setAttribute('aria-current','step');
+ const containerRect=codeScroll.getBoundingClientRect(),lineRect=active.getBoundingClientRect(),padding=12;
+ if(lineRect.top<containerRect.top+padding||lineRect.bottom>containerRect.bottom-padding){
+  const delta=lineRect.top-containerRect.top-(codeScroll.clientHeight-lineRect.height)/2;
+  codeScroll.scrollTo({top:Math.max(0,codeScroll.scrollTop+delta),behavior:reducedMotion.matches?'auto':'smooth'});
+ }
+}
+
+function renderText(){
+ const frame=frames[index];
+ count.textContent=`${index+1} / ${frames.length}`;previousButton.disabled=index===0;nextButton.disabled=index===frames.length-1;
+ jump.value=frame.jump||'';
+ phase.textContent=`${config.label} · ${phaseLabel(frame)}`;code.textContent=frame.line;noteEn.textContent=frame.en;noteZh.textContent=frame.zh;
+ distanceLabel.hidden=frame.distance===null;distanceLabel.textContent=frame.distance===null?'':`cycle distance / 环内距离 = ${frame.distance}`;
+ condition.hidden=!frame.condition;condition.textContent=frame.condition;
+ const slowText=state.slow===null?'None':`node ${state.slow.slice(1)}`,fastText=state.fast===null?'None':`node ${state.fast.slice(1)}`;
+ stage.setAttribute('aria-label',`Step ${index+1} of ${frames.length}. ${frame.en} slow references ${slowText}; fast references ${fastText}. Use left and right arrow keys.`);
+ syncCode(frame);
+}
+
+function render(animate=false){renderText();paintDiagram();if(animate&&frames[index].move)startMove(frames[index].move);}
+
+function show(nextIndex){
+ const target=Math.max(0,Math.min(frames.length-1,nextIndex));
+ if(target===index)return;
+ const animate=target===index+1;cancelMotion(false);index=target;state=cloneState(frames[index].state);render(animate);
+}
+
+function jumpTo(value){
+ let target=frames.findIndex(frame=>frame.jump===value);
+ if(target<0&&value==='last-check'){
+  const checks=frames.map((frame,frameIndex)=>({frame,frameIndex})).filter(item=>item.frame.kind==='compare');
+  target=checks.length?checks.at(-1).frameIndex:frames.length-1;
+ }
+ if(target>=0)show(target);
+}
+
+function layout(){cancelMotion(false);calculatePositions();placeNodes();paintDiagram();}
+
+function switchMode(nextMode){
+ cancelMotion(false);mode=nextMode;config=cases[mode];frames=buildFrames();index=0;state=cloneState(frames[0].state);
+ root.querySelectorAll('[data-example]').forEach(button=>button.setAttribute('aria-pressed',button.dataset.example===mode?'true':'false'));
+ jump.value='start';makeNodes();calculatePositions();placeNodes();render();
+}
+
+function miniCycleSvg(fastIndex,slowIndex,cardIndex){
+ const points=[{x:28,y:79},{x:67,y:28},{x:132,y:43},{x:145,y:110},{x:76,y:132}],marker=`mini-arrow-${cardIndex}`;
+ const edge=(from,to)=>{const a=points[from],b=points[to],dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy);return`<line x1="${a.x+dx/length*14}" y1="${a.y+dy/length*14}" x2="${b.x-dx/length*18}" y2="${b.y-dy/length*18}" stroke="#333" stroke-width="1.4" marker-end="url(#${marker})"/>`;};
+ const nodes=points.map((point,i)=>`<circle cx="${point.x}" cy="${point.y}" r="12" fill="#fffdf8" stroke="#272727" stroke-width="1.5"/><text x="${point.x}" y="${point.y+4}" text-anchor="middle" font-size="11" fill="#272727">${i}</text>`).join('');
+ const badge=(name,i,above)=>{const p=points[i],y=p.y+(above?-27:27),end=p.y+(above?-14:14),dash=name==='fast'?' stroke-dasharray="3 2"':'';return`<rect x="${p.x-19}" y="${y-7}" width="38" height="14" rx="2" fill="#fffdf8" stroke="#666"${dash}/><text x="${p.x}" y="${y+3}" text-anchor="middle" font-size="8" font-family="ui-monospace,monospace" fill="#333">${name}</text><line x1="${p.x}" y1="${y+(above?7:-7)}" x2="${p.x}" y2="${end}" stroke="#666"/>`;};
+ return`<svg viewBox="0 -10 176 180" role="img" aria-label="fast at node ${fastIndex}, slow at node ${slowIndex}"><defs><marker id="${marker}" viewBox="0 0 8 8" markerWidth="6" markerHeight="6" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker></defs>${edge(0,1)}${edge(1,2)}${edge(2,3)}${edge(3,4)}${edge(4,0)}${nodes}${badge('fast',fastIndex,true)}${badge('slow',slowIndex,fastIndex===slowIndex?false:true)}</svg>`;
+}
+
+function renderProof(){
+ const proof=[{d:2,f:1,s:3,en:'Two forward edges remain.',zh:'还差 2 条边。'},{d:1,f:3,s:4,en:'One iteration removes one.',zh:'一轮后减去 1。'},{d:0,f:0,s:0,en:'Same node object.',zh:'同一个节点对象。'}];
+ proofGrid.innerHTML=proof.map((item,i)=>`<article class="paper-card proof-card"><strong>distance / 距离 = ${item.d}</strong>${miniCycleSvg(item.f,item.s,i)}<p>${item.en} / <span lang="zh-CN">${item.zh}</span></p></article>`).join('');
+}
+
+const baselineSequence=[0,1,2,3,4,5,2];
+let baselineIndex=0,baselinePrevious=0;
+const baselinePreviousButton=root.querySelector('[data-baseline-prev]');
+const baselineNextButton=root.querySelector('[data-baseline-next]');
+const baselineCount=root.querySelector('[data-baseline-count]');
+const baselineCurrent=root.querySelector('[data-baseline-current]');
+const shelf=root.querySelector('[data-shelf]');
+const baselineNote=root.querySelector('[data-baseline-note]');
+
+function renderBaseline(){
+ const current=baselineSequence[baselineIndex],visited=baselineSequence.slice(0,baselineIndex),repeat=visited.includes(current),movingForward=baselineIndex===baselinePrevious+1;
+ baselineCount.textContent=`${baselineIndex+1} / ${baselineSequence.length}`;baselinePreviousButton.disabled=baselineIndex===0;baselineNextButton.disabled=baselineIndex===baselineSequence.length-1;
+ baselineCurrent.textContent=current;baselineCurrent.classList.toggle('repeat',repeat);
+ shelf.innerHTML=visited.length?visited.map((value,i)=>`<span class="shelf-item ${movingForward&&i===visited.length-1?'new':''}">#${value}</span>`).join(''):'<span class="small">empty / 空</span>';
+ baselineNote.innerHTML=repeat
+  ?`Node <code>#${current}</code> is already on the shelf → <code>return True</code>. / 节点 <code>#${current}</code> 已经在集合中 → <code>return True</code>。`
+  :`Node <code>#${current}</code> is new. Add that object, then follow its stored <code>.next</code>. / 节点 <code>#${current}</code> 尚未出现；保存该对象，再沿它的 <code>.next</code> 前进。`;
+}
+
+function showBaseline(nextIndex){
+ baselinePrevious=baselineIndex;baselineIndex=Math.max(0,Math.min(baselineSequence.length-1,nextIndex));renderBaseline();
+}
+
+previousButton.addEventListener('click',()=>show(index-1));
+nextButton.addEventListener('click',()=>show(index+1));
+jump.addEventListener('change',()=>{if(jump.value)jumpTo(jump.value);});
+root.querySelectorAll('[data-example]').forEach(button=>button.addEventListener('click',()=>switchMode(button.dataset.example)));
+stage.addEventListener('keydown',event=>{if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;event.preventDefault();show(index+(event.key==='ArrowRight'?1:-1));});
+baselinePreviousButton.addEventListener('click',()=>showBaseline(baselineIndex-1));
+baselineNextButton.addEventListener('click',()=>showBaseline(baselineIndex+1));
+new ResizeObserver(layout).observe(stage);
+reducedMotion.addEventListener('change',()=>{cancelMotion(false);paintDiagram();});
+
+renderProof();renderBaseline();switchMode('delayed');
+})();
+</script>
+</body>
+</html>
