@@ -8,19 +8,25 @@
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; padding: 20px; background: #fffdf8; color: #272727; font-family: Arial, Helvetica, sans-serif; }
-    main { max-width: 900px; margin: 0 auto; }
+    main { width: min(100%, 1480px); margin: 0 auto; }
     .text-small { font-size: 12px; }
+    .page-nav { margin: 0 0 10px; }
+    .page-nav a { color: #272727; font-size: 13px; text-underline-offset: 3px; }
+    .page-nav a:focus-visible { outline: 2px solid #333; outline-offset: 3px; }
     button:focus-visible { outline: 2px solid #333; outline-offset: 3px; }
     @media (max-width: 480px) { body { padding: 8px; } }
   </style>
 </head>
 <body>
 <main>
+<nav class="page-nav" aria-label="页面导航"><a href="../">← 返回主页</a></nav>
 <div id="reverse-list-lab" class="reverse-lab">
   <style>
     #reverse-list-lab { width: 100%; color: #272727; background: #fffdf8; font-family: Arial, Helvetica, sans-serif; }
+    #reverse-list-lab .learning-workspace { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(340px, .85fr); align-items: start; gap: 24px; }
+    #reverse-list-lab .demo-pane, #reverse-list-lab .code-panel { min-width: 0; }
     #reverse-list-lab .lab-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px 0; }
-    #reverse-list-lab .lab-head h2 { margin: 0; font-size: 17px; font-weight: 500; }
+    #reverse-list-lab .lab-head h1 { margin: 0; font-size: 17px; font-weight: 500; }
     #reverse-list-lab .lab-controls { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-family: monospace; }
     #reverse-list-lab .lab-controls button { color: #272727; background: transparent; border: 1px solid #777; border-radius: 2px; padding: 5px 9px; font: inherit; cursor: pointer; }
     #reverse-list-lab .lab-controls button:disabled { opacity: .4; cursor: default; }
@@ -52,46 +58,69 @@
     #reverse-list-lab .lab-reasoning p { margin: 4px 0; }
     #reverse-list-lab .lab-reasoning ol { margin: 6px 0; padding-left: 20px; }
     #reverse-list-lab .lab-reasoning li { margin: 3px 0; }
+    #reverse-list-lab .code-panel { position: sticky; top: 18px; align-self: start; padding: 13px 14px 14px; border: 1px solid #b7b7b1; }
+    #reverse-list-lab .code-panel h2 { margin: 0; font-size: 16px; font-weight: 500; }
+    #reverse-list-lab .code-panel p { margin: 5px 0 10px; color: #555; font-size: 12px; line-height: 1.45; }
+    #reverse-list-lab .code-scroll { max-height: min(72vh, 640px); margin: 0; overflow: auto; padding: 11px 0; border-left: 2px solid #b7b7b1; background: #f8f6f0; font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size: 4; }
+    #reverse-list-lab .code-scroll code { display: block; min-width: max-content; }
+    #reverse-list-lab .code-line { display: block; width: max-content; min-width: 100%; padding: 0 12px; white-space: pre; }
+    #reverse-list-lab .code-line.is-active { background: #e9e5d9; outline: 1px dashed #777; outline-offset: -1px; }
+    #reverse-list-lab .code-scroll:focus-visible { outline: 2px solid #333; outline-offset: 3px; }
+    @media (max-width: 1000px) {
+      #reverse-list-lab .learning-workspace { grid-template-columns: 1fr; gap: 18px; }
+      #reverse-list-lab .code-panel { position: static; }
+    }
     @media (max-width: 400px) {
       #reverse-list-lab .lab-token { min-width: 82px; padding: 3px; font-size: 11px; }
       #reverse-list-lab .lab-token.next-token { min-width: 59px; }
       #reverse-list-lab .lab-node { width: 46px; height: 46px; }
       #reverse-list-lab .lab-null { min-width: 38px; font-size: 15px; }
-      #reverse-list-lab .lab-head h2 { font-size: 15px; }
+      #reverse-list-lab .lab-head h1 { font-size: 15px; }
     }
   </style>
 
-  <div class="lab-head">
-    <h2>Linked List Reversal</h2>
-    <div class="lab-controls">
-      <button type="button" data-action="previous">上一行</button>
-      <span data-step-count aria-live="polite">0 / 12</span>
-      <button type="button" data-action="next">下一行</button>
-    </div>
+  <div class="learning-workspace" data-learning-layout>
+    <section class="demo-pane" data-animation-panel aria-label="反转链表交互演示">
+      <div class="lab-head">
+        <h1>Linked List Reversal</h1>
+        <div class="lab-controls">
+          <button type="button" data-action="previous">上一行</button>
+          <span data-step-count aria-live="polite">0 / 12</span>
+          <button type="button" data-action="next">下一行</button>
+        </div>
+      </div>
+
+      <div class="lab-stage" data-stage aria-label="链表节点与指针交互图">
+        <svg class="lab-lines" data-lines aria-hidden="true"></svg>
+        <button type="button" class="lab-token" data-source="prev" aria-label="拖动 prev_node，或点击后选择目标">prev_node</button>
+        <button type="button" class="lab-token" data-source="curr" aria-label="拖动 curr_node，或点击后选择目标">curr_node</button>
+        <button type="button" class="lab-token" data-source="temp" aria-label="拖动 next_node，或点击后选择目标">next_node</button>
+        <button type="button" class="lab-node" data-target="1" aria-label="节点 1">1</button>
+        <button type="button" class="lab-node" data-target="2" aria-label="节点 2">2</button>
+        <button type="button" class="lab-node" data-target="3" aria-label="节点 3">3</button>
+        <button type="button" class="lab-null" data-target="null-left" aria-label="左侧 null">null</button>
+        <button type="button" class="lab-null" data-target="null-right" aria-label="右侧 null">null</button>
+        <button type="button" class="lab-token next-token" data-source="link1" aria-label="拖动 1.next，或点击后选择目标">1.next</button>
+        <button type="button" class="lab-token next-token" data-source="link2" aria-label="拖动 2.next，或点击后选择目标">2.next</button>
+        <button type="button" class="lab-token next-token" data-source="link3" aria-label="拖动 3.next，或点击后选择目标">3.next</button>
+      </div>
+
+      <p class="lab-operation" data-operation aria-live="polite"></p>
+      <div class="lab-legend text-small">
+        <span>方框竖箭头：变量指向</span>
+        <span>圆圈间实线：节点的 .next</span>
+        <span>细箭头会移动：变量改指向；实线变粗：.next 改动</span>
+      </div>
+      <p class="lab-hint">可拖动方框到圆圈或 null，也可先点方框、再点目标（键盘用 Tab 与 Enter）。下方虚线方框用于改动节点的 .next。</p>
+    </section>
+
+    <aside class="code-panel" data-code-panel aria-label="完整 Python 代码">
+      <h2>完整 Python 代码</h2>
+      <p>演示前进时会高亮当前执行行；循环中的同一行会被多次高亮。</p>
+      <pre class="code-scroll" data-code-scroll tabindex="0"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val: int, next=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line"> </span><span class="code-line">def reverse_linked_list(head: ListNode) -&gt; ListNode:</span><span class="code-line" data-code-line="init-prev">    prev_node = None</span><span class="code-line" data-code-line="init-curr">    curr_node = head</span><span class="code-line"> </span><span class="code-line">    while curr_node:</span><span class="code-line" data-code-line="save-next">        next_node = curr_node.next</span><span class="code-line" data-code-line="reverse-link">        curr_node.next = prev_node</span><span class="code-line" data-code-line="move-prev">        prev_node = curr_node</span><span class="code-line" data-code-line="move-curr">        curr_node = next_node</span><span class="code-line"> </span><span class="code-line" data-code-line="return">    return prev_node</span></code></pre>
+    </aside>
   </div>
 
-  <div class="lab-stage" data-stage aria-label="链表节点与指针交互图">
-    <svg class="lab-lines" data-lines aria-hidden="true"></svg>
-    <button type="button" class="lab-token" data-source="prev" aria-label="拖动 prev_node，或点击后选择目标">prev_node</button>
-    <button type="button" class="lab-token" data-source="curr" aria-label="拖动 curr_node，或点击后选择目标">curr_node</button>
-    <button type="button" class="lab-token" data-source="temp" aria-label="拖动 next_node，或点击后选择目标">next_node</button>
-    <button type="button" class="lab-node" data-target="1" aria-label="节点 1">1</button>
-    <button type="button" class="lab-node" data-target="2" aria-label="节点 2">2</button>
-    <button type="button" class="lab-node" data-target="3" aria-label="节点 3">3</button>
-    <button type="button" class="lab-null" data-target="null-left" aria-label="左侧 null">null</button>
-    <button type="button" class="lab-null" data-target="null-right" aria-label="右侧 null">null</button>
-    <button type="button" class="lab-token next-token" data-source="link1" aria-label="拖动 1.next，或点击后选择目标">1.next</button>
-    <button type="button" class="lab-token next-token" data-source="link2" aria-label="拖动 2.next，或点击后选择目标">2.next</button>
-    <button type="button" class="lab-token next-token" data-source="link3" aria-label="拖动 3.next，或点击后选择目标">3.next</button>
-  </div>
-
-  <p class="lab-operation" data-operation aria-live="polite"></p>
-  <div class="lab-legend text-small">
-    <span>方框竖箭头：变量指向</span>
-    <span>圆圈间实线：节点的 .next</span>
-    <span>细箭头会移动：变量改指向；实线变粗：.next 改动</span>
-  </div>
-  <p class="lab-hint">可拖动方框到圆圈或 null，也可先点方框、再点目标（键盘用 Tab 与 Enter）。下方虚线方框用于改动节点的 .next。</p>
   <section class="lab-reasoning" aria-label="迭代反转链表的解题思路">
     <h3>题目与思路</h3>
     <p>把 <code>1 → 2 → 3 → null</code> 反转为 <code>3 → 2 → 1 → null</code>。<code>prev_node</code> 是已反转部分的头，<code>curr_node</code> 是尚未处理部分的头。</p>
@@ -115,27 +144,29 @@
       const buttons = [...stage.querySelectorAll('button')];
       const sourceButtons = buttons.filter(button => button.dataset.source);
       const targetButtons = buttons.filter(button => button.dataset.target);
+      const codeScroll = root.querySelector('[data-code-scroll]');
+      const codeLines = [...root.querySelectorAll('[data-code-line]')];
 
       const frames = [];
       let building = {prev: null, curr: 1, temp: undefined, link: {1: 2, 2: 3, 3: null}};
       const copy = value => ({prev: value.prev, curr: value.curr, temp: value.temp, link: {...value.link}});
-      const add = (code, explanation, change) => {
+      const add = (code, explanation, change, lineKeys = []) => {
         if (change) change(building);
-        frames.push({state: copy(building), code, explanation});
+        frames.push({state: copy(building), code, explanation, lineKeys});
       };
-      add('开始', 'prev_node 是 None；curr_node 指向节点 1。');
-      add('next_node = curr_node.next', '先记住节点 2，避免断开 1 → 2 后找不到它。', s => {s.temp = 2;});
-      add('curr_node.next = prev_node', '把 1.next 从 2 改成 None；只有这一行改变了链表。', s => {s.link[1] = null;});
-      add('prev_node = curr_node', 'prev_node 改为指向节点 1；节点本身没有移动。', s => {s.prev = 1;});
-      add('curr_node = next_node', 'curr_node 改为指向之前存好的节点 2。', s => {s.curr = 2;});
-      add('next_node = curr_node.next', '先记住节点 3。', s => {s.temp = 3;});
-      add('curr_node.next = prev_node', '把 2.next 从 3 改为 1。next_node 仍然指向 3。', s => {s.link[2] = 1;});
-      add('prev_node = curr_node', 'prev_node 改为指向节点 2。', s => {s.prev = 2;});
-      add('curr_node = next_node', 'curr_node 改为指向节点 3。', s => {s.curr = 3;});
-      add('next_node = curr_node.next', '3.next 是 None，所以 next_node 现在指向 None。', s => {s.temp = null;});
-      add('curr_node.next = prev_node', '把 3.next 从 None 改为 2。链表已变成 3 → 2 → 1 → None。', s => {s.link[3] = 2;});
-      add('prev_node = curr_node', 'prev_node 改为指向节点 3，也就是新的头节点。', s => {s.prev = 3;});
-      add('curr_node = next_node', 'curr_node 变成 None，循环结束；返回 prev_node（节点 3）。', s => {s.curr = null;});
+      add('开始', 'prev_node 是 None；curr_node 指向节点 1。', null, ['init-prev', 'init-curr']);
+      add('next_node = curr_node.next', '先记住节点 2，避免断开 1 → 2 后找不到它。', s => {s.temp = 2;}, ['save-next']);
+      add('curr_node.next = prev_node', '把 1.next 从 2 改成 None；只有这一行改变了链表。', s => {s.link[1] = null;}, ['reverse-link']);
+      add('prev_node = curr_node', 'prev_node 改为指向节点 1；节点本身没有移动。', s => {s.prev = 1;}, ['move-prev']);
+      add('curr_node = next_node', 'curr_node 改为指向之前存好的节点 2。', s => {s.curr = 2;}, ['move-curr']);
+      add('next_node = curr_node.next', '先记住节点 3。', s => {s.temp = 3;}, ['save-next']);
+      add('curr_node.next = prev_node', '把 2.next 从 3 改为 1。next_node 仍然指向 3。', s => {s.link[2] = 1;}, ['reverse-link']);
+      add('prev_node = curr_node', 'prev_node 改为指向节点 2。', s => {s.prev = 2;}, ['move-prev']);
+      add('curr_node = next_node', 'curr_node 改为指向节点 3。', s => {s.curr = 3;}, ['move-curr']);
+      add('next_node = curr_node.next', '3.next 是 None，所以 next_node 现在指向 None。', s => {s.temp = null;}, ['save-next']);
+      add('curr_node.next = prev_node', '把 3.next 从 None 改为 2。链表已变成 3 → 2 → 1 → None。', s => {s.link[3] = 2;}, ['reverse-link']);
+      add('prev_node = curr_node', 'prev_node 改为指向节点 3，也就是新的头节点。', s => {s.prev = 3;}, ['move-prev']);
+      add('curr_node = next_node', 'curr_node 变成 None，循环结束；返回 prev_node（节点 3）。', s => {s.curr = null;}, ['move-curr', 'return']);
 
       let step = 0;
       let state = copy(frames[0].state);
@@ -271,15 +302,40 @@
         lines.innerHTML = defs + arrows.join('');
       }
 
+      function syncCodeHighlight(frame) {
+        const activeKeys = new Set(manualMessage ? [] : frame.lineKeys);
+        const activeLines = [];
+        for (const line of codeLines) {
+          const active = activeKeys.has(line.dataset.codeLine);
+          line.classList.toggle('is-active', active);
+          if (active) {
+            line.setAttribute('aria-current', 'step');
+            activeLines.push(line);
+          } else {
+            line.removeAttribute('aria-current');
+          }
+        }
+        if (!activeLines.length) return;
+        const scroller = codeScroll.getBoundingClientRect();
+        const first = activeLines[0].getBoundingClientRect();
+        const last = activeLines[activeLines.length - 1].getBoundingClientRect();
+        const visibleTop = scroller.top + 10;
+        const visibleBottom = scroller.bottom - 10;
+        if (first.top < visibleTop) codeScroll.scrollTop -= visibleTop - first.top;
+        else if (last.bottom > visibleBottom) codeScroll.scrollTop += last.bottom - visibleBottom;
+      }
+
       function render() {
-        count.textContent = manualMessage ? `自由练习 · 演示 ${step} / 12` : `${step} / 12`;
+        count.textContent = manualMessage ? `自由练习 · 演示 ${step} / ${frames.length - 1}` : `${step} / ${frames.length - 1}`;
         previous.disabled = step === 0;
         next.disabled = step === frames.length - 1;
         const frame = frames[step];
         operation.innerHTML = '';
         const code = document.createElement('code');
+        code.dataset.currentCode = '';
         code.textContent = manualMessage ? '自由练习' : frame.code;
         operation.append(code, document.createTextNode(' · ' + (manualMessage || frame.explanation)));
+        syncCodeHighlight(frame);
         for (const button of sourceButtons) {
           const source = button.dataset.source;
           const value = source.startsWith('link') ? state.link[Number(source.slice(4))] : state[source];

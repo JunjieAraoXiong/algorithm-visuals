@@ -17,9 +17,14 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 18px; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
-    main { width: min(100%, 900px); margin: 0 auto; }
+    main { width: min(100%, 1480px); margin: 0 auto; }
     button { color: inherit; font: inherit; }
     button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+    .page-nav { margin: 0 8px 10px; }
+    .page-nav a { color: var(--ink); font-size: 13px; text-underline-offset: 3px; }
+    .page-nav a:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+    .learning-workspace { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(340px, .85fr); align-items: start; gap: 24px; }
+    .demo-pane, .code-panel { min-width: 0; }
     .lab-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 8px 8px 0; }
     h1 { margin: 0; font-size: 18px; font-weight: 500; }
     .controls { display: flex; align-items: center; gap: 8px; font-family: monospace; font-size: 13px; }
@@ -57,6 +62,18 @@
     .base-note { margin: 8px 8px 0; color: var(--quiet); font-size: 12px; line-height: 1.4; }
     .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 8px 0; color: var(--quiet); font-size: 12px; }
     .hint { margin: 7px 8px 12px; color: var(--quiet); font-size: 12px; line-height: 1.4; }
+    .code-panel { position: sticky; top: 18px; align-self: start; padding: 13px 14px 14px; border: 1px solid var(--rule); }
+    .code-panel h2 { margin: 0; font-size: 16px; font-weight: 500; }
+    .code-panel p { margin: 5px 0 10px; color: var(--quiet); font-size: 12px; line-height: 1.45; }
+    .code-scroll { max-height: min(72vh, 640px); margin: 0; overflow: auto; padding: 11px 0; border-left: 2px solid var(--rule); background: #f8f6f0; font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size: 4; }
+    .code-scroll code { display: block; min-width: max-content; }
+    .code-line { display: block; width: max-content; min-width: 100%; padding: 0 12px; white-space: pre; }
+    .code-line.is-active { background: #e9e5d9; outline: 1px dashed #777; outline-offset: -1px; }
+    .code-scroll:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+    @media (max-width: 1000px) {
+      .learning-workspace { grid-template-columns: 1fr; gap: 18px; }
+      .code-panel { position: static; }
+    }
     @media (max-width: 480px) {
       :root { --node-size: 43px; }
       body { padding: 7px; }
@@ -76,45 +93,57 @@
 </head>
 <body>
 <main id="recursive-lab">
-  <div class="lab-head">
-    <h1>递归反转链表</h1>
-    <div class="controls">
-      <button type="button" data-action="previous">上一行</button>
-      <output data-count aria-live="polite">0 / 16</output>
-      <button type="button" data-action="next">下一行</button>
-    </div>
+  <nav class="page-nav" aria-label="页面导航"><a href="../">← 返回主页</a></nav>
+  <div class="learning-workspace" data-learning-layout>
+    <section class="demo-pane" data-animation-panel aria-label="递归反转链表交互演示">
+      <div class="lab-head">
+        <h1>递归反转链表</h1>
+        <div class="controls">
+          <button type="button" data-action="previous">上一行</button>
+          <output data-count aria-live="polite">0 / 16</output>
+          <button type="button" data-action="next">下一行</button>
+        </div>
+      </div>
+
+      <div class="stage" data-stage aria-label="递归链表反转：固定位置的四个节点及其指针">
+        <svg class="arrows" data-arrows aria-hidden="true"></svg>
+        <button type="button" class="source" data-source="head">head</button>
+        <button type="button" class="source" data-source="newHead">new_head</button>
+        <button type="button" class="node" data-target="1">1</button>
+        <button type="button" class="node" data-target="2">2</button>
+        <button type="button" class="node" data-target="3">3</button>
+        <button type="button" class="node" data-target="4">4</button>
+        <button type="button" class="null" data-target="null-left">None</button>
+        <button type="button" class="null" data-target="null-right">None</button>
+        <button type="button" class="source link" data-source="link1">1.next</button>
+        <button type="button" class="source link" data-source="link2">2.next</button>
+        <button type="button" class="source link" data-source="link3">3.next</button>
+        <button type="button" class="source link" data-source="link4">4.next</button>
+      </div>
+
+      <section class="stack" aria-label="递归调用栈">
+        <span class="stack-label">调用栈（右端正在执行）</span>
+        <ol data-stack></ol>
+      </section>
+      <p class="operation" data-operation aria-live="polite"></p>
+      <p class="base-note">f(k) 表示 linked_list_reversal_recursive(head=节点 k)。基本情况：空链表或只有一个节点时，直接返回原来的 head；本例在 f(4) 遇到单节点。</p>
+      <div class="legend">
+        <span>圆圈间实线：节点保存的 .next</span>
+        <span>方框细箭头：变量指向</span>
+        <span>细箭头平滑移动：变量改指向；实线短暂变粗：.next 改动</span>
+        <span>双向弧线：暂时形成的环</span>
+        <span>None 只是空指针标记，不是节点</span>
+      </div>
+      <p class="hint">可拖动 head、new_head 或下方的 .next 方框到节点／None；也可先点方框、再点目标。自由练习不会推进演示，上一行／下一行会恢复对应步骤。</p>
+    </section>
+
+    <aside class="code-panel" data-code-panel aria-label="完整 Python 代码">
+      <h2>完整 Python 代码</h2>
+      <p>递归深入与回退会再次执行同一行；调用栈显示当前是哪一层。</p>
+      <pre class="code-scroll" data-code-scroll tabindex="0"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val: int, next=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line"> </span><span class="code-line" data-code-line="entry">def linked_list_reversal_recursive(head: ListNode) -&gt; ListNode:</span><span class="code-line" data-code-line="base-test">    if not head or not head.next:</span><span class="code-line" data-code-line="base-return">        return head</span><span class="code-line"> </span><span class="code-line" data-code-line="recursive-call">    new_head = linked_list_reversal_recursive(head.next)</span><span class="code-line" data-code-line="reverse-link">    head.next.next = head</span><span class="code-line" data-code-line="clear-link">    head.next = None</span><span class="code-line" data-code-line="return-new-head">    return new_head</span></code></pre>
+    </aside>
   </div>
 
-  <div class="stage" data-stage aria-label="递归链表反转：固定位置的四个节点及其指针">
-    <svg class="arrows" data-arrows aria-hidden="true"></svg>
-    <button type="button" class="source" data-source="head">head</button>
-    <button type="button" class="source" data-source="newHead">new_head</button>
-    <button type="button" class="node" data-target="1">1</button>
-    <button type="button" class="node" data-target="2">2</button>
-    <button type="button" class="node" data-target="3">3</button>
-    <button type="button" class="node" data-target="4">4</button>
-    <button type="button" class="null" data-target="null-left">None</button>
-    <button type="button" class="null" data-target="null-right">None</button>
-    <button type="button" class="source link" data-source="link1">1.next</button>
-    <button type="button" class="source link" data-source="link2">2.next</button>
-    <button type="button" class="source link" data-source="link3">3.next</button>
-    <button type="button" class="source link" data-source="link4">4.next</button>
-  </div>
-
-  <section class="stack" aria-label="递归调用栈">
-    <span class="stack-label">调用栈（右端正在执行）</span>
-    <ol data-stack></ol>
-  </section>
-  <p class="operation" data-operation aria-live="polite"></p>
-  <p class="base-note">f(k) 表示 linked_list_reversal_recursive(head=节点 k)。基本情况：空链表或只有一个节点时，直接返回原来的 head；本例在 f(4) 遇到单节点。</p>
-  <div class="legend">
-    <span>圆圈间实线：节点保存的 .next</span>
-    <span>方框细箭头：变量指向</span>
-    <span>细箭头平滑移动：变量改指向；实线短暂变粗：.next 改动</span>
-    <span>双向弧线：暂时形成的环</span>
-    <span>None 只是空指针标记，不是节点</span>
-  </div>
-  <p class="hint">可拖动 head、new_head 或下方的 .next 方框到节点／None；也可先点方框、再点目标。自由练习不会推进演示，上一行／下一行会恢复对应步骤。</p>
   <section class="guide" aria-label="题目与解题思路">
     <p><strong>问题</strong> 给定链表 <code>1 → 2 → 3 → 4 → None</code>，反转节点间的 <code>.next</code>，返回新头 <code>4</code>。</p>
     <p><strong>核心想法</strong> 递归先把 <code>head.next</code> 后面的链表反转；返回时，当前 <code>head</code> 才接到末尾。</p>
@@ -140,31 +169,33 @@
   const sources = [...stage.querySelectorAll('[data-source]')];
   const targets = [...stage.querySelectorAll('[data-target]')];
   const allButtons = [...sources, ...targets];
+  const codeScroll = root.querySelector('[data-code-scroll]');
+  const codeLines = [...root.querySelectorAll('[data-code-line]')];
 
   const frames = [];
   const working = {head: 1, newHead: undefined, links: {1: 2, 2: 3, 3: 4, 4: null}, stack: [1]};
   const clone = state => ({head: state.head, newHead: state.newHead, links: {...state.links}, stack: [...state.stack]});
-  function add(code, explanation, change, changed) {
+  function add(code, explanation, change, changed, lineKeys = []) {
     if (change) change(working);
-    frames.push({state: clone(working), code, explanation, changed});
+    frames.push({state: clone(working), code, explanation, changed, lineKeys});
   }
-  add('linked_list_reversal_recursive(head=1)', '从节点 1 开始。每个递归调用都先处理 head.next 后面的较短链表。');
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 先等 f(2) 反转 2 → 3 → 4。此时节点的 .next 都没变。', s => {s.stack.push(2); s.head = 2;});
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 再等 f(3) 反转 3 → 4。', s => {s.stack.push(3); s.head = 3;});
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 再调用 f(4)。', s => {s.stack.push(4); s.head = 4;});
-  add('if not head or not head.next: return head', 'f(4) 只有节点 4，直接返回 head（节点 4）。此时 f(3) 尚未收到返回值。');
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 恢复执行，接住 f(4) 返回的节点 4；new_head 此时才被赋值。', s => {s.stack.pop(); s.head = 3; s.newHead = 4;});
-  add('head.next.next = head', 'head.next 是 4；把 4.next 改为 3。此刻 3 → 4 和 4 → 3 同时存在，暂时成环。', s => {s.links[4] = 3;}, 'link4');
-  add('head.next = None', '把 3.next 清空，拆掉刚才的环；子链表变成 4 → 3 → None。', s => {s.links[3] = null;}, 'link3');
-  add('return new_head', 'f(3) 把同一个 new_head（节点 4）返回给 f(2)。');
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 恢复执行，接住 f(3) 返回的节点 4；节点本身没有移动。', s => {s.stack.pop(); s.head = 2;});
-  add('head.next.next = head', 'head.next 是 3；把 3.next 改为 2。2 → 3 与 3 → 2 暂时成环。', s => {s.links[3] = 2;}, 'link3');
-  add('head.next = None', '把 2.next 清空，拆环；现在是 4 → 3 → 2 → None。', s => {s.links[2] = null;}, 'link2');
-  add('return new_head', 'f(2) 把节点 4 返回给 f(1)。');
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 恢复执行，接住 f(2) 返回的节点 4。', s => {s.stack.pop(); s.head = 1;});
-  add('head.next.next = head', 'head.next 是 2；把 2.next 改为 1。1 → 2 与 2 → 1 暂时成环。', s => {s.links[2] = 1;}, 'link2');
-  add('head.next = None', '把 1.next 清空，拆环；链表成为 4 → 3 → 2 → 1 → None。', s => {s.links[1] = null;}, 'link1');
-  add('return new_head', 'f(1) 返回节点 4。所有调用结束；4 是新头，1 是新尾。', s => {s.stack.pop(); s.head = undefined;});
+  add('linked_list_reversal_recursive(head=1)', '从节点 1 开始。每个递归调用都先处理 head.next 后面的较短链表。', null, null, ['entry']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 先等 f(2) 反转 2 → 3 → 4。此时节点的 .next 都没变。', s => {s.stack.push(2); s.head = 2;}, null, ['recursive-call']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 再等 f(3) 反转 3 → 4。', s => {s.stack.push(3); s.head = 3;}, null, ['recursive-call']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 再调用 f(4)。', s => {s.stack.push(4); s.head = 4;}, null, ['recursive-call']);
+  add('if not head or not head.next: return head', 'f(4) 只有节点 4，直接返回 head（节点 4）。此时 f(3) 尚未收到返回值。', null, null, ['base-test', 'base-return']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 恢复执行，接住 f(4) 返回的节点 4；new_head 此时才被赋值。', s => {s.stack.pop(); s.head = 3; s.newHead = 4;}, null, ['recursive-call']);
+  add('head.next.next = head', 'head.next 是 4；把 4.next 改为 3。此刻 3 → 4 和 4 → 3 同时存在，暂时成环。', s => {s.links[4] = 3;}, 'link4', ['reverse-link']);
+  add('head.next = None', '把 3.next 清空，拆掉刚才的环；子链表变成 4 → 3 → None。', s => {s.links[3] = null;}, 'link3', ['clear-link']);
+  add('return new_head', 'f(3) 把同一个 new_head（节点 4）返回给 f(2)。', null, null, ['return-new-head']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 恢复执行，接住 f(3) 返回的节点 4；节点本身没有移动。', s => {s.stack.pop(); s.head = 2;}, null, ['recursive-call']);
+  add('head.next.next = head', 'head.next 是 3；把 3.next 改为 2。2 → 3 与 3 → 2 暂时成环。', s => {s.links[3] = 2;}, 'link3', ['reverse-link']);
+  add('head.next = None', '把 2.next 清空，拆环；现在是 4 → 3 → 2 → None。', s => {s.links[2] = null;}, 'link2', ['clear-link']);
+  add('return new_head', 'f(2) 把节点 4 返回给 f(1)。', null, null, ['return-new-head']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 恢复执行，接住 f(2) 返回的节点 4。', s => {s.stack.pop(); s.head = 1;}, null, ['recursive-call']);
+  add('head.next.next = head', 'head.next 是 2；把 2.next 改为 1。1 → 2 与 2 → 1 暂时成环。', s => {s.links[2] = 1;}, 'link2', ['reverse-link']);
+  add('head.next = None', '把 1.next 清空，拆环；链表成为 4 → 3 → 2 → 1 → None。', s => {s.links[1] = null;}, 'link1', ['clear-link']);
+  add('return new_head', 'f(1) 返回节点 4。所有调用结束；4 是新头，1 是新尾。', s => {s.stack.pop(); s.head = undefined;}, null, ['return-new-head']);
 
   let step = 0;
   let state = clone(frames[0].state);
@@ -318,6 +349,29 @@
     </defs>${paths.join('')}`;
   }
 
+  function syncCodeHighlight(frame) {
+    const activeKeys = new Set(manualMessage ? [] : frame.lineKeys);
+    const activeLines = [];
+    for (const line of codeLines) {
+      const active = activeKeys.has(line.dataset.codeLine);
+      line.classList.toggle('is-active', active);
+      if (active) {
+        line.setAttribute('aria-current', 'step');
+        activeLines.push(line);
+      } else {
+        line.removeAttribute('aria-current');
+      }
+    }
+    if (!activeLines.length) return;
+    const scroller = codeScroll.getBoundingClientRect();
+    const first = activeLines[0].getBoundingClientRect();
+    const last = activeLines[activeLines.length - 1].getBoundingClientRect();
+    const visibleTop = scroller.top + 10;
+    const visibleBottom = scroller.bottom - 10;
+    if (first.top < visibleTop) codeScroll.scrollTop -= visibleTop - first.top;
+    else if (last.bottom > visibleBottom) codeScroll.scrollTop += last.bottom - visibleBottom;
+  }
+
   function render() {
     const frame = frames[step];
     count.textContent = manualMessage ? `练习 · ${step} / ${frames.length - 1}` : `${step} / ${frames.length - 1}`;
@@ -325,11 +379,13 @@
     next.disabled = step === frames.length - 1;
     operation.replaceChildren();
     const code = document.createElement('code');
+    code.dataset.currentCode = '';
     code.textContent = manualMessage ? '自由练习' : frame.code;
     const explanation = document.createElement('span');
     explanation.className = 'explanation';
     explanation.textContent = manualMessage || frame.explanation;
     operation.append(code, explanation);
+    syncCodeHighlight(frame);
     stack.replaceChildren();
     if (state.stack.length) {
       for (const [index, value] of state.stack.entries()) {

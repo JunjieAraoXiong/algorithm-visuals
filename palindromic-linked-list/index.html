@@ -9,7 +9,7 @@
     :root { --paper:#fffdf8; --ink:#272727; --link:#333; --muted:#555; --line:#b7b7b1; --soft:#e5e5df; --node:42px; }
     * { box-sizing:border-box; }
     body { margin:0; padding:24px 14px 48px; background:var(--paper); color:var(--ink); font:15px/1.55 Arial,Helvetica,sans-serif; }
-    main { max-width:920px; margin:auto; }
+    main { width:min(100%,1480px); margin:auto; }
     h1 { margin:0 0 6px; font-size:clamp(24px,4vw,33px); font-weight:600; }
     h2 { margin:0 0 10px; font-size:19px; font-weight:600; }
     h3 { margin:0 0 7px; font-size:16px; }
@@ -20,6 +20,12 @@
     button:disabled { opacity:.4; cursor:default; }
     button:focus-visible,select:focus-visible,[tabindex="0"]:focus-visible { outline:2px solid var(--ink); outline-offset:3px; }
     .lede { max-width:720px; color:#3f3f3f; }
+    .site-nav { margin:0 0 18px; }
+    .back-link { display:inline-flex; min-height:34px; align-items:center; padding:5px 9px; border:1px solid #777; border-radius:3px; color:var(--ink); font-size:12px; text-decoration:none; }
+    .back-link:hover { background:#f5f2e9; }
+    .back-link:focus-visible { outline:2px solid var(--ink); outline-offset:3px; }
+    .workspace { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(360px,.9fr); gap:24px; align-items:start; }
+    .demo-pane { min-width:0; }
     .examples { display:flex; gap:8px; flex-wrap:wrap; margin:17px 0 8px; }
     .example[aria-pressed="true"] { border-color:var(--ink); background:#eaeae5; }
     .controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:12px 0; border-top:1px solid var(--line); }
@@ -49,11 +55,13 @@
     .legend { display:flex; flex-wrap:wrap; gap:7px 20px; }
     .legend b { font-weight:400; color:var(--ink); }
     .note { border-left:3px solid #999; padding:7px 12px; margin:18px 0; }
-    .reason { border-top:1px solid var(--line); padding-top:17px; margin-top:20px; }
+    .reason { grid-column:1/-1; grid-row:2; border-top:1px solid var(--line); padding-top:17px; margin-top:0; }
     .reason ol { padding-left:22px; margin:8px 0; }
     .reason li { margin:5px 0; }
-    .code-wrap { border-top:1px solid var(--line); margin-top:22px; padding-top:16px; }
-    pre { margin:0; padding:13px; overflow:auto; background:#faf9f4; border:1px solid var(--soft); font-size:12px; line-height:1.55; tab-size:4; }
+    .code-wrap { grid-column:2; grid-row:1; position:sticky; top:16px; min-width:0; max-height:calc(100vh - 32px); border:1px solid var(--line); margin:0; padding:14px; overflow:hidden; background:var(--paper); }
+    pre { max-height:calc(100vh - 135px); margin:0; padding:10px 0; overflow:auto; background:#faf9f4; border:1px solid var(--soft); font-size:12px; line-height:1.55; tab-size:4; }
+    .code-line { display:block; width:max-content; min-width:100%; padding:0 12px; white-space:pre; }
+    .code-line.is-active { background:#e9e5d9; outline:1px dashed var(--muted); outline-offset:-1px; }
     .code-wrap h3 { margin-top:16px; }
     .small { font-size:13px; color:var(--muted); }
     @media(max-width:480px) {
@@ -66,6 +74,12 @@
       .stage .next-field { font-size:9px; padding:3px; }
       .controls button { padding:5px 7px; }
     }
+    @media(max-width:1000px) {
+      .workspace { grid-template-columns:minmax(0,1fr); }
+      .code-wrap { grid-column:1; grid-row:2; position:static; max-height:none; }
+      .code-wrap pre { max-height:min(520px,70vh); }
+      .reason { grid-column:1; grid-row:3; }
+    }
     @media(prefers-reduced-motion:reduce) {
       .stage .next-field.changed { animation:none; }
     }
@@ -73,8 +87,11 @@
 </head>
 <body>
 <main>
+  <nav class="site-nav" aria-label="页面导航"><a class="back-link" href="../">← 返回主页</a></nav>
   <h1>Palindromic Linked List</h1>
   <p class="lede">判断单链表从前往后、从后往前读是否相同。用 <code>fast</code>/<code>slow</code> 找中点，把从 <code>mid</code> 开始的后半段原地反转，再让两个指针逐个比较。</p>
+  <div class="workspace" data-learning-layout>
+  <div class="demo-pane" data-animation-panel>
   <div class="examples" role="group" aria-label="选择例子">
     <button type="button" class="example" data-example="odd" aria-pressed="true">1 → 2 → 3 → 2 → 1 · True</button>
     <button type="button" class="example" data-example="even" aria-pressed="false">1 → 2 → 1 → 2 · False</button>
@@ -91,10 +108,11 @@
     <svg class="stage-lines" data-lines aria-hidden="true"></svg>
     <button type="button" class="null-target" data-target="null" aria-label="目标 None">None</button>
   </div>
-  <div class="callout" data-callout role="status" aria-live="polite"><code data-code></code><span data-explain></span></div>
+  <div class="callout" data-callout role="status" aria-live="polite"><code data-code data-current-code></code><span data-explain></span></div>
   <div class="legend"><span><b>圆圈间的深色实线：</b> 节点保存的 <code>.next</code></span><span><b>方框与细灰箭头：</b> 变量引用节点</span><span><b>虚线方框：</b> 可修改的 <code>.next</code> 字段</span></div>
   <p class="hint">点一个 <code>节点.next</code>，再点目标圆圈或 <code>None</code>，可自行改线；也可拖动字段到目标。自由练习不会推进演示，按上/下一步可回到对应代码状态。焦点在图上时可用 ← / → 切换。</p>
   <p class="note"><strong>同一个节点 ≠ 相同的值。</strong> 圆圈在所有步骤中保持位置与身份；反转只改 <code>.next</code> 实线。奇数例子里左右两条路径在中间的<strong>同一个</strong>节点 3 相遇。代码会修改原链表的连接，而且<strong>不会恢复</strong>它。</p>
+  </div>
   <section class="reason" aria-label="解题思路">
     <h2>为什么这样做</h2>
     <ol>
@@ -104,47 +122,12 @@
     </ol>
     <p>空链表时比较循环不执行，结果为 <code>True</code>。单节点也为 <code>True</code>。时间 <code>O(n)</code>，额外空间 <code>O(1)</code>。</p>
   </section>
-  <section class="code-wrap" aria-label="完整 Python 代码">
+  <section class="code-wrap" data-code-panel aria-label="完整 Python 代码">
     <h2>完整 Python 代码</h2>
     <p class="small">以下保留截图中的找中点、反转、比较逻辑；<code>ListNode</code> 定义补全了独立运行所需的节点类型。</p>
-    <pre><code>class ListNode:
-    def __init__(self, val: int, next=None):
-        self.val = val
-        self.next = next
-
-
-def palindromic_linked_list(head: ListNode) -&gt; bool:
-    # Find the middle and reverse the list starting there.
-    mid = find_middle(head)
-    second_head = reverse_list(mid)
-
-    # Compare the first half with the reversed second half.
-    ptr1, ptr2 = head, second_head
-    res = True
-    while ptr2:
-        if ptr1.val != ptr2.val:
-            res = False
-        ptr1, ptr2 = ptr1.next, ptr2.next
-    return res
-
-
-def reverse_list(head: ListNode) -&gt; ListNode:
-    prevNode, currNode = None, head
-    while currNode:
-        nextNode = currNode.next
-        currNode.next = prevNode
-        prevNode = currNode
-        currNode = nextNode
-    return prevNode
-
-
-def find_middle(head: ListNode) -&gt; ListNode:
-    slow = fast = head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-    return slow</code></pre>
+    <pre data-code-scroll tabindex="0" aria-label="完整 Python 代码，当前步骤同步高亮"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val: int, next=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line"> </span><span class="code-line"> </span><span class="code-line" data-code-line="main-def">def palindromic_linked_list(head: ListNode) -&gt; bool:</span><span class="code-line">    # Find the middle and reverse the list starting there.</span><span class="code-line" data-code-line="main-mid">    mid = find_middle(head)</span><span class="code-line" data-code-line="main-second">    second_head = reverse_list(mid)</span><span class="code-line"> </span><span class="code-line">    # Compare the first half with the reversed second half.</span><span class="code-line" data-code-line="main-pointers">    ptr1, ptr2 = head, second_head</span><span class="code-line" data-code-line="main-res">    res = True</span><span class="code-line" data-code-line="main-while">    while ptr2:</span><span class="code-line" data-code-line="main-if">        if ptr1.val != ptr2.val:</span><span class="code-line" data-code-line="main-false">            res = False</span><span class="code-line" data-code-line="main-advance">        ptr1, ptr2 = ptr1.next, ptr2.next</span><span class="code-line" data-code-line="main-return">    return res</span><span class="code-line"> </span><span class="code-line"> </span><span class="code-line" data-code-line="reverse-def">def reverse_list(head: ListNode) -&gt; ListNode:</span><span class="code-line" data-code-line="reverse-init">    prevNode, currNode = None, head</span><span class="code-line">    while currNode:</span><span class="code-line" data-code-line="reverse-next">        nextNode = currNode.next</span><span class="code-line" data-code-line="reverse-link">        currNode.next = prevNode</span><span class="code-line" data-code-line="reverse-prev">        prevNode = currNode</span><span class="code-line" data-code-line="reverse-curr">        currNode = nextNode</span><span class="code-line" data-code-line="reverse-return">    return prevNode</span><span class="code-line"> </span><span class="code-line"> </span><span class="code-line" data-code-line="middle-def">def find_middle(head: ListNode) -&gt; ListNode:</span><span class="code-line" data-code-line="middle-init">    slow = fast = head</span><span class="code-line">    while fast and fast.next:</span><span class="code-line" data-code-line="middle-slow">        slow = slow.next</span><span class="code-line" data-code-line="middle-fast">        fast = fast.next.next</span><span class="code-line" data-code-line="middle-return">    return slow</span></code></pre>
   </section>
+  </div>
 </main>
 <script>
 (() => {
@@ -159,6 +142,8 @@ def find_middle(head: ListNode) -&gt; ListNode:
   const jump = document.querySelector('[data-jump]');
   const code = document.querySelector('[data-code]');
   const explain = document.querySelector('[data-explain]');
+  const codeScroll = document.querySelector('[data-code-scroll]');
+  const codeRows = [...document.querySelectorAll('[data-code-line]')];
   const nullButton = stage.querySelector('[data-target="null"]');
   const modes = {odd:[1,2,3,2,1], even:[1,2,1,2]};
   let mode='odd', frames=[], index=0, state, manual='', selected=null, drag=null, positions={}, lastChanged=null;
@@ -169,46 +154,46 @@ def find_middle(head: ListNode) -&gt; ListNode:
   function makeFrames(values) {
     const n=values.length, output=[], s={link:{},refs:{head:'n1'},res:true,compared:[],mismatch:false};
     for(let i=0;i<n;i++) s.link[id(i)]=id(i+1<n?i+1:null);
-    const add=(group,line,note,update,changed=null) => {if(update)update();output.push({group,line,note,state:clone(s),changed});};
-    add('start','开始',`原始节点依次为 ${values.join(' → ')}。圆圈的身份固定；实线表示保存于节点中的 .next。`);
+    const add=(group,line,note,update,changed=null,sourceLines=[]) => {if(update)update();output.push({group,line,note,state:clone(s),changed,sourceLines});};
+    add('start','开始',`原始节点依次为 ${values.join(' → ')}。圆圈的身份固定；实线表示保存于节点中的 .next。`,null,null,['main-def']);
     s.refs.slow='n1';s.refs.fast='n1';
-    add('middle','slow = fast = head','两个变量都引用第一个节点；节点的 .next 没变。',null,'refs');
+    add('middle','slow = fast = head','两个变量都引用第一个节点；节点的 .next 没变。',null,'refs',['middle-init']);
     let slow=0,fast=0;
     while(fast<n && fast+1<n){
       slow++;fast+=2;s.refs.slow=id(slow);s.refs.fast=id(fast<n?fast:null);
-      add('middle','slow = slow.next; fast = fast.next.next',`slow 到节点 #${slow+1}；fast ${fast<n?`到节点 #${fast+1}`:'到 None'}。只移动变量引用。`,null,'refs');
+      add('middle','slow = slow.next; fast = fast.next.next',`slow 到节点 #${slow+1}；fast ${fast<n?`到节点 #${fast+1}`:'到 None'}。只移动变量引用。`,null,'refs',['middle-slow','middle-fast']);
     }
     const mid=slow;delete s.refs.slow;delete s.refs.fast;s.refs.mid=id(mid);
-    add('middle','return slow  →  mid = find_middle(head)',`mid 引用节点 #${mid+1}（值 ${values[mid]}）。${n%2?'奇数长度：它是中间节点，反转时也包含它。':'偶数长度：它是后半段第一个节点。'}`,null,'refs');
+    add('middle','return slow  →  mid = find_middle(head)',`mid 引用节点 #${mid+1}（值 ${values[mid]}）。${n%2?'奇数长度：它是中间节点，反转时也包含它。':'偶数长度：它是后半段第一个节点。'}`,null,'refs',['middle-return','main-mid']);
     let prev=null,curr=id(mid),nextNode;
     s.refs.prevNode=prev;s.refs.currNode=curr;
-    add('reverse','prevNode, currNode = None, head','这里 reverse_list 的 head 是 mid；prevNode 引用 None，currNode 引用 mid。',null,'refs');
+    add('reverse','prevNode, currNode = None, head','这里 reverse_list 的 head 是 mid；prevNode 引用 None，currNode 引用 mid。',null,'refs',['reverse-init']);
     for(let i=mid;i<n;i++){
       nextNode=s.link[curr];s.refs.nextNode=nextNode;
-      add('reverse','nextNode = currNode.next',`先保存节点 #${i+1} 原来的 .next：${nextNode?`节点 #${i+2}`:'None'}；还没有改线。`,null,'refs');
+      add('reverse','nextNode = currNode.next',`先保存节点 #${i+1} 原来的 .next：${nextNode?`节点 #${i+2}`:'None'}；还没有改线。`,null,'refs',['reverse-next']);
       const old=s.link[curr];s.link[curr]=prev;
-      add('reverse','currNode.next = prevNode',`把节点 #${i+1}.next 从 ${old?`节点 #${i+2}`:'None'} 改为 ${prev?`节点 #${Number(prev.slice(1))}`:'None'}。这是实际改动实线的一步。`,null,curr);
+      add('reverse','currNode.next = prevNode',`把节点 #${i+1}.next 从 ${old?`节点 #${i+2}`:'None'} 改为 ${prev?`节点 #${Number(prev.slice(1))}`:'None'}。这是实际改动实线的一步。`,null,curr,['reverse-link']);
       prev=curr;s.refs.prevNode=prev;
-      add('reverse','prevNode = currNode',`prevNode 现在引用节点 #${i+1}；它本身没移动，.next 也没再变化。`,null,'refs');
+      add('reverse','prevNode = currNode',`prevNode 现在引用节点 #${i+1}；它本身没移动，.next 也没再变化。`,null,'refs',['reverse-prev']);
       curr=nextNode;s.refs.currNode=curr;
-      add('reverse','currNode = nextNode',`currNode ${curr?`到节点 #${Number(curr.slice(1))}`:'到 None'}；下一轮继续。`,null,'refs');
+      add('reverse','currNode = nextNode',`currNode ${curr?`到节点 #${Number(curr.slice(1))}`:'到 None'}；下一轮继续。`,null,'refs',['reverse-curr']);
     }
     const second=prev;
     delete s.refs.prevNode;delete s.refs.currNode;delete s.refs.nextNode;
     s.refs.second_head=second;
-    add('reverse','return prevNode  →  second_head = reverse_list(mid)',`second_head 引用原节点 #${Number(second.slice(1))}。后半段方向已反转，原 head 仍引用节点 #1。`,null,'refs');
+    add('reverse','return prevNode  →  second_head = reverse_list(mid)',`second_head 引用原节点 #${Number(second.slice(1))}。后半段方向已反转，原 head 仍引用节点 #1。`,null,'refs',['reverse-return','main-second']);
     let p1='n1',p2=second;
     s.refs.ptr1=p1;s.refs.ptr2=p2;
-    add('compare','ptr1, ptr2 = head, second_head; res = True','两个变量分别引用两条路径的开头；尚未开始比较。',null,'refs');
+    add('compare','ptr1, ptr2 = head, second_head; res = True','两个变量分别引用两条路径的开头；尚未开始比较。',null,'refs',['main-pointers','main-res']);
     while(p2){
       const a=Number(p1.slice(1))-1,b=Number(p2.slice(1))-1;
       s.compared=[p1,p2];
       if(values[a]!==values[b]){s.res=false;s.mismatch=true;}
-      add('compare','if ptr1.val != ptr2.val: res = False',`节点 #${a+1} 的值 ${values[a]} 与节点 #${b+1} 的值 ${values[b]} ${values[a]===values[b]?'相同':'不同，res 设为 False'}。${p1===p2?'这次两边引用的是同一个中间节点。':''}`,null,'compare');
+      add('compare','if ptr1.val != ptr2.val: res = False',`节点 #${a+1} 的值 ${values[a]} 与节点 #${b+1} 的值 ${values[b]} ${values[a]===values[b]?'相同':'不同，res 设为 False'}。${p1===p2?'这次两边引用的是同一个中间节点。':''}`,null,'compare',values[a]===values[b]?['main-if']:['main-if','main-false']);
       p1=s.link[p1];p2=s.link[p2];s.refs.ptr1=p1;s.refs.ptr2=p2;s.compared=[];
-      add('compare','ptr1, ptr2 = ptr1.next, ptr2.next',`ptr1 ${p1?`到节点 #${Number(p1.slice(1))}`:'到 None'}，ptr2 ${p2?`到节点 #${Number(p2.slice(1))}`:'到 None'}；只改变变量引用。`,null,'refs');
+      add('compare','ptr1, ptr2 = ptr1.next, ptr2.next',`ptr1 ${p1?`到节点 #${Number(p1.slice(1))}`:'到 None'}，ptr2 ${p2?`到节点 #${Number(p2.slice(1))}`:'到 None'}；只改变变量引用。`,null,'refs',['main-advance']);
     }
-    add('result','return res',`返回 ${s.res?'True':'False'}。此实现没有把反转过的后半段恢复；输入链表的 .next 已被修改。`);
+    add('result','return res',`返回 ${s.res?'True':'False'}。此实现没有把反转过的后半段恢复；输入链表的 .next 已被修改。`,null,null,['main-return']);
     return output;
   }
   function point(idOrNull){return idOrNull===null?positions.null:positions[idOrNull];}
@@ -417,6 +402,17 @@ def find_middle(head: ListNode) -&gt; ListNode:
     resFlag.textContent=`res = ${state.res?'True':'False'}`;
     code.textContent=manual?'手动修改 .next':frame.line;
     explain.textContent=manual||frame.note;
+    const activeSourceLines=new Set(manual?[]:frame.sourceLines);
+    let firstActiveLine=null;
+    for(const row of codeRows){
+      const active=activeSourceLines.has(row.dataset.codeLine);
+      row.classList.toggle('is-active',active);
+      if(active){row.setAttribute('aria-current','step');firstActiveLine ||= row;}
+      else row.removeAttribute('aria-current');
+    }
+    if(firstActiveLine&&codeScroll.clientHeight){
+      codeScroll.scrollTop=Math.max(0,firstActiveLine.offsetTop-codeScroll.clientHeight/2+firstActiveLine.offsetHeight/2);
+    }
     jump.value=frame.group;
     for(let i=0;i<targetButtons.length;i++){
       const b=targetButtons[i],node=id(i),isCompared=state.compared.includes(node);

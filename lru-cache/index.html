@@ -18,7 +18,7 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 24px 18px 50px; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
-    main { max-width: 880px; margin: auto; }
+    main { width: min(100%, 1480px); margin: auto; }
     button, input, select { font: inherit; color: inherit; }
     button { cursor: pointer; }
     button:disabled { cursor: default; opacity: .42; }
@@ -26,6 +26,10 @@
     .helper:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
     code, pre, .mono, .step-count, .operation-title { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .eyebrow { margin: 0 0 8px; color: var(--secondary); font-size: 12px; letter-spacing: .04em; }
+    .site-nav { margin: 0 0 18px; }
+    .back-link { display: inline-flex; min-height: 34px; align-items: center; padding: 5px 9px; border: 1px solid #858580; border-radius: 3px; color: var(--ink); font-size: 12px; text-decoration: none; }
+    .back-link:hover { background: var(--wash); }
+    .back-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
     h1 { margin: 0; font-size: 29px; font-weight: 500; line-height: 1.15; }
     .intro { max-width: 680px; margin: 9px 0 18px; color: var(--secondary); font-size: 14px; line-height: 1.5; }
     .topline { display: flex; align-items: baseline; gap: 15px; flex-wrap: wrap; }
@@ -88,7 +92,7 @@
     .reasoning ol { margin: 7px 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
     .reasoning li { margin: 5px 0; }
     .reasoning pre { overflow: auto; margin: 9px 0; padding: 11px 13px; border-left: 2px solid var(--border); background: #f8f6f0; font-size: 12px; line-height: 1.45; }
-    .helper { margin-top: 22px; border-top: 1px solid var(--border); padding-top: 17px; }
+    .helper { grid-column: 1 / -1; grid-row: 2; margin-top: 0; border-top: 1px solid var(--border); padding-top: 17px; }
     .helper-link { display: inline-block; margin-left: 5px; color: var(--ink); text-underline-offset: 2px; }
     .helper h2 { margin: 0 0 6px; font-size: 18px; font-weight: 500; }
     .helper > p { margin: 0 0 12px; color: var(--secondary); font-size: 13px; line-height: 1.5; }
@@ -148,10 +152,14 @@
     .helper-code pre { overflow-x: auto; margin: 0; padding: 8px 0; font-size: 11px; line-height: 1.55; }
     .helper-code-line { display: block; width: max-content; min-width: 100%; padding: 0 10px; white-space: pre; }
     .helper-code-line.is-current { background: #e9e5d9; outline: 1px dashed var(--soft); outline-offset: -1px; }
-    .full-code { margin-top: 22px; border-top: 1px solid var(--border); padding-top: 17px; }
+    .detail-workspace { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(360px, .9fr); gap: 24px; align-items: start; }
+    .detail-demo { min-width: 0; }
+    .full-code { grid-column: 2; grid-row: 1; position: sticky; top: 16px; min-width: 0; max-height: calc(100vh - 32px); border: 1px solid var(--border); padding: 14px; overflow: hidden; background: var(--paper); }
     .full-code h2 { margin: 0 0 6px; font-size: 18px; font-weight: 500; }
     .full-code p { margin: 0 0 11px; color: var(--secondary); font-size: 13px; line-height: 1.5; }
-    .full-code pre { overflow: auto; margin: 0; padding: 13px 15px; border-left: 2px solid var(--border); background: #f8f6f0; font-size: 12px; line-height: 1.5; }
+    .full-code pre { max-height: calc(100vh - 132px); overflow: auto; margin: 0; padding: 10px 0; border-left: 2px solid var(--border); background: #f8f6f0; font-size: 12px; line-height: 1.5; }
+    .main-code-line { display: block; width: max-content; min-width: 100%; padding: 0 12px; white-space: pre; }
+    .main-code-line.is-current, .main-code-line.is-active { background: #e9e5d9; outline: 1px dashed var(--soft); outline-offset: -1px; }
     .full-code pre:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
     .source { margin: 16px 0 0; font-size: 12px; }
     .source a { color: var(--ink); text-underline-offset: 2px; }
@@ -218,6 +226,12 @@
       .helper-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .helper-detail { grid-template-columns: minmax(0, 1fr); }
     }
+    @media (max-width: 980px) {
+      .detail-workspace { grid-template-columns: minmax(0, 1fr); }
+      .full-code { grid-column: 1; grid-row: 2; position: static; max-height: none; }
+      .helper { grid-column: 1; grid-row: 3; }
+      .full-code pre { max-height: min(520px, 70vh); }
+    }
     @media (max-width: 370px) {
       .helper-visual { padding: 9px; }
       .helper-card { padding: 7px; }
@@ -230,10 +244,13 @@
 </head>
 <body>
 <main id="lru-lab">
+  <nav class="site-nav" aria-label="页面导航"><a class="back-link" href="../">← 返回主页</a></nav>
   <p class="eyebrow">数据结构可视化</p>
   <div class="topline"><h1>LRU Cache</h1><span class="capacity">capacity = 3</span></div>
   <p class="intro">缓存满时，移走最久没有使用的节点。先看 <code>put</code> 和 <code>get</code> 如何改变使用顺序，再用下方逐行图追踪 <code>hashmap</code> 与链表指针。<a class="helper-link" href="#pointer-helpers">逐行看辅助函数 ↓</a><a class="helper-link" href="#complete-code">完整 Python 代码 ↓</a></p>
 
+  <div class="detail-workspace" data-learning-layout>
+  <div class="detail-demo" data-animation-panel>
   <section class="overview" id="get-put-overview" tabindex="0" aria-label="get 和 put 的缓存顺序概览，可按左右方向键切换步骤">
     <h2>先看 get / put 怎样改变顺序</h2>
     <p>方框左格是 <code>key</code>，右格是 <code>value</code>。方括号内是容量为 3 的缓存；左边最久没用，右边最近使用。</p>
@@ -293,8 +310,9 @@
   </section>
 
   <div class="callout" aria-live="polite" aria-atomic="true">
-    <span class="operation-title" data-code></span>
+    <span class="operation-title" data-code data-current-code></span>
     <span class="explanation" data-explanation></span><span data-result></span>
+  </div>
   </div>
 
   <section class="helper" id="pointer-helpers" tabindex="0" aria-label="双向链表辅助函数逐行图，可按左右方向键逐行查看">
@@ -333,10 +351,10 @@
     </div>
   </section>
 
-  <section class="full-code" id="complete-code" aria-label="完整 Python 代码">
+  <section class="full-code" id="complete-code" data-code-panel aria-label="完整 Python 代码">
     <h2>完整 Python 代码</h2>
-    <p>按你给出的代码整理缩进；上方动画用 <code>capacity = 3</code> 演示。</p>
-    <pre tabindex="0" aria-label="完整 Python 代码，可用方向键水平滚动"><code>class DoublyLinkedListNode:
+    <p>当前步骤会在这里同步高亮；动画用 <code>capacity = 3</code> 演示。<span class="mono" data-main-line-status aria-live="polite"></span></p>
+    <pre tabindex="0" data-main-code-scroll aria-label="完整 Python 代码，当前步骤同步高亮，可用方向键滚动"><code data-main-source>class DoublyLinkedListNode:
     """Store a cache entry and links to its neighboring nodes."""
 
     def __init__(self, key: int, val: int) -&gt; None:
@@ -415,6 +433,7 @@ class LRUCache:
         self.hashmap[key] = node
         self.add_to_tail(node)</code></pre>
   </section>
+  </div>
 
   <section class="practice" aria-label="自由练习">
     <h2>自己试一次</h2>
@@ -463,13 +482,34 @@ class LRUCache:
   const valueInput = root.querySelector('[data-value]');
   const previous = root.querySelector('[data-action="previous"]');
   const next = root.querySelector('[data-action="next"]');
+  const mainSource = root.querySelector('[data-main-source]');
+  const mainCodeScroll = root.querySelector('[data-main-code-scroll]');
+  const mainLineStatus = root.querySelector('[data-main-line-status]');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const nodeElements = new Map();
   const CAPACITY = 3;
 
+  const mainCodeLines = [];
+  let sourceMethod = '';
+  const rawSource = mainSource.textContent.replace(/^\n|\n$/g, '').split('\n');
+  mainSource.replaceChildren();
+  for (const source of rawSource) {
+    const trimmed = source.trim();
+    const methodMatch = trimmed.match(/^def ([a-z_]+)\(/);
+    if (methodMatch) sourceMethod = methodMatch[1];
+    if (trimmed.startsWith('class ')) sourceMethod = '';
+    const row = document.createElement('span');
+    row.className = 'main-code-line';
+    row.textContent = source || ' ';
+    row.dataset.sourceId = `${sourceMethod}|${trimmed}`;
+    row.dataset.codeLine = row.dataset.sourceId;
+    mainSource.append(row);
+    mainCodeLines.push(row);
+  }
+
   const emptyState = () => ({ order: [], detached: [], nodes: {}, hashmap: {}, nextId: 1, lookup: null, result: null });
   const clone = s => ({ order: [...s.order], detached: [...s.detached], nodes: Object.fromEntries(Object.entries(s.nodes).map(([id, n]) => [id, {...n}])), hashmap: {...s.hashmap}, nextId: s.nextId, lookup: s.lookup, result: s.result });
-  const initialFrame = () => ({ state: emptyState(), code: 'LRUCache.__init__(capacity=3) 执行后', explanation: 'capacity 是 3，hashmap 为空；哨兵 head.next 指向 tail，tail.prev 指向 head。', opTitle: '初始状态', opIndex: -1, focusId: null, focusKey: null, result: null });
+  const initialFrame = () => ({ state: emptyState(), code: 'LRUCache.__init__(capacity=3) 执行后', explanation: 'capacity 是 3，hashmap 为空；哨兵 head.next 指向 tail，tail.prev 指向 head。', opTitle: '初始状态', opIndex: -1, focusId: null, focusKey: null, result: null, sourceId: '__init__|def __init__(self, capacity: int) -> None:' });
 
   function makeOperation(base, type, key, value, opIndex) {
     const state = clone(base);
@@ -478,7 +518,7 @@ class LRUCache:
     const emit = (line, text, options = {}) => frames.push({
       state: clone(state), code: line, explanation: text, opTitle: title, opIndex,
       focusId: options.focusId ?? null, focusKey: options.focusKey ?? null,
-      result: options.result ?? null
+      result: options.result ?? null, sourceId: `${type}|${line.trim()}`
     });
     state.lookup = key;
     state.result = null;
@@ -578,6 +618,29 @@ class LRUCache:
   let raf = null;
   const frames = () => mode === 'script' ? scriptedFrames : practiceFrames;
   const current = () => frames()[step];
+
+  function highlightMainCode(sourceIds, label) {
+    const activeIds = new Set(sourceIds);
+    let firstActiveLine = null;
+    for (const row of mainCodeLines) {
+      const active = activeIds.has(row.dataset.sourceId);
+      row.classList.toggle('is-current', active);
+      row.classList.toggle('is-active', active);
+      if (active) {
+        row.setAttribute('aria-current', 'step');
+        firstActiveLine ||= row;
+      } else row.removeAttribute('aria-current');
+    }
+    mainLineStatus.textContent = ` 当前：${label}`;
+    if (firstActiveLine && mainCodeScroll.clientHeight) {
+      const top = firstActiveLine.offsetTop - mainCodeScroll.clientHeight / 2 + firstActiveLine.offsetHeight / 2;
+      mainCodeScroll.scrollTop = Math.max(0, top);
+    }
+  }
+
+  root.addEventListener('lru-code-step', event => {
+    highlightMainCode(event.detail.sourceIds, event.detail.label);
+  });
 
   function refreshJump() {
     jump.replaceChildren();
@@ -744,6 +807,7 @@ class LRUCache:
       result.append(badge);
     }
     inspectedId = null;
+    highlightMainCode([frame.sourceId], frame.code);
     inspection.textContent = '点一个 hashmap 表项或节点，可对照它们的对象身份。';
     renderNodes(state, frame);
     renderMap(state, frame);
@@ -1312,16 +1376,16 @@ class LRUCache:
   // The same `two` object is used before removal, while parked, and after get reinserts it.
   const examples = {
     put: [
-      {order: [one, two, four], floating: three, floatingLabel: '待加入', code: 'put(3, 200) 执行前', explain: '缓存已有 3 项。左端 1|100 是最久未使用；新键 3|200 还在缓存外。'},
-      {order: [one, two, four], floating: three, floatingLabel: '待加入', focus: one.id, code: 'if key in self.hashmap:  /  if len(self.hashmap) == self.capacity:', explain: 'key 3 不在 hashmap 中，而且 3 项已经达到 capacity = 3。先处理左端的最旧节点。'},
-      {order: [two, four], floating: three, floatingLabel: '待加入', evicted: one, code: 'least_recent = self.head.next; self.remove_node(least_recent); del self.hashmap[least_recent.key]', explain: '摘下左端 1|100，并删除 hashmap[1]。现在缓存里只有 2 项，才能加入新键。'},
-      {order: [two, four, three], evicted: one, focus: three.id, arrived: three.id, code: 'node = DoublyLinkedListNode(key, value); self.hashmap[key] = node; self.add_to_tail(node)', explain: '创建 3|200、建立 hashmap[3] 映射，再放到右端成为最近使用。顺序是 2 → 4 → 3。'}
+      {order: [one, two, four], floating: three, floatingLabel: '待加入', code: 'put(3, 200) 执行前', sourceIds: ['put|def put(self, key: int, value: int) -> None:'], explain: '缓存已有 3 项。左端 1|100 是最久未使用；新键 3|200 还在缓存外。'},
+      {order: [one, two, four], floating: three, floatingLabel: '待加入', focus: one.id, code: 'if key in self.hashmap:  /  if len(self.hashmap) == self.capacity:', sourceIds: ['put|if key in self.hashmap:', 'put|if len(self.hashmap) == self.capacity:'], explain: 'key 3 不在 hashmap 中，而且 3 项已经达到 capacity = 3。先处理左端的最旧节点。'},
+      {order: [two, four], floating: three, floatingLabel: '待加入', evicted: one, code: 'least_recent = self.head.next; self.remove_node(least_recent); del self.hashmap[least_recent.key]', sourceIds: ['put|least_recent = self.head.next', 'put|self.remove_node(least_recent)', 'put|del self.hashmap[least_recent.key]'], explain: '摘下左端 1|100，并删除 hashmap[1]。现在缓存里只有 2 项，才能加入新键。'},
+      {order: [two, four, three], evicted: one, focus: three.id, arrived: three.id, code: 'node = DoublyLinkedListNode(key, value); self.hashmap[key] = node; self.add_to_tail(node)', sourceIds: ['put|node = DoublyLinkedListNode(key, value)', 'put|self.hashmap[key] = node', 'put|self.add_to_tail(node)'], explain: '创建 3|200、建立 hashmap[3] 映射，再放到右端成为最近使用。顺序是 2 → 4 → 3。'}
     ],
     get: [
-      {order: [two, four, three], code: 'get(2) 执行前', explain: '沿用上一个 put 的结果：左端 2|250 最久未使用，右端 3|200 最近使用。'},
-      {order: [two, four, three], focus: two.id, code: 'if key not in self.hashmap:  /  node = self.hashmap[key]', explain: 'hashmap[2] 找到原来的 2|250 节点。取值还没改变缓存顺序。'},
-      {order: [four, three], floating: two, floatingLabel: '同一个节点，暂时离链', code: 'self.remove_node(node)', explain: '先把原来的 2|250 从左端摘下；hashmap[2] 和局部变量 node 仍指向这个对象。'},
-      {order: [four, three, two], focus: two.id, arrived: two.id, returned: 250, code: 'self.add_to_tail(node); return node.val', explain: '把同一个 2|250 节点接到右端，成为最近使用；返回它的 value 250。'}
+      {order: [two, four, three], code: 'get(2) 执行前', sourceIds: ['get|def get(self, key: int) -> int:'], explain: '沿用上一个 put 的结果：左端 2|250 最久未使用，右端 3|200 最近使用。'},
+      {order: [two, four, three], focus: two.id, code: 'if key not in self.hashmap:  /  node = self.hashmap[key]', sourceIds: ['get|if key not in self.hashmap:', 'get|node = self.hashmap[key]'], explain: 'hashmap[2] 找到原来的 2|250 节点。取值还没改变缓存顺序。'},
+      {order: [four, three], floating: two, floatingLabel: '同一个节点，暂时离链', code: 'self.remove_node(node)', sourceIds: ['get|self.remove_node(node)'], explain: '先把原来的 2|250 从左端摘下；hashmap[2] 和局部变量 node 仍指向这个对象。'},
+      {order: [four, three, two], focus: two.id, arrived: two.id, returned: 250, code: 'self.add_to_tail(node); return node.val', sourceIds: ['get|self.add_to_tail(node)', 'get|return node.val'], explain: '把同一个 2|250 节点接到右端，成为最近使用；返回它的 value 250。'}
     ]
   };
   let mode = 'put';
@@ -1340,7 +1404,7 @@ class LRUCache:
     return element;
   }
 
-  function render() {
+  function render(syncCode = true) {
     const frames = examples[mode];
     const frame = frames[step];
     overview.dataset.overviewStep = String(step);
@@ -1375,6 +1439,11 @@ class LRUCache:
     }
     code.textContent = frame.code;
     explanation.textContent = frame.explain;
+    if (syncCode) {
+      document.getElementById('lru-lab').dispatchEvent(new CustomEvent('lru-code-step', {
+        detail: {sourceIds: frame.sourceIds, label: `操作概览 · ${frame.code}`}
+      }));
+    }
     const orderText = frame.order.map(item => `${item.key}|${item.val}`).join('，');
     const extra = frame.floating ? `；缓存外有 ${frame.floating.key}|${frame.floating.val}` : '';
     const evicted = frame.evicted ? `；已淘汰 ${frame.evicted.key}|${frame.evicted.val}` : '';
@@ -1394,7 +1463,9 @@ class LRUCache:
     if (event.key === 'ArrowRight') { next.click(); event.preventDefault(); event.stopPropagation(); }
     if (event.key === 'ArrowLeft') { previous.click(); event.preventDefault(); event.stopPropagation(); }
   });
-  render();
+  // The main trace owns the initial source highlight. Overview controls take
+  // ownership only after the learner interacts with this smaller walkthrough.
+  render(false);
 })();
 </script>
 </body>

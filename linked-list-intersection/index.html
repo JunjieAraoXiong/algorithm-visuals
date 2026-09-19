@@ -16,13 +16,18 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 18px; background: var(--paper); color: var(--ink); font: 15px/1.45 Arial, Helvetica, sans-serif; }
-    main { max-width: 1040px; margin: 0 auto; }
+    main { width: min(100%, 1480px); margin: 0 auto; }
     button, select { color: var(--ink); font: inherit; }
-    button:focus-visible, select:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    button:focus-visible, select:focus-visible, .back-link:focus-visible, .code-panel pre:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    .back-nav { margin: 0 3px 13px; }
+    .back-link { display: inline-block; min-height: 34px; padding: 6px 10px; border: 1px solid #777; border-radius: 2px; color: var(--ink); font-size: 13px; text-decoration: none; }
+    .back-link:hover { background: #f5f2e9; }
     .heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin: 0 3px 8px; }
     h1 { margin: 0; font-size: 18px; font-weight: 500; }
     .subtitle { margin: 3px 0 0; color: var(--quiet); font-size: 12px; }
-    .settings { display: flex; align-items: center; gap: 6px; font: 13px monospace; white-space: nowrap; }
+    .learning-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(360px, 2fr); gap: clamp(18px, 2vw, 30px); align-items: start; }
+    .animation-panel, .code-panel { min-width: 0; }
+    .settings { display: flex; width: fit-content; align-items: center; gap: 6px; margin: 0 3px 4px; font: 13px monospace; white-space: nowrap; }
     select { border: 1px solid #777; border-radius: 2px; padding: 4px 6px; background: var(--paper); }
     .controls { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; padding: 8px 3px; border-bottom: 1px solid var(--rule); font: 13px monospace; }
     .controls button { border: 1px solid #777; border-radius: 2px; padding: 5px 9px; background: transparent; cursor: pointer; }
@@ -49,14 +54,26 @@
     .legend { display: flex; flex-wrap: wrap; gap: 5px 18px; margin: 10px 3px 0; color: var(--quiet); font-size: 12px; }
     .hint, .note { margin: 7px 3px 0; color: var(--quiet); font-size: 12px; }
     .note { padding-top: 8px; border-top: 1px solid var(--rule); }
+    .code-panel { position: sticky; top: 18px; border: 1px solid var(--rule); padding: 13px; }
+    .code-panel h2 { margin: 0 0 5px; font-size: 15px; font-weight: 500; }
+    .code-status { min-height: 36px; margin: 0 0 9px; color: var(--quiet); font-size: 12px; line-height: 1.45; }
+    .code-panel pre { max-height: calc(100svh - 135px); margin: 0; overflow: auto; border-left: 2px solid var(--rule); background: #f8f6f0; font: 12px/1.55 monospace; }
+    .code-panel pre code { display: block; min-width: max-content; padding: 9px 0; }
+    .code-line { display: block; width: max-content; min-width: 100%; padding: 0 11px 0 9px; border-left: 3px solid transparent; white-space: pre; }
+    .code-line.is-active { border-left-color: var(--ink); background: #e9e5d9; outline: 1px dashed #777; outline-offset: -1px; }
     .reasoning { margin: 17px 3px 8px; padding-top: 11px; border-top: 1px solid var(--rule); font-size: 13px; }
     .reasoning h2 { margin: 0 0 7px; font-size: 15px; font-weight: 500; }
-    .reasoning ol { margin: 0; padding-left: 21px; }
+    .reasoning ol { max-width: 90ch; margin: 0; padding-left: 21px; }
     .reasoning li { margin: 0 0 6px; padding-left: 2px; }
     .reasoning strong { font-weight: 600; }
-    .reasoning code, .reasoning pre { font: 12px/1.55 monospace; }
-    .reasoning pre { margin: 10px 0 6px; padding: 9px 11px; border: 1px solid var(--rule); overflow-x: auto; }
-    .reasoning p { margin: 5px 0; color: var(--quiet); }
+    .reasoning code { font: 12px/1.55 monospace; }
+    .reasoning p { max-width: 90ch; margin: 5px 0; color: var(--quiet); }
+    @media (max-width: 1000px) {
+      main { width: min(100%, 900px); }
+      .learning-layout { grid-template-columns: minmax(0, 1fr); }
+      .code-panel { position: static; }
+      .code-panel pre { max-height: none; }
+    }
     @media (max-width: 480px) {
       :root { --node-size: 33px; }
       body { padding: 7px; }
@@ -76,44 +93,57 @@
 </head>
 <body>
 <main id="intersection-lab">
+  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← 返回主页</a></nav>
   <div class="heading">
     <div>
       <h1>两条链表在哪里相交？</h1>
       <p class="subtitle">节点固定在原位；每一步只移动 <code>ptr_A</code> 或 <code>ptr_B</code> 的引用。</p>
     </div>
-    <label class="settings" for="case-choice">例子
-      <select id="case-choice" aria-label="选择链表是否相交">
-        <option value="shared">有相交节点</option>
-        <option value="separate">不相交</option>
-      </select>
-    </label>
   </div>
 
-  <div class="controls">
-    <button type="button" data-action="previous">上一步</button>
-    <output data-count aria-live="polite">0 / 0</output>
-    <button type="button" data-action="next">下一步</button>
-    <span class="round" data-round>第 0 轮</span>
+  <div class="learning-layout" data-learning-layout>
+    <div class="animation-panel" data-animation-panel>
+      <label class="settings" for="case-choice">例子
+        <select id="case-choice" aria-label="选择链表是否相交">
+          <option value="shared">有相交节点</option>
+          <option value="separate">不相交</option>
+        </select>
+      </label>
+
+      <div class="controls">
+        <button type="button" data-action="previous">上一步</button>
+        <output data-count aria-live="polite">0 / 0</output>
+        <button type="button" data-action="next">下一步</button>
+        <span class="round" data-round>第 0 轮</span>
+      </div>
+
+      <div class="stage" data-stage aria-label="A、B 两条链表的节点和可移动指针">
+        <svg class="lines" data-lines aria-hidden="true"></svg>
+        <button type="button" class="pointer a" data-source="a">ptr_A</button>
+        <button type="button" class="pointer b" data-source="b">ptr_B</button>
+        <button type="button" class="none" data-target="null" aria-label="None，链表结束">None</button>
+      </div>
+
+      <div class="positions" data-positions></div>
+      <p class="operation" data-operation aria-live="polite"></p>
+      <div class="legend">
+        <span>圆圈间黑色实线：节点保存的 <code>.next</code></span>
+        <span>方框灰色细箭头：变量当前指向</span>
+        <span>虚线方框／箭头：<code>ptr_B</code></span>
+        <span>方框跟着目标节点移动；短箭头只表示当前引用</span>
+        <span>圆圈旁小字：对象身份（S = 共享）</span>
+      </div>
+      <p class="hint">点 <code>ptr_A</code> 或 <code>ptr_B</code>，再点节点／None，可自由练习；也可拖动指针。键盘使用 Tab 和 Enter。自由练习不推进演示。</p>
+      <p class="note" data-note></p>
+    </div>
+
+    <aside class="code-panel" data-code-panel aria-labelledby="code-title">
+      <h2 id="code-title">完整 Python 代码</h2>
+      <p class="code-status" data-code-status aria-live="polite">当前步骤对应的代码行会在下方标出。</p>
+      <pre data-code-scroll tabindex="0" aria-label="完整 Python 代码，当前步骤会高亮"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val, next_node=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next_node</span><span class="code-line"> </span><span class="code-line"> </span><span class="code-line">def get_intersection_node(head_A, head_B):</span><span class="code-line" data-source-key="intersection-init">    ptr_A, ptr_B = head_A, head_B</span><span class="code-line"> </span><span class="code-line" data-source-key="intersection-loop">    while ptr_A is not ptr_B:</span><span class="code-line" data-source-key="intersection-move-a">        ptr_A = ptr_A.next if ptr_A else head_B</span><span class="code-line" data-source-key="intersection-move-b">        ptr_B = ptr_B.next if ptr_B else head_A</span><span class="code-line"> </span><span class="code-line" data-source-key="intersection-return">    return ptr_A</span></code></pre>
+    </aside>
   </div>
 
-  <div class="stage" data-stage aria-label="A、B 两条链表的节点和可移动指针">
-    <svg class="lines" data-lines aria-hidden="true"></svg>
-    <button type="button" class="pointer a" data-source="a">ptr_A</button>
-    <button type="button" class="pointer b" data-source="b">ptr_B</button>
-    <button type="button" class="none" data-target="null" aria-label="None，链表结束">None</button>
-  </div>
-
-  <div class="positions" data-positions></div>
-  <p class="operation" data-operation aria-live="polite"></p>
-  <div class="legend">
-    <span>圆圈间黑色实线：节点保存的 <code>.next</code></span>
-    <span>方框灰色细箭头：变量当前指向</span>
-    <span>虚线方框／箭头：<code>ptr_B</code></span>
-    <span>方框跟着目标节点移动；短箭头只表示当前引用</span>
-    <span>圆圈旁小字：对象身份（S = 共享）</span>
-  </div>
-  <p class="hint">点 <code>ptr_A</code> 或 <code>ptr_B</code>，再点节点／None，可自由练习；也可拖动指针。键盘使用 Tab 和 Enter。自由练习不推进演示。</p>
-  <p class="note" data-note></p>
   <section class="reasoning" aria-labelledby="reasoning-title">
     <h2 id="reasoning-title">为什么换头后会相遇？</h2>
     <p>题目：给两条单向链表，找它们的第一个共同节点；若没有，返回 <code>None</code>。<code>ptr_A</code> 从 <code>head_A</code> 出发，<code>ptr_B</code> 从 <code>head_B</code> 出发；每轮各沿 <code>.next</code> 前进一步。</p>
@@ -122,12 +152,7 @@
       <li><strong>让路程相等。</strong>设 A 独有 <code>a</code> 个节点，B 独有 <code>b</code> 个，共同尾部有 <code>c</code> 个。从各自头部开始，到共同节点前，<code>ptr_A</code> 更新 <code>a+c+1+b</code> 次，<code>ptr_B</code> 更新 <code>b+c+1+a</code> 次。中间的 <code>+1</code> 是从 <code>None</code> 换到对方头部；两边次数相等。</li>
       <li><strong>到 None 后换头。</strong>只把指针变量改指向另一条链表的头，完全不修改任何节点的 <code>.next</code>。如果没有共同节点，两者走完 A 和 B 后会同时指向 <code>None</code>。</li>
     </ol>
-    <pre><code>ptr_A, ptr_B = head_A, head_B
-while ptr_A is not ptr_B:
-    ptr_A = ptr_A.next if ptr_A else head_B
-    ptr_B = ptr_B.next if ptr_B else head_A
-return ptr_A</code></pre>
-    <p>每一轮先更新 <code>ptr_A</code>，再更新 <code>ptr_B</code>；回到 <code>while</code> 顶部才比较。时间 <code>O(len(A) + len(B))</code>，额外空间 <code>O(1)</code>。</p>
+    <p>右侧完整代码与上方步骤同步。每一轮先更新 <code>ptr_A</code>，再更新 <code>ptr_B</code>；回到 <code>while</code> 顶部才比较。时间 <code>O(len(A) + len(B))</code>，额外空间 <code>O(1)</code>。</p>
   </section>
 </main>
 
@@ -141,6 +166,9 @@ return ptr_A</code></pre>
   const positions = root.querySelector('[data-positions]');
   const operation = root.querySelector('[data-operation]');
   const note = root.querySelector('[data-note]');
+  const codeStatus = root.querySelector('[data-code-status]');
+  const codeScroll = root.querySelector('[data-code-scroll]');
+  const codeLines = [...root.querySelectorAll('[data-source-key]')];
   const previous = root.querySelector('[data-action="previous"]');
   const next = root.querySelector('[data-action="next"]');
   const choice = root.querySelector('#case-choice');
@@ -154,6 +182,35 @@ return ptr_A</code></pre>
   let targetButtons = [];
   let motionFrame = null, motionToken = 0, activeTween = null;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function syncCode(sourceKeys = []) {
+    const activeKeys = new Set(sourceKeys);
+    const activeLines = [];
+    for (const line of codeLines) {
+      const active = activeKeys.has(line.dataset.sourceKey);
+      line.classList.toggle('is-active', active);
+      if (active) {
+        line.setAttribute('aria-current', 'step');
+        activeLines.push(line);
+      } else {
+        line.removeAttribute('aria-current');
+      }
+    }
+    if (!activeLines.length) {
+      codeStatus.textContent = '自由练习不会执行右侧源码；选择上一步或下一步可恢复同步。';
+      return;
+    }
+    codeStatus.textContent = `当前执行：${activeLines.map(line => line.textContent.trim()).join('；')}`;
+    const first = activeLines[0];
+    const top = first.offsetTop;
+    const bottom = top + first.offsetHeight;
+    if (top < codeScroll.scrollTop || bottom > codeScroll.scrollTop + codeScroll.clientHeight) {
+      codeScroll.scrollTo({
+        top: Math.max(0, top - (codeScroll.clientHeight - first.offsetHeight) / 2),
+        behavior: reducedMotion.matches ? 'auto' : 'smooth'
+      });
+    }
+  }
 
   function cancelMotion() {
     motionToken++;
@@ -215,8 +272,8 @@ return ptr_A</code></pre>
 
   function buildFrames() {
     const work = {a: config.a[0], b: config.b[0]};
-    const result = [{state: copy(work), code: 'ptr_A, ptr_B = head_A, head_B', explanation: '两个指针分别从 A、B 的头节点出发。只比较节点是否为同一个对象。', round: 0, changed: null}];
-    const add = (code, explanation, round, changed) => result.push({state: copy(work), code, explanation, round, changed});
+    const result = [{state: copy(work), code: 'ptr_A, ptr_B = head_A, head_B', sourceKeys: ['intersection-init'], explanation: '两个指针分别从 A、B 的头节点出发。只比较节点是否为同一个对象。', round: 0, changed: null}];
+    const add = (sourceKeys, code, explanation, round, changed) => result.push({state: copy(work), code, sourceKeys, explanation, round, changed});
     let round = 0;
     while (work.a !== work.b && round < 2 * (config.a.length + config.b.length) + 2) {
       round++;
@@ -226,7 +283,7 @@ return ptr_A</code></pre>
         ? 'ptr_A 上一步已到 None；这次赋值把它换到 head_B。链表本身没有接起来。'
         : `ptr_A 从${description(oldA)}走到${description(work.a)}。${work.a === null ? '到达 None 后，下一次赋值才会换头。' : '只改变变量引用，节点的 .next 没变。'}`;
       if (work.a !== null && work.a === work.b) aExplanation += ' 此刻两个引用暂时相同，但本轮还要执行 ptr_B 的赋值；while 只在下一轮开始前比较。';
-      add('ptr_A = ptr_A.next if ptr_A else head_B', aExplanation, round, 'a');
+      add(['intersection-move-a'], 'ptr_A = ptr_A.next if ptr_A else head_B', aExplanation, round, 'a');
       const oldB = work.b;
       work.b = oldB === null ? config.a[0] : config.links[oldB];
       let explanation = oldB === null
@@ -236,9 +293,9 @@ return ptr_A</code></pre>
       if (work.a === work.b) explanation += work.a === null
         ? ' 两个指针同时为 None：没有相交节点。'
         : ` 两个指针现在指向同一个${description(work.a)}，可以停止。`;
-      add('ptr_B = ptr_B.next if ptr_B else head_A', explanation, round, 'b');
+      add(['intersection-move-b'], 'ptr_B = ptr_B.next if ptr_B else head_A', explanation, round, 'b');
     }
-    add('return ptr_A', work.a === null
+    add(['intersection-return'], 'return ptr_A', work.a === null
       ? '返回 None：两条链表没有共享节点。两个 None 表示空引用，不算相交节点。'
       : `返回${description(work.a)}。A 和 B 共享的是这一个节点，以及它后面的整段尾部。`, round, null);
     return result;
@@ -378,6 +435,7 @@ return ptr_A</code></pre>
     const explanation = document.createElement('span');
     explanation.textContent = manualMessage || frame.explanation;
     operation.append(code, explanation);
+    syncCode(manualMessage ? [] : frame.sourceKeys);
     for (const button of pointerButtons) {
       const key = button.dataset.source;
       button.classList.toggle('selected', selected === key);
@@ -454,6 +512,7 @@ return ptr_A</code></pre>
     button.addEventListener('pointerdown', event => {
       if (event.pointerType === 'mouse' && event.button !== 0) return;
       cancelMotion();
+      syncCode([]);
       draw();
       drag = {source: button.dataset.source, button, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
       button.setPointerCapture(event.pointerId);

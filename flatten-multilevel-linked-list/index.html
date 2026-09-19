@@ -18,7 +18,7 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 22px 16px 48px; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
-    main { max-width: 920px; margin: auto; }
+    main { width: min(100%, 1480px); margin: auto; }
     h1 { margin: 0 0 7px; font-size: 27px; font-weight: 500; }
     h2 { margin: 0 0 7px; font-size: 18px; font-weight: 500; }
     p { line-height: 1.5; }
@@ -28,6 +28,10 @@
     button:disabled { cursor: default; opacity: .42; }
     :is(button, select, .diagram):focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
     .eyebrow { margin: 0 0 8px; color: var(--secondary); font-size: 12px; }
+    .site-nav { margin: 0 0 18px; }
+    .back-link { display: inline-flex; min-height: 34px; align-items: center; padding: 5px 9px; border: 1px solid #858580; border-radius: 3px; color: var(--ink); font-size: 12px; text-decoration: none; }
+    .back-link:hover { background: var(--wash); }
+    .back-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
     .intro { max-width: 740px; margin: 0 0 17px; color: var(--secondary); font-size: 14px; }
     .controls, .jump-row, .practice-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
     .controls { margin-bottom: 10px; }
@@ -70,14 +74,16 @@
     .source-button:active { cursor: grabbing; }
     .source-button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
     .practice-status { min-height: 18px; margin: 5px 0 0; color: var(--secondary); font-size: 12px; }
-    .notes { margin-top: 17px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(350px, .9fr); gap: 24px; align-items: start; }
+    .demo-pane { min-width: 0; }
+    .notes { grid-column: 1 / -1; grid-row: 2; margin-top: 0; border-top: 1px solid var(--border); padding-top: 14px; }
     .notes p, .notes li { color: var(--secondary); font-size: 13px; line-height: 1.55; }
     .notes p { margin: 5px 0; }
     .notes ol { margin: 8px 0; padding-left: 20px; }
     .notes li { margin: 4px 0; }
-    .code-panel { margin-top: 17px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .code-panel { grid-column: 2; grid-row: 1; position: sticky; top: 16px; min-width: 0; max-height: calc(100vh - 32px); border: 1px solid var(--border); padding: 14px; overflow: hidden; background: var(--paper); }
     .code-panel > p { margin: 0 0 9px; color: var(--secondary); font-size: 12px; }
-    .code-panel pre { margin: 0; overflow: auto; padding: 10px 0; border-left: 2px solid var(--border); background: #f8f6f0; font-size: 12px; line-height: 1.5; }
+    .code-panel pre { max-height: calc(100vh - 128px); margin: 0; overflow: auto; padding: 10px 0; border-left: 2px solid var(--border); background: #f8f6f0; font-size: 12px; line-height: 1.5; }
     .code-panel pre code { display: block; }
     .code-line { display: block; width: max-content; min-width: 100%; padding: 0 12px; white-space: pre; }
     .code-line.is-active { background: #e9e5d9; outline: 1px dashed var(--muted); outline-offset: -1px; }
@@ -94,6 +100,12 @@
       .stage-label.branch-label { display: none; }
       .callout { font-size: 12px; }
     }
+    @media (max-width: 1000px) {
+      .workspace { grid-template-columns: minmax(0, 1fr); }
+      .code-panel { grid-column: 1; grid-row: 2; position: static; max-height: none; }
+      .code-panel pre { max-height: min(520px, 70vh); }
+      .notes { grid-column: 1; grid-row: 3; }
+    }
     @media (prefers-reduced-motion: reduce) {
       .node.is-changed, .reference.is-repositioned { animation: none; }
     }
@@ -101,10 +113,13 @@
 </head>
 <body>
 <main>
+  <nav class="site-nav" aria-label="页面导航"><a class="back-link" href="../">← 返回主页</a></nav>
   <p class="eyebrow">Algorithm Visuals · Linked Lists</p>
   <h1>Flatten a Multi-Level Linked List</h1>
   <p class="intro">把每条 <code>child</code> 子链依发现顺序接到最外层链表末尾。图中 <code>curr</code> 沿不断增长的 <code>next</code> 链行走；每次接入子链后，<code>tail</code> 再走到新的末尾。</p>
 
+  <div class="workspace" data-learning-layout>
+  <div class="demo-pane" data-animation-panel>
   <div class="controls" aria-label="步骤控制">
     <button class="plain-button" type="button" id="previous">上一步</button>
     <span class="step-count" id="step-count" aria-live="polite"></span>
@@ -133,11 +148,12 @@
     </div>
   </section>
 
-  <p class="callout" id="callout" aria-live="polite"><code></code><span></span></p>
+  <p class="callout" id="callout" aria-live="polite"><code data-current-code></code><span></span></p>
   <div class="practice-row" id="practice-row" hidden>
     <span>可把图中的 <code>tail.next</code> 拖到子链首节点，或先点它再点节点（键盘用 Tab、Enter）。</span>
   </div>
   <p class="practice-status" id="practice-status" aria-live="polite"></p>
+  </div>
 
   <section class="notes">
     <h2>为什么这样做</h2>
@@ -151,11 +167,12 @@
     <p>圆圈为了排版会移到主链行；编号保持不变，表示仍是原来的节点。<code>curr</code> 与 <code>tail</code> 方框只是变量引用；实线或虚线变化才是节点字段变化。时间 <code>O(n)</code>：<code>curr</code> 和 <code>tail</code> 都只向前走。额外空间 <code>O(1)</code>。</p>
   </section>
 
-  <section class="code-panel">
+  <section class="code-panel" data-code-panel>
     <h2>对应代码</h2>
     <p>上方虚线说明对应高亮代码行；空链表会直接返回 <code>None</code>。</p>
-    <pre tabindex="0"><code><span class="code-line">class MultiLevelListNode:</span><span class="code-line">    def __init__(self, val, next, child):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line">        self.child = child</span><span class="code-line"> </span><span class="code-line">def flatten_multi_level_list(head: MultiLevelListNode) -&gt; MultiLevelListNode:</span><span class="code-line" data-line="empty">    if not head:</span><span class="code-line">        return None</span><span class="code-line" data-line="tail-init">    tail = head</span><span class="code-line" data-line="tail-test">    while tail.next:</span><span class="code-line" data-line="tail-scan">        tail = tail.next</span><span class="code-line" data-line="curr-init">    curr = head</span><span class="code-line" data-line="loop">    while curr:</span><span class="code-line" data-line="if-child">        if curr.child:</span><span class="code-line" data-line="append">            tail.next = curr.child</span><span class="code-line" data-line="clear">            curr.child = None</span><span class="code-line" data-line="tail-walk-test">            while tail.next:</span><span class="code-line" data-line="tail-walk">                tail = tail.next</span><span class="code-line" data-line="curr-walk">        curr = curr.next</span><span class="code-line" data-line="return">    return head</span></code></pre>
+    <pre tabindex="0" data-code-scroll aria-label="完整 Python 代码，当前步骤同步高亮"><code><span class="code-line">class MultiLevelListNode:</span><span class="code-line">    def __init__(self, val, next, child):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line">        self.child = child</span><span class="code-line"> </span><span class="code-line" data-line="start">def flatten_multi_level_list(head: MultiLevelListNode) -&gt; MultiLevelListNode:</span><span class="code-line" data-line="empty">    if not head:</span><span class="code-line">        return None</span><span class="code-line" data-line="tail-init">    tail = head</span><span class="code-line" data-line="tail-test">    while tail.next:</span><span class="code-line" data-line="tail-scan">        tail = tail.next</span><span class="code-line" data-line="curr-init">    curr = head</span><span class="code-line" data-line="loop">    while curr:</span><span class="code-line" data-line="if-child">        if curr.child:</span><span class="code-line" data-line="append">            tail.next = curr.child</span><span class="code-line" data-line="clear">            curr.child = None</span><span class="code-line" data-line="tail-walk-test">            while tail.next:</span><span class="code-line" data-line="tail-walk">                tail = tail.next</span><span class="code-line" data-line="curr-walk">        curr = curr.next</span><span class="code-line" data-line="return">    return head</span></code></pre>
   </section>
+  </div>
 </main>
 <script>
 (() => {
@@ -174,6 +191,7 @@
   const practiceRow = document.getElementById('practice-row');
   const connectSource = document.getElementById('connect-source');
   const practiceStatus = document.getElementById('practice-status');
+  const codeScroll = document.querySelector('[data-code-scroll]');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const ids = Array.from({length: 11}, (_, i) => i + 1);
   const nodes = new Map();
@@ -200,7 +218,7 @@
     if (mutate) mutate(work);
     frames.push({action, code, explanation, line, state: clone(work), bookmark: bookmark || ''});
   }
-  add('start', '开始', '第一层是 1 → 2 → 3 → 4 → 5；实线是 next，虚线是 child。', '', null, '初始结构');
+  add('start', '开始', '第一层是 1 → 2 → 3 → 4 → 5；实线是 next，虚线是 child。', 'start', null, '初始结构');
   add('tail', 'tail = head', 'tail 变量现在指向节点 1；链表还没有改变。', 'tail-init', s => {s.tail = 1;});
   while (work.next[work.tail] !== null) {
     const nextTail = work.next[work.tail];
@@ -411,7 +429,19 @@
     if (latest) jump.value = latest.value;
     callout.querySelector('code').textContent = frame.code;
     callout.querySelector('span').textContent = frame.explanation;
-    for (const line of document.querySelectorAll('[data-line]')) line.classList.toggle('is-active', line.dataset.line === frame.line);
+    let activeCodeLine = null;
+    for (const line of document.querySelectorAll('[data-line]')) {
+      line.dataset.codeLine = line.dataset.line;
+      const active = line.dataset.line === frame.line;
+      line.classList.toggle('is-active', active);
+      if (active) {
+        line.setAttribute('aria-current', 'step');
+        activeCodeLine = line;
+      } else line.removeAttribute('aria-current');
+    }
+    if (activeCodeLine && codeScroll.clientHeight) {
+      codeScroll.scrollTop = Math.max(0, activeCodeLine.offsetTop - codeScroll.clientHeight / 2 + activeCodeLine.offsetHeight / 2);
+    }
     const childHead = frame.state.curr === null ? null : frame.state.child[frame.state.curr];
     const canConnect = frame.action === 'check' && childHead !== null && frames[step + 1]?.action === 'append';
     practiceRow.hidden = !canConnect;

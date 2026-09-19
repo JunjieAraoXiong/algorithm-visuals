@@ -16,13 +16,18 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 18px; background: var(--paper); color: var(--ink); font: 15px/1.45 Arial, Helvetica, sans-serif; }
-    main { max-width: 930px; margin: 0 auto; }
+    main { width: min(100%, 1480px); margin: 0 auto; }
     button, select { color: var(--ink); font: inherit; }
-    button:focus-visible, select:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    button:focus-visible, select:focus-visible, .back-link:focus-visible, .code-panel pre:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    .back-nav { margin: 0 3px 13px; }
+    .back-link { display: inline-block; min-height: 34px; padding: 6px 10px; border: 1px solid #777; border-radius: 2px; color: var(--ink); font-size: 13px; text-decoration: none; }
+    .back-link:hover { background: #f5f2e9; }
     .heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin: 0 3px 8px; }
     h1 { margin: 0; font-size: 18px; font-weight: 500; }
     .subtitle { margin: 3px 0 0; color: var(--quiet); font-size: 12px; }
-    .settings { display: flex; align-items: center; gap: 6px; font: 13px monospace; white-space: nowrap; }
+    .learning-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(360px, 2fr); gap: clamp(18px, 2vw, 30px); align-items: start; }
+    .animation-panel, .code-panel { min-width: 0; }
+    .settings { display: flex; width: fit-content; align-items: center; gap: 6px; margin: 0 3px 4px; font: 13px monospace; white-space: nowrap; }
     .settings select { border: 1px solid #777; border-radius: 2px; padding: 4px 20px 4px 6px; background: var(--paper); }
     .controls { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; padding: 8px 3px; border-bottom: 1px solid var(--rule); font: 13px monospace; }
     .controls button { border: 1px solid #777; border-radius: 2px; padding: 5px 9px; background: transparent; cursor: pointer; }
@@ -50,13 +55,26 @@
     .legend { display: flex; flex-wrap: wrap; gap: 5px 18px; margin: 10px 3px 0; color: var(--quiet); font-size: 12px; }
     .hint { margin: 7px 3px 0; color: var(--quiet); font-size: 12px; }
     .note { margin: 8px 3px 0; padding-top: 8px; border-top: 1px solid var(--rule); color: var(--quiet); font-size: 12px; }
+    .code-panel { position: sticky; top: 18px; border: 1px solid var(--rule); padding: 13px; }
+    .code-panel h2 { margin: 0 0 5px; font-size: 15px; font-weight: 500; }
+    .code-status { min-height: 36px; margin: 0 0 9px; color: var(--quiet); font-size: 12px; line-height: 1.45; }
+    .code-panel pre { max-height: calc(100svh - 135px); margin: 0; overflow: auto; border-left: 2px solid var(--rule); background: #f8f6f0; font: 12px/1.55 monospace; }
+    .code-panel pre code { display: block; min-width: max-content; padding: 9px 0; }
+    .code-line { display: block; width: max-content; min-width: 100%; padding: 0 11px 0 9px; border-left: 3px solid transparent; white-space: pre; }
+    .code-line.is-active { border-left-color: var(--ink); background: #e9e5d9; outline: 1px dashed #777; outline-offset: -1px; }
     .reasoning { margin: 20px 3px 0; padding-top: 15px; border-top: 1px solid var(--rule); }
     .reasoning h2 { margin: 0 0 10px; font-size: 16px; font-weight: 500; }
     .reasoning h3 { margin: 15px 0 5px; font-size: 14px; font-weight: 600; }
-    .reasoning p { margin: 0 0 7px; max-width: 75ch; }
-    .reasoning ol { margin: 5px 0 0; padding-left: 23px; }
+    .reasoning p { margin: 0 0 7px; max-width: 90ch; }
+    .reasoning ol { max-width: 90ch; margin: 5px 0 0; padding-left: 23px; }
     .reasoning li { margin: 4px 0; }
     .reasoning code { font: 13px/1.4 monospace; }
+    @media (max-width: 1000px) {
+      main { width: min(100%, 900px); }
+      .learning-layout { grid-template-columns: minmax(0, 1fr); }
+      .code-panel { position: static; }
+      .code-panel pre { max-height: none; }
+    }
     @media (max-width: 480px) {
       :root { --node-size: 36px; }
       body { padding: 7px; }
@@ -77,51 +95,63 @@
 </head>
 <body>
 <main id="remove-lab">
+  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← 返回主页</a></nav>
   <div class="heading">
     <div>
       <h1>删除链表倒数第 k 个节点</h1>
       <p class="subtitle">例子：1 → 2 → 4 → 7 → 3；D 是放在 head 前面的 dummy 节点。</p>
     </div>
-    <label class="settings" for="k-choice">k =
-      <select id="k-choice" aria-label="选择从末尾数第几个节点">
-        <option value="1">1</option><option value="2" selected>2</option><option value="3">3</option>
-        <option value="4">4</option><option value="5">5（删除 head）</option><option value="6">6（超出长度）</option>
-      </select>
-    </label>
   </div>
 
-  <div class="controls">
-    <button type="button" data-action="previous">上一步</button>
-    <output data-count aria-live="polite">0 / 0</output>
-    <button type="button" data-action="next">下一步</button>
-    <span class="gap" data-gap>间距：0 条边</span>
-  </div>
+  <div class="learning-layout" data-learning-layout>
+    <div class="animation-panel" data-animation-panel>
+      <label class="settings" for="k-choice">k =
+        <select id="k-choice" aria-label="选择从末尾数第几个节点">
+          <option value="1">1</option><option value="2" selected>2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5（删除 head）</option><option value="6">6（超出长度）</option>
+        </select>
+      </label>
 
-  <div class="stage" data-stage aria-label="固定位置的 dummy 节点、五个链表节点和两个可移动指针">
-    <svg class="lines" data-lines aria-hidden="true"></svg>
-    <svg class="motion" data-motion aria-hidden="true"></svg>
-    <button type="button" class="source" data-source="trailer">trailer</button>
-    <button type="button" class="source" data-source="leader">leader</button>
-    <button type="button" class="node dummy" data-target="D" aria-label="dummy 节点 D">D</button>
-    <button type="button" class="node" data-target="1" aria-label="节点 1">1</button>
-    <button type="button" class="node" data-target="2" aria-label="节点 2">2</button>
-    <button type="button" class="node" data-target="4" aria-label="节点 4">4</button>
-    <button type="button" class="node" data-target="7" aria-label="节点 7">7</button>
-    <button type="button" class="node" data-target="3" aria-label="节点 3">3</button>
-    <button type="button" class="null" data-target="null" aria-label="None，链表结束">None</button>
-    <button type="button" class="source link" data-source="link">D.next</button>
-  </div>
+      <div class="controls">
+        <button type="button" data-action="previous">上一步</button>
+        <output data-count aria-live="polite">0 / 0</output>
+        <button type="button" data-action="next">下一步</button>
+        <span class="gap" data-gap>间距：0 条边</span>
+      </div>
 
-  <p class="operation" data-operation aria-live="polite"></p>
-  <div class="legend">
-    <span>圆圈间实线：节点保存的 .next</span>
-    <span>方框细箭头：变量指向</span>
-    <span>变量细箭头会移向新目标；改 .next 时强调被修改的实线</span>
-    <span>下方虚线方框：trailer 所在节点的 .next</span>
-    <span>括号：当前两个指针相隔的边数</span>
+      <div class="stage" data-stage aria-label="固定位置的 dummy 节点、五个链表节点和两个可移动指针">
+        <svg class="lines" data-lines aria-hidden="true"></svg>
+        <svg class="motion" data-motion aria-hidden="true"></svg>
+        <button type="button" class="source" data-source="trailer">trailer</button>
+        <button type="button" class="source" data-source="leader">leader</button>
+        <button type="button" class="node dummy" data-target="D" aria-label="dummy 节点 D">D</button>
+        <button type="button" class="node" data-target="1" aria-label="节点 1">1</button>
+        <button type="button" class="node" data-target="2" aria-label="节点 2">2</button>
+        <button type="button" class="node" data-target="4" aria-label="节点 4">4</button>
+        <button type="button" class="node" data-target="7" aria-label="节点 7">7</button>
+        <button type="button" class="node" data-target="3" aria-label="节点 3">3</button>
+        <button type="button" class="null" data-target="null" aria-label="None，链表结束">None</button>
+        <button type="button" class="source link" data-source="link">D.next</button>
+      </div>
+
+      <p class="operation" data-operation aria-live="polite"></p>
+      <div class="legend">
+        <span>圆圈间实线：节点保存的 .next</span>
+        <span>方框细箭头：变量指向</span>
+        <span>变量细箭头会移向新目标；改 .next 时强调被修改的实线</span>
+        <span>下方虚线方框：trailer 所在节点的 .next</span>
+        <span>括号：当前两个指针相隔的边数</span>
+      </div>
+      <p class="hint">拖动 leader、trailer 或下方的 .next 到目标；也可先点方框，再点节点／None。键盘可用 Tab 和 Enter。自由练习不会推进演示。</p>
+      <p class="note">关键区别：移动 leader／trailer 只改变变量的箭头；执行 trailer.next = trailer.next.next 才改变节点之间的实线。返回 dummy.next，才能处理删除原 head 的情况。</p>
+    </div>
+
+    <aside class="code-panel" data-code-panel aria-labelledby="code-title">
+      <h2 id="code-title">完整 Python 代码</h2>
+      <p class="code-status" data-code-status aria-live="polite">当前步骤对应的代码行会在下方标出。</p>
+      <pre data-code-scroll tabindex="0" aria-label="完整 Python 代码，当前步骤会高亮"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val=0, next_node=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next_node</span><span class="code-line"> </span><span class="code-line"> </span><span class="code-line">def remove_kth_last_node(head, k):</span><span class="code-line" data-source-key="remove-init-dummy">    dummy = ListNode(0, head)</span><span class="code-line" data-source-key="remove-init-pointers">    leader = trailer = dummy</span><span class="code-line"> </span><span class="code-line">    for _ in range(k):</span><span class="code-line" data-source-key="remove-advance-leader">        leader = leader.next</span><span class="code-line" data-source-key="remove-validity-check">        if not leader:</span><span class="code-line" data-source-key="remove-invalid-return">            return head</span><span class="code-line"> </span><span class="code-line" data-source-key="remove-walk-condition">    while leader.next:</span><span class="code-line" data-source-key="remove-move-leader">        leader = leader.next</span><span class="code-line" data-source-key="remove-move-trailer">        trailer = trailer.next</span><span class="code-line"> </span><span class="code-line" data-source-key="remove-rewire">    trailer.next = trailer.next.next</span><span class="code-line" data-source-key="remove-return">    return dummy.next</span></code></pre>
+    </aside>
   </div>
-  <p class="hint">拖动 leader、trailer 或下方的 .next 到目标；也可先点方框，再点节点／None。键盘可用 Tab 和 Enter。自由练习不会推进演示。</p>
-  <p class="note">关键区别：移动 leader／trailer 只改变变量的箭头；执行 trailer.next = trailer.next.next 才改变节点之间的实线。返回 dummy.next，才能处理删除原 head 的情况。</p>
 
   <section class="reasoning" aria-labelledby="reasoning-title">
     <h2 id="reasoning-title">怎么想到双指针？</h2>
@@ -153,6 +183,9 @@
   const operation = root.querySelector('[data-operation]');
   const count = root.querySelector('[data-count]');
   const gapLabel = root.querySelector('[data-gap]');
+  const codeStatus = root.querySelector('[data-code-status]');
+  const codeScroll = root.querySelector('[data-code-scroll]');
+  const codeLines = [...root.querySelectorAll('[data-source-key]')];
   const previous = root.querySelector('[data-action="previous"]');
   const next = root.querySelector('[data-action="next"]');
   const choice = root.querySelector('#k-choice');
@@ -176,6 +209,35 @@
   let referenceFrame = null;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   reducedMotion.addEventListener('change', () => { clearCue(); clearReferenceMotion(); draw(); });
+
+  function syncCode(sourceKeys = []) {
+    const activeKeys = new Set(sourceKeys);
+    const activeLines = [];
+    for (const line of codeLines) {
+      const active = activeKeys.has(line.dataset.sourceKey);
+      line.classList.toggle('is-active', active);
+      if (active) {
+        line.setAttribute('aria-current', 'step');
+        activeLines.push(line);
+      } else {
+        line.removeAttribute('aria-current');
+      }
+    }
+    if (!activeLines.length) {
+      codeStatus.textContent = '自由练习不会执行右侧源码；选择上一步或下一步可恢复同步。';
+      return;
+    }
+    codeStatus.textContent = `当前执行：${activeLines.map(line => line.textContent.trim()).join('；')}`;
+    const first = activeLines[0];
+    const top = first.offsetTop;
+    const bottom = top + first.offsetHeight;
+    if (top < codeScroll.scrollTop || bottom > codeScroll.scrollTop + codeScroll.clientHeight) {
+      codeScroll.scrollTo({
+        top: Math.max(0, top - (codeScroll.clientHeight - first.offsetHeight) / 2),
+        behavior: reducedMotion.matches ? 'auto' : 'smooth'
+      });
+    }
+  }
 
   function clearCue() {
     if (cueFrame !== null) cancelAnimationFrame(cueFrame);
@@ -266,32 +328,32 @@
   function build(k) {
     const work = {leader: 'D', trailer: 'D', links: {...initialLinks}, removed: null, phase: 'advance'};
     const result = [];
-    const add = (code, explanation, change, changed) => {
+    const add = (sourceKeys, code, explanation, change, changed) => {
       if (change) change(work);
-      result.push({state: clone(work), code, explanation, changed});
+      result.push({state: clone(work), code, sourceKeys, explanation, changed});
     };
-    add('dummy.next = head; leader = trailer = dummy', 'D 放在原 head 前。两个变量都指向 D；先让 leader 向前走 k 步。');
+    add(['remove-init-dummy', 'remove-init-pointers'], 'dummy = ListNode(0, head); leader = trailer = dummy', 'D 放在原 head 前。两个变量都指向 D；先让 leader 向前走 k 步。');
     for (let i = 1; i <= k; i++) {
       const value = work.links[work.leader];
-      add('leader = leader.next', `第 ${i} / ${k} 次前进：leader 现在指向${name(value)}。只改变 leader 变量，节点的 .next 没变。`, s => {s.leader = value;}, 'leader');
+      add(['remove-advance-leader'], 'leader = leader.next', `第 ${i} / ${k} 次前进：leader 现在指向${name(value)}。只改变 leader 变量，节点的 .next 没变。`, s => {s.leader = value;}, 'leader');
       if (value === null) {
-        add('if not leader: return head', `leader 已走到 None：k = ${k} 超出长度 5。返回原 head，链表不变。`, s => {s.phase = 'invalid';});
+        add(['remove-validity-check', 'remove-invalid-return'], 'if not leader: return head', `leader 已走到 None：k = ${k} 超出长度 5。返回原 head，链表不变。`, s => {s.phase = 'invalid';});
         return result;
       }
-      add('if not leader:  # False', 'leader 仍指向一个节点，继续前进；链表的 .next 没有改变。');
+      add(['remove-validity-check'], 'if not leader:  # False', 'leader 仍指向一个节点，继续前进；链表的 .next 没有改变。');
     }
-    add('while leader.next:', `已经隔开 ${k} 条边。接下来让两个指针一起前进，直到 leader 到达最后一个节点。`, s => {s.phase = 'move';});
+    add(['remove-walk-condition'], 'while leader.next:', `已经隔开 ${k} 条边。接下来让两个指针一起前进，直到 leader 到达最后一个节点。`, s => {s.phase = 'move';});
     while (work.links[work.leader] !== null) {
       const lead = work.links[work.leader];
       const trail = work.links[work.trailer];
-      add('leader = leader.next', `leader 指向${name(lead)}；这一小步后，trailer 还没移动，间距暂时多 1。`, s => {s.leader = lead;}, 'leader');
-      add('trailer = trailer.next', `trailer 指向${name(trail)}；两者重新相隔 ${k} 条边。节点的 .next 没变。`, s => {s.trailer = trail;}, 'trailer');
+      add(['remove-move-leader'], 'leader = leader.next', `leader 指向${name(lead)}；这一小步后，trailer 还没移动，间距暂时多 1。`, s => {s.leader = lead;}, 'leader');
+      add(['remove-move-trailer'], 'trailer = trailer.next', `trailer 指向${name(trail)}；两者重新相隔 ${k} 条边。节点的 .next 没变。`, s => {s.trailer = trail;}, 'trailer');
     }
     const doomed = work.links[work.trailer];
     const after = work.links[doomed];
-    add('while leader.next:  # False', `leader 已到最后一个节点。trailer 停在${name(doomed)}的前一个节点。`, s => {s.phase = 'ready';});
-    add('trailer.next = trailer.next.next', `把 ${work.trailer}.next 从${name(doomed)}改为${name(after)}。代码没有改被跳过节点的 .next；若该节点仍存在，它仍指向${name(after)}。从 head 已到不了它。`, s => {s.links[s.trailer] = after; s.removed = doomed; s.phase = 'removed';}, 'link');
-    add('return dummy.next', `返回 D.next（${name(work.links.D)}）作为新的 head。${after === null ? '' : `${name(after)}仍在新链表中，没有被复制。`}图中的虚线旧节点只是示意；若没有其他引用，Python 可以回收它。`, s => {s.phase = 'done';});
+    add(['remove-walk-condition'], 'while leader.next:  # False', `leader 已到最后一个节点。trailer 停在${name(doomed)}的前一个节点。`, s => {s.phase = 'ready';});
+    add(['remove-rewire'], 'trailer.next = trailer.next.next', `把 ${work.trailer}.next 从${name(doomed)}改为${name(after)}。代码没有改被跳过节点的 .next；若该节点仍存在，它仍指向${name(after)}。从 head 已到不了它。`, s => {s.links[s.trailer] = after; s.removed = doomed; s.phase = 'removed';}, 'link');
+    add(['remove-return'], 'return dummy.next', `返回 D.next（${name(work.links.D)}）作为新的 head。${after === null ? '' : `${name(after)}仍在新链表中，没有被复制。`}图中的虚线旧节点只是示意；若没有其他引用，Python 可以回收它。`, s => {s.phase = 'done';});
     return result;
   }
 
@@ -407,6 +469,7 @@
     const explanation = document.createElement('span');
     explanation.textContent = manualMessage || frame.explanation;
     operation.append(code, explanation);
+    syncCode(manualMessage ? [] : frame.sourceKeys);
     for (const source of sources) {
       const key = source.dataset.source;
       const value = key === 'link' ? state.trailer === null ? undefined : state.links[state.trailer] : state[key];
@@ -496,6 +559,7 @@
       if (event.pointerType === 'mouse' && event.button !== 0) return;
       clearCue();
       clearReferenceMotion();
+      syncCode([]);
       draw();
       drag = {source: source.dataset.source, button: source, startX: event.clientX, startY: event.clientY, x: 0, y: 0, moved: false};
       source.setPointerCapture(event.pointerId);
