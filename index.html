@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Bilingual interactive algorithm visuals, organized by coding interview pattern. 中英双语算法交互图解。">
-  <title>Algorithm Visuals · 算法可视化</title>
+  <title>Algo Visual</title>
   <style>
     :root {
       --paper: #fffdf8;
@@ -25,36 +25,18 @@
     main { width: min(100%, 1120px); margin: auto; }
     a { color: inherit; }
     a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
-    code, .eyebrow, .count, .problem-number, .chip {
+    code, .problem-number, .chip {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
-    .eyebrow {
-      margin: 0 0 10px;
-      color: var(--secondary);
-      font-size: 11px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
+    header { padding: 3px 0 1px; }
     h1 {
       max-width: 680px;
       margin: 0;
-      font-size: clamp(30px, 4vw, 46px);
+      font-size: clamp(30px, 4vw, 42px);
       font-weight: 500;
       line-height: 1.02;
       letter-spacing: -.04em;
     }
-    h1 span { display: block; margin-top: 9px; font-size: .55em; letter-spacing: 0; }
-    .intro {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      max-width: 850px;
-      margin: 16px 0 12px;
-      color: var(--secondary);
-      font-size: 13px;
-    }
-    .intro p { margin: 0; }
-    .count { margin: 0; color: var(--secondary); font-size: 12px; }
     .pattern {
       margin-top: 22px;
       padding-top: 17px;
@@ -114,7 +96,6 @@
     footer a { text-underline-offset: 3px; }
     @media (max-width: 650px) {
       body { padding: 21px 10px 38px; }
-      .intro { grid-template-columns: 1fr; gap: 8px; }
       .pattern-heading { grid-template-columns: 56px minmax(0, 1fr); gap: 9px; }
       .pattern-number { width: 46px; height: 46px; }
       .pattern-copy { grid-column: 1 / -1; margin-top: 4px; }
@@ -126,13 +107,7 @@
 <body>
 <main>
   <header>
-    <p class="eyebrow">Coding Interview Patterns · 编程面试模式</p>
-    <h1>Algorithm Visuals<span lang="zh-CN">算法可视化</span></h1>
-    <div class="intro">
-      <p>Learn coding patterns by watching pointers, references, and stored links change one meaningful step at a time.</p>
-      <p lang="zh-CN">逐步观察指针、引用和节点链接如何变化，真正理解常见编程面试模式。</p>
-    </div>
-    <p class="count">6 problems · 7 interactive explanations / 6 道题 · 7 个交互图解</p>
+    <h1>Algo Visual</h1>
   </header>
 
   <section class="pattern" aria-labelledby="linked-lists-title">
