@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of cutting wood with an upper-bound binary search over a boolean search space. 砍木头：在布尔搜索空间上做上界二分查找。" />
+    <title>Cutting Wood · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { height: 350px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .case-grid, .edge-grid, .complexity, .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .wood-stat { display: block; margin: 6px 0 4px; font: 22px/1.2 monospace; }
+      .outcome-table { margin: 10px 0 0; border-collapse: collapse; font: 12px/1.5 monospace; }
+      .outcome-table th, .outcome-table td { padding: 3px 13px; border: 1px solid var(--rule); text-align: center; }
+      .outcome-table th { background: var(--wash); font-weight: 500; }
+      .outcome-table tr.answer td { background: var(--wash); border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+      @media (max-width: 480px) {
+        .outcome-table { font-size: 11px; }
+        .outcome-table th, .outcome-table td { padding: 3px 7px; }
+      }
+      .reason-list { margin: 8px 0 0; padding-left: 24px; }
+      .reason-list li { margin: 6px 0; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .case-grid, .edge-grid, .complexity, .example-grid { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="wood-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Cutting Wood · 砍木头</h1></div></header>
+      <p class="problem">Given <code>heights = [2, 6, 3, 8]</code> and <code>k = 7</code>, set the woodcutter to the highest integer height <code>H</code> (<code>0 ≤ H ≤ max(heights)</code>) so that cutting the top off every tree taller than <code>H</code> yields at least <code>k</code> meters of wood.<span lang="zh-CN">给定树高数组 heights = [2, 6, 3, 8] 和整数 k = 7。电锯设在整数高度 H，所有高过 H 的树被切去顶部，求能切到至少 k 米木材的最高 H。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="砍木头上界二分演示 / cutting wood upper-bound trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="砍木头算法演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>left</code></dt><dd data-m-left></dd></div>
+              <div><dt><code>right</code></dt><dd data-m-right></dd></div>
+              <div><dt><code>mid</code></dt><dd data-m-mid></dd></div>
+              <div><dt><code>wood_collected</code></dt><dd data-m-wood></dd></div>
+              <div><dt><code>k</code></dt><dd>7</dd></div>
+              <div><dt>cuts_enough_wood(mid)</dt><dd data-m-outcome></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="wood-code-title">
+          <h2 id="wood-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def cutting_wood(heights: List[int], k: int) -&gt; int:</span><span class="code-line" data-source-key="init">    left, right = 0, max(heights)</span><span class="code-line" data-source-key="loop">    while left &lt; right:</span><span class="code-line">        # Bias the midpoint to the right during the upper-bound binary</span><span class="code-line">        # search.</span><span class="code-line" data-source-key="mid">        mid = (left + right) // 2 + 1</span><span class="code-line" data-source-key="check">        if cuts_enough_wood(mid, k, heights):</span><span class="code-line" data-source-key="go-left">            left = mid</span><span class="code-line">        else:</span><span class="code-line" data-source-key="go-right">            right = mid - 1</span><span class="code-line" data-source-key="return">    return right</span><span class="code-line"> </span><span class="code-line"># Determine if the current value of 'H' cuts at least 'k' meters of</span><span class="code-line"># wood.</span><span class="code-line" data-source-key="helper-def">def cuts_enough_wood(H: int, k: int, heights: List[int]) -&gt; bool:</span><span class="code-line" data-source-key="helper-zero">    wood_collected = 0</span><span class="code-line" data-source-key="helper-for">    for height in heights:</span><span class="code-line" data-source-key="helper-if">        if height &gt; H:</span><span class="code-line" data-source-key="helper-add">            wood_collected += (height - H)</span><span class="code-line" data-source-key="helper-return">    return wood_collected &gt;= k</span></code></pre>
+          <p class="note">每调用一次 <code>cuts_enough_wood</code> 都遍历整个树高数组；<code>cutting_wood</code> 对它做 <code>O(log m)</code> 次调用。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="wood-intuition">
+        <h2 id="wood-intuition">直觉：H 越大，木材越少 / Monotonic wood</h2>
+        <p class="section-intro">每棵树贡献 <code>max(0, height − H)</code> 米，所以把 <code>H</code> 从 0 逐渐调高，总木材只减不增。二分搜索的对象是 <code>H</code> 的取值轴，不是树高数组——数组本身无需有序。</p>
+        <div class="example-grid">
+          <article class="paper-card"><strong>H = 0 · 切得最多</strong><span class="wood-stat">2 + 6 + 3 + 8 = 19 m</span><p>锯子贴地，所有树都被整棵切下。<span lang="zh-CN">任何 k ≤ 19 都一定够。</span></p></article>
+          <article class="paper-card"><strong>H = 8 · 切得最少</strong><span class="wood-stat">0 m</span><p>锯子和最高的树齐平，一棵树都切不到。<span lang="zh-CN">H 再高也没有意义。</span></p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="wood-judge">
+        <h2 id="wood-judge">判定函数 cuts_enough_wood</h2>
+        <p class="section-intro">把每棵树高过 <code>H</code> 的部分加起来，和 <code>k</code> 比较：<code>wood_collected = Σ max(0, height − H)</code>，返回 <code>wood_collected &gt;= k</code>。</p>
+        <div class="example-grid">
+          <article class="paper-card"><strong>H = 3 · 可行</strong><span class="wood-stat">(6−3) + (8−3) = 8 ≥ 7</span><p>返回 True；3 是候选答案。<span lang="zh-CN">比 3 更高的设置还要再验证。</span></p></article>
+          <article class="paper-card"><strong>H = 4 · 不可行</strong><span class="wood-stat">(6−4) + (8−4) = 6 &lt; 7</span><p>返回 False；H = 4 及其以上全部排除。</p></article>
+        </div>
+        <table class="outcome-table">
+          <thead><tr><th>H</th><th>wood_collected</th><th>cuts_enough_wood(H, k)</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td>19</td><td>True</td></tr>
+            <tr><td>1</td><td>15</td><td>True</td></tr>
+            <tr><td>2</td><td>11</td><td>True</td></tr>
+            <tr class="answer"><td>3</td><td>8</td><td>True ← 最后一个 True</td></tr>
+            <tr><td>4</td><td>6</td><td>False</td></tr>
+            <tr><td>5</td><td>4</td><td>False</td></tr>
+            <tr><td>6</td><td>2</td><td>False</td></tr>
+            <tr><td>7</td><td>0</td><td>False</td></tr>
+            <tr><td>8</td><td>0</td><td>False</td></tr>
+          </tbody>
+        </table>
+        <p class="small">所有 True 排在所有 False 之前：布尔结果构成一个有序序列，目标“最高的可行 H”就是这个序列里最后一个 True（upper bound / 上界）。</p>
+      </section>
+
+      <section class="section" aria-labelledby="wood-cases">
+        <h2 id="wood-cases">上界二分：两种情况 / Two cases</h2>
+        <div class="case-grid">
+          <article class="paper-card"><strong>Case 1 · cuts_enough_wood(mid) 为 True</strong><p><code>mid</code> 可行，说明答案 ≥ <code>mid</code>：区间缩到 <code>[mid, right]</code>，执行 <code>left = mid</code>，保留 mid 继续向右找。</p></article>
+          <article class="paper-card"><strong>Case 2 · cuts_enough_wood(mid) 为 False</strong><p><code>mid</code> 太高，说明答案 &lt; <code>mid</code>：区间缩到 <code>[left, mid − 1]</code>，执行 <code>right = mid − 1</code>，弃掉 mid。</p></article>
+        </div>
+        <p class="small"><code>mid = (left + right) // 2 + 1</code> 向右偏置：当 <code>right = left + 1</code> 时 mid 落在 right 上，两种分支都会让区间变小，不会死循环。循环结束时 <code>left == right</code>，它就是最后一个 True。</p>
+      </section>
+
+      <section class="section" aria-labelledby="wood-edge">
+        <h2 id="wood-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>k 一定能达到</strong><p>题目保证 <code>H = 0</code> 总能切够，所以答案必然存在，<code>left</code> 从 0 开始不会落空。</p></article>
+          <article class="paper-card"><strong>k = 0</strong><p>任何 <code>H</code> 都“够”，循环一路把 <code>left</code> 推到 <code>max(heights)</code>，返回最高可设的高度。</p></article>
+          <article class="paper-card"><strong>H 的上限</strong><p><code>H &gt; max(heights)</code> 时一根木材也切不到，又比 <code>max(heights)</code> 本身更“不够”，所以右边界就是 <code>max(heights)</code>。</p></article>
+          <article class="paper-card"><strong>只有一棵树</strong><p>区间仍是 <code>[0, heights[0]]</code>，同样的二分照常进行。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="wood-complexity">
+        <h2 id="wood-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n log m)</strong><p>在 <code>[0, m]</code>（m = max(heights)）上做二分，共 <code>O(log m)</code> 轮；每轮调用 <code>cuts_enough_wood</code> 遍历数组一次 <code>O(n)</code>。合计 <code>O(log m) · O(n) = O(n log m)</code>。</p></article>
+          <article class="paper-card"><strong>Extra space · O(1)</strong><p>只保存 <code>left</code>、<code>right</code>、<code>mid</code> 和累加器 <code>wood_collected</code>。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../find-the-insertion-index/">搜索插入位置</a><a href="../first-and-last-occurrences-of-a-number/">数字的首尾出现位置</a><a href="../find-the-target-in-a-rotated-sorted-array/">旋转排序数组中查找目标</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('wood-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mLeft = root.querySelector('[data-m-left]');
+        const mRight = root.querySelector('[data-m-right]');
+        const mMid = root.querySelector('[data-m-mid]');
+        const mWood = root.querySelector('[data-m-wood]');
+        const mOutcome = root.querySelector('[data-m-outcome]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+        const explanationZhEl = root.querySelector('[data-explanation-zh]');
+
+        const HEIGHTS = [2, 6, 3, 8];
+        const K = 7;
+        const MAX_H = Math.max(...HEIGHTS);
+        const WOOD = Array.from({ length: MAX_H + 1 }, (_, H) => HEIGHTS.reduce((sum, h) => sum + Math.max(0, h - H), 0));
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const HELPER_KEYS = ['helper-zero', 'helper-for', 'helper-if', 'helper-add', 'helper-return'];
+
+        const fr = (stepLabel, kind, sourceKeys, line, en, zh, invariant, state) =>
+          ({ stepLabel, kind, sourceKeys, line, en, zh, invariant, state: { done: false, ...state } });
+        const FRAMES = [
+          fr('初始化搜索空间 [0, 8]', 'init', ['init'], 'left, right = 0, max(heights)',
+            'The tallest tree is 8 m, so H ranges over [0, 8]; left and right guard the two ends.',
+            '最高的树是 8 米，H 的取值范围是 [0, 8]；left 和 right 守住区间两端。',
+            '答案（最高的可行 H）一定落在 [left, right] 里。',
+            { left: 0, right: 8, mid: null, saw: null, wood: null, outcome: null, visited: [] }),
+          fr('循环 · 0 < 8', 'loop', ['loop'], 'while left < right:  # 0 < 8',
+            '0 < 8, so the loop runs; every H in [0, 8] is still a candidate.',
+            '0 < 8，进入循环，区间 [0, 8] 里的 H 都还是候选。',
+            'left < right：区间内还有候选，继续二分。',
+            { left: 0, right: 8, mid: null, saw: null, wood: null, outcome: null, visited: [] }),
+          fr('mid = 4', 'mid', ['mid'], 'mid = (left + right) // 2 + 1  # (0 + 8) // 2 + 1 = 4',
+            'The right-biased midpoint is 4; the saw moves to H = 4.',
+            '右偏中点 mid = (0 + 8) // 2 + 1 = 4，锯子移到 4 米。',
+            'mid 向右取整：即使 right = left + 1 也能推进，不会死循环。',
+            { left: 0, right: 8, mid: 4, saw: 4, wood: null, outcome: null, visited: [] }),
+          fr('判定 H = 4 → False', 'eval', HELPER_KEYS, 'wood_collected = 2 + 4 = 6 < k = 7  →  return False',
+            'Only the 6 m and 8 m trees are taller than 4: (6−4) + (8−4) = 6 m < 7.',
+            '只有 6、8 两棵树高过 4：(6−4)+(8−4) = 6 米 < 7，cuts_enough_wood 返回 False。',
+            'wood_collected = Σ max(0, height − H)，再和 k 比较。',
+            { left: 0, right: 8, mid: 4, saw: 4, wood: 6, outcome: false, visited: [4] }),
+          fr('right = mid - 1 → 3', 'branch-right', ['check', 'go-right'], 'right = mid - 1  # right = 4 - 1 = 3',
+            'H = 4 is too high; discard it and everything above it. Search [0, 3] now.',
+            '4 米切不够，答案更小：right = 4 − 1 = 3，H > 3 全部排除。',
+            'mid 不可行 → 答案 ∈ [left, mid − 1]，弃掉 mid 及其右侧。',
+            { left: 0, right: 3, mid: 4, saw: 4, wood: 6, outcome: false, visited: [4] }),
+          fr('循环 · 0 < 3', 'loop', ['loop'], 'while left < right:  # 0 < 3',
+            '0 < 3, keep searching.',
+            '0 < 3，继续循环。',
+            'left < right：区间内还有候选，继续二分。',
+            { left: 0, right: 3, mid: null, saw: 4, wood: null, outcome: null, visited: [4] }),
+          fr('mid = 2', 'mid', ['mid'], 'mid = (left + right) // 2 + 1  # (0 + 3) // 2 + 1 = 2',
+            'The midpoint is 2; the saw moves to H = 2.',
+            'mid = (0 + 3) // 2 + 1 = 2，锯子移到 2 米。',
+            'mid 向右取整：即使 right = left + 1 也能推进，不会死循环。',
+            { left: 0, right: 3, mid: 2, saw: 2, wood: null, outcome: null, visited: [4] }),
+          fr('判定 H = 2 → True', 'eval', HELPER_KEYS, 'wood_collected = 4 + 1 + 6 = 11 >= k = 7  →  return True',
+            '(6−2) + (3−2) + (8−2) = 11 m ≥ 7, so H = 2 works.',
+            '(6−2)+(3−2)+(8−2) = 4+1+6 = 11 米 ≥ 7，返回 True。',
+            'wood_collected = Σ max(0, height − H)，再和 k 比较。',
+            { left: 0, right: 3, mid: 2, saw: 2, wood: 11, outcome: true, visited: [4, 2] }),
+          fr('left = mid → 2', 'branch-left', ['check', 'go-left'], 'left = mid  # left = 2',
+            'H = 2 works, so the answer is 2 or higher; keep mid and search [2, 3].',
+            '2 米可行，答案 ≥ 2：left = 2，保留 mid，继续在 [2, 3] 里找更高的。',
+            'mid 可行 → 答案 ∈ [mid, right]，保留 mid。',
+            { left: 2, right: 3, mid: 2, saw: 2, wood: 11, outcome: true, visited: [4, 2] }),
+          fr('循环 · 2 < 3', 'loop', ['loop'], 'while left < right:  # 2 < 3',
+            '2 < 3, keep searching.',
+            '2 < 3，继续循环。',
+            'left < right：区间内还有候选，继续二分。',
+            { left: 2, right: 3, mid: null, saw: 2, wood: null, outcome: null, visited: [4, 2] }),
+          fr('mid = 3', 'mid', ['mid'], 'mid = (left + right) // 2 + 1  # (2 + 3) // 2 + 1 = 3',
+            'The midpoint is 3; the saw moves to H = 3.',
+            'mid = (2 + 3) // 2 + 1 = 3，锯子移到 3 米。',
+            'mid 向右取整：right = left + 1 时 mid 落在 right 上，区间必然缩小。',
+            { left: 2, right: 3, mid: 3, saw: 3, wood: null, outcome: null, visited: [4, 2] }),
+          fr('判定 H = 3 → True', 'eval', HELPER_KEYS, 'wood_collected = 3 + 5 = 8 >= k = 7  →  return True',
+            '(6−3) + (8−3) = 8 m ≥ 7, so H = 3 works.',
+            '(6−3)+(8−3) = 3+5 = 8 米 ≥ 7，返回 True。',
+            'wood_collected = Σ max(0, height − H)，再和 k 比较。',
+            { left: 2, right: 3, mid: 3, saw: 3, wood: 8, outcome: true, visited: [4, 2, 3] }),
+          fr('left = mid → 3', 'branch-left', ['check', 'go-left'], 'left = mid  # left = 3',
+            'H = 3 works too: left = 3. Now left == right.',
+            '3 米也可行：left = 3，此时 left == right。',
+            'mid 可行 → 答案 ∈ [mid, right]，保留 mid。',
+            { left: 3, right: 3, mid: 3, saw: 3, wood: 8, outcome: true, visited: [4, 2, 3] }),
+          fr('循环结束 · 3 == 3', 'exit', ['loop'], 'while left < right:  # 3 < 3 不成立',
+            '3 < 3 is false; the loop ends.',
+            '3 < 3 不成立，循环结束。',
+            'left == right：区间收缩到唯一候选。',
+            { left: 3, right: 3, mid: null, saw: 3, wood: null, outcome: null, visited: [4, 2, 3] }),
+          fr('return 3', 'done', ['return'], 'return right  # return 3',
+            'left and right meet at the last True height; return H = 3, which cuts 8 m ≥ 7.',
+            'left == right == 3，H = 3 是最后一个 True（upper bound），切下 8 米 ≥ 7。',
+            'H = 3 是最后一个 True，即所求的上界。',
+            { left: 3, right: 3, mid: null, saw: 3, wood: 8, outcome: true, visited: [4, 2, 3], done: true })
+        ];
+
+        const scene = core.createSvgScene(svg);
+        const hatchDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        hatchDefs.innerHTML = '<pattern id="wood-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M 0 7 L 7 0" stroke="#8f8f88" stroke-width="1"/></pattern>';
+        svg.prepend(hatchDefs);
+        scene.defineMarker('cw-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+
+        const motion = core.createMotionController();
+        let geom = {};
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const compact = width < 520;
+          const unit = compact ? 18 : 23;
+          const baseline = compact ? 198 : 234;
+          const chartLeft = compact ? 24 : 34;
+          const chartRight = width - 10;
+          const reserve = compact ? 46 : 80;
+          const barArea = chartRight - chartLeft - reserve;
+          const barW = Math.min(compact ? 38 : 56, barArea / 5.1);
+          const gap = (barArea - HEIGHTS.length * barW) / (HEIGHTS.length + 1);
+          const bars = HEIGHTS.map((h, i) => {
+            const x = chartLeft + reserve + gap + i * (barW + gap);
+            return { x, cx: x + barW / 2, h, top: baseline - h * unit };
+          });
+          const stripY = baseline + (compact ? 46 : 54);
+          const cellH = compact ? 26 : 30;
+          const maxStrip = Math.min(width - 16, 660);
+          let cellW = compact ? (maxStrip - 8 * 3) / 9 : 52;
+          let gapS = (maxStrip - 9 * cellW) / 8;
+          if (gapS < 3) { gapS = 3; cellW = (maxStrip - 8 * gapS) / 9; }
+          const startX = (width - (9 * cellW + 8 * gapS)) / 2;
+          const cells = Array.from({ length: MAX_H + 1 }, (_, H) => {
+            const x = startX + H * (cellW + gapS);
+            return { x, cx: x + cellW / 2 };
+          });
+          const stageH = stripY + cellH + (compact ? 40 : 44);
+          geom = { width, compact, unit, baseline, chartLeft, chartRight, bars, barW, stripY, cellH, cellW, cells };
+          svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
+          stage.style.height = `${Math.ceil(stageH)}px`;
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom.cells || !state) return;
+          const g = geom;
+          const lerp = (a, b) => a + (b - a) * t;
+          const presence = (was, is) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
+          const yFor = h => g.baseline - h * g.unit;
+          scene.update(({ path, text, circle }) => {
+            path('axis-y', { d: `M ${g.chartLeft} ${yFor(MAX_H) - 10} L ${g.chartLeft} ${g.baseline}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none' });
+            path('axis-x', { d: `M ${g.chartLeft - 4} ${g.baseline} L ${g.chartRight} ${g.baseline}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none' });
+            text('axis-y-cap', { x: g.chartLeft, y: yFor(MAX_H) - 14, 'text-anchor': 'middle', 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, 'height');
+            text('axis-x-cap', { x: g.chartRight, y: g.baseline + 13, 'text-anchor': 'end', 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, 'i');
+            for (let v = 0; v <= MAX_H; v += 1) {
+              path(`tick-${v}`, { d: `M ${g.chartLeft - 5} ${yFor(v)} L ${g.chartLeft} ${yFor(v)}`, stroke: '#555', 'stroke-width': 1, fill: 'none' });
+              text(`tick-label-${v}`, { x: g.chartLeft - 8, y: yFor(v) + 3.5, 'text-anchor': 'end', 'font-size': g.compact ? 9 : 10.5, fill: '#555', 'font-family': MONO }, String(v));
+            }
+            g.bars.forEach((b, i) => {
+              path(`bar-${i}`, { d: rectPath(b.x, b.top, g.barW, g.baseline - b.top), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.5 });
+              text(`bar-label-${i}`, { x: b.cx, y: b.top - 6, 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 13, fill: '#272727', 'font-family': MONO }, String(b.h));
+            });
+
+            const bandsOn = state.wood !== null && state.saw !== null;
+            const bandsWere = Boolean(from && from.wood !== null && from.saw !== null);
+            const bandOp = presence(bandsWere, bandsOn);
+            if (bandOp) {
+              g.bars.forEach((b, i) => {
+                if (b.h <= state.saw) return;
+                path(`band-${i}`, { d: rectPath(b.x + 2, b.top, g.barW - 4, yFor(state.saw) - b.top), fill: 'url(#wood-hatch)', stroke: 'none', opacity: bandOp });
+                text(`contrib-${i}`, { x: b.cx, y: (b.top + yFor(state.saw)) / 2 + 4, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: '#555', 'font-family': MONO, opacity: bandOp }, `+${b.h - state.saw}`);
+              });
+            }
+
+            const sawOn = state.saw !== null;
+            const sawWas = Boolean(from && from.saw !== null);
+            const sawOp = presence(sawWas, sawOn);
+            if (sawOp) {
+              const fromY = sawWas && from.saw !== state.saw ? yFor(from.saw) : null;
+              const sy = fromY === null ? yFor(state.saw) : lerp(fromY, yFor(state.saw));
+              const tx = g.chartLeft - 2;
+              path('saw-line', { d: `M ${g.chartLeft - 4} ${sy} L ${g.chartRight} ${sy}`, stroke: '#555', 'stroke-width': 1.3, 'stroke-dasharray': '6 4', fill: 'none', opacity: sawOp });
+              path('saw-blade', { d: rectPath(tx - 2, sy - 3, 28, 5, 1), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3, opacity: sawOp });
+              path('saw-teeth', { d: `M ${tx + 3} ${sy + 2} v 4 M ${tx + 10} ${sy + 2} v 4 M ${tx + 17} ${sy + 2} v 4 M ${tx + 24} ${sy + 2} v 4`, stroke: '#333', 'stroke-width': 1.1, fill: 'none', opacity: sawOp });
+              circle('saw-handle', { cx: tx - 6, cy: sy - 10, r: 3.6, fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3, opacity: sawOp });
+              path('saw-stem', { d: `M ${tx - 6} ${sy - 6.5} L ${tx - 2} ${sy - 3}`, stroke: '#333', 'stroke-width': 1.3, fill: 'none', opacity: sawOp });
+              text('saw-label', { x: tx + 32, y: sy - 6, 'text-anchor': 'start', 'font-size': g.compact ? 10 : 11.5, fill: '#272727', 'font-family': MONO, opacity: sawOp }, `H = ${state.saw}`);
+            }
+
+            for (let H = 0; H <= MAX_H; H += 1) {
+              const c = g.cells[H];
+              const outcome = WOOD[H] >= K;
+              const inFrom = from ? (H >= from.left && H <= from.right) : true;
+              const inTo = H >= state.left && H <= state.right;
+              const op = lerp(inFrom ? 1 : 0.3, inTo ? 1 : 0.3);
+              const evaluated = state.visited.includes(H);
+              path(`cell-${H}`, { d: rectPath(c.x, g.stripY, g.cellW, g.cellH, 4), fill: outcome ? '#f5f2e9' : '#fffdf8', stroke: evaluated ? '#272727' : outcome ? '#555' : '#999', 'stroke-width': evaluated ? 2.2 : 1.3, opacity: op });
+              text(`cell-text-${H}`, { x: c.cx, y: g.stripY + g.cellH / 2 + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle', 'font-size': g.compact ? 9 : 11, fill: outcome ? '#272727' : '#777', 'font-family': MONO, opacity: op }, outcome ? 'True' : 'False');
+              text(`cell-h-${H}`, { x: c.cx, y: g.stripY + g.cellH + 13, 'text-anchor': 'middle', 'font-size': g.compact ? 8 : 9.5, fill: '#555', 'font-family': MONO, opacity: op }, `H=${H}`);
+            }
+
+            const midOn = state.mid !== null;
+            const midWas = Boolean(from && from.mid !== null);
+            const midOp = presence(midWas, midOn);
+            const midVal = state.mid !== null ? state.mid : (midWas ? from.mid : null);
+            if (midOp && midVal !== null) {
+              const c = g.cells[midVal];
+              path('mid-mark', { d: rectPath(c.x - 4, g.stripY - 4, g.cellW + 8, g.cellH + 8, 6), fill: 'none', stroke: '#777', 'stroke-width': 1.3, 'stroke-dasharray': '4 3', opacity: midOp });
+            }
+
+            const ptrX = (st, role) => g.cells[role === 'mid' ? st.mid : st[role]].cx;
+            const lrRowY = g.stripY - 29;
+            const midRowY = g.stripY - 51;
+            if (state.left === state.right) {
+              const c = g.cells[state.left];
+              const bothOp = from && from.left !== from.right ? t : 1;
+              path('ptr-both', { d: rectPath(c.cx - 39, lrRowY, 78, 15, 2), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2, opacity: bothOp });
+              text('ptr-both-label', { x: c.cx, y: lrRowY + 11, 'text-anchor': 'middle', 'font-size': 10, fill: '#272727', 'font-family': MONO, opacity: bothOp }, 'left = right');
+              path('ptr-both-arrow', { d: `M ${c.cx} ${lrRowY + 15} L ${c.cx} ${g.stripY - 5}`, stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#cw-arrow)', opacity: bothOp });
+            } else {
+              for (const role of ['left', 'right']) {
+                const toX = ptrX(state, role);
+                const fromX = from && from[role] !== null && from[role] !== undefined && from.left !== from.right ? ptrX(from, role) : null;
+                const x = fromX === null ? toX : lerp(fromX, toX);
+                const roleOp = from && from.left === from.right ? t : 1;
+                path(`ptr-${role}`, { d: rectPath(x - 16, lrRowY, 32, 15, 2), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': role === 'right' ? '3 2' : null, opacity: roleOp });
+                text(`ptr-label-${role}`, { x, y: lrRowY + 11, 'text-anchor': 'middle', 'font-size': 10, fill: '#272727', 'font-family': MONO, opacity: roleOp });
+                path(`ptr-arrow-${role}`, { d: `M ${x} ${lrRowY + 15} L ${x} ${g.stripY - 5}`, stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#cw-arrow)', opacity: roleOp });
+              }
+            }
+            if (midOp && midVal !== null) {
+              const toX = ptrX({ ...state, mid: midVal }, 'mid');
+              const fromX = midWas && from.mid !== midVal ? ptrX(from, 'mid') : null;
+              const x = fromX === null ? toX : lerp(fromX, toX);
+              path('ptr-mid', { d: rectPath(x - 15, midRowY, 30, 15, 2), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2, opacity: midOp });
+              text('ptr-mid-label', { x, y: midRowY + 11, 'text-anchor': 'middle', 'font-size': 10, fill: '#272727', 'font-family': MONO, opacity: midOp }, 'mid');
+              path('ptr-mid-arrow', { d: `M ${x} ${midRowY + 15} L ${x} ${midRowY + 22}`, stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#cw-arrow)', opacity: midOp });
+            }
+            if (state.done) {
+              const c = g.cells[state.left];
+              text('answer-tag', { x: c.cx, y: g.stripY + g.cellH + 27, 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 10, fill: '#272727', 'font-family': MONO }, 'answer · 答案');
+            }
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.stepLabel;
+          invariantEl.textContent = frame.invariant;
+          mLeft.textContent = state.left;
+          mRight.textContent = state.right;
+          mMid.textContent = state.mid === null ? '—' : state.mid;
+          mWood.textContent = state.wood === null ? '—' : state.wood;
+          mOutcome.textContent = state.outcome === null ? '—' : String(state.outcome);
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.en;
+          explanationZhEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `砍木头演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({ ...s, visited: [...s.visited] });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 400,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>
