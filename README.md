@@ -23,6 +23,10 @@ Each question has a standalone page at `<problem-slug>/index.html`. The root `in
 - [Substring Anagrams / 字母异位子串](substring-anagrams/index.html)
 - [Longest Substring With Unique Characters / 无重复字符的最长子串](longest-unique-substring/index.html)
 - [Longest Uniform Substring After Replacements / 替换后的最长统一子串](longest-uniform-substring-after-replacements/index.html)
+- [Find the Insertion Index / 搜索插入位置](find-the-insertion-index/index.html)
+- [First and Last Occurrences of a Number / 数字的首尾出现位置](first-and-last-occurrences-of-a-number/index.html)
+- [Cutting Wood / 砍木头](cutting-wood/index.html)
+- [Find the Target in a Rotated Sorted Array / 旋转排序数组中查找目标](find-the-target-in-a-rotated-sorted-array/index.html)
 
 ## Development
 
