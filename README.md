@@ -27,6 +27,12 @@ Each question has a standalone page at `<problem-slug>/index.html`. The root `in
 - [First and Last Occurrences of a Number / 数字的首尾出现位置](first-and-last-occurrences-of-a-number/index.html)
 - [Cutting Wood / 砍木头](cutting-wood/index.html)
 - [Find the Target in a Rotated Sorted Array / 旋转排序数组中查找目标](find-the-target-in-a-rotated-sorted-array/index.html)
+- [Valid Parenthesis Expression / 有效的括号](valid-parenthesis-expression/index.html)
+- [Next Largest Number to the Right / 右侧下一个更大数](next-largest-number-to-the-right/index.html)
+- [Evaluate Expression / 表达式求值](evaluate-expression/index.html)
+- [K Most Frequent Strings / 前 K 个高频字符串](k-most-frequent-strings/index.html)
+- [Combine Sorted Linked Lists / 合并 K 个有序链表](combine-sorted-linked-lists/index.html)
+- [Median of an Integer Stream / 整数流的中位数](median-of-an-integer-stream/index.html)
 
 ## Development
 
