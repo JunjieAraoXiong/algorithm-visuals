@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of finding the first and last occurrences of a number with lower-bound and upper-bound binary search. 上下界二分查找寻找数字的首尾出现位置。" />
+    <title>First and Last Occurrences of a Number · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <style>
+      .problem { max-width: 900px; margin: 0 3px 12px; color: var(--quiet); }
+      .problem code { color: var(--ink); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); }
+      .track { position: absolute; inset: 0; }
+      .cell { position: absolute; z-index: 2; display: grid; place-items: center; border: 1.5px solid var(--ink); background: var(--paper); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; transition: left .32s ease, top .32s ease, width .32s ease, height .32s ease, opacity .25s ease, background-color .25s; }
+      .cell::after { content: attr(data-index); position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%); color: var(--quiet); font-size: 9px; line-height: 1; }
+      .cell.outside { opacity: .3; }
+      .cell.target-zone { background: #f5f2e9; }
+      .cell.at-mid { outline: 2px dashed #777; outline-offset: 3px; }
+      .cell.found-first { border-width: 2px; background: #f5f2e9; }
+      .cell.found-last { border-width: 2px; background: #f5f2e9; }
+      .band { position: absolute; z-index: 1; border: 1px dashed #888; background: rgba(229,227,220,.18); transition: left .32s ease, width .32s ease, top .32s ease, height .32s ease; }
+      .band[hidden] { display: none; }
+      .band-label { position: absolute; top: 2px; left: 5px; color: var(--quiet); font: 9.5px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
+      .chip { position: absolute; z-index: 4; min-width: 44px; padding: 2px 5px; border: 1px solid #666; border-radius: 3px; background: var(--paper); font: 10px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: center; transform: translateX(-50%); transition: left .32s ease, top .32s ease, opacity .2s ease; }
+      .chip::after { content: ""; position: absolute; top: 100%; left: 50%; height: 16px; border-left: 1px solid #666; }
+      .chip[hidden] { display: none; }
+      .chip.mid-chip { border-style: dashed; }
+      .found-tag { position: absolute; z-index: 3; transform: translateX(-50%); color: var(--quiet); font: 10px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; transition: left .32s ease; }
+      .found-tag[hidden] { display: none; }
+      .state-grid { display: grid; grid-template-columns: minmax(0,1fr) 230px; gap: 10px; margin: 14px 3px 0; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .doc-section { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .doc-section h2 { margin: 0 0 8px; font-size: 20px; font-weight: 500; }
+      .doc-section > p { max-width: 920px; margin: 6px 0; color: var(--quiet); }
+      .doc-section > p code { color: var(--ink); }
+      .card-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card > strong { font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .paper-card p { margin: 6px 0 0; color: var(--quiet); font-size: 13px; }
+      .paper-card p code { color: var(--ink); }
+      .mini-array { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 4px; }
+      .mini-cell { position: relative; display: grid; place-items: center; width: 32px; height: 34px; border: 1px solid #777; background: var(--paper); font: 13px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .mini-cell .mini-index { position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%); color: var(--quiet); font-size: 8px; line-height: 1; }
+      .mini-cell.hit { background: #f5f2e9; border-width: 2px; }
+      .mini-cell.mark-first { outline: 2px solid var(--ink); outline-offset: 2px; }
+      .mini-cell.mark-last { outline: 2px solid var(--ink); outline-offset: 2px; }
+      .mini-note { color: var(--quiet); font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .mini-note b { color: var(--ink); font-weight: 500; }
+      .stall-stage { position: relative; height: 132px; margin-top: 8px; max-width: 270px; }
+      .stall-chip { position: absolute; min-width: 34px; padding: 1px 4px; border: 1px solid #666; border-radius: 3px; background: var(--paper); font: 9px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: center; transform: translateX(-50%); }
+      .stall-chip.mid { border-style: dashed; }
+      .stall-cell { position: absolute; display: grid; place-items: center; width: 40px; height: 36px; border: 1.5px solid var(--ink); background: var(--paper); font: 14px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .stall-index { position: absolute; color: var(--quiet); font: 9px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; transform: translateX(-50%); }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid { grid-template-columns: 1fr; }
+        .chip { min-width: 32px; font-size: 9px; }
+        .found-tag { font-size: 9px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .cell, .chip, .band, .found-tag { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="fl-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>First and Last Occurrences of a Number · 数字的首尾出现位置</h1></div></header>
+      <p class="problem">Given a non-decreasing array, return the first and last index of <code>target</code>, or <code>[-1, -1]</code> if it is not found. <code>nums = [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11], target = 4</code> → <code>[3, 5]</code>.<br />在非递减数组中返回 <code>target</code> 第一次与最后一次出现的下标；不存在则返回 <code>[-1, -1]</code>。标准二分只能命中其中一个位置，这里拆成两次二分：下界找第一个 <code>nums[i] &gt;= target</code>，上界找最右一个 <code>nums[i] &lt;= target</code>。</p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="First and last occurrences trace / 首尾出现位置演示">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker" style="margin-left:auto">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span><span>target = 4</span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="算法演示 / algorithm trace">
+            <div class="band" data-band hidden><span class="band-label" data-band-label></span></div>
+            <div class="track" data-track></div>
+            <span class="chip" data-chip="left" hidden>left</span>
+            <span class="chip mid-chip" data-chip="mid" hidden>mid</span>
+            <span class="chip" data-chip="right" hidden>right</span>
+            <span class="found-tag" data-tag-first hidden aria-label="首个出现位置 / first occurrence">首个</span>
+            <span class="found-tag" data-tag-last hidden aria-label="末个出现位置 / last occurrence">末个</span>
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 · invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>left</code></dt><dd data-m-left>—</dd></div>
+              <div><dt><code>right</code></dt><dd data-m-right>—</dd></div>
+              <div><dt><code>mid</code></dt><dd data-m-mid>—</dd></div>
+              <div><dt><code>nums[mid]</code></dt><dd data-m-nums-mid>—</dd></div>
+              <div><dt><code>lower_bound</code></dt><dd data-m-lb>—</dd></div>
+              <div><dt><code>upper_bound</code></dt><dd data-m-ub>—</dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-zh></span><span data-en></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="fl-code-title">
+          <h2 id="fl-code-title">完整 Python 代码 / Final Python</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="main-def">def first_and_last_occurrences_of_a_number(nums: List[int],</span><span class="code-line">                                           target: int) -&gt; List[int]:</span><span class="code-line" data-source-key="main-lower">    lower_bound = lower_bound_binary_search(nums, target)</span><span class="code-line" data-source-key="main-upper">    upper_bound = upper_bound_binary_search(nums, target)</span><span class="code-line" data-source-key="main-return">    return [lower_bound, upper_bound]</span><span class="code-line"> </span><span class="code-line" data-source-key="lb-def">def lower_bound_binary_search(nums: List[int], target: int) -&gt; int:</span><span class="code-line" data-source-key="lb-init">    left, right = 0, len(nums) - 1</span><span class="code-line" data-source-key="lb-while">    while left &lt; right:</span><span class="code-line" data-source-key="lb-mid">        mid = (left + right) // 2</span><span class="code-line" data-source-key="lb-gt">        if nums[mid] &gt; target:</span><span class="code-line" data-source-key="lb-gt-move">            right = mid - 1</span><span class="code-line" data-source-key="lb-lt">        elif nums[mid] &lt; target:</span><span class="code-line" data-source-key="lb-lt-move">            left = mid + 1</span><span class="code-line" data-source-key="lb-eq">        else:</span><span class="code-line" data-source-key="lb-eq-move">            right = mid</span><span class="code-line" data-source-key="lb-return">    return left if nums and nums[left] == target else -1</span><span class="code-line"> </span><span class="code-line" data-source-key="ub-def">def upper_bound_binary_search(nums: List[int], target: int) -&gt; int:</span><span class="code-line" data-source-key="ub-init">    left, right = 0, len(nums) - 1</span><span class="code-line" data-source-key="ub-while">    while left &lt; right:</span><span class="code-line" data-source-key="ub-bias-comment">        # In upper-bound binary search, bias the midpoint to the right.</span><span class="code-line" data-source-key="ub-mid">        mid = (left + right) // 2 + 1</span><span class="code-line" data-source-key="ub-gt">        if nums[mid] &gt; target:</span><span class="code-line" data-source-key="ub-gt-move">            right = mid - 1</span><span class="code-line" data-source-key="ub-lt">        elif nums[mid] &lt; target:</span><span class="code-line" data-source-key="ub-lt-move">            left = mid + 1</span><span class="code-line" data-source-key="ub-eq">        else:</span><span class="code-line" data-source-key="ub-eq-move">            left = mid</span><span class="code-line" data-source-key="ub-comment">    # If the target doesn't exist in the array, then it's possible that</span><span class="code-line">    # 'left' = mid + 1' places the left pointer outside the array when</span><span class="code-line">    # 'mid' == n - 1'. So, we use the right pointer in the return</span><span class="code-line">    # statement instead.</span><span class="code-line" data-source-key="ub-return">    return right if nums and nums[right] == target else -1</span></code></pre>
+          <p class="note">数组本身不被修改；每一步只移动 <code>left</code> / <code>right</code> / <code>mid</code> 三个下标变量。/ The array never changes; each step only moves the three index variables.</p>
+        </aside>
+      </div>
+
+      <section class="doc-section" aria-labelledby="fl-idea">
+        <h2 id="fl-idea">思路：把“找首尾”拆成两个二分 / Two binary searches</h2>
+        <p>一次标准二分命中某个等于 <code>target</code> 的下标后，无法知道它是不是第一个或最后一个。而相等的值在非递减数组里连成一块，所以只要分别锁定这块的左端点和右端点。两个搜索的中点规则几乎一样，唯一区别是 <code>nums[mid] == target</code> 时的收缩方向，以及上界搜索的 <code>mid</code> 要右偏。</p>
+        <div class="card-grid">
+          <article class="paper-card">
+            <strong>下界 · lower_bound_binary_search</strong>
+            <div class="mini-array" aria-hidden="true">
+              <span class="mini-cell">1</span><span class="mini-cell">2</span><span class="mini-cell">3</span><span class="mini-cell hit mark-first">4<span class="mini-index">3</span></span><span class="mini-cell hit">4<span class="mini-index">4</span></span><span class="mini-cell hit">4<span class="mini-index">5</span></span><span class="mini-cell">5</span><span class="mini-cell">6</span><span class="mini-cell">7</span><span class="mini-cell">8</span><span class="mini-cell">9</span><span class="mini-cell">10</span><span class="mini-cell">11</span>
+            </div>
+            <p class="mini-note">找第一个 <code>nums[i] &gt;= 4</code> 的下标 → <b>3</b>。命中 <code>4</code> 时保留 <code>mid</code>（<code>right = mid</code>），区间持续向左靠。</p>
+          </article>
+          <article class="paper-card">
+            <strong>上界 · upper_bound_binary_search</strong>
+            <div class="mini-array" aria-hidden="true">
+              <span class="mini-cell">1</span><span class="mini-cell">2</span><span class="mini-cell">3</span><span class="mini-cell hit">4<span class="mini-index">3</span></span><span class="mini-cell hit">4<span class="mini-index">4</span></span><span class="mini-cell hit mark-last">4<span class="mini-index">5</span></span><span class="mini-cell">5</span><span class="mini-cell">6</span><span class="mini-cell">7</span><span class="mini-cell">8</span><span class="mini-cell">9</span><span class="mini-cell">10</span><span class="mini-cell">11</span>
+            </div>
+            <p class="mini-note">找最右一个 <code>nums[i] &lt;= 4</code> 的下标 → <b>5</b>。命中 <code>4</code> 时保留 <code>mid</code>（<code>left = mid</code>），区间持续向右靠。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="doc-section" aria-labelledby="fl-stall">
+        <h2 id="fl-stall">调试死循环：mid 为什么要右偏 / Why mid is biased right</h2>
+        <p>上界搜索里有 <code>left = mid</code> 这个操作。如果 <code>mid</code> 用 <code>(left + right) // 2</code> 向下取整，当区间只剩两个元素时 <code>mid</code> 会落在 <code>left</code> 上，<code>left = mid</code> 什么也没改变，循环永远停在原处。把 <code>mid</code> 改成 <code>(left + right) // 2 + 1</code> 后，两个元素的区间里 <code>mid</code> 落在 <code>right</code> 上；而 <code>right</code> 只接受 <code>right = mid - 1</code>，不会再指向自己，区间必然缩小。</p>
+        <div class="card-grid">
+          <article class="paper-card">
+            <strong>错误：mid 向左取整</strong>
+            <div class="stall-stage" role="img" aria-label="区间 [4, 5]：mid 落在 left 上，left = mid 后区间不变，形成死循环">
+              <svg style="position:absolute;inset:0" viewBox="0 0 260 132" aria-hidden="true">
+                <path d="M 92 62 C 30 66, 30 108, 88 104" fill="none" stroke="#555" stroke-width="1.4" stroke-dasharray="5 5" marker-end="url(#fl-stall-a)"/>
+                <defs><marker id="fl-stall-a" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker></defs>
+                <text x="34" y="92" font-size="9" fill="#555" font-family="monospace">left = mid</text>
+              </svg>
+              <span class="stall-chip" style="left:92px;top:8px">left</span>
+              <span class="stall-chip mid" style="left:92px;top:40px">mid</span>
+              <span class="stall-chip" style="left:150px;top:40px">right</span>
+              <span class="stall-cell" style="left:72px;top:72px">4</span>
+              <span class="stall-cell" style="left:130px;top:72px">4</span>
+              <span class="stall-index" style="left:92px;top:116px">4</span>
+              <span class="stall-index" style="left:150px;top:116px">5</span>
+            </div>
+            <p><code>mid = (4 + 5) // 2 = 4</code>，<code>nums[4] == 4</code> → <code>left = mid = 4</code>。下一轮 <code>mid</code> 仍是 4，区间 <code>[4, 5]</code> 不再缩小 → 无限循环。下界搜索没有这个问题，因为它的操作是 <code>right = mid</code>，而 <code>mid</code> 向左取整时永远不会等于 <code>right</code>。</p>
+          </article>
+          <article class="paper-card">
+            <strong>修正：mid = (left + right) // 2 + 1</strong>
+            <div class="stall-stage" role="img" aria-label="区间 [4, 5]：右偏的 mid 落在 right 上，left = mid 后 left 与 right 重合，循环结束">
+              <svg style="position:absolute;inset:0" viewBox="0 0 260 132" aria-hidden="true">
+                <path d="M 96 40 C 116 16, 130 14, 142 22" fill="none" stroke="#555" stroke-width="1.4" stroke-dasharray="5 5" marker-end="url(#fl-stall-b)"/>
+                <defs><marker id="fl-stall-b" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker></defs>
+                <text x="4" y="22" font-size="9" fill="#555" font-family="monospace">left = mid</text>
+              </svg>
+              <span class="stall-chip" style="left:92px;top:44px">left</span>
+              <span class="stall-chip mid" style="left:150px;top:8px">mid</span>
+              <span class="stall-chip" style="left:150px;top:44px">right</span>
+              <span class="stall-cell" style="left:72px;top:72px">4</span>
+              <span class="stall-cell" style="left:130px;top:72px">4</span>
+              <span class="stall-index" style="left:92px;top:116px">4</span>
+              <span class="stall-index" style="left:150px;top:116px">5</span>
+            </div>
+            <p><code>mid = (4 + 5) // 2 + 1 = 5</code>，<code>nums[5] == 4</code> → <code>left = mid = 5</code>。此时 <code>left == right</code>，循环结束，返回 5。<code>right = mid - 1</code> 不会把 <code>right</code> 指回自己，所以右偏后不会再卡住。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="doc-section" aria-labelledby="fl-edge">
+        <h2 id="fl-edge">边界情况 / Edge cases</h2>
+        <div class="card-grid">
+          <article class="paper-card">
+            <strong>target 不存在 · 返回 [-1, -1]</strong>
+            <p>两个搜索结束时都要校验：<code>nums[left] == target</code> / <code>nums[right] == target</code>，不满足就返回 <code>-1</code>。例如 <code>target = 12</code>，两个搜索分别收拢到端点 12，<code>nums[12] = 11 ≠ 12</code>，主函数返回 <code>[-1, -1]</code>。</p>
+          </article>
+          <article class="paper-card">
+            <strong>空数组 · nums = []</strong>
+            <p><code>nums and ...</code> 先判空，短路掉对 <code>nums[0]</code> 的访问，空数组直接返回 <code>-1</code>，不会越界。</p>
+          </article>
+          <article class="paper-card">
+            <strong>target 只出现一次 · [6, 6]</strong>
+            <p>例如 <code>target = 7</code>：下界与上界收拢到同一个下标 6，校验都通过，返回 <code>[6, 6]</code>——首尾可以是同一位置。</p>
+          </article>
+          <article class="paper-card">
+            <strong>返回值为什么用 right 而不是 left</strong>
+            <p>上界搜索里 <code>left = mid + 1</code>，而 <code>mid</code> 最大能到 <code>n - 1</code>；若 <code>target</code> 大于所有元素，<code>left</code> 会变成 <code>n</code> 越界。循环结束时 <code>right</code> 一定在数组内，所以返回语句检查的是 <code>nums[right]</code>。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="doc-section" aria-labelledby="fl-complexity">
+        <h2 id="fl-complexity">复杂度 / Complexity</h2>
+        <div class="card-grid">
+          <article class="paper-card"><strong>时间 · O(log n)</strong><p><code>lower_bound_binary_search</code> 与 <code>upper_bound_binary_search</code> 各做一次二分，搜索区间每次约减半，合计仍是 <code>O(log n)</code>。</p></article>
+          <article class="paper-card"><strong>额外空间 · O(1)</strong><p>只保存 <code>left</code>、<code>right</code>、<code>mid</code> 三个下标变量，不使用额外数据结构。</p></article>
+        </div>
+      </section>
+
+      <section class="doc-section" aria-labelledby="fl-tip">
+        <h2 id="fl-tip">面试提示 / Interview tip</h2>
+        <p>写完二分一定要手动测试。上界搜索里的死循环在设计时很容易漏掉；测一个只含两个元素的搜索空间（比如本题的 <code>[4, 5]</code>）就能暴露它——这正是在推导中遇到死循环的那一步。</p>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目"><strong>相关题目：</strong><a href="../find-the-insertion-index/">搜索插入位置</a><a href="../cutting-wood/">砍木头</a><a href="../find-the-target-in-a-rotated-sorted-array/">旋转排序数组中查找目标</a><a href="../">返回目录</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.getElementById('fl-lab');
+        const NUMS = [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11];
+        const TARGET = 4;
+        const stage = root.querySelector('[data-stage]');
+        const track = root.querySelector('[data-track]');
+        const band = root.querySelector('[data-band]');
+        const bandLabel = root.querySelector('[data-band-label]');
+        const chips = Object.fromEntries([...root.querySelectorAll('[data-chip]')].map(chip => [chip.dataset.chip, chip]));
+        const tagFirst = root.querySelector('[data-tag-first]');
+        const tagLast = root.querySelector('[data-tag-last]');
+        const lines = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const expression = root.querySelector('[data-expression]');
+        const explanationZh = root.querySelector('[data-zh]');
+        const explanationEn = root.querySelector('[data-en]');
+        const metric = {
+          left: root.querySelector('[data-m-left]'),
+          right: root.querySelector('[data-m-right]'),
+          mid: root.querySelector('[data-m-mid]'),
+          numsMid: root.querySelector('[data-m-nums-mid]'),
+          lb: root.querySelector('[data-m-lb]'),
+          ub: root.querySelector('[data-m-ub]')
+        };
+        const clone = value => JSON.parse(JSON.stringify(value));
+        const motion = AlgorithmVisualCore.createMotionController();
+        const scene = AlgorithmVisualCore.createSvgScene(lines);
+        scene.defineMarker('fl-arc-arrow', { fill: '#555', markerWidth: 7, markerHeight: 7, refX: 6, refY: 4 });
+        let positions = [];
+        let cells = [];
+        let geometry = { cellTop: 116, cellH: 54, rowsY: [10, 32, 54], bandTop: 103, minSep: 46 };
+        let arcs = new Map();
+        let arcFade = 1;
+        let trace;
+
+        function buildFrames() {
+          const frames = [];
+          const s = { phase: 'intro', left: null, right: null, mid: null, lb: null, ub: null };
+          const add = (label, sourceKeys, line, zh, en, invariantText, phaseLabel, patch) => {
+            if (patch) patch(s);
+            frames.push({ stepLabel: label, sourceKeys, line, zh, en, invariantText, phaseLabel, state: clone(s) });
+          };
+          add('问题 · 找首尾下标', ['main-def'],
+            'nums = [1,2,3,4,4,4,5,6,7,8,9,10,11], target = 4',
+            '在非递减数组里找 4 第一次与最后一次出现的下标；找不到就返回 [-1, -1]。数组有序，所以可以二分：问题等价于求 4 所在块的左右端点。',
+            'Find the first and last index of 4 in a non-decreasing array; return [-1, -1] if absent. The task is to locate the two ends of the block of 4s.',
+            '相等的值在非递减数组里连成一块；答案就是这块的左右两个端点。/ Equal values form one contiguous block; the answer is its two ends.',
+            '问题 / problem');
+          add('调用下界搜索', ['main-lower'],
+            'lower_bound = lower_bound_binary_search(nums, target)',
+            '第一个搜索：下界二分，找第一个满足 nums[i] >= target 的下标，也就是最左的 4。',
+            'First search: the lower bound — the first index with nums[i] >= target, i.e. the leftmost 4.',
+            '下界二分进行期间，[left, right] 始终包含第一个 4。/ During the lower-bound search, [left, right] always contains the first 4.',
+            '主函数 / main');
+          add('下界 · left=0, right=12', ['lb-def', 'lb-init'],
+            'left, right = 0, len(nums) - 1    # 0, 12',
+            '搜索空间先覆盖整个数组：第一个 4 可能藏在任意下标。',
+            'The search space starts as the whole array; the first 4 could be anywhere.',
+            '[left, right] 始终包含第一个 4。/ [left, right] always contains the first 4.',
+            '下界二分 / lower-bound search',
+            st => { st.phase = 'lb'; st.left = 0; st.right = 12; });
+          add('下界 · mid = 6', ['lb-while', 'lb-mid'],
+            'mid = (left + right) // 2    # (0 + 12) // 2 = 6',
+            '每轮取区间中点（向下取整），用 nums[mid] 与 target 比较来决定怎么收缩。',
+            'Each round picks the midpoint (rounded down) and compares nums[mid] with the target.',
+            'mid 把 [left, right] 分成两半，含答案的一半会被保留。/ mid splits the interval; the half that keeps the answer survives.',
+            '下界二分 / lower-bound search',
+            st => { st.mid = 6; });
+          add('nums[6]=5>4 · right=5', ['lb-gt', 'lb-gt-move'],
+            'if nums[mid] > target: right = mid - 1    # 5 > 4',
+            'nums[6] = 5 大于 4：第一个 4 只可能在 mid 左边，而 mid 自己不是 4，可以一并排除，right = mid - 1。',
+            'nums[6] = 5 is greater than 4, so the first 4 must lie to the left of mid; mid itself is excluded too (right = mid - 1).',
+            '[left, right] 始终包含第一个 4；区间外的一定不是答案。/ [left, right] keeps the first 4; anything outside it is ruled out.',
+            '下界二分 / lower-bound search',
+            st => { st.right = 5; });
+          add('下界 · mid = 2', ['lb-while', 'lb-mid'],
+            'mid = (left + right) // 2    # (0 + 5) // 2 = 2',
+            '新的区间是 [0, 5]，重新取中点 mid = 2。',
+            'The search space is now [0, 5]; recompute mid = 2.',
+            'mid 把 [left, right] 分成两半，含答案的一半会被保留。/ mid splits the interval; the half that keeps the answer survives.',
+            '下界二分 / lower-bound search',
+            st => { st.mid = 2; });
+          add('nums[2]=3<4 · left=3', ['lb-lt', 'lb-lt-move'],
+            'elif nums[mid] < target: left = mid + 1    # 3 < 4',
+            'nums[2] = 3 小于 4：第一个 4 只可能在 mid 右边，mid 自己不是 4，left = mid + 1。',
+            'nums[2] = 3 is less than 4, so the first 4 must lie to the right of mid (left = mid + 1).',
+            '[left, right] 始终包含第一个 4；区间外的一定不是答案。/ [left, right] keeps the first 4; anything outside it is ruled out.',
+            '下界二分 / lower-bound search',
+            st => { st.left = 3; });
+          add('下界 · mid = 4', ['lb-while', 'lb-mid'],
+            'mid = (left + right) // 2    # (3 + 5) // 2 = 4',
+            '区间 [3, 5] 的中点是 4，nums[4] 正好是 4。',
+            'The midpoint of [3, 5] is 4, and nums[4] happens to equal 4.',
+            'mid 把 [left, right] 分成两半，含答案的一半会被保留。/ mid splits the interval; the half that keeps the answer survives.',
+            '下界二分 / lower-bound search',
+            st => { st.mid = 4; });
+          add('nums[4]=4 · right=mid', ['lb-eq', 'lb-eq-move'],
+            'else: right = mid    # nums[mid] == 4',
+            'nums[mid] == 4 时有两种可能：mid 就是第一个 4，或者左边还有 4。不能排除 mid，把它留在区间内：right = mid。',
+            'When nums[mid] == 4, mid might be the first 4 or another 4 may sit to its left, so keep mid in the space: right = mid.',
+            'nums[mid] == target 时保留 mid：答案仍在 [left, right] 内。/ Keeping mid preserves the answer inside [left, right].',
+            '下界二分 / lower-bound search',
+            st => { st.right = 4; });
+          add('下界 · mid = 3', ['lb-while', 'lb-mid'],
+            'mid = (left + right) // 2    # (3 + 4) // 2 = 3',
+            '区间收窄到 [3, 4]，mid = 3，nums[3] 也是 4。',
+            'The interval narrows to [3, 4]; mid = 3 and nums[3] is also 4.',
+            'nums[mid] == target 时保留 mid：答案仍在 [left, right] 内。/ Keeping mid preserves the answer inside [left, right].',
+            '下界二分 / lower-bound search',
+            st => { st.mid = 3; });
+          add('nums[3]=4 · right=3', ['lb-eq', 'lb-eq-move'],
+            'else: right = mid    # nums[3] == 4, right = 3',
+            'nums[3] == 4，继续保留 mid：right = 3。此时 left == right == 3，循环条件 left < right 不再成立，循环结束。',
+            'nums[3] == 4, so keep mid again: right = 3. Now left == right == 3 and the loop exits.',
+            '指针重合在下标 3；它是不是答案，还要用 nums[3] == target 校验。/ The pointers meet at index 3; nums[3] == target confirms it.',
+            '下界二分 / lower-bound search',
+            st => { st.right = 3; });
+          add('校验 · 下界 = 3', ['lb-return'],
+            'return left if nums and nums[left] == target else -1    # nums[3] == 4 → 3',
+            '指针重合在下标 3，nums[3] == 4 校验通过，下界确认为 3——第一个 4 的位置。',
+            'The pointers meet at index 3 and nums[3] == 4, so the lower bound is confirmed as 3 — the first 4.',
+            '下界 = 3：第一个 nums[i] >= 4 的下标。/ lower_bound = 3, the first index with nums[i] >= 4.',
+            '下界完成 / lower bound done',
+            st => { st.lb = 3; st.mid = null; });
+          add('调用上界搜索', ['main-upper'],
+            'upper_bound = upper_bound_binary_search(nums, target)',
+            '第二个搜索：上界二分，找最右一个 nums[i] <= target 的下标，也就是最后一个 4。',
+            'Second search: the upper bound — the last index with nums[i] <= target, i.e. the rightmost 4.',
+            '上界二分进行期间，[left, right] 始终包含最后一个 4。/ During the upper-bound search, [left, right] always contains the last 4.',
+            '主函数 / main',
+            st => { st.phase = 'main'; st.left = null; st.right = null; });
+          add('上界 · left=0, right=12', ['ub-def', 'ub-init'],
+            'left, right = 0, len(nums) - 1    # 0, 12',
+            '搜索空间再次覆盖整个数组：最后一个 4 可能藏在任意下标。',
+            'The search space again starts as the whole array; the last 4 could be anywhere.',
+            '[left, right] 始终包含最后一个 4。/ [left, right] always contains the last 4.',
+            '上界二分 / upper-bound search',
+            st => { st.phase = 'ub'; st.left = 0; st.right = 12; });
+          add('上界 · mid = 7（右偏）', ['ub-while', 'ub-bias-comment', 'ub-mid'],
+            'mid = (left + right) // 2 + 1    # (0 + 12) // 2 + 1 = 7',
+            '上界搜索的中点故意右偏一位（注释：bias the midpoint to the right）。没有这 +1，区间只剩两个元素时循环会原地打转，两步之后就能看到。',
+            'The upper-bound midpoint is biased one to the right; without the +1 the loop stalls once two elements remain — shown two steps ahead.',
+            'mid 右偏：两个元素的区间里 mid 落在 right 上，循环必然推进。/ The right-biased mid lands on right in a two-element interval, so the loop always progresses.',
+            '上界二分 / upper-bound search',
+            st => { st.mid = 7; });
+          add('nums[7]=6>4 · right=6', ['ub-gt', 'ub-gt-move'],
+            'if nums[mid] > target: right = mid - 1    # 6 > 4',
+            'nums[7] = 6 大于 4：最后一个 4 只可能在 mid 左边，right = mid - 1。大于、小于 target 的分支与下界搜索完全一样。',
+            'nums[7] = 6 is greater than 4, so the last 4 must lie to the left (right = mid - 1). The > and < branches match the lower-bound search.',
+            '[left, right] 始终包含最后一个 4；区间外的一定不是答案。/ [left, right] keeps the last 4; anything outside it is ruled out.',
+            '上界二分 / upper-bound search',
+            st => { st.right = 6; });
+          add('上界 · mid = 4', ['ub-while', 'ub-mid'],
+            'mid = (left + right) // 2 + 1    # (0 + 6) // 2 + 1 = 4',
+            '区间 [0, 6] 右偏取中点：mid = 4，nums[4] 是 4。',
+            'The right-biased midpoint of [0, 6] is 4, and nums[4] equals 4.',
+            'mid 右偏：两个元素的区间里 mid 落在 right 上，循环必然推进。/ The right-biased mid lands on right in a two-element interval, so the loop always progresses.',
+            '上界二分 / upper-bound search',
+            st => { st.mid = 4; });
+          add('nums[4]=4 · left=mid', ['ub-eq', 'ub-eq-move'],
+            'else: left = mid    # nums[mid] == 4',
+            'nums[mid] == 4：mid 可能是最后一个 4，也可能右边还有 4。保留 mid（left = mid），继续向右缩小——这正是与下界搜索相反的方向。',
+            'nums[mid] == 4: mid might be the last 4 or another 4 may sit to its right, so keep mid (left = mid) and search rightward — the mirror of the lower-bound rule.',
+            'nums[mid] == target 时保留 mid：答案仍在 [left, right] 内。/ Keeping mid preserves the answer inside [left, right].',
+            '上界二分 / upper-bound search',
+            st => { st.left = 4; });
+          add('上界 · mid = 6', ['ub-while', 'ub-mid'],
+            'mid = (left + right) // 2 + 1    # (4 + 6) // 2 + 1 = 6',
+            '区间 [4, 6]，右偏中点 mid = 6，nums[6] = 5。',
+            'The interval is [4, 6]; the right-biased mid is 6 and nums[6] = 5.',
+            'mid 右偏：两个元素的区间里 mid 落在 right 上，循环必然推进。/ The right-biased mid lands on right in a two-element interval, so the loop always progresses.',
+            '上界二分 / upper-bound search',
+            st => { st.mid = 6; });
+          add('nums[6]=5>4 · right=5', ['ub-gt', 'ub-gt-move'],
+            'if nums[mid] > target: right = mid - 1    # 5 > 4',
+            'nums[6] = 5 大于 4，往左收：right = 5。搜索区间只剩 [4, 5] 两个元素——最容易写错的一步到了。',
+            'nums[6] = 5 is greater than 4, so right = 5. Only two elements [4, 5] remain — the step where a naive midpoint stalls.',
+            '[left, right] 始终包含最后一个 4；区间外的一定不是答案。/ [left, right] keeps the last 4; anything outside it is ruled out.',
+            '上界二分 / upper-bound search',
+            st => { st.right = 5; });
+          add('上界 · mid = 5（关键右偏）', ['ub-while', 'ub-bias-comment', 'ub-mid'],
+            'mid = (left + right) // 2 + 1    # (4 + 5) // 2 + 1 = 5',
+            '关键一步：若按 (4 + 5) // 2 = 4 取中点，则 left = mid = 4，区间永远停在 [4, 5] 死循环。+1 让 mid 落到 right 上，循环才能继续。',
+            'The critical step: a left-biased mid would set left = mid = 4 forever; the +1 bias lands mid on the right pointer so the loop can finish.',
+            'mid 右偏：两个元素的区间里 mid 落在 right 上，循环必然推进。/ The right-biased mid lands on right in a two-element interval, so the loop always progresses.',
+            '上界二分 / upper-bound search',
+            st => { st.mid = 5; });
+          add('nums[5]=4 · left=5', ['ub-eq', 'ub-eq-move'],
+            'else: left = mid    # nums[5] == 4, left = 5',
+            'nums[5] == 4，保留 mid：left = 5。此时 left == right == 5，循环结束。',
+            'nums[5] == 4, so keep mid: left = 5. Now left == right == 5 and the loop exits.',
+            '指针重合在下标 5；它是不是答案，还要用 nums[5] == target 校验。/ The pointers meet at index 5; nums[5] == target confirms it.',
+            '上界二分 / upper-bound search',
+            st => { st.left = 5; });
+          add('校验 · 上界 = 5', ['ub-comment', 'ub-return'],
+            'return right if nums and nums[right] == target else -1    # nums[5] == 4 → 5',
+            '指针重合在下标 5，nums[5] == 4 校验通过，上界确认为 5。返回语句检查 nums[right] 而不是 nums[left]：若 target 不存在，left = mid + 1 可能等于 n 越界，right 不会。',
+            'The pointers meet at index 5 and nums[5] == 4, so the upper bound is 5. The return checks nums[right], not nums[left]: when the target is missing, left = mid + 1 can run past the end.',
+            '上界 = 5：最右一个 nums[i] <= 4 的下标。/ upper_bound = 5, the last index with nums[i] <= 4.',
+            '上界完成 / upper bound done',
+            st => { st.ub = 5; st.mid = null; });
+          add('返回 [3, 5]', ['main-return'],
+            'return [lower_bound, upper_bound]    # [3, 5]',
+            'lower_bound = 3、upper_bound = 5，返回 [3, 5]：4 第一次出现在下标 3，最后一次出现在下标 5。',
+            'lower_bound = 3 and upper_bound = 5, so the function returns [3, 5] — 4 first appears at index 3 and last at index 5.',
+            '两次二分各花 O(log n)，数组始终没有被修改。/ Two O(log n) searches; the array was never modified.',
+            '完成 / done',
+            st => { st.phase = 'done'; st.left = null; st.right = null; });
+          return frames;
+        }
+
+        const frames = buildFrames();
+
+        function makeCells() {
+          track.replaceChildren();
+          cells = NUMS.map((value, index) => {
+            const cell = document.createElement('span');
+            cell.className = 'cell';
+            cell.textContent = String(value);
+            cell.dataset.index = String(index);
+            track.append(cell);
+            return cell;
+          });
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          let cellW;
+          let gap;
+          if (width >= 900) { cellW = 44; gap = 8; }
+          else if (width >= 520) { cellW = 30; gap = 5; }
+          else { gap = 3; cellW = Math.max(18, Math.floor((width - 20 - gap * 12) / 13)); }
+          const cellH = width >= 700 ? 54 : 44;
+          const cellTop = width >= 700 ? 118 : 94;
+          const rowsY = width >= 700 ? [10, 34, 58] : [6, 28, 50];
+          const total = cellW * NUMS.length + gap * (NUMS.length - 1);
+          const start = Math.max(8, (width - total) / 2);
+          geometry = { cellW, gap, cellH, cellTop, rowsY, bandTop: cellTop - 14, minSep: cellW + gap + 16 };
+          positions = NUMS.map((_, index) => ({
+            x: start + index * (cellW + gap),
+            center: start + index * (cellW + gap) + cellW / 2
+          }));
+          cells.forEach((cell, index) => {
+            cell.style.left = `${positions[index].x}px`;
+            cell.style.top = `${cellTop}px`;
+            cell.style.width = `${cellW}px`;
+            cell.style.height = `${cellH}px`;
+            cell.style.fontSize = `${Math.max(11, Math.min(20, cellW * 0.45))}px`;
+          });
+          stage.style.height = `${cellTop + cellH + 40}px`;
+          lines.setAttribute('viewBox', `0 0 ${width} ${stage.clientHeight}`);
+          paint(trace ? trace.state : frames[0].state);
+        }
+
+        function chipRows(state) {
+          const visible = ['left', 'mid', 'right'].filter(name => state[name] !== null);
+          const placed = [];
+          const rows = {};
+          visible
+            .sort((a, b) => positions[state[a]].center - positions[state[b]].center)
+            .forEach(name => {
+              const cx = positions[state[name]].center;
+              let row = 0;
+              while (placed.some(entry => entry.row === row && Math.abs(entry.cx - cx) < geometry.minSep)) row += 1;
+              placed.push({ cx, row });
+              rows[name] = row;
+            });
+          return rows;
+        }
+
+        function paint(state) {
+          if (!positions.length || !state) return;
+          const searching = (state.phase === 'lb' && state.lb === null) || (state.phase === 'ub' && state.ub === null);
+          cells.forEach((cell, index) => {
+            const outside = searching && (index < state.left || index > state.right);
+            cell.classList.toggle('outside', outside);
+            cell.classList.toggle('target-zone', searching && NUMS[index] === TARGET);
+            cell.classList.toggle('at-mid', searching && state.mid === index);
+            cell.classList.toggle('found-first', state.lb === index);
+            cell.classList.toggle('found-last', state.ub === index);
+          });
+          const rows = chipRows(state);
+          for (const [name, chip] of Object.entries(chips)) {
+            const index = state[name];
+            if (index === null || !positions[index]) {
+              chip.hidden = true;
+              continue;
+            }
+            chip.hidden = false;
+            const row = rows[name] ?? 0;
+            chip.style.left = `${positions[index].center}px`;
+            chip.style.top = `${geometry.rowsY[row]}px`;
+          }
+          band.hidden = !searching;
+          if (searching) {
+            const first = positions[state.left];
+            const last = positions[state.right];
+            band.style.left = `${first.x - 5}px`;
+            band.style.top = `${geometry.bandTop}px`;
+            band.style.width = `${last.x + geometry.cellW - first.x + 10}px`;
+            band.style.height = `${geometry.cellH + 14 + 18}px`;
+            bandLabel.textContent = `[${state.left}, ${state.right}]`;
+          }
+          const firstTag = state.lb !== null ? positions[state.lb] : null;
+          const lastTag = state.ub !== null ? positions[state.ub] : null;
+          tagFirst.hidden = !firstTag;
+          tagLast.hidden = !lastTag;
+          if (firstTag) tagFirst.style.left = `${firstTag.center}px`;
+          if (lastTag) tagLast.style.left = `${lastTag.center}px`;
+          tagFirst.style.top = `${geometry.cellTop + geometry.cellH + 18}px`;
+          tagLast.style.top = `${geometry.cellTop + geometry.cellH + 18}px`;
+          scene.update(({ path }) => {
+            for (const [name, arc] of arcs) {
+              const y = geometry.bandTop - 6;
+              path(`arc-${name}`, {
+                d: `M ${arc.from} ${y} C ${arc.from} ${y - 44}, ${arc.to} ${y - 44}, ${arc.to} ${y}`,
+                fill: 'none', stroke: '#555', 'stroke-width': 1.4, 'stroke-dasharray': '5 5',
+                opacity: arcFade, 'marker-end': 'url(#fl-arc-arrow)'
+              });
+            }
+          });
+        }
+
+        function render({ frame, state, step }) {
+          phaseEl.textContent = `阶段 · ${frame.phaseLabel}`;
+          invariantEl.textContent = frame.invariantText;
+          expression.textContent = frame.line;
+          explanationZh.textContent = frame.zh;
+          explanationEn.textContent = frame.en;
+          metric.left.textContent = state.left === null ? '—' : state.left;
+          metric.right.textContent = state.right === null ? '—' : state.right;
+          metric.mid.textContent = state.mid === null ? '—' : state.mid;
+          metric.numsMid.textContent = state.mid === null ? '—' : NUMS[state.mid];
+          metric.lb.textContent = state.lb === null ? '—' : state.lb;
+          metric.ub.textContent = state.ub === null ? '—' : state.ub;
+          paint(state);
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+        }
+
+        function clearArcs() {
+          motion.cancel();
+          arcs.clear();
+          arcFade = 1;
+        }
+
+        function prepareStep() {
+          clearArcs();
+        }
+
+        function animateStep({ beforeState, state }) {
+          if (motion.reduced || !beforeState) return;
+          for (const name of ['left', 'right']) {
+            const from = beforeState[name];
+            const to = state[name];
+            if (from === null || to === null || from === to || !positions[from] || !positions[to]) continue;
+            arcs.set(name, { from: positions[from].center, to: positions[to].center });
+          }
+          if (!arcs.size) return;
+          arcFade = 1;
+          motion.tween({
+            duration: 520,
+            update(eased) {
+              arcFade = 1 - eased;
+              paint(trace.state);
+            },
+            complete() {
+              arcs.clear();
+              arcFade = 1;
+              paint(trace.state);
+            }
+          });
+        }
+
+        makeCells();
+        new ResizeObserver(() => { clearArcs(); layout(); }).observe(stage);
+        layout();
+        trace = AlgorithmVisualCore.createTrace({
+          root,
+          cloneState: clone,
+          motion,
+          onRender: render,
+          onBeforeStep: prepareStep,
+          onTransition: animateStep,
+          formatStepOption: frame => frame.stepLabel
+        });
+        trace.setFrames(frames);
+      })();
+    </script>
+  </body>
+</html>
