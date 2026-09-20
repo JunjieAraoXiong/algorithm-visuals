@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Interactive bilingual visualization of binary search over a rotated sorted array: one half is always sorted, test the target against its value range. 旋转排序数组中查找目标。"
+    />
+    <title>Find the Target in a Rotated Sorted Array · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      #rotated-lab {
+        --wash: #f5f2e9;
+      }
+      #rotated-lab .problem { max-width: 920px; margin: 0 3px 10px; color: #41413e; }
+      #rotated-lab .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      #rotated-lab .step-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; min-height: 24px; margin: 6px 3px 2px; color: var(--quiet); font: 12px/1.5 monospace; }
+      #rotated-lab .step-picker { display: flex; align-items: center; gap: 5px; margin-left: auto; color: var(--quiet); font-size: 12px; }
+      #rotated-lab .step-picker select { max-width: 100%; }
+
+      #rotated-lab .stage { height: 264px; overflow: hidden; border-bottom: 1px solid var(--rule); }
+      #rotated-lab .target-tag { position: absolute; z-index: 4; top: 7px; right: 6px; color: var(--quiet); font: 11px/1.2 monospace; }
+      #rotated-lab .cell { position: absolute; z-index: 2; display: grid; place-items: center; height: 38px; border: 1.5px solid var(--ink); background: var(--paper); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; transition: opacity .3s, background-color .25s; }
+      #rotated-lab .cell::after { content: attr(data-index); position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); color: var(--quiet); font: 9px/1 monospace; }
+      #rotated-lab .cell.excluded, #rotated-lab .bar.excluded { opacity: .3; }
+      #rotated-lab .cell.half { background: var(--wash); }
+      #rotated-lab .cell.current { outline: 2px solid #444; outline-offset: 3px; }
+      #rotated-lab .cell.endpoint { outline: 2px dashed #777; outline-offset: 3px; }
+      #rotated-lab .cell.found { outline: 3px double var(--ink); outline-offset: 4px; background: var(--wash); }
+      #rotated-lab .hit-mark { display: none; position: absolute; top: -8px; right: -6px; padding: 0 2px; border: 1px solid #777; border-radius: 2px; background: var(--paper); font: 10px/1.4 monospace; }
+      #rotated-lab .cell.found .hit-mark { display: block; }
+      #rotated-lab .chip { position: absolute; z-index: 4; top: 24px; width: 46px; padding: 2px 0; border: 1px solid #555; border-radius: 3px; background: var(--paper); font: 10px/1.4 monospace; text-align: center; transform: translateX(-50%); white-space: nowrap; transition: left .34s ease; }
+      #rotated-lab .chip::after { content: ""; position: absolute; top: 100%; left: 50%; height: 14px; border-left: 1px solid #666; }
+      #rotated-lab .space-line { position: absolute; z-index: 1; top: 116px; border-top: 1px solid #555; transition: left .34s ease, width .34s ease; }
+      #rotated-lab .space-line::before, #rotated-lab .space-line::after { content: ""; position: absolute; top: 0; width: 0; height: 6px; border-left: 1px solid #555; }
+      #rotated-lab .space-line::before { left: 0; }
+      #rotated-lab .space-line::after { right: 0; }
+      #rotated-lab .space-line span { position: absolute; top: 3px; left: 50%; transform: translateX(-50%); color: var(--quiet); font: 9px/1 monospace; white-space: nowrap; }
+      #rotated-lab .bar { position: absolute; z-index: 1; display: flex; align-items: flex-end; justify-content: center; border: 1px solid #777; background: var(--paper); font: 9px/1.3 monospace; padding-bottom: 1px; transition: opacity .3s; }
+      #rotated-lab .baseline { position: absolute; z-index: 1; border-top: 1px solid #999; }
+      #rotated-lab .asc-brace { position: absolute; z-index: 1; top: 230px; height: 10px; border-right: 1px solid #555; border-bottom: 1px solid #555; border-left: 1px solid #555; transition: left .34s ease, width .34s ease; }
+      #rotated-lab .asc-brace span { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); color: var(--quiet); font: 9px/1 monospace; white-space: nowrap; }
+
+      #rotated-lab .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 10px; margin: 12px 3px; }
+      #rotated-lab .invariant, #rotated-lab .metrics { padding: 9px 11px; border: 1px solid var(--rule); }
+      #rotated-lab .invariant strong { display: block; margin-bottom: 4px; font: 12px/1.4 monospace; }
+      #rotated-lab .invariant p { margin: 0; color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      #rotated-lab .metrics { display: grid; gap: 4px; margin: 0; font: 11px/1.45 monospace; }
+      #rotated-lab .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      #rotated-lab .metrics dt { color: var(--quiet); }
+      #rotated-lab .metrics dd { margin: 0; text-align: right; }
+
+      #rotated-lab .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      #rotated-lab .section h2 { margin: 0 0 8px; font-size: 19px; font-weight: 500; }
+      #rotated-lab .section-intro { max-width: 920px; color: var(--quiet); }
+      #rotated-lab .before-after, #rotated-lab .case-grid, #rotated-lab .edge-grid, #rotated-lab .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+      #rotated-lab .edge-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      #rotated-lab .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      #rotated-lab .paper-card p { margin: 6px 0 0; color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      #rotated-lab .paper-card strong { font: 13px/1.4 monospace; }
+      #rotated-lab .mini-array { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 4px; }
+      #rotated-lab .mini-cell { display: grid; place-items: center; width: 32px; height: 34px; border: 1px solid #777; font: 13px/1 monospace; }
+      #rotated-lab .mini-cell.pivot { border-left: 2px solid var(--ink); }
+      #rotated-lab .mini-cell.wash { background: var(--wash); }
+      #rotated-lab .mini-arrow { align-self: center; color: var(--quiet); font-size: 18px; }
+      #rotated-lab .order { color: var(--quiet); font: 11px/1.5 monospace; }
+      #rotated-lab .reason-list { margin: 8px 0 0; padding-left: 22px; }
+      #rotated-lab .reason-list li { margin: 6px 0; }
+      #rotated-lab .case-code { margin: 8px 0 0; padding: 8px 10px; border: 1px dashed #999; background: #faf9f4; font: 11.5px/1.6 monospace; overflow-x: auto; white-space: pre; }
+      #rotated-lab .mini-plot { position: relative; height: 106px; margin: 6px 0 2px; }
+      #rotated-lab .mini-bar { position: absolute; bottom: 40px; display: grid; place-items: end center; width: 20px; border: 1px solid #777; background: var(--paper); font: 9px/1.2 monospace; padding-bottom: 1px; }
+      #rotated-lab .mini-brace { position: absolute; bottom: 26px; height: 8px; border-right: 1px solid #555; border-bottom: 1px solid #555; border-left: 1px solid #555; }
+      #rotated-lab .mini-brace span { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); color: var(--quiet); font: 9px/1 monospace; white-space: nowrap; }
+      #rotated-lab .mini-tag { position: absolute; bottom: 0; transform: translateX(-50%); color: var(--quiet); font: 9px/1 monospace; }
+      #rotated-lab .complexity strong { font: 13px/1.4 monospace; }
+
+      @media (max-width: 720px) {
+        #rotated-lab .state-grid, #rotated-lab .before-after, #rotated-lab .case-grid, #rotated-lab .complexity { grid-template-columns: 1fr; }
+        #rotated-lab .edge-grid { grid-template-columns: 1fr; }
+        #rotated-lab .step-picker { width: 100%; margin-left: 0; }
+        #rotated-lab .step-picker select { flex: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #rotated-lab .cell, #rotated-lab .bar, #rotated-lab .chip, #rotated-lab .space-line, #rotated-lab .asc-brace { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="rotated-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Find the Target in a Rotated Sorted Array<span lang="zh-CN"> · 旋转排序数组中查找目标</span></h1></div></header>
+      <p class="problem">
+        An ascending array was rotated at a pivot: a front portion was moved to the end, so
+        <code>[1, 2, 3, 4, 5]</code> may become <code>[3, 4, 5, 1, 2]</code>. Return the index of
+        <code>target</code> in <code>nums = [8, 9, 1, 2, 3, 4, 5, 6, 7]</code>, or -1 if it is absent.
+        <span lang="zh-CN">升序数组在某个 pivot 处被旋转：开头一段被搬到末尾，例如 <code>[1, 2, 3, 4, 5]</code> 变成 <code>[3, 4, 5, 1, 2]</code>。在 <code>nums = [8, 9, 1, 2, 3, 4, 5, 6, 7]</code> 中返回 <code>target</code> 的下标，不存在则返回 -1。</span>
+      </p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="Rotated sorted array binary search trace / 旋转排序数组二分查找演示">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="旋转排序数组二分查找演示，使用左右方向键切换步骤">
+            <span class="target-tag" data-target-tag>target = 1</span>
+            <div class="track" data-track></div>
+            <span class="chip" data-chip="left">left</span>
+            <span class="chip" data-chip="mid" hidden>mid</span>
+            <span class="chip" data-chip="right">right</span>
+            <div class="space-line" data-space><span>search space / 搜索区间</span></div>
+            <div class="baseline" data-baseline></div>
+            <div class="asc-brace" data-brace hidden><span>ascending / 有序</span></div>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>left</code></dt><dd data-m-left></dd></div>
+              <div><dt><code>mid</code></dt><dd data-m-mid></dd></div>
+              <div><dt><code>right</code></dt><dd data-m-right></dd></div>
+              <div><dt><code>nums[mid]</code></dt><dd data-m-midval></dd></div>
+              <div><dt><code>target</code></dt><dd data-m-target></dd></div>
+              <div><dt>轮次 / round</dt><dd data-m-iter></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite">
+            <code data-code></code><span data-en></span><span lang="zh-CN" data-zh></span>
+          </div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="rotated-code-title">
+          <h2 id="rotated-code-title">Final Python <span lang="zh-CN">/ 最终代码</span></h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line">def find_the_target_in_a_rotated_sorted_array(nums: List[int], target: int) -&gt; int:</span><span class="code-line" data-source-key="init">    left, right = 0, len(nums) - 1</span><span class="code-line" data-source-key="loop">    while left &lt; right:</span><span class="code-line" data-source-key="mid">        mid = (left + right) // 2</span><span class="code-line" data-source-key="hit">        if nums[mid] == target:</span><span class="code-line" data-source-key="return-mid">            return mid</span><span class="code-line code-comment">        # If the left subarray [left : mid] is sorted, check if the</span><span class="code-line code-comment">        # target falls in this range. If it does, search the left</span><span class="code-line code-comment">        # subarray. Otherwise, search the right.</span><span class="code-line" data-source-key="left-sorted">        elif nums[left] &lt;= nums[mid]:</span><span class="code-line" data-source-key="left-range">            if nums[left] &lt;= target &lt; nums[mid]:</span><span class="code-line" data-source-key="left-range-yes">                right = mid - 1</span><span class="code-line">            else:</span><span class="code-line" data-source-key="left-range-no">                left = mid + 1</span><span class="code-line code-comment">        # If the right subarray [mid : right] is sorted, check if the</span><span class="code-line code-comment">        # target falls in this range. If it does, search the right</span><span class="code-line code-comment">        # subarray. Otherwise, search the left.</span><span class="code-line" data-source-key="right-branch">        else:</span><span class="code-line" data-source-key="right-range">            if nums[mid] &lt; target &lt;= nums[right]:</span><span class="code-line" data-source-key="right-range-yes">                left = mid + 1</span><span class="code-line">            else:</span><span class="code-line" data-source-key="right-range-no">                right = mid - 1</span><span class="code-line"> </span><span class="code-line code-comment">    # If the target is found in the array, return it's index. Otherwise,</span><span class="code-line code-comment">    # return -1.</span><span class="code-line" data-source-key="final-return">    return left if nums and nums[left] == target else -1</span></code></pre>
+          <p class="note">Moving a chip changes only an index variable (<code>left</code>, <code>mid</code>, <code>right</code>); the array <code>nums</code> itself is never modified. / <span lang="zh-CN">移动 chip 只改变 <code>left</code>、<code>mid</code>、<code>right</code> 三个下标变量，数组 <code>nums</code> 本身从不被修改。</span></p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="rotated-problem">
+        <h2 id="rotated-problem">The rotation / 旋转做了什么</h2>
+        <p class="section-intro">Rotation cuts a sorted array into two ascending runs and joins them tail-to-head. Inspecting every number is a linear <code>O(n)</code> scan; the fact that the array was sorted before rotation is what binary search can still exploit. / <span lang="zh-CN">旋转把升序数组切成两段、首尾相接。逐个检查是 <code>O(n)</code> 的线性做法；旋转前有序这个性质，正是二分查找仍然可以利用的东西。</span></p>
+        <div class="before-after">
+          <article class="paper-card">
+            <strong>Before rotation / 旋转前</strong>
+            <div class="mini-array"><span class="mini-cell">1</span><span class="mini-cell">2</span><span class="mini-cell pivot">3</span><span class="mini-cell">4</span><span class="mini-cell">5</span></div>
+            <span class="order">sorted ascending · pivot 前的 [1, 2] 将被搬到末尾</span>
+          </article>
+          <article class="paper-card">
+            <strong>After rotation / 旋转后</strong>
+            <div class="mini-array"><span class="mini-cell">3</span><span class="mini-cell">4</span><span class="mini-cell">5</span><span class="mini-cell wash">1</span><span class="mini-cell wash">2</span></div>
+            <span class="order">two ascending runs: [3, 4, 5] + [1, 2] · 两段升序</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="rotated-idea">
+        <h2 id="rotated-idea">One half is always sorted / 总有一半是有序的</h2>
+        <p class="section-intro">Each midpoint splits the search space into <code>[left : mid]</code> and <code>[mid : right]</code>. A rotation creates only one break, so at most one half contains it — the other half is still ascending. Identify the sorted half, then test whether <code>target</code> falls inside its value range: range <code>[nums[left], nums[mid]]</code> for the left half, <code>[nums[mid], nums[right]]</code> for the right half. The bars under the array make the two slopes visible. / <span lang="zh-CN">每个中点把搜索空间切成 <code>[left : mid]</code> 和 <code>[mid : right]</code> 两段。旋转只产生一个断点，至多一段含有断点，另一段仍然升序。先找出有序的那半段，再检查 <code>target</code> 是否落在它的值域里：左半段看 <code>[nums[left], nums[mid]]</code>，右半段看 <code>[nums[mid], nums[right]]</code>。数组下方的条形图让两段斜率一目了然。</span></p>
+        <div class="case-grid">
+          <article class="paper-card">
+            <strong>Case 1 · [left : mid] sorted / 左半边有序</strong>
+            <div class="mini-plot">
+              <span class="mini-bar" style="left:0;height:27px">3</span><span class="mini-bar" style="left:24px;height:36px">4</span><span class="mini-bar" style="left:48px;height:45px">5</span><span class="mini-bar" style="left:72px;height:54px">6</span><span class="mini-bar" style="left:96px;height:63px">7</span><span class="mini-bar" style="left:120px;height:9px">1</span><span class="mini-bar" style="left:144px;height:18px">2</span>
+              <span class="mini-brace" style="left:0;width:116px"><span>ascending / 有序</span></span>
+              <span class="mini-tag" style="left:10px">left</span><span class="mini-tag" style="left:106px">mid</span>
+            </div>
+            <p>Detected by <code>nums[left] &lt;= nums[mid]</code>. The sorted half's range is its two ends, so:</p>
+            <div class="case-code">if nums[left] &lt;= target &lt; nums[mid]:
+    right = mid - 1
+else:
+    left = mid + 1</div>
+          </article>
+          <article class="paper-card">
+            <strong>Case 2 · [mid : right] sorted / 右半边有序</strong>
+            <div class="mini-plot">
+              <span class="mini-bar" style="left:0;height:54px">6</span><span class="mini-bar" style="left:24px;height:63px">7</span><span class="mini-bar" style="left:48px;height:9px">1</span><span class="mini-bar" style="left:72px;height:18px">2</span><span class="mini-bar" style="left:96px;height:27px">3</span><span class="mini-bar" style="left:120px;height:36px">4</span><span class="mini-bar" style="left:144px;height:45px">5</span>
+              <span class="mini-brace" style="left:72px;width:92px"><span>ascending / 有序</span></span>
+              <span class="mini-tag" style="left:82px">mid</span><span class="mini-tag" style="left:154px">right</span>
+            </div>
+            <p>When the left half is not sorted, the break sits inside it and the right half must be sorted:</p>
+            <div class="case-code">if nums[mid] &lt; target &lt;= nums[right]:
+    left = mid + 1
+else:
+    right = mid - 1</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="rotated-why">
+        <h2 id="rotated-why">Why the narrowing never misses / 为什么这样收缩不会漏</h2>
+        <ol class="reason-list">
+          <li>A rotation creates exactly one break, so when <code>mid</code> cuts <code>[left : right]</code> into two halves, at most one half contains the break — the other half is still ascending. / <span lang="zh-CN">旋转只产生一个断点；<code>mid</code> 切开搜索空间时，至多一半含断点，另一半必然保持升序。</span></li>
+          <li>The sorted half's smallest and largest values are its two endpoints, e.g. <code>[3, 4, 5, 6, 7]</code> spans <code>[3, 7]</code>. / <span lang="zh-CN">有序半段的最小值、最大值就在两端，例如 <code>[3, 4, 5, 6, 7]</code> 的值域是 <code>[3, 7]</code>。</span></li>
+          <li>All numbers are unique: if <code>target</code> is inside that range it must be in the sorted half; if it is outside, it must be in the other half. / <span lang="zh-CN">数组中的数字互不相同：<code>target</code> 落在值域内就必在有序半段，在值域外就必在另一半。</span></li>
+          <li>Each round discards at least half of the remaining space, so <code>left</code> and <code>right</code> close in on <code>target</code> in <code>O(log n)</code> rounds. / <span lang="zh-CN">每轮至少排除一半元素，<code>left</code> 与 <code>right</code> 用 <code>O(log n)</code> 轮就向 <code>target</code> 收拢。</span></li>
+        </ol>
+      </section>
+
+      <section class="section" aria-labelledby="rotated-edge">
+        <h2 id="rotated-edge">Edge cases / 边界情况</h2>
+        <div class="edge-grid">
+          <article class="paper-card">
+            <strong>Both halves sorted / 两半都可能有序</strong>
+            <p>When <code>mid</code> lands inside the untouched run, both halves are sorted. Because <code>nums[mid] == target</code> is checked first, either case gives the correct next step. / <span lang="zh-CN">当 <code>mid</code> 落在未被旋转的升序段里时，两段同时有序；由于先检查 <code>nums[mid] == target</code>，两种情况用哪个都正确。</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>Target absent / target 不存在</strong>
+            <p>The loop ends with <code>left == right</code>; that single index is compared with <code>target</code>, and -1 is returned if unequal. Walk through the 「查找 0」steps above. / <span lang="zh-CN">循环以 <code>left == right</code> 收尾，最后一个下标单独与 <code>target</code> 比较，不相等就返回 -1；上方「查找 0」的每一步演示了这条路径。</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>Why exclude mid / 为什么排除 mid</strong>
+            <p><code>nums[mid]</code> was already compared with <code>target</code> at the start of the round, so narrowing with <code>mid - 1</code> / <code>mid + 1</code> safely removes it from the search space. / <span lang="zh-CN"><code>nums[mid]</code> 在每轮开头就已与 <code>target</code> 比较过，所以收缩时用 <code>mid - 1</code> / <code>mid + 1</code> 把它一并排除是安全的。</span></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="rotated-complexity">
+        <h2 id="rotated-complexity">Complexity / 复杂度</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(log n)</strong><p>Each round roughly halves the search space: one midpoint, one range test, one narrowing. / <span lang="zh-CN">每轮把搜索空间缩小约一半：取一次中点、做一次值域判断、收缩一次。</span></p></article>
+          <article class="paper-card"><strong>Extra space · O(1)</strong><p>Only three indexes (<code>left</code>, <code>mid</code>, <code>right</code>) are stored; <code>nums</code> is never modified. / <span lang="zh-CN">只保存 <code>left</code>、<code>mid</code>、<code>right</code> 三个下标，数组本身不被修改。</span></p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../find-the-insertion-index/">搜索插入位置</a><a href="../first-and-last-occurrences-of-a-number/">数字的首尾出现位置</a><a href="../cutting-wood/">砍木头</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.getElementById('rotated-lab');
+        const stage = root.querySelector('[data-stage]');
+        const track = root.querySelector('[data-track]');
+        const targetTag = root.querySelector('[data-target-tag]');
+        const chips = {
+          left: root.querySelector('[data-chip="left"]'),
+          mid: root.querySelector('[data-chip="mid"]'),
+          right: root.querySelector('[data-chip="right"]'),
+        };
+        const spaceLine = root.querySelector('[data-space]');
+        const baseline = root.querySelector('[data-baseline]');
+        const brace = root.querySelector('[data-brace]');
+        const phase = root.querySelector('[data-phase]');
+        const invariant = root.querySelector('[data-invariant]');
+        const mLeft = root.querySelector('[data-m-left]');
+        const mMid = root.querySelector('[data-m-mid]');
+        const mRight = root.querySelector('[data-m-right]');
+        const mMidVal = root.querySelector('[data-m-midval]');
+        const mTarget = root.querySelector('[data-m-target]');
+        const mIter = root.querySelector('[data-m-iter]');
+        const calloutCode = root.querySelector('[data-code]');
+        const calloutEn = root.querySelector('[data-en]');
+        const calloutZh = root.querySelector('[data-zh]');
+
+        const NUMS = [8, 9, 1, 2, 3, 4, 5, 6, 7];
+        const N = NUMS.length;
+        const CELLS_TOP = 58;
+        const CELL_H = 38;
+        const BASELINE = 224;
+        const MAX_BAR = 80;
+        const clone = value => ({ ...value });
+        let positions = [];
+        let cellW = 40;
+        let cells = [];
+        let bars = [];
+        let trace;
+
+        function buildFrames() {
+          const frames = [];
+          const scenarios = [
+            { target: 1, name: '查找 1' },
+            { target: 0, name: '查找 0' },
+          ];
+          for (const sc of scenarios) {
+            const s = { target: sc.target, left: 0, right: N - 1, mid: null, iteration: 0, sortedHalf: null, endpoint: null, found: null, done: false, result: null };
+            const add = (sourceKeys, label, line, en, zh) => frames.push({ sourceKeys, stepLabel: `${sc.name} · ${label}`, line, en, zh, state: clone(s) });
+
+            add(['init'], '初始化', 'left, right = 0, len(nums) - 1',
+              `Place left = 0 and right = ${N - 1}; the whole array is the search space.`,
+              `left = 0、right = ${N - 1}，搜索空间先覆盖整个数组。`);
+
+            while (true) {
+              s.sortedHalf = null;
+              s.endpoint = null;
+              if (s.left < s.right) {
+                s.iteration += 1;
+                add(['loop'], `第${s.iteration}轮 · 进入循环`, 'while left < right:',
+                  `${s.left} < ${s.right} holds, so round ${s.iteration} begins.`,
+                  `${s.left} < ${s.right} 成立，进入第 ${s.iteration} 轮。`);
+              } else {
+                s.done = true;
+                s.mid = null;
+                add(['loop'], `第${s.iteration + 1}轮 · 循环结束`, 'while left < right:',
+                  `${s.left} < ${s.right} fails; the search space is down to a single index.`,
+                  `${s.left} < ${s.right} 不成立，搜索空间只剩一个下标，循环结束。`);
+                break;
+              }
+
+              s.mid = Math.floor((s.left + s.right) / 2);
+              add(['mid'], `第${s.iteration}轮 · mid = ${s.mid}`, 'mid = (left + right) // 2',
+                `mid = (${s.left} + ${s.right}) // 2 = ${s.mid}; the space is cut into [left : mid] and [mid : right].`,
+                `mid = (${s.left} + ${s.right}) // 2 = ${s.mid}，搜索空间被切成 [left : mid] 和 [mid : right] 两段。`);
+
+              const midVal = NUMS[s.mid];
+              if (midVal === s.target) {
+                s.found = s.mid;
+                add(['hit', 'return-mid'], `第${s.iteration}轮 · 找到 target`, 'return mid',
+                  `nums[${s.mid}] = ${midVal} equals target, so return mid = ${s.mid}.`,
+                  `nums[${s.mid}] = ${midVal} == target ✓ 找到目标，返回下标 ${s.mid}。`);
+                s.done = true;
+                s.result = s.mid;
+                add(['return-mid'], `返回 ${s.result}`, 'return mid',
+                  `Done: target ${s.target} sits at index ${s.result} of nums = [8, 9, 1, 2, 3, 4, 5, 6, 7].`,
+                  `返回 ${s.result}：target = ${s.target} 在数组中的下标就是 ${s.result}。`);
+                break;
+              }
+              add(['hit'], `第${s.iteration}轮 · 中点 ≠ target`, 'if nums[mid] == target:',
+                `nums[${s.mid}] = ${midVal} is not ${s.target}; the midpoint is already checked, so decide which half to discard.`,
+                `nums[${s.mid}] = ${midVal} ≠ ${s.target}；中点已检查过，接下来判断舍弃哪一半。`);
+
+              if (NUMS[s.left] <= midVal) {
+                s.sortedHalf = 'left';
+                s.endpoint = s.left;
+                add(['left-sorted'], `第${s.iteration}轮 · 左半边有序`, 'elif nums[left] <= nums[mid]:',
+                  `nums[${s.left}] = ${NUMS[s.left]} ≤ nums[${s.mid}] = ${midVal}, so [left : mid] is sorted ascending.`,
+                  `nums[${s.left}] = ${NUMS[s.left]} ≤ nums[${s.mid}] = ${midVal}，左半边 [left : mid] 有序，可用它的值域判断。`);
+                const inside = NUMS[s.left] <= s.target && s.target < midVal;
+                add(['left-range'], `第${s.iteration}轮 · 值域判断`, 'if nums[left] <= target < nums[mid]:',
+                  inside
+                    ? `nums[${s.left}] = ${NUMS[s.left]} ≤ target = ${s.target} < nums[${s.mid}] = ${midVal} — target can only hide in the left half.`
+                    : `target = ${s.target} is outside [${NUMS[s.left]}, ${midVal}), so it cannot be in the sorted left half.`,
+                  inside
+                    ? `nums[${s.left}] = ${NUMS[s.left]} ≤ target = ${s.target} < nums[${s.mid}] = ${midVal} 成立，target 只可能在左半边。`
+                    : `target = ${s.target} 不在 [${NUMS[s.left]}, ${midVal}) 内，有序的左半边里一定没有它。`);
+                s.sortedHalf = null;
+                s.endpoint = null;
+                if (inside) {
+                  s.right = s.mid - 1;
+                  add(['left-range-yes'], `第${s.iteration}轮 · right = ${s.right}`, 'right = mid - 1',
+                    `Narrow toward the left: right = ${s.mid} - 1 = ${s.right}; the checked midpoint is excluded.`,
+                    `向左收缩：right = mid - 1 = ${s.right}；已检查的 mid 被一并排除。`);
+                } else {
+                  s.left = s.mid + 1;
+                  add(['left-range-no'], `第${s.iteration}轮 · left = ${s.left}`, 'left = mid + 1',
+                    `Narrow toward the right: left = ${s.mid} + 1 = ${s.left}; the checked midpoint is excluded.`,
+                    `向右收缩：left = mid + 1 = ${s.left}；已检查的 mid 被一并排除。`);
+                }
+              } else {
+                s.sortedHalf = 'right';
+                s.endpoint = s.right;
+                add(['left-sorted'], `第${s.iteration}轮 · 右半边有序`, 'elif nums[left] <= nums[mid]:',
+                  `nums[${s.left}] = ${NUMS[s.left]} > nums[${s.mid}] = ${midVal}; the break is inside [left : mid], so [mid : right] must be sorted.`,
+                  `nums[${s.left}] = ${NUMS[s.left]} > nums[${s.mid}] = ${midVal}，断点在左半边里，因此右半边 [mid : right] 一定有序。`);
+                const inside = midVal < s.target && s.target <= NUMS[s.right];
+                add(['right-branch', 'right-range'], `第${s.iteration}轮 · 值域判断`, 'if nums[mid] < target <= nums[right]:',
+                  inside
+                    ? `nums[${s.mid}] = ${midVal} < target = ${s.target} ≤ nums[${s.right}] = ${NUMS[s.right]} — target can only hide in the right half.`
+                    : `target = ${s.target} is outside (${midVal}, ${NUMS[s.right]}], so it cannot be in the sorted right half.`,
+                  inside
+                    ? `nums[${s.mid}] = ${midVal} < target = ${s.target} ≤ nums[${s.right}] = ${NUMS[s.right]} 成立，target 只可能在右半边。`
+                    : `target = ${s.target} 不在 (${midVal}, ${NUMS[s.right]}] 内，有序的右半边里一定没有它。`);
+                s.sortedHalf = null;
+                s.endpoint = null;
+                if (inside) {
+                  s.left = s.mid + 1;
+                  add(['right-range-yes'], `第${s.iteration}轮 · left = ${s.left}`, 'left = mid + 1',
+                    `Narrow toward the right: left = ${s.mid} + 1 = ${s.left}; the checked midpoint is excluded.`,
+                    `向右收缩：left = mid + 1 = ${s.left}；已检查的 mid 被一并排除。`);
+                } else {
+                  s.right = s.mid - 1;
+                  add(['right-range-no'], `第${s.iteration}轮 · right = ${s.right}`, 'right = mid - 1',
+                    `Narrow toward the left: right = ${s.mid} - 1 = ${s.right}; the checked midpoint is excluded.`,
+                    `向左收缩：right = mid - 1 = ${s.right}；已检查的 mid 被一并排除。`);
+                }
+              }
+            }
+
+            if (s.result === null) {
+              s.done = true;
+              const lone = NUMS[s.left];
+              s.result = lone === s.target ? s.left : -1;
+              add(['final-return'], `返回 ${s.result}`, 'return left if nums and nums[left] == target else -1',
+                `The loop left a single index ${s.left}; nums[${s.left}] = ${lone} is not ${s.target}, so return -1.`,
+                `循环结束，left = right = ${s.left}；nums[${s.left}] = ${lone} ≠ ${s.target}，target 不在数组中，返回 -1。`);
+            }
+          }
+          return frames;
+        }
+
+        function makeCells() {
+          track.replaceChildren();
+          cells = NUMS.map((value, index) => {
+            const cell = document.createElement('span');
+            cell.className = 'cell';
+            cell.dataset.index = String(index);
+            const val = document.createElement('span');
+            val.textContent = String(value);
+            const mark = document.createElement('span');
+            mark.className = 'hit-mark';
+            mark.textContent = '✓';
+            cell.append(val, mark);
+            track.append(cell);
+            return cell;
+          });
+          bars = NUMS.map(value => {
+            const bar = document.createElement('span');
+            bar.className = 'bar';
+            bar.textContent = String(value);
+            stage.append(bar);
+            return bar;
+          });
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const gap = width < 520 ? 4 : 10;
+          cellW = Math.min(66, Math.floor((width - 12 - gap * (N - 1)) / N));
+          const total = cellW * N + gap * (N - 1);
+          const startX = Math.max(6, (width - total) / 2);
+          positions = NUMS.map((_, index) => startX + index * (cellW + gap) + cellW / 2);
+          const fontSize = cellW >= 50 ? '19px' : cellW >= 36 ? '15px' : '13px';
+          cells.forEach((cell, index) => {
+            cell.style.left = `${positions[index] - cellW / 2}px`;
+            cell.style.top = `${CELLS_TOP}px`;
+            cell.style.width = `${cellW}px`;
+            cell.style.height = `${CELL_H}px`;
+            cell.style.fontSize = fontSize;
+          });
+          bars.forEach((bar, index) => {
+            const height = Math.max(8, Math.round(NUMS[index] / 9 * MAX_BAR));
+            bar.style.left = `${positions[index] - cellW / 2}px`;
+            bar.style.width = `${cellW}px`;
+            bar.style.height = `${height}px`;
+            bar.style.top = `${BASELINE - height}px`;
+          });
+          baseline.style.left = `${startX - 4}px`;
+          baseline.style.width = `${total + 8}px`;
+          baseline.style.top = `${BASELINE}px`;
+          paint(trace ? trace.state : buildFrames()[0].state);
+        }
+
+        function paint(state) {
+          if (!state || !positions.length) return;
+          const halfLo = state.sortedHalf === 'left' ? state.left : state.sortedHalf === 'right' ? state.mid : null;
+          const halfHi = state.sortedHalf === 'left' ? state.mid : state.sortedHalf === 'right' ? state.right : null;
+          cells.forEach((cell, index) => {
+            const excluded = index < state.left || index > state.right;
+            cell.classList.toggle('excluded', excluded);
+            cell.classList.toggle('half', halfLo !== null && index >= halfLo && index <= halfHi);
+            cell.classList.toggle('current', state.found === null && state.mid !== null && index === state.mid);
+            cell.classList.toggle('endpoint', state.found === null && state.endpoint !== null && state.endpoint !== state.mid && index === state.endpoint);
+            cell.classList.toggle('found', state.found === index);
+            bars[index].classList.toggle('excluded', excluded);
+          });
+          targetTag.textContent = `target = ${state.target}`;
+
+          const midX = state.mid === null ? null : positions[state.mid];
+          const width = stage.clientWidth;
+          const clampChip = x => Math.min(width - 26, Math.max(26, x));
+          const chipEntries = [{ el: chips.left, x: positions[state.left] }];
+          if (midX !== null) chipEntries.push({ el: chips.mid, x: midX });
+          chipEntries.push({ el: chips.right, x: positions[state.right] });
+          const gap = 48;
+          const ordered = [...chipEntries].sort((a, b) => a.x - b.x);
+          for (let i = 1; i < ordered.length; i += 1) {
+            if (ordered[i].x < ordered[i - 1].x + gap) ordered[i].x = ordered[i - 1].x + gap;
+          }
+          const mean = chipEntries.reduce((sum, entry) => sum + entry.x, 0) / chipEntries.length;
+          const settledMean = ordered.reduce((sum, entry) => sum + entry.x, 0) / ordered.length;
+          let shift = mean - settledMean;
+          const groupMin = ordered[0].x + shift;
+          const groupMax = ordered[ordered.length - 1].x + shift;
+          if (groupMin < 28) shift += 28 - groupMin;
+          if (groupMax > width - 28) shift -= groupMax - (width - 28);
+          ordered.forEach(entry => { entry.el.style.left = `${clampChip(entry.x + shift)}px`; });
+          chips.mid.hidden = midX === null;
+
+          const spaceLeft = Math.max(2, positions[state.left] - cellW / 2);
+          const spaceRight = Math.min(width - 2, positions[state.right] + cellW / 2);
+          spaceLine.style.left = `${spaceLeft}px`;
+          spaceLine.style.width = `${Math.max(12, spaceRight - spaceLeft)}px`;
+
+          if (halfLo === null) {
+            brace.hidden = true;
+          } else {
+            brace.hidden = false;
+            const braceLeft = Math.max(2, positions[halfLo] - cellW / 2);
+            const braceRight = Math.min(width - 2, positions[halfHi] + cellW / 2);
+            brace.style.left = `${braceLeft}px`;
+            brace.style.width = `${Math.max(12, braceRight - braceLeft)}px`;
+          }
+        }
+
+        function render({ frame, state, step, frames }) {
+          phase.textContent = frame.stepLabel;
+          calloutCode.textContent = frame.line;
+          calloutEn.textContent = frame.en;
+          calloutZh.textContent = frame.zh;
+          mLeft.textContent = state.left;
+          mMid.textContent = state.mid === null ? '—' : state.mid;
+          mRight.textContent = state.right;
+          mMidVal.textContent = state.mid === null ? '—' : NUMS[state.mid];
+          mTarget.textContent = state.target;
+          mIter.textContent = state.iteration;
+          if (state.found !== null) {
+            invariant.textContent = 'nums[mid] == target，直接返回 mid，无需再判断半边。/ The midpoint equals target; return its index.';
+          } else if (state.sortedHalf === 'left') {
+            invariant.textContent = `两段中至少一段有序：本轮 [left : mid] = [${NUMS[state.left]} … ${NUMS[state.mid]}] 升序。/ [left : mid] is the sorted half; test target against its range.`;
+          } else if (state.sortedHalf === 'right') {
+            invariant.textContent = `两段中至少一段有序：本轮 [mid : right] = [${NUMS[state.mid]} … ${NUMS[state.right]}] 升序。/ [mid : right] is the sorted half; test target against its range.`;
+          } else if (state.done) {
+            invariant.textContent = '搜索空间收缩到一个下标，最后单独检查它是否是 target。/ One index remains; check it against target.';
+          } else {
+            invariant.textContent = '每轮 mid 把搜索空间切成两段，其中至少一段仍然完全升序。/ Each midpoint cuts the space into two halves; at least one stays ascending.';
+          }
+          paint(state);
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步 · ${frame.stepLabel}`);
+        }
+
+        makeCells();
+        const frames = buildFrames();
+        new ResizeObserver(() => layout()).observe(stage);
+        layout();
+        trace = AlgorithmVisualCore.createTrace({
+          root,
+          cloneState: clone,
+          motion: AlgorithmVisualCore.createMotionController(),
+          onRender: render,
+        });
+        trace.setFrames(frames);
+      })();
+    </script>
+  </body>
+</html>
