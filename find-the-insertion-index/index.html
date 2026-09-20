@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of finding the insertion index (lower bound) with binary search. 搜索插入位置：二分查找第一个满足 nums[i] &gt;= target 的下标。" />
+    <title>Find the Insertion Index · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      :root {
+        --soft: #e5e3dc;
+        --wash: #f5f2e9;
+      }
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 6px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { height: 304px; overflow: hidden; border-bottom: 1px solid var(--rule); }
+      .track { position: absolute; inset: 0; }
+      .cell { position: absolute; z-index: 2; display: grid; place-items: center; border: 1.5px solid var(--ink); background: var(--paper); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; transition: left .32s ease, background-color .25s; }
+      .cell::after { content: attr(data-index); position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%); color: var(--quiet); font: 10px/1 monospace; }
+      .cell.in-range { background: var(--wash); }
+      .cell.answer { outline: 3px double var(--ink); outline-offset: 4px; background: var(--wash); }
+      .bool { position: absolute; z-index: 2; display: grid; place-items: center; border: 1px solid #999; border-radius: 2px; background: var(--paper); color: #999; font: 13px/1 monospace; transition: left .32s ease, color .2s, border-color .2s, background-color .2s; }
+      .bool.true { border-color: var(--ink); color: var(--ink); background: var(--wash); font-weight: 700; }
+      .bool-caption { position: absolute; z-index: 2; transform: translateX(-50%); color: var(--quiet); font: 11px/1 monospace; white-space: nowrap; }
+      .pointer { position: absolute; z-index: 3; min-width: 46px; padding: 3px 6px; border: 1px solid #666; border-radius: 3px; background: var(--paper); font: 11px/1.15 monospace; text-align: center; transform: translateX(-50%); transition: left .32s ease, top .2s ease; }
+      .pointer.mid { border-style: dashed; }
+      .bracket { position: absolute; z-index: 1; border: 1.5px solid #666; border-bottom: none; transition: left .32s ease, width .32s ease; }
+      .bracket-label { position: absolute; z-index: 2; transform: translateX(-50%); color: var(--quiet); font: 10px/1 monospace; white-space: nowrap; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 19px; font-weight: 500; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .bool-grid, .case-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { margin: 6px 0 0; color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .mini-array { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 4px; align-items: center; }
+      .mini-cell { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid #777; font: 13px/1 monospace; background: var(--paper); }
+      .mini-cell.index { border: none; color: var(--quiet); height: 14px; font-size: 10px; }
+      .mini-cell.true { border-color: var(--ink); background: var(--wash); font-weight: 700; }
+      .mini-cell.lower { outline: 2px solid var(--ink); outline-offset: 2px; }
+      .mini-note { color: var(--quiet); font: 11px/1.4 monospace; }
+      .reason-list { margin: 8px 0 0; padding-left: 24px; }
+      .reason-list li { margin: 6px 0; }
+      @media (max-width: 700px) {
+        .stage { height: 264px; }
+        .state-grid, .bool-grid, .case-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .cell, .bool, .pointer, .bracket { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="insertion-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Find the Insertion Index<span lang="zh-CN"> · 搜索插入位置</span></h1></div></header>
+      <p class="problem">Given a sorted array of unique values and an integer <code>target</code>, return the target's index if it exists; otherwise return the insertion index — the index where <code>target</code> would sit to keep the array sorted.<span lang="zh-CN">给定一个元素互不相同的升序数组和一个整数 target：若数组中存在 target，返回它的下标；否则返回插入位置——把 target 放进去后数组仍然有序的那个下标。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="搜索插入位置二分查找演示">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="二分查找演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+            <div class="bracket" data-bracket></div>
+            <div class="track" data-track></div>
+            <div data-bools></div>
+            <span class="pointer" data-left>left</span>
+            <span class="pointer mid" data-mid>mid</span>
+            <span class="pointer" data-right>right</span>
+            <span class="bool-caption" data-caption></span>
+            <span class="bracket-label" data-bracket-label></span>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>target</code></dt><dd data-m-target></dd></div>
+              <div><dt><code>left</code></dt><dd data-m-left></dd></div>
+              <div><dt><code>right</code></dt><dd data-m-right></dd></div>
+              <div><dt><code>mid</code></dt><dd data-m-mid></dd></div>
+              <div><dt><code>nums[mid]</code></dt><dd data-m-nums-mid></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="insertion-code-title">
+          <h2 id="insertion-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="function">def find_the_insertion_index(nums: List[int], target: int) -&gt; int:</span><span class="code-line" data-source-key="init">    left, right = 0, len(nums)</span><span class="code-line" data-source-key="loop">    while left &lt; right:</span><span class="code-line" data-source-key="mid">        mid = (left + right) // 2</span><span class="code-line">        # If the midpoint value is greater than or equal to the target,</span><span class="code-line">        # the lower bound is either at the midpoint, or to its left.</span><span class="code-line" data-source-key="check">        if nums[mid] &gt;= target:</span><span class="code-line" data-source-key="ge-right">            right = mid</span><span class="code-line">        # The midpoint value is less than the target, indicating the</span><span class="code-line">        # lower bound is somewhere to the right.</span><span class="code-line" data-source-key="else">        else:</span><span class="code-line" data-source-key="lt-left">            left = mid + 1</span><span class="code-line" data-source-key="return">    return left</span></code></pre>
+          <p class="note">二分查找只移动 <code>left</code> / <code>right</code> / <code>mid</code> 三个变量，从不写入 <code>nums</code> 数组。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="idea-title">
+        <h2 id="idea-title">一个条件统一两种情况 · One condition covers both cases</h2>
+        <p class="section-intro">目标在数组里 → 返回它的下标；目标不在 → 返回第一个比它大的值的下标。两种情况可以合并成一句话：<strong>第一个满足 <code>nums[i] &gt;= target</code> 的下标</strong>。因为 <code>nums</code> 升序，这个判定的结果数组总是先 <code>False</code> 后 <code>True</code>，所以答案是 <code>True</code> 区的下界（lower bound）——可以用二分查找来定位。</p>
+        <div class="bool-grid">
+          <article class="paper-card">
+            <strong>target = 4（在数组中）</strong>
+            <div class="mini-array"><span class="mini-cell">1</span><span class="mini-cell">2</span><span class="mini-cell lower">4</span><span class="mini-cell">5</span><span class="mini-cell">7</span><span class="mini-cell">8</span><span class="mini-cell">9</span></div>
+            <div class="mini-array"><span class="mini-cell index">0</span><span class="mini-cell index">1</span><span class="mini-cell index">2</span><span class="mini-cell index">3</span><span class="mini-cell index">4</span><span class="mini-cell index">5</span><span class="mini-cell index">6</span></div>
+            <div class="mini-array"><span class="mini-cell">F</span><span class="mini-cell">F</span><span class="mini-cell true lower">T</span><span class="mini-cell true">T</span><span class="mini-cell true">T</span><span class="mini-cell true">T</span><span class="mini-cell true">T</span></div>
+            <span class="mini-note">nums[i] &gt;= 4 · 下界 = 2（target 本身的下标）</span>
+          </article>
+          <article class="paper-card">
+            <strong>target = 6（不在数组中）</strong>
+            <div class="mini-array"><span class="mini-cell">1</span><span class="mini-cell">2</span><span class="mini-cell">4</span><span class="mini-cell">5</span><span class="mini-cell lower">7</span><span class="mini-cell">8</span><span class="mini-cell">9</span></div>
+            <div class="mini-array"><span class="mini-cell index">0</span><span class="mini-cell index">1</span><span class="mini-cell index">2</span><span class="mini-cell index">3</span><span class="mini-cell index">4</span><span class="mini-cell index">5</span><span class="mini-cell index">6</span></div>
+            <div class="mini-array"><span class="mini-cell">F</span><span class="mini-cell">F</span><span class="mini-cell">F</span><span class="mini-cell">F</span><span class="mini-cell true lower">T</span><span class="mini-cell true">T</span><span class="mini-cell true">T</span></div>
+            <span class="mini-note">nums[i] &gt;= 6 · 下界 = 4（6 插在 5 和 7 之间）</span>
+          </article>
+        </div>
+        <p class="section-intro" style="margin-top:12px">搜索空间取 <code>[0, n]</code> 而不是 <code>[0, n - 1]</code>：若 <code>target</code> 比所有元素都大，插入位置是 <code>n</code>，答案可能落在最后一个元素之后。初始 <code>left, right = 0, len(nums)</code>。</p>
+      </section>
+
+      <section class="section" aria-labelledby="shrink-title">
+        <h2 id="shrink-title">区间如何收缩 · How the range shrinks</h2>
+        <p class="section-intro">每轮取中点 <code>mid</code>，按判定结果把搜索区间砍成一半。不变量：下界始终在 <code>[left, right]</code> 之内。</p>
+        <div class="case-grid">
+          <article class="paper-card">
+            <strong>nums[mid] &gt;= target</strong>
+            <p>中点已满足条件，下界只可能是 <code>mid</code> 或它左边。保留 <code>mid</code>，向左收：<code>right = mid</code>。</p>
+          </article>
+          <article class="paper-card">
+            <strong>nums[mid] &lt; target</strong>
+            <p>中点太小，下界一定在 <code>mid</code> 右边。排除 <code>mid</code>，向右收：<code>left = mid + 1</code>。</p>
+          </article>
+        </div>
+        <ol class="reason-list">
+          <li>每次收缩都把不可能的一半丢掉，区间长度大致减半，所以只需 <code>O(log n)</code> 轮。</li>
+          <li>当 <code>left == right</code> 时区间只剩一个候选，它就是第一个 <code>True</code> 的下标；返回 <code>left</code>。</li>
+        </ol>
+      </section>
+
+      <section class="section" aria-labelledby="edge-title">
+        <h2 id="edge-title">边界情况 · Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card">
+            <strong>target 比所有元素小</strong>
+            <p>例：<code>nums = [1, 2, 4, 5, 7, 8, 9]</code>，<code>target = 0</code>。第一个 <code>True</code> 在下标 0，直接返回 <code>0</code>。</p>
+          </article>
+          <article class="paper-card">
+            <strong>target 比所有元素大</strong>
+            <p>例：<code>target = 10</code>。所有判定都是 <code>False</code>，<code>left</code> 一路右移，最终返回 <code>n = 7</code>。</p>
+          </article>
+          <article class="paper-card">
+            <strong>target 恰好等于某个元素</strong>
+            <p>例：<code>target = 4</code>。第一个 <code>True</code> 正好落在它身上，返回它的下标 <code>2</code>——等于的情况同样满足 <code>&gt;=</code>。</p>
+          </article>
+          <article class="paper-card">
+            <strong>空数组</strong>
+            <p><code>nums = []</code> 时 <code>left == right == 0</code>，循环不执行，返回 <code>0</code>，即唯一的插入位置。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="complexity-title">
+        <h2 id="complexity-title">复杂度 · Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>时间 · O(log n)</strong><p>在大小为 <code>n + 1</code> 的搜索空间 <code>[0, n]</code> 上做二分，每轮区间减半。</p></article>
+          <article class="paper-card"><strong>额外空间 · O(1)</strong><p>只保存 <code>left</code>、<code>right</code>、<code>mid</code> 三个变量，数组不被修改。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目"><strong>相关题目：</strong><a href="../first-and-last-occurrences-of-a-number/">数字的首尾出现位置</a><a href="../cutting-wood/">砍木头</a><a href="../find-the-target-in-a-rotated-sorted-array/">旋转排序数组中查找目标</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.getElementById('insertion-lab');
+        const NUMS = [1, 2, 4, 5, 7, 8, 9];
+        const N = NUMS.length;
+        const stage = root.querySelector('[data-stage]');
+        const track = root.querySelector('[data-track]');
+        const boolLayer = root.querySelector('[data-bools]');
+        const bracket = root.querySelector('[data-bracket]');
+        const bracketLabel = root.querySelector('[data-bracket-label]');
+        const caption = root.querySelector('[data-caption]');
+        const leftChip = root.querySelector('[data-left]');
+        const midChip = root.querySelector('[data-mid]');
+        const rightChip = root.querySelector('[data-right]');
+        const phase = root.querySelector('[data-phase]');
+        const invariant = root.querySelector('[data-invariant]');
+        const mTarget = root.querySelector('[data-m-target]');
+        const mLeft = root.querySelector('[data-m-left]');
+        const mRight = root.querySelector('[data-m-right]');
+        const mMid = root.querySelector('[data-m-mid]');
+        const mNumsMid = root.querySelector('[data-m-nums-mid]');
+        const expression = root.querySelector('[data-expression]');
+        const explanation = root.querySelector('[data-explanation]');
+        const motion = AlgorithmVisualCore.createMotionController();
+        const scene = AlgorithmVisualCore.createSvgScene(root.querySelector('[data-lines]'));
+        scene.defineMarker('move-arrow', { markerWidth: 7, refX: 6, fill: '#888' });
+
+        const INVARIANTS = {
+          init: '布尔数组 nums[i] >= target 先 False 后 True（nums 升序）；答案是第一个 True 的下标。搜索空间取 [0, n]，因为插入位置可能是 n。',
+          mid: '不变量：下界（第一个 True）始终在 [left, right] 之内，mid 把区间分成两半。',
+          ge: 'nums[mid] >= target：下界 ∈ [left, mid]，保留 mid，区间向左收（right = mid）。',
+          lt: 'nums[mid] < target：下界 ∈ [mid + 1, right]，排除 mid，区间向右收（left = mid + 1）。',
+          return: 'left == right：区间只剩一个候选，它就是第一个满足 nums[i] >= target 的下标。'
+        };
+
+        const clone = state => ({ target: state.target, left: state.left, right: state.right, mid: state.mid, done: state.done, answer: state.answer, kind: state.kind });
+        const frames = [];
+
+        function run(target, first) {
+          let left = 0;
+          let right = N;
+          frames.push({
+            kind: 'init', sourceKeys: ['init'], target, left, right, mid: null, done: false, answer: null,
+            stepLabel: `初始化 · target = ${target}`,
+            line: `left, right = 0, len(nums)  # 0, ${N}`,
+            zh: first
+              ? '搜索空间先覆盖 [0, n]（n = 7）：若 target 比所有元素都大，插入位置就是 n。下方布尔行显示每个 nums[i] >= 4 的判定。'
+              : '换成 target = 6（不在数组中），验证同一套逻辑能否给出插入位置；布尔行的 True 整体右移。'
+          });
+          while (left < right) {
+            const mid = Math.floor((left + right) / 2);
+            frames.push({
+              kind: 'mid', sourceKeys: ['loop', 'mid'], target, left, right, mid, done: false, answer: null,
+              stepLabel: `mid = ${mid} · nums[${mid}] = ${NUMS[mid]}`,
+              line: `mid = (${left} + ${right}) // 2 = ${mid}  # nums[${mid}] = ${NUMS[mid]}`,
+              zh: `中点落在元素 ${NUMS[mid]} 上；判定 nums[${mid}] = ${NUMS[mid]} 是否 >= ${target}。`
+            });
+            if (NUMS[mid] >= target) {
+              right = mid;
+              frames.push({
+                kind: 'ge', sourceKeys: ['check', 'ge-right'], target, left, right, mid, done: false, answer: null,
+                stepLabel: `${NUMS[mid]} >= ${target} → right = ${mid}`,
+                line: `if nums[${mid}] >= target:  # 成立 → right = mid`,
+                zh: `${NUMS[mid]} 满足条件（等于也算）：下界只可能是 ${mid} 或它左边；保留 mid，区间向左收到 [${left}, ${mid}]。`
+              });
+            } else {
+              left = mid + 1;
+              frames.push({
+                kind: 'lt', sourceKeys: ['check', 'else', 'lt-left'], target, left, right, mid, done: false, answer: null,
+                stepLabel: `${NUMS[mid]} < ${target} → left = ${left}`,
+                line: `else:  # nums[${mid}] < ${target} → left = mid + 1`,
+                zh: `${NUMS[mid]} 太小：下界一定在 mid 右边；排除 mid，区间向右收到 [${left}, ${right}]。`
+              });
+            }
+          }
+          const found = NUMS[left] === target;
+          frames.push({
+            kind: 'return', sourceKeys: ['loop', 'return'], target, left, right, mid: null, done: true, answer: left,
+            stepLabel: `返回 ${left}`,
+            line: `return left  # → ${left}`,
+            zh: found
+              ? `left == right == ${left}，循环结束；nums[${left}] 恰好等于 target，返回它的下标 ${left}。`
+              : `left == right == ${left}，循环结束；nums[${left}] = ${NUMS[left]} ≠ ${target}，所以 ${left} 是插入位置——插在 ${NUMS[left - 1]} 和 ${NUMS[left]} 之间，数组仍有序。`
+          });
+        }
+        run(4, true);
+        run(6, false);
+        for (const frame of frames) frame.state = clone(frame);
+
+        const cells = NUMS.map((value, index) => {
+          const cell = document.createElement('span');
+          cell.className = 'cell';
+          cell.dataset.index = String(index);
+          cell.textContent = String(value);
+          track.append(cell);
+          return cell;
+        });
+        const bools = NUMS.map((value, index) => {
+          const chip = document.createElement('span');
+          chip.className = 'bool';
+          boolLayer.append(chip);
+          return chip;
+        });
+
+        let geo = null;
+        let positions = [];
+        let lastPointerX = {};
+
+        function computeGeometry() {
+          const compact = stage.clientWidth < 700;
+          geo = compact
+            ? { cellW: 34, gap: 5, cellTop: 96, cellH: 38, chipTop: 34, chipH: 19, stackGap: 20, boolTop: 172, boolH: 20, capTop: 198, brTop: 224, brH: 10, labelTop: 240, fontSize: 15, pad: 20 }
+            : { cellW: 56, gap: 12, cellTop: 106, cellH: 46, chipTop: 40, chipH: 19, stackGap: 21, boolTop: 198, boolH: 24, capTop: 228, brTop: 256, brH: 12, labelTop: 274, fontSize: 20, pad: 27 };
+        }
+
+        function layout() {
+          computeGeometry();
+          const width = stage.clientWidth;
+          const total = geo.cellW * N + geo.gap * (N - 1);
+          const start = Math.max(6, (width - total) / 2);
+          positions = NUMS.map((_, index) => ({
+            x: start + index * (geo.cellW + geo.gap),
+            center: start + index * (geo.cellW + geo.gap) + geo.cellW / 2
+          }));
+          cells.forEach((cell, index) => {
+            cell.style.left = `${positions[index].x}px`;
+            cell.style.top = `${geo.cellTop}px`;
+            cell.style.width = `${geo.cellW}px`;
+            cell.style.height = `${geo.cellH}px`;
+            cell.style.fontSize = `${geo.fontSize}px`;
+          });
+          bools.forEach((chip, index) => {
+            chip.style.left = `${positions[index].x}px`;
+            chip.style.top = `${geo.boolTop}px`;
+            chip.style.width = `${geo.cellW}px`;
+            chip.style.height = `${geo.boolH}px`;
+          });
+          caption.style.top = `${geo.capTop}px`;
+          caption.style.left = `${positions[3].center}px`;
+          bracket.style.top = `${geo.brTop}px`;
+          bracket.style.height = `${geo.brH}px`;
+          bracketLabel.style.top = `${geo.labelTop}px`;
+          bracketLabel.style.left = `${positions[3].center}px`;
+          lastPointerX = {};
+          paint(trace && trace.state ? trace.state : frames[0].state, { arcs: false });
+        }
+
+        function slotX(index) {
+          const width = stage.clientWidth;
+          const raw = index >= N
+            ? positions[N - 1].x + geo.cellW + geo.gap * 0.8
+            : positions[index].center;
+          return Math.min(width - geo.pad, Math.max(geo.pad, raw));
+        }
+
+        function paint(state, { arcs = true } = {}) {
+          if (!positions.length) return;
+          const rightIndex = Math.min(state.right, N);
+          cells.forEach((cell, index) => {
+            cell.classList.toggle('in-range', !state.done && index >= state.left && index <= rightIndex);
+            cell.classList.toggle('answer', state.answer === index);
+          });
+          bools.forEach((chip, index) => {
+            const isTrue = NUMS[index] >= state.target;
+            chip.textContent = isTrue ? 'T' : 'F';
+            chip.classList.toggle('true', isTrue);
+          });
+          caption.textContent = `判定 nums[i] >= target（target = ${state.target}）`;
+          const leftX = slotX(state.left);
+          const rightX = slotX(state.right);
+          const midX = state.mid === null ? null : slotX(state.mid);
+          midChip.hidden = state.mid === null;
+          const pointerPos = { left: leftX, mid: midX, right: rightX };
+          const rows = new Map();
+          const tops = {};
+          for (const name of ['left', 'mid', 'right']) {
+            if (pointerPos[name] === null) continue;
+            const key = Math.round(pointerPos[name]);
+            const row = rows.get(key) || 0;
+            tops[name] = geo.chipTop + row * geo.stackGap;
+            rows.set(key, row + 1);
+          }
+          leftChip.style.left = `${leftX}px`;
+          leftChip.style.top = `${tops.left}px`;
+          rightChip.style.left = `${rightX}px`;
+          rightChip.style.top = `${tops.right}px`;
+          if (midX !== null) {
+            midChip.style.left = `${midX}px`;
+            midChip.style.top = `${tops.mid}px`;
+          }
+          const bracketLeft = positions[state.left].x - 5;
+          const bracketRight = state.right >= N
+            ? positions[N - 1].x + geo.cellW + geo.gap * 0.8
+            : positions[state.right].x + geo.cellW + 5;
+          bracket.style.left = `${bracketLeft}px`;
+          bracket.style.width = `${Math.max(10, bracketRight - bracketLeft)}px`;
+          bracketLabel.textContent = state.done
+            ? `下界 = ${state.answer}，返回 left`
+            : `搜索区间 [${state.left}, ${state.right}]`;
+
+          const lines = root.querySelector('[data-lines]');
+          const width = stage.clientWidth;
+          lines.setAttribute('viewBox', `0 0 ${width} ${stage.clientHeight}`);
+          scene.update(({ path }) => {
+            for (const name of ['left', 'mid', 'right']) {
+              const x = pointerPos[name];
+              if (x === null || tops[name] === undefined) continue;
+              path(`connector-${name}`, {
+                d: `M ${x} ${tops[name] + geo.chipH + 2} L ${x} ${geo.cellTop - 4}`,
+                fill: 'none', stroke: name === 'mid' ? '#777' : '#666', 'stroke-width': 1
+              });
+              const previous = lastPointerX[name];
+              if (arcs && previous !== undefined && Math.abs(previous - x) > 1) {
+                const y = tops[name] - 8;
+                path(`move-${name}`, {
+                  d: `M ${previous} ${y} Q ${(previous + x) / 2} ${y - 18}, ${x} ${y}`,
+                  fill: 'none', stroke: '#888', 'stroke-width': 1, 'stroke-dasharray': '4 4',
+                  'marker-end': 'url(#move-arrow)'
+                });
+              }
+              lastPointerX[name] = x;
+            }
+          });
+        }
+
+        let lastRenderedStep = -99;
+
+        function render({ frame, state, step, frames: all }) {
+          phase.textContent = `步骤 ${step + 1} / ${all.length} · ${frame.stepLabel}`;
+          invariant.textContent = INVARIANTS[frame.kind];
+          mTarget.textContent = state.target;
+          mLeft.textContent = state.left;
+          mRight.textContent = state.right;
+          mMid.textContent = state.mid === null ? '—' : state.mid;
+          mNumsMid.textContent = state.mid === null ? '—' : `${NUMS[state.mid]}`;
+          expression.textContent = frame.line;
+          explanation.textContent = frame.zh;
+          paint(state, { arcs: Math.abs(step - lastRenderedStep) === 1 });
+          lastRenderedStep = step;
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${all.length} 步：${frame.stepLabel}`);
+        }
+
+        let trace = AlgorithmVisualCore.createTrace({
+          root,
+          cloneState: clone,
+          motion,
+          onRender: render,
+          onBeforeStep: () => { motion.cancel(); },
+          formatStepOption: frame => frame.stepLabel
+        });
+        new ResizeObserver(() => { motion.cancel(); layout(); }).observe(stage);
+        layout();
+        trace.setFrames(frames);
+      })();
+    </script>
+  </body>
+</html>
