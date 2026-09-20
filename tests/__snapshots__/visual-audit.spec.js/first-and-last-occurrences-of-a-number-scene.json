@@ -1,0 +1,1198 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "First and last occurrences trace / 首尾出现位置演示"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 24"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ],
+            [
+              "style",
+              "margin-left:auto"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "问题 · 找首尾下标"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "调用下界搜索"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "下界 · left=0, right=12"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "下界 · mid = 6"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "nums[6]=5>4 · right=5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "下界 · mid = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "nums[2]=3<4 · left=3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "下界 · mid = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "nums[4]=4 · right=mid"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "下界 · mid = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "nums[3]=4 · right=3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "校验 · 下界 = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "调用上界搜索"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "上界 · left=0, right=12"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "上界 · mid = 7（右偏）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "nums[7]=6>4 · right=6"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "上界 · mid = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "nums[4]=4 · left=mid"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "上界 · mid = 6"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "19"
+                    ]
+                  ],
+                  "children": [
+                    "nums[6]=5>4 · right=5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "20"
+                    ]
+                  ],
+                  "children": [
+                    "上界 · mid = 5（关键右偏）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "21"
+                    ]
+                  ],
+                  "children": [
+                    "nums[5]=4 · left=5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "22"
+                    ]
+                  ],
+                  "children": [
+                    "校验 · 上界 = 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "23"
+                    ]
+                  ],
+                  "children": [
+                    "返回 [3, 5]"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "阶段 · 问题 / problem"
+          ]
+        },
+        {
+          "tag": "span",
+          "children": [
+            "target = 4"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "第 1 / 24 步。在非递减数组里找 4 第一次与最后一次出现的下标；找不到就返回 [-1, -1]。数组有序，所以可以二分：问题等价于求 4 所在块的左右端点。"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ],
+        [
+          "style",
+          "height: 212px;"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "band"
+            ],
+            [
+              "data-band",
+              ""
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "band-label"
+                ],
+                [
+                  "data-band-label",
+                  ""
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "track"
+            ],
+            [
+              "data-track",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "0"
+                ],
+                [
+                  "style",
+                  "left: 140.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "1"
+                ],
+                [
+                  "style",
+                  "left: 175.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "2"
+                ],
+                [
+                  "style",
+                  "left: 210.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "3"
+                ],
+                [
+                  "style",
+                  "left: 245.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "4"
+                ],
+                [
+                  "style",
+                  "left: 280.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "5"
+                ],
+                [
+                  "style",
+                  "left: 315.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "6"
+                ],
+                [
+                  "style",
+                  "left: 350.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "7"
+                ],
+                [
+                  "style",
+                  "left: 385.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "6"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "8"
+                ],
+                [
+                  "style",
+                  "left: 420.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "7"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "9"
+                ],
+                [
+                  "style",
+                  "left: 455.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "8"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "10"
+                ],
+                [
+                  "style",
+                  "left: 490.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "9"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "11"
+                ],
+                [
+                  "style",
+                  "left: 525.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "10"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell"
+                ],
+                [
+                  "data-index",
+                  "12"
+                ],
+                [
+                  "style",
+                  "left: 560.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
+                ]
+              ],
+              "children": [
+                "11"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "chip"
+            ],
+            [
+              "data-chip",
+              "left"
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ],
+          "children": [
+            "left"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "chip mid-chip"
+            ],
+            [
+              "data-chip",
+              "mid"
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ],
+          "children": [
+            "mid"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "chip"
+            ],
+            [
+              "data-chip",
+              "right"
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ],
+          "children": [
+            "right"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-label",
+              "首个出现位置 / first occurrence"
+            ],
+            [
+              "class",
+              "found-tag"
+            ],
+            [
+              "data-tag-first",
+              ""
+            ],
+            [
+              "hidden",
+              ""
+            ],
+            [
+              "style",
+              "top: 190px;"
+            ]
+          ],
+          "children": [
+            "首个"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "aria-label",
+              "末个出现位置 / last occurrence"
+            ],
+            [
+              "class",
+              "found-tag"
+            ],
+            [
+              "data-tag-last",
+              ""
+            ],
+            [
+              "hidden",
+              ""
+            ],
+            [
+              "style",
+              "top: 190px;"
+            ]
+          ],
+          "children": [
+            "末个"
+          ]
+        },
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 211"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#555"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "不变量 · invariant"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "相等的值在非递减数组里连成一块；答案就是这块的左右两个端点。/ Equal values form one contiguous block; the answer is its two ends."
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "left"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-left",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "right"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-right",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "mid"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-mid",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "nums[mid]"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-nums-mid",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "lower_bound"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-lb",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "upper_bound"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-ub",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "nums = [1,2,3,4,4,4,5,6,7,8,9,10,11], target = 4"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-zh",
+              ""
+            ]
+          ],
+          "children": [
+            "在非递减数组里找 4 第一次与最后一次出现的下标；找不到就返回 [-1, -1]。数组有序，所以可以二分：问题等价于求 4 所在块的左右端点。"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-en",
+              ""
+            ]
+          ],
+          "children": [
+            "Find the first and last index of 4 in a non-decreasing array; return [-1, -1] if absent. The task is to locate the two ends of the block of 4s."
+          ]
+        }
+      ]
+    }
+  ]
+}
