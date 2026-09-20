@@ -1,0 +1,1070 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "搜索插入位置二分查找演示"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 16"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "初始化 · target = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "mid = 3 · nums[3] = 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "5 >= 4 → right = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "mid = 1 · nums[1] = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "2 < 4 → left = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "mid = 2 · nums[2] = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "4 >= 4 → right = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "返回 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "初始化 · target = 6"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "mid = 3 · nums[3] = 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "5 < 6 → left = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "mid = 5 · nums[5] = 8"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "8 >= 6 → right = 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "mid = 4 · nums[4] = 7"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "7 >= 6 → right = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "返回 4"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 16 · 初始化 · target = 4"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "第 1 / 16 步：初始化 · target = 4"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 303"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#888"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 161.5 61 L 161.5 102"
+                ],
+                [
+                  "data-visual-element",
+                  "connector-left"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#666"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 607.1 61 L 607.1 102"
+                ],
+                [
+                  "data-visual-element",
+                  "connector-right"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#666"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "bracket"
+            ],
+            [
+              "data-bracket",
+              ""
+            ],
+            [
+              "style",
+              "top: 256px; height: 12px; left: 128.5px; width: 478.6px;"
+            ]
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "track"
+            ],
+            [
+              "data-track",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell in-range"
+                ],
+                [
+                  "data-index",
+                  "0"
+                ],
+                [
+                  "style",
+                  "left: 133.5px; top: 106px; width: 56px; height: 46px; font-size: 20px;"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell in-range"
+                ],
+                [
+                  "data-index",
+                  "1"
+                ],
+                [
+                  "style",
+                  "left: 201.5px; top: 106px; width: 56px; height: 46px; font-size: 20px;"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell in-range"
+                ],
+                [
+                  "data-index",
+                  "2"
+                ],
+                [
+                  "style",
+                  "left: 269.5px; top: 106px; width: 56px; height: 46px; font-size: 20px;"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell in-range"
+                ],
+                [
+                  "data-index",
+                  "3"
+                ],
+                [
+                  "style",
+                  "left: 337.5px; top: 106px; width: 56px; height: 46px; font-size: 20px;"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell in-range"
+                ],
+                [
+                  "data-index",
+                  "4"
+                ],
+                [
+                  "style",
+                  "left: 405.5px; top: 106px; width: 56px; height: 46px; font-size: 20px;"
+                ]
+              ],
+              "children": [
+                "7"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell in-range"
+                ],
+                [
+                  "data-index",
+                  "5"
+                ],
+                [
+                  "style",
+                  "left: 473.5px; top: 106px; width: 56px; height: 46px; font-size: 20px;"
+                ]
+              ],
+              "children": [
+                "8"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "cell in-range"
+                ],
+                [
+                  "data-index",
+                  "6"
+                ],
+                [
+                  "style",
+                  "left: 541.5px; top: 106px; width: 56px; height: 46px; font-size: 20px;"
+                ]
+              ],
+              "children": [
+                "9"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "data-bools",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "bool"
+                ],
+                [
+                  "style",
+                  "left: 133.5px; top: 198px; width: 56px; height: 24px;"
+                ]
+              ],
+              "children": [
+                "F"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "bool"
+                ],
+                [
+                  "style",
+                  "left: 201.5px; top: 198px; width: 56px; height: 24px;"
+                ]
+              ],
+              "children": [
+                "F"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "bool true"
+                ],
+                [
+                  "style",
+                  "left: 269.5px; top: 198px; width: 56px; height: 24px;"
+                ]
+              ],
+              "children": [
+                "T"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "bool true"
+                ],
+                [
+                  "style",
+                  "left: 337.5px; top: 198px; width: 56px; height: 24px;"
+                ]
+              ],
+              "children": [
+                "T"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "bool true"
+                ],
+                [
+                  "style",
+                  "left: 405.5px; top: 198px; width: 56px; height: 24px;"
+                ]
+              ],
+              "children": [
+                "T"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "bool true"
+                ],
+                [
+                  "style",
+                  "left: 473.5px; top: 198px; width: 56px; height: 24px;"
+                ]
+              ],
+              "children": [
+                "T"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "class",
+                  "bool true"
+                ],
+                [
+                  "style",
+                  "left: 541.5px; top: 198px; width: 56px; height: 24px;"
+                ]
+              ],
+              "children": [
+                "T"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "pointer"
+            ],
+            [
+              "data-left",
+              ""
+            ],
+            [
+              "style",
+              "left: 161.5px; top: 40px;"
+            ]
+          ],
+          "children": [
+            "left"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "pointer mid"
+            ],
+            [
+              "data-mid",
+              ""
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ],
+          "children": [
+            "mid"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "pointer"
+            ],
+            [
+              "data-right",
+              ""
+            ],
+            [
+              "style",
+              "left: 607.1px; top: 40px;"
+            ]
+          ],
+          "children": [
+            "right"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "bool-caption"
+            ],
+            [
+              "data-caption",
+              ""
+            ],
+            [
+              "style",
+              "top: 228px; left: 365.5px;"
+            ]
+          ],
+          "children": [
+            "判定 nums[i] >= target（target = 4）"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "bracket-label"
+            ],
+            [
+              "data-bracket-label",
+              ""
+            ],
+            [
+              "style",
+              "top: 274px; left: 365.5px;"
+            ]
+          ],
+          "children": [
+            "搜索区间 [0, 7]"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "不变量 Invariant"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "布尔数组 nums[i] >= target 先 False 后 True（nums 升序）；答案是第一个 True 的下标。搜索空间取 [0, n]，因为插入位置可能是 n。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "target"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-target",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "4"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "left"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-left",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "0"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "right"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-right",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "7"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "mid"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-mid",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "nums[mid]"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-nums-mid",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "left, right = 0, len(nums) # 0, 7"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "搜索空间先覆盖 [0, n]（n = 7）：若 target 比所有元素都大，插入位置就是 n。下方布尔行显示每个 nums[i] >= 4 的判定。"
+          ]
+        }
+      ]
+    }
+  ]
+}
