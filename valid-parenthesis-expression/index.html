@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of validating a parenthesis expression with a stack. 有效的括号：用栈后进先出匹配括号。" />
+    <title>Valid Parenthesis Expression · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { height: 300px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .case-grid, .edge-grid, .complexity, .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); overflow-wrap: anywhere; }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .expr-line { display: block; margin: 6px 0 4px; font: 20px/1.3 monospace; }
+      .rule-list { margin: 8px 0 0; padding-left: 24px; }
+      .rule-list li { margin: 6px 0; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .case-grid, .edge-grid, .complexity, .example-grid { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="paren-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Valid Parenthesis Expression · 有效的括号</h1></div></header>
+      <p class="problem">Given a string containing only <code>'('</code>, <code>')'</code>, <code>'['</code>, <code>']'</code>, <code>'{'</code>, <code>'}'</code>, determine whether it forms a valid parenthesis sequence: every opening parenthesis must be closed by a parenthesis of the same type, and no closing parenthesis may appear before its matching opening one.<span lang="zh-CN">给定一个只含小中大三种括号的字符串，判断它是否为有效的括号序列：每个开括号必须由同类型的闭括号闭合，且闭括号不能出现在与它匹配的开括号之前。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="有效的括号栈匹配演示 / valid parenthesis stack trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="有效的括号算法演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>c</code></dt><dd data-m-c></dd></div>
+              <div><dt><code>stack</code></dt><dd data-m-stack></dd></div>
+              <div><dt><code>stack[-1]</code></dt><dd data-m-top></dd></div>
+              <div><dt>result</dt><dd data-m-result></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="paren-code-title">
+          <h2 id="paren-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def valid_parenthesis_expression(s: str) -&gt; bool:</span><span class="code-line" data-source-key="init-map">    parentheses_map = {'(': ')', '{': '}', '[': ']'}</span><span class="code-line" data-source-key="init-stack">    stack = []</span><span class="code-line" data-source-key="loop">    for c in s:</span><span class="code-line">        # If the current character is an opening parenthesis, push it</span><span class="code-line">        # onto the stack.</span><span class="code-line" data-source-key="open-check">        if c in parentheses_map:</span><span class="code-line" data-source-key="push">            stack.append(c)</span><span class="code-line">        # If the current character is a closing parenthesis, check if</span><span class="code-line">        # it closes the opening parenthesis at the top of the stack.</span><span class="code-line">        else:</span><span class="code-line" data-source-key="close-check">            if stack and parentheses_map[stack[-1]] == c:</span><span class="code-line" data-source-key="pop">                stack.pop()</span><span class="code-line">            else:</span><span class="code-line" data-source-key="return-false">                return False</span><span class="code-line"> </span><span class="code-line">    # If the stack is empty, all opening parentheses were successfully</span><span class="code-line">    # closed.</span><span class="code-line" data-source-key="return">    return not stack</span></code></pre>
+          <p class="note"><code>parentheses_map</code> 的 key 是开括号：一个字符在不在 map 里，就区分了它是开括号还是闭括号。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="paren-intuition">
+        <h2 id="paren-intuition">直觉：为什么用栈 / Why a stack</h2>
+        <p class="section-intro">只统计每种括号的个数无法判断有效性，还必须检查闭合的<strong>顺序</strong>。关键观察是：读到闭括号时，它只能闭合「最近一个还没闭合的开括号」——先进入的括号要等后进入的闭合之后才有机会，这正是后进先出（LIFO）。</p>
+        <div class="example-grid">
+          <article class="paper-card"><strong>数量相同 ≠ 有效</strong><span class="expr-line">")()("</span><p>2 个 <code>'('</code> 和 2 个 <code>')'</code>，但第一个 <code>')'</code> 出现时前面没有任何开括号。只计数会误判，必须借助顺序。</p></article>
+          <article class="paper-card"><strong>最近的先闭合</strong><span class="expr-line">"[ ( ] )"</span><p>读到 <code>']'</code> 时，最近未闭合的是 <code>'('</code> 而不是 <code>'['</code>。闭括号只能匹配栈顶：能配上就 <code>pop</code>，配不上立即 <code>return False</code>。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="paren-rules">
+        <h2 id="paren-rules">匹配规则 / The two rules</h2>
+        <ol class="rule-list">
+          <li>遇到开括号（<code>c</code> 是 <code>parentheses_map</code> 的 key）→ <code>stack.append(c)</code>，压栈等待闭合。</li>
+          <li>遇到闭括号 → 若 <code>stack</code> 非空且 <code>parentheses_map[stack[-1]] == c</code>，<code>stack.pop()</code> 配成一对；否则 <code>return False</code>。</li>
+          <li>遍历结束后 <code>return not stack</code>：栈空说明所有开括号都已被闭合。</li>
+        </ol>
+      </section>
+
+      <section class="section" aria-labelledby="paren-map">
+        <h2 id="paren-map">parentheses_map：一张表管三件事</h2>
+        <div class="example-grid">
+          <article class="paper-card"><strong>映射开 → 闭</strong><span class="expr-line">{'('→')', '['→']', '{'→'}'}</span><p>三种括号各自的配对关系，写成一个哈希表 <code>parentheses_map</code>。</p></article>
+          <article class="paper-card"><strong>区分开与闭</strong><span class="expr-line">c in parentheses_map</span><p>字符在 map 的 key 里就是开括号，走 <code>push</code> 分支；否则是闭括号，走匹配分支。</p></article>
+          <article class="paper-card"><strong>查询栈顶在等谁</strong><span class="expr-line">parentheses_map[stack[-1]]</span><p>闭括号 <code>c</code> 到来时，查栈顶开括号期望的闭括号，相等才能 <code>pop</code>。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="paren-edge">
+        <h2 id="paren-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>多余的开括号</strong><span class="expr-line">"(([]"</span><p>循环走完也没有 <code>return False</code>，但 <code>stack = ['(', '(']</code> 非空：<code>return not stack</code> 得到 <code>False</code>。无效只靠闭合时刻检查不出来，必须做收尾检查。</p></article>
+          <article class="paper-card"><strong>闭括号先来</strong><span class="expr-line">")()"</span><p>第一个 <code>')'</code> 到来时栈为空，<code>stack and ...</code> 直接短路，返回 <code>False</code>；不会真的去取 <code>stack[-1]</code>。</p></article>
+          <article class="paper-card"><strong>类型不匹配</strong><span class="expr-line">"([]{)}"</span><p><code>')'</code> 要闭合栈顶的 <code>'{'</code>，但 <code>parentheses_map['{']</code> 是 <code>'}'</code>，立即返回 <code>False</code>。</p></article>
+          <article class="paper-card"><strong>空字符串</strong><span class="expr-line">""</span><p>循环一次也不执行，空栈取 <code>not</code> 得 <code>True</code>：零个括号天然有效。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="paren-complexity">
+        <h2 id="paren-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n)</strong><p>只遍历字符串一次；每个字符只做一次压栈或出栈，都是 <code>O(1)</code>。</p></article>
+          <article class="paper-card"><strong>Space · O(n)</strong><p>栈最多存下全部 <code>n</code> 个开括号；<code>parentheses_map</code> 固定 3 对，占 <code>O(1)</code>。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../next-largest-number-to-the-right/">右侧下一个更大数</a><a href="../evaluate-expression/">表达式求值</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('paren-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mC = root.querySelector('[data-m-c]');
+        const mStack = root.querySelector('[data-m-stack]');
+        const mTop = root.querySelector('[data-m-top]');
+        const mResult = root.querySelector('[data-m-result]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const RUNS = ['([]{)}', '([]{})'];
+        const N = 6;
+        const PAIRS = [['{', '}'], ['[', ']'], ['(', ')']];
+        const INVARIANT = 'stack 里只存「已读到、尚未闭合」的开括号，栈顶是最近读到的；每个闭括号必须闭合栈顶，否则表达式无效。';
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
+        const fr = (stepLabel, sourceKeys, line, zh, state, action = null, callout = null, mapKey = null) =>
+          ({ stepLabel, sourceKeys, line, zh, action, callout, mapKey, state });
+        const FRAMES = [
+          fr('s = "([]{)}" · 初始化', ['func', 'init-map', 'init-stack'],
+            "parentheses_map = {...}; stack = []",
+            "parentheses_map 记住每种开括号要等到的闭括号：'('→')'、'['→']'、'{'→'}'；stack 从空开始。",
+            { run: 0, i: -1, stack: [], result: null }),
+          fr("push '('", ['loop', 'open-check', 'push'], "stack.append(c)  # push '('",
+            "c = '(' 是 map 的 key，是开括号：压入栈顶，等待同类型的闭括号。",
+            { run: 0, i: 0, stack: ['('], result: null }, 'push'),
+          fr("push '['", ['loop', 'open-check', 'push'], "stack.append(c)  # push '['",
+            "c = '[' 也是开括号，压栈；'[' 现在位于栈顶，是最新等待闭合的括号。",
+            { run: 0, i: 1, stack: ['(', '['], result: null }, 'push'),
+          fr("']' 闭合 '[' · pop", ['loop', 'close-check', 'pop'], "parentheses_map[stack[-1]] == ']' → stack.pop()",
+            "c = ']' 是闭括号：栈非空且 parentheses_map[stack[-1]]（即 ']'）== c，弹出 '['，这一对闭合。",
+            { run: 0, i: 2, stack: ['('], result: null }, 'pop', ["'[' is closed by ']'"], '['),
+          fr("push '{'", ['loop', 'open-check', 'push'], "stack.append(c)  # push '{'",
+            "c = '{' 是开括号，压栈；栈顶换成 '{'，它在等待 '}'。",
+            { run: 0, i: 3, stack: ['(', '{'], result: null }, 'push'),
+          fr("')' 无法闭合 '{' · return False", ['loop', 'close-check', 'return-false'], "parentheses_map['{'] = '}' != ')' → return False",
+            "c = ')' 是闭括号，但 parentheses_map[stack[-1]] 是 '}'，不等于 ')'：类型不匹配，表达式无效，立即返回 False。",
+            { run: 0, i: 4, stack: ['(', '{'], result: false }, 'mismatch', ["'{' is not closed by ')':", 'return False'], '{'),
+          fr('s = "([]{})" · 初始化', ['func', 'init-map', 'init-stack'],
+            "parentheses_map = {...}; stack = []",
+            "换成有效表达式 \"([]{})\" 重跑一遍：map 不变，stack 重新置空。",
+            { run: 1, i: -1, stack: [], result: null }),
+          fr("push '('", ['loop', 'open-check', 'push'], "stack.append(c)  # push '('",
+            "c = '(' 是开括号，压栈。",
+            { run: 1, i: 0, stack: ['('], result: null }, 'push'),
+          fr("push '['", ['loop', 'open-check', 'push'], "stack.append(c)  # push '['",
+            "c = '[' 是开括号，压栈，'[' 位于栈顶。",
+            { run: 1, i: 1, stack: ['(', '['], result: null }, 'push'),
+          fr("']' 闭合 '[' · pop", ['loop', 'close-check', 'pop'], "parentheses_map[stack[-1]] == ']' → stack.pop()",
+            "c = ']' 与栈顶 '[' 匹配，pop，配对成功。",
+            { run: 1, i: 2, stack: ['('], result: null }, 'pop', ["'[' is closed by ']'"], '['),
+          fr("push '{'", ['loop', 'open-check', 'push'], "stack.append(c)  # push '{'",
+            "c = '{' 是开括号，压栈。",
+            { run: 1, i: 3, stack: ['(', '{'], result: null }, 'push'),
+          fr("'}' 闭合 '{' · pop", ['loop', 'close-check', 'pop'], "parentheses_map[stack[-1]] == '}' → stack.pop()",
+            "c = '}' 与栈顶 '{' 匹配，pop。",
+            { run: 1, i: 4, stack: ['('], result: null }, 'pop', ["'{' is closed by '}'"], '{'),
+          fr("')' 闭合 '(' · pop", ['loop', 'close-check', 'pop'], "parentheses_map[stack[-1]] == ')' → stack.pop()",
+            "c = ')' 与栈顶 '(' 匹配，pop；栈空，所有开括号都已闭合。",
+            { run: 1, i: 5, stack: [], result: null }, 'pop', ["'(' is closed by ')'"], '('),
+          fr('栈空 · return not stack → True', ['return'], 'return not stack  # 空栈 → True',
+            '循环正常结束，从未 return False；stack 为空，not stack 为 True，表达式有效。',
+            { run: 1, i: 6, stack: [], result: true })
+        ];
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('paren-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const motion = core.createMotionController();
+        let geom = {};
+        let trace = null;
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const W = stage.clientWidth;
+          const row = W < 700;
+          const compact = W < 560;
+          const charStep = compact ? 36 : 46;
+          const geomNext = {
+            W, row, compact,
+            charStep,
+            startX: (W - (N - 1) * charStep) / 2,
+            charY: compact ? 58 : 72,
+            chipY: compact ? 22 : 32,
+            indexY: compact ? 84 : 98,
+            su: compact ? 20 : 90,
+            uw: compact ? 62 : 78,
+            cellW: compact ? 48 : 62,
+            cellH: compact ? 30 : 34,
+            pitch: compact ? 36 : 40,
+            ub: 0,
+            ut: compact ? 142 : (row ? 150 : 130),
+            arrowLen: compact ? 58 : 86,
+            mapRowY: compact ? 104 : 108,
+            stageH: 300
+          };
+          geomNext.ub = geomNext.ut + (compact ? 22 : 26) + 2 * geomNext.pitch + geomNext.cellH / 2 + (compact ? 16 : 18) + 26;
+          geomNext.cx = geomNext.su + geomNext.uw / 2;
+          geomNext.slotCy = j => geomNext.ub - (compact ? 16 : 18) - geomNext.cellH / 2 - j * geomNext.pitch;
+          geomNext.stageH = geomNext.ub + (compact ? 24 : 22);
+          geom = geomNext;
+          svg.setAttribute('viewBox', `0 0 ${W} ${geom.stageH}`);
+          stage.style.height = `${Math.ceil(geom.stageH)}px`;
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom.W || !state) return;
+          const g = geom;
+          const frame = trace ? trace.frame : null;
+          const chars = RUNS[state.run];
+          const lerp = (a, b) => a + (b - a) * t;
+          const toStack = state.stack;
+          const fromStack = from ? from.stack : null;
+          let pushedIdx = -1;
+          let popped = null;
+          if (fromStack && toStack.length === fromStack.length + 1 && toStack.slice(0, -1).every((c, k) => c === fromStack[k])) {
+            pushedIdx = toStack.length - 1;
+          } else if (fromStack && toStack.length === fromStack.length - 1 && fromStack.slice(0, -1).every((c, k) => c === toStack[k])) {
+            popped = fromStack[fromStack.length - 1];
+          }
+          const action = frame ? frame.action : null;
+          const actionSlot = action === 'push' ? toStack.length - 1 : toStack.length;
+          const actionY = g.slotCy(Math.max(0, Math.min(2, actionSlot)));
+
+          scene.update(({ path, text }) => {
+            // Expression characters, index labels, and the i chip.
+            for (let i = 0; i < N; i += 1) {
+              const x = g.startX + i * g.charStep;
+              const current = i === state.i;
+              text(`char-${i}`, {
+                x, y: g.charY, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+                'font-size': g.compact ? 18 : 23, 'font-family': MONO,
+                fill: current ? '#272727' : '#41413e'
+              }, chars[i]);
+              text(`char-index-${i}`, {
+                x, y: g.indexY, 'text-anchor': 'middle',
+                'font-size': g.compact ? 9 : 10, 'font-family': MONO, fill: '#555'
+              }, String(i));
+              if (current) {
+                path(`char-box-${i}`, {
+                  d: rectPath(x - (g.compact ? 14 : 17), g.charY - (g.compact ? 17 : 20), g.compact ? 28 : 34, g.compact ? 32 : 37, 4),
+                  fill: 'none', stroke: '#555', 'stroke-width': 1.4, 'stroke-dasharray': '4 3'
+                });
+              }
+            }
+            if (state.i >= 0 && state.i < N) {
+              const x = g.startX + state.i * g.charStep;
+              path('i-chip', { d: rectPath(x - 11, g.chipY - 10, 22, 20, 3), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.3 });
+              text('i-chip-label', { x, y: g.chipY, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 12, 'font-family': MONO, fill: '#272727' }, 'i');
+              path('i-arrow', {
+                d: `M ${x} ${g.chipY + 10} L ${x} ${g.charY - (g.compact ? 19 : 23)}`,
+                stroke: '#555', 'stroke-width': 1.3, fill: 'none', 'marker-end': 'url(#paren-arrow)'
+              });
+            }
+
+            // U-shaped stack with a bottom label.
+            const r = g.compact ? 12 : 14;
+            const bl = g.su, br = g.su + g.uw, bt = g.ut, bb = g.ub;
+            path('stack-u', {
+              d: `M ${bl} ${bt} V ${bb - r} Q ${bl} ${bb} ${bl + r} ${bb} H ${br - r} Q ${br} ${bb} ${br} ${bb - r} V ${bt}`,
+              stroke: '#333', 'stroke-width': 1.8, fill: 'none'
+            });
+            text('stack-label', {
+              x: g.cx, y: bb + (g.compact ? 13 : 15), 'text-anchor': 'middle',
+              'font-size': g.compact ? 10 : 11, 'font-family': MONO, fill: '#555'
+            }, 'stack');
+
+            // Cells: base cells static, pushed cell slides in, popped cell slides out.
+            const cellRect = (cx, cy) => rectPath(cx - g.cellW / 2, cy - g.cellH / 2, g.cellW, g.cellH, 4);
+            const arrowEndX = br + g.arrowLen;
+            for (let j = 0; j < toStack.length; j += 1) {
+              const cy = g.slotCy(j);
+              let cx = g.cx;
+              let opacity = 1;
+              if (j === pushedIdx && t < 1) {
+                cx = lerp(arrowEndX - g.cellW / 2 - 4, g.cx);
+                opacity = Math.min(1, t * 1.5);
+              }
+              path(`cell-${j}`, { d: cellRect(cx, cy), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.3, opacity });
+              text(`cell-char-${j}`, {
+                x: cx, y: cy, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+                'font-size': g.compact ? 16 : 18, 'font-family': MONO, fill: '#272727', opacity
+              }, toStack[j]);
+            }
+            if (popped !== null && t < 1) {
+              const cy = g.slotCy(toStack.length);
+              const cx = lerp(g.cx, arrowEndX - g.cellW / 2 - 4);
+              path('cell-ghost', { d: cellRect(cx, cy), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.3, opacity: 1 - t });
+              text('cell-ghost-char', {
+                x: cx, y: cy, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+                'font-size': g.compact ? 16 : 18, 'font-family': MONO, fill: '#272727', opacity: 1 - t
+              }, popped);
+            }
+
+            // top: label beside the top cell (above it when the stage is narrow).
+            if (toStack.length) {
+              const topY = g.slotCy(toStack.length - 1);
+              if (g.compact) {
+                text('top-label', {
+                  x: g.cx, y: topY - g.cellH / 2 - 8, 'text-anchor': 'middle', 'dominant-baseline': 'auto',
+                  'font-size': 11, 'font-family': MONO, fill: '#272727'
+                }, 'top:');
+              } else {
+                text('top-label', {
+                  x: bl - 8, y: topY, 'text-anchor': 'end', 'dominant-baseline': 'central',
+                  'font-size': 12, 'font-family': MONO, fill: '#272727'
+                }, 'top:');
+                path('top-leader', {
+                  d: `M ${bl - 4} ${topY} L ${g.cx - g.cellW / 2 - 4} ${topY}`,
+                  stroke: '#777', 'stroke-width': 1, 'stroke-dasharray': '3 3', fill: 'none', 'marker-end': 'url(#paren-arrow)'
+                });
+              }
+            }
+
+            // Push / pop arrow toward the action slot.
+            if (action === 'push' || action === 'pop') {
+              const inward = action === 'push';
+              const y = actionY;
+              const x0 = inward ? arrowEndX : br + 4;
+              const x1 = inward ? br + 4 : arrowEndX;
+              path('action-arrow', {
+                d: `M ${x0} ${y} L ${x1} ${y}`,
+                stroke: '#333', 'stroke-width': 1.6, fill: 'none', 'marker-end': 'url(#paren-arrow)'
+              });
+              const label = action === 'push' ? `push ${toStack[toStack.length - 1]}` : 'pop';
+              text('action-label', {
+                x: (x0 + x1) / 2, y: y - (g.compact ? 10 : 12), 'text-anchor': 'middle',
+                'font-size': g.compact ? 10 : 11.5, 'font-family': MONO, fill: '#272727'
+              }, label);
+            }
+
+            // Dashed callout box for match / mismatch notes.
+            if (frame && frame.callout) {
+              const fs = g.compact ? 10.5 : 12;
+              const lineH = g.compact ? 14 : 16;
+              const charW = g.compact ? 6.3 : 7.2;
+              const lines = frame.callout;
+              const maxLen = Math.max(...lines.map(line => line.length));
+              const boxW = Math.min(maxLen * charW + 24, Math.max(90, g.W - (br + g.arrowLen + 22)));
+              const boxH = lines.length * lineH + 16;
+              const bx = br + g.arrowLen + 12;
+              const by = Math.max(6, Math.min(actionY - boxH / 2, g.stageH - boxH - 6));
+              path('callout-box', { d: rectPath(bx, by, boxW, boxH, 5), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.2, 'stroke-dasharray': '5 4' });
+              lines.forEach((line, k) => {
+                text(`callout-line-${k}`, {
+                  x: bx + 12, y: by + 10 + k * lineH + lineH / 2 - 3, 'dominant-baseline': 'central',
+                  'font-size': fs, 'font-family': MONO, fill: '#272727'
+                }, line);
+              });
+            }
+
+            // parentheses_map: table on wide screens, single row otherwise.
+            const activeKey = frame ? frame.mapKey : null;
+            if (!g.row) {
+              const mapW = 170;
+              const mapX = g.W - mapW - 20;
+              text('map-title', {
+                x: mapX + mapW / 2, y: 146, 'text-anchor': 'middle',
+                'font-size': 11.5, 'font-family': MONO, fill: '#272727'
+              }, 'parentheses_map');
+              const rowH = 34;
+              const y0 = 158;
+              const pairX = mapX + 44;
+              PAIRS.forEach(([open, closed], k) => {
+                const y = y0 + k * rowH;
+                path(`map-key-${k}`, { d: rectPath(pairX, y, 30, 26, 3), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2 });
+                text(`map-key-char-${k}`, { x: pairX + 15, y: y + 13, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 14, 'font-family': MONO, fill: '#272727' }, open);
+                path(`map-link-${k}`, { d: `M ${pairX + 30} ${y + 13} L ${pairX + 44} ${y + 13}`, stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#paren-arrow)' });
+                path(`map-val-${k}`, { d: rectPath(pairX + 44, y, 30, 26, 3), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2 });
+                text(`map-val-char-${k}`, { x: pairX + 59, y: y + 13, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 14, 'font-family': MONO, fill: '#272727' }, closed);
+                if (open === activeKey) {
+                  path('map-highlight', { d: rectPath(pairX - 8, y - 5, 90, 36, 4), fill: 'none', stroke: '#777', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
+                }
+              });
+              text('map-head-open', { x: pairX + 15, y: y0 + 3 * rowH + 12, 'text-anchor': 'middle', 'font-size': 9.5, 'font-family': MONO, fill: '#555' }, 'open');
+              text('map-head-closed', { x: pairX + 59, y: y0 + 3 * rowH + 12, 'text-anchor': 'middle', 'font-size': 9.5, 'font-family': MONO, fill: '#555' }, 'closed');
+            } else {
+              const cw = 22, ch = g.compact ? 22 : 24;
+              PAIRS.forEach(([open, closed], k) => {
+                const cx = g.W * (k + 0.5) / 3;
+                const y = g.mapRowY;
+                path(`map-key-${k}`, { d: rectPath(cx - 26, y, cw, ch, 3), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2 });
+                text(`map-key-char-${k}`, { x: cx - 26 + cw / 2, y: y + ch / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 12.5, 'font-family': MONO, fill: '#272727' }, open);
+                path(`map-link-${k}`, { d: `M ${cx - 2} ${y + ch / 2} L ${cx + 10} ${y + ch / 2}`, stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#paren-arrow)' });
+                path(`map-val-${k}`, { d: rectPath(cx + 12, y, cw, ch, 3), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2 });
+                text(`map-val-char-${k}`, { x: cx + 12 + cw / 2, y: y + ch / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 12.5, 'font-family': MONO, fill: '#272727' }, closed);
+                if (open === activeKey) {
+                  path('map-highlight', { d: rectPath(cx - 31, y - 5, 72, ch + 10, 4), fill: 'none', stroke: '#777', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
+                }
+              });
+            }
+
+            // Result badge on final frames.
+            if (state.result !== null) {
+              const label = state.result ? 'return True' : 'return False';
+              const bw = g.compact ? 60 : 122;
+              const bh = g.compact ? 22 : 30;
+              const bx = g.W - bw - (g.compact ? 8 : 20);
+              const by = g.compact ? 8 : 14;
+              path('result-badge', { d: rectPath(bx, by, bw, bh, 3), fill: '#f5f2e9', stroke: '#272727', 'stroke-width': 1.4 });
+              text('result-label', {
+                x: bx + bw / 2, y: by + bh / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+                'font-size': g.compact ? 11 : 13, 'font-family': MONO, fill: '#272727'
+              }, g.compact ? (state.result ? 'True' : 'False') : label);
+            }
+          });
+        }
+
+        function render(context) {
+          const { frame, state, step, frames } = context;
+          phaseEl.textContent = frame.stepLabel;
+          invariantEl.textContent = INVARIANT;
+          mC.textContent = state.i >= 0 && state.i < N ? `'${RUNS[state.run][state.i]}'` : '—';
+          mStack.textContent = `[${state.stack.map(c => `'${c}'`).join(', ')}]`;
+          mTop.textContent = state.stack.length ? `'${state.stack[state.stack.length - 1]}'` : '—';
+          mResult.textContent = state.result === null ? '—' : String(state.result);
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `有效的括号演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({ ...s, stack: [...s.stack] });
+        trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          formatStepOption: (frame, index) => `${index + 1} · ${frame.stepLabel}`,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 380,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          }
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>
