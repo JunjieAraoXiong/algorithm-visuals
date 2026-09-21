@@ -6,17 +6,17 @@ const { expect, test } = require('@playwright/test');
 const repositoryRoot = path.resolve(__dirname, '..');
 
 function visualSlugs() {
-  // CI audits the published repository. Looking at Git-tracked pages keeps a
+  // CI audits the published repository. Looking at Git-tracked source pages keeps a
   // concurrently authored, untracked draft out of the release gate while a
   // newly committed page still must be added to both catalog and README.
-  return execFileSync('git', ['ls-files', '--', '*/index.html'], {
+  return execFileSync('git', ['ls-files', '--', 'src/chapters/*/*/index.html'], {
     cwd: repositoryRoot,
     encoding: 'utf8'
   })
     .split(/\r?\n/)
     .filter(Boolean)
-    .map((file) => path.dirname(file))
-    .filter((slug) => fs.existsSync(path.join(repositoryRoot, slug, 'index.html')))
+    .filter((file) => fs.existsSync(path.join(repositoryRoot, file)))
+    .map((file) => path.basename(path.dirname(file)).replace(/^\d+[a-z]?-/, ''))
     .sort();
 }
 
@@ -28,6 +28,7 @@ const viewports = [
 
 function routeFor(link) {
   return new URL(link, 'http://algorithm-visuals.test').pathname
+    .replace(/^\/algorithm-visuals(?=\/|$)/, '')
     .replace(/\/index\.html$/, '/')
     .replace(/\/$/, '');
 }
@@ -267,6 +268,8 @@ test.describe('catalog and README coverage', () => {
     for (const slug of slugs) {
       expect(routes.map(routeFor), `catalog is missing ${slug}`).toContain(`/${slug}`);
     }
+    expect(routes.map(routeFor).sort(), 'catalog contains a route without a published page')
+      .toEqual(slugs.map((slug) => `/${slug}`).sort());
   });
 
   test('README links every visualization directory', () => {

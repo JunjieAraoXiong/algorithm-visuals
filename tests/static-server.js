@@ -2,7 +2,7 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const root = path.resolve(__dirname, '..');
+const root = path.resolve(__dirname, '..', '_site');
 const port = Number(process.env.PLAYWRIGHT_PORT || 4173);
 const mimeTypes = {
   '.css': 'text/css; charset=utf-8',

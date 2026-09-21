@@ -2,9 +2,12 @@
   "name": "algorithm-visuals",
   "version": "1.0.0",
   "private": true,
-  "description": "Build-free algorithm visualizations with browser regression checks.",
+  "description": "Static algorithm visualizations with browser regression checks.",
   "scripts": {
+    "build": "node scripts/build-site.mjs",
+    "pretest": "npm run build",
     "test": "playwright test",
+    "pretest:headed": "npm run build",
     "test:headed": "playwright test --headed"
   },
   "devDependencies": {
