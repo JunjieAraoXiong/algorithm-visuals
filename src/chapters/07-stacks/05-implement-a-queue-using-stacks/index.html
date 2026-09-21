@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of implementing a FIFO queue with two stacks: the enqueue stack receives every enqueue, the dequeue stack serves every dequeue and peek, and one full transfer reverses the order for amortized O(1). 用栈实现队列：入队栈只收，出队栈只发，倒栈一次均摊 O(1)。" />
+    <title>Implement a Queue Using Stacks · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .naive-stage { position: relative; width: 100%; margin-top: 12px; overflow: hidden; border: 1px solid var(--rule); }
+      .naive-stage svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+      .role-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .role-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="queue-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Implement a Queue Using Stacks · 用栈实现队列</h1></div></header>
+      <p class="problem">Implement a queue using only the stack data structure: <code>enqueue(x)</code> adds <code>x</code> to the back, <code>dequeue()</code> removes and returns the front, and <code>peek()</code> returns the front. No other data structures are allowed, and <code>dequeue</code> / <code>peek</code> are only called on a non-empty queue. For example, <code>[enqueue(1), enqueue(2), dequeue(), enqueue(3), peek()]</code> outputs <code>[1, 2]</code>.<span lang="zh-CN">只用栈实现队列：enqueue(x) 把 x 加到队尾；dequeue() 移除并返回队首；peek() 返回队首。不允许使用其他数据结构；题目保证 dequeue / peek 只在队列非空时调用。例子：[enqueue(1), enqueue(2), dequeue(), enqueue(3), peek()] 的输出是 [1, 2]。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="用栈实现队列双栈演示 / queue using stacks trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="用栈实现队列演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>enqueue_stack</code></dt><dd data-m-enq></dd></div>
+              <div><dt><code>dequeue_stack</code></dt><dd data-m-deq></dd></div>
+              <div><dt>队首</dt><dd data-m-front></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="queue-code-title">
+          <h2 id="queue-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="class">class Queue:</span><span class="code-line" data-source-key="init-def">    def __init__(self):</span><span class="code-line" data-source-key="init-enqueue">        self.enqueue_stack = []</span><span class="code-line" data-source-key="init-dequeue">        self.dequeue_stack = []</span><span class="code-line"></span><span class="code-line" data-source-key="enqueue-def">    def enqueue(self, x: int) -&gt; None:</span><span class="code-line" data-source-key="enqueue-append">        self.enqueue_stack.append(x)</span><span class="code-line"></span><span class="code-line" data-source-key="transfer-def">    def transfer_enqueue_to_dequeue(self) -&gt; None:</span><span class="code-line">        # If the dequeue stack is empty, push all elements from the enqueue stack</span><span class="code-line">        # onto the dequeue stack. This ensures the top of the dequeue stack</span><span class="code-line">        # contains the least recently added value.</span><span class="code-line" data-source-key="transfer-if">        if not self.dequeue_stack:</span><span class="code-line" data-source-key="transfer-while">            while self.enqueue_stack:</span><span class="code-line" data-source-key="transfer-move">                self.dequeue_stack.append(self.enqueue_stack.pop())</span><span class="code-line"></span><span class="code-line" data-source-key="dequeue-def">    def dequeue(self) -&gt; int:</span><span class="code-line" data-source-key="dequeue-call">        self.transfer_enqueue_to_dequeue()</span><span class="code-line">        # Pop and return the value at the top of the dequeue stack.</span><span class="code-line" data-source-key="dequeue-return">        return self.dequeue_stack.pop() if self.dequeue_stack else None</span><span class="code-line"></span><span class="code-line" data-source-key="peek-def">    def peek(self) -&gt; int:</span><span class="code-line" data-source-key="peek-call">        self.transfer_enqueue_to_dequeue()</span><span class="code-line" data-source-key="peek-return">        return self.dequeue_stack[-1] if self.dequeue_stack else None</span></code></pre>
+          <p class="note">栈顶在上方。左栈 <code>enqueue_stack</code> 只接收 enqueue；右栈 <code>dequeue_stack</code> 只服务 dequeue / peek，其栈顶永远是队首。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="queue-intuition">
+        <h2 id="queue-intuition">直觉：队列和栈差在哪 / FIFO vs FILO</h2>
+        <p class="section-intro">队列是先进先出（FIFO），栈是后进先出（FILO）。差别只在从哪一端驱逐元素：队列从队首出，栈从栈顶出。同一组数 1、2、3 依次入队，出来仍是 1、2、3；依次入栈，出来却是 3、2、1。</p>
+        <p class="section-intro">题目只允许用栈。只用一个栈的话，先到的 1 会沉在栈底，而每次 dequeue 要取的正是它。朴素做法：把压在它上面的值一个个倒进临时栈 temp，取走 1 后再全部 push 回来——结果正确，但每次访问队首都要搬动全部元素，单次 O(n)。</p>
+        <div class="naive-stage" data-naive-stage>
+          <svg data-naive-lines aria-hidden="true"></svg>
+        </div>
+        <p class="section-intro">关键观察：倒进 temp 之后，temp 的栈顶（2）正是下一个该出队的值——所以「push 回来」这一步可以省掉，让 temp 留下来专门服务之后的 dequeue。这个留下的 temp 就是 <code>dequeue_stack</code>；原来的栈只负责 enqueue，成为 <code>enqueue_stack</code>。</p>
+      </section>
+
+      <section class="section" aria-labelledby="queue-roles">
+        <h2 id="queue-roles">两个栈的分工 / Why it works</h2>
+        <p class="section-intro"><code>enqueue_stack</code> 的栈顶永远是最新入队的值；当 <code>dequeue_stack</code> 为空时，把 <code>enqueue_stack</code> 一次性全部倒入 <code>dequeue_stack</code>——顺序整体反转，最早的值正好落在栈顶。从此每次 dequeue / peek 只认 <code>dequeue_stack</code> 的栈顶。</p>
+        <div class="role-grid">
+          <article class="paper-card"><strong>不变量 / Invariant</strong><p><code>dequeue_stack</code> 的栈顶 = 剩余元素中最早入队的值（队首）。元素在左栈期间不会被访问，进右栈后只从栈顶离开。</p></article>
+          <article class="paper-card"><strong>只在空时搬运 / Transfer on empty</strong><p>右栈非空时，它的栈顶就是正确队首；此时搬运反而让新元素压到旧元素上面，破坏顺序。所以 <code>if not self.dequeue_stack</code> 是唯一的搬运时机。</p></article>
+          <article class="paper-card"><strong>一次倒完 / All at once</strong><p>while 循环把左栈一次搬空。只倒一半会让较旧的元素压在较新的上面，顺序同样错乱——搬运必须完整。</p></article>
+          <article class="paper-card"><strong>均摊 O(1) / Amortized</strong><p>每个元素一生只从左栈搬到右栈一次；n 次 dequeue 的总搬运量不超过 n 次，平均到每次 dequeue 是 O(1)。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="queue-edge">
+        <h2 id="queue-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>dequeue / peek 只在非空时调用</strong><p>题目保证。此时若右栈空，左栈必有元素，transfer 之后栈顶一定存在——代码里 <code>else None</code> 分支永远不会走到。</p></article>
+          <article class="paper-card"><strong>连续 enqueue 后的第一次 dequeue</strong><p>一次搬空整个左栈，这一次 dequeue 是 O(n)；但每个元素只被搬这一次，均摊下来仍是 O(1)。</p></article>
+          <article class="paper-card"><strong>enqueue 永远不触发搬运</strong><p>3 进左栈时右栈还压着 2，「不搬」是正确性的关键，不是偷懒：搬了反而让 3 压到 2 上面。</p></article>
+          <article class="paper-card"><strong>peek 与 dequeue 只差一步</strong><p>peek 读 <code>dequeue_stack[-1]</code> 而不弹出，所以下一步 dequeue 拿到的仍是同一个值。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="queue-complexity">
+        <h2 id="queue-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · enqueue O(1)，dequeue / peek 均摊 O(1)</strong><p>enqueue 只压一次栈。dequeue / peek 的单次最坏情况是 O(n)（搬空左栈），但每个元素一生只搬一次，n 次操作的总搬运量 ≤ n，均摊 O(1)。</p></article>
+          <article class="paper-card"><strong>Extra space · O(n)</strong><p>两个栈合起来恰好存下队列的全部元素，任何时刻元素总数就是队列长度 n。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../valid-parenthesis-expression/">有效的括号</a><a href="../next-largest-number-to-the-right/">右侧下一个更大数</a><a href="../evaluate-expression/">表达式求值</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('queue-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const naiveStage = root.querySelector('[data-naive-stage]');
+        const naiveSvg = root.querySelector('[data-naive-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mEnq = root.querySelector('[data-m-enq]');
+        const mDeq = root.querySelector('[data-m-deq]');
+        const mFront = root.querySelector('[data-m-front]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const CAP = 3;
+
+        const fr = (stepLabel, phase, op, sourceKeys, line, explanation, invariant, state) =>
+          ({ stepLabel, phase, op, sourceKeys, line, explanation, invariant, state: { enq: [], deq: [], output: [], ret: null, hot: null, ...state } });
+
+        const FRAMES = [
+          fr('初始化：两个空栈', '初始化', 'Queue()', ['class', 'init-def', 'init-enqueue', 'init-dequeue'],
+            'self.enqueue_stack = []；self.dequeue_stack = []',
+            'Queue 建好：两个栈都是空的。enqueue_stack 负责接收每次 enqueue，dequeue_stack 负责服务每次 dequeue / peek。',
+            '分工不变量：左栈只收（enqueue），右栈只发（dequeue / peek）。',
+            { enq: [] }),
+          fr('enqueue(1)：1 压入左栈', 'enqueue', 'enqueue(1)', ['enqueue-def', 'enqueue-append'],
+            'self.enqueue_stack.append(x)',
+            'enqueue(1)：1 直接 append 到 enqueue_stack 顶。入队只碰左栈，O(1)。',
+            'enqueue 永远只压入 enqueue_stack 顶。',
+            { enq: [1], hot: { stack: 'enq', value: 1 } }),
+          fr('enqueue(2)：2 压到 1 上面', 'enqueue', 'enqueue(2)', ['enqueue-def', 'enqueue-append'],
+            'self.enqueue_stack.append(x)',
+            'enqueue(2)：2 压在 1 上面。此时 1 在栈底——它最早入队，却离栈顶最远。',
+            '栈顶是最新元素；队首 1 沉在栈底。',
+            { enq: [1, 2], hot: { stack: 'enq', value: 2 } }),
+          fr('dequeue()：右栈为空，准备搬运', 'dequeue · 检查', 'dequeue()', ['dequeue-def', 'dequeue-call', 'transfer-def', 'transfer-if'],
+            'if not self.dequeue_stack:（条件成立）',
+            'dequeue() 先调用 transfer_enqueue_to_dequeue()。检查 if not self.dequeue_stack：右栈是空的，条件成立，准备搬运。',
+            '搬运的唯一触发条件：dequeue_stack 为空。',
+            { enq: [1, 2] }),
+          fr('搬运：2 移到 dequeue_stack', 'transfer 搬运', 'dequeue()', ['transfer-while', 'transfer-move'],
+            'self.dequeue_stack.append(self.enqueue_stack.pop())',
+            'while enqueue_stack 非空：先 pop 出 2、push 进右栈。2 只是暂存，1 还没出来。',
+            '搬运 = 把左栈整体倒到右栈，顺序即将反转。',
+            { enq: [1], deq: [2], hot: { stack: 'deq', value: 2 } }),
+          fr('搬运：1 落到右栈顶，反转完成', 'transfer 搬运', 'dequeue()', ['transfer-while', 'transfer-move'],
+            'self.dequeue_stack.append(self.enqueue_stack.pop())',
+            '再 pop 1、push 过去。顺序完全反转：最早的 1 现在位于 dequeue_stack 顶，正是队首。搬运结束。',
+            '反转后：dequeue_stack 顶 = 剩余元素中最早入队的（队首）。',
+            { deq: [2, 1], hot: { stack: 'deq', value: 1 } }),
+          fr('dequeue() 返回 1', 'dequeue 返回', 'dequeue() → 1', ['dequeue-return'],
+            'return self.dequeue_stack.pop() if self.dequeue_stack else None',
+            'pop 右栈顶得到 1——最早入队的值。dequeue() 返回 1，记入输出 [1]。',
+            '不变量成立：右栈顶永远是剩余元素里最早入队的。',
+            { deq: [2], output: [1], ret: 1, hot: { stack: 'deq', value: 2 } }),
+          fr('enqueue(3)：3 进左栈排队', 'enqueue', 'enqueue(3)', ['enqueue-def', 'enqueue-append'],
+            'self.enqueue_stack.append(x)',
+            'enqueue(3)：3 直接压入左栈。右栈里还压着 2，3 只能排在它后面——此刻绝不搬运，否则 3 会压到 2 上面，顺序就乱了。',
+            '右栈非空 ⇒ 栈顶就是正确队首，新元素只能在左栈排队。',
+            { enq: [3], deq: [2], output: [1], hot: { stack: 'enq', value: 3 } }),
+          fr('dequeue()：右栈非空，跳过搬运', 'dequeue · 检查', 'dequeue()', ['dequeue-def', 'dequeue-call', 'transfer-if'],
+            'if not self.dequeue_stack:（不成立，跳过 while）',
+            'dequeue() 又调用 transfer：if not self.dequeue_stack——右栈里有 2，条件不成立，整个 while 被跳过，一个元素都不搬。',
+            '条件不成立就不搬——这是均摊 O(1) 的关键。',
+            { enq: [3], deq: [2], output: [1] }),
+          fr('dequeue() 返回 2', 'dequeue 返回', 'dequeue() → 2', ['dequeue-return'],
+            'return self.dequeue_stack.pop() if self.dequeue_stack else None',
+            '右栈顶就是队首 2，直接 pop 返回，输出 [1, 2]。3 还留在左栈，等右栈空了再搬。',
+            '右栈非空时 dequeue 零搬运，直接取栈顶。',
+            { enq: [3], output: [1, 2], ret: 2 }),
+          fr('peek()：右栈空，搬运 3', 'peek · 搬运', 'peek()', ['peek-def', 'peek-call', 'transfer-if', 'transfer-while', 'transfer-move'],
+            'self.dequeue_stack.append(self.enqueue_stack.pop())',
+            'peek() 与 dequeue 共用 transfer：右栈空了，把 3 从左栈搬到右栈。',
+            'transfer 被 dequeue 和 peek 共享，逻辑完全一致。',
+            { deq: [3], output: [1, 2], hot: { stack: 'deq', value: 3 } }),
+          fr('peek() 返回 3（不弹出）', 'peek 返回', 'peek() → 3', ['peek-return'],
+            'return self.dequeue_stack[-1] if self.dequeue_stack else None',
+            '读右栈顶：返回 3，但不弹出——3 仍留在栈里，下一次 dequeue 拿到的还是它。',
+            'peek 只读不取：两个栈的内容都不变。',
+            { deq: [3], output: [1, 2], ret: 3, hot: { stack: 'deq', value: 3 } })
+        ];
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('q-arrow', { fill: '#333' });
+        scene.defineMarker('q-arrow-soft', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const naiveScene = core.createSvgScene(naiveSvg);
+        naiveScene.defineMarker('n-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+        let currentOp = 'Queue()';
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        const textW = (s, fs) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? fs : fs * 0.62), 0);
+
+        function layout() {
+          const W = stage.clientWidth;
+          const narrow = W < 400;
+          const pad = narrow ? 6 : 14;
+          const slotW = narrow ? 52 : 66;
+          const slotH = narrow ? 24 : 28;
+          const pitch = slotH + (narrow ? 4 : 6);
+          const uTop = narrow ? 92 : 100;
+          const uBottom = uTop + 8 + CAP * pitch + 4;
+          const leftCx = Math.max(pad + slotW / 2 + 2, W * 0.27);
+          const rightCx = Math.min(W - pad - slotW / 2 - 2, W * 0.73);
+          geom = {
+            W, narrow, pad, slotW, slotH, pitch, uTop, uBottom, leftCx, rightCx,
+            fs: narrow ? 10.5 : 12, nameY: uTop - 32, roleY: uTop - 15,
+            slotTop: uTop + 8, opY: 8, opH: 26
+          };
+          const stageH = uBottom + 18;
+          svg.setAttribute('viewBox', `0 0 ${W} ${stageH}`);
+          stage.style.height = `${stageH}px`;
+        }
+
+        const slotY = i => geom.slotTop + geom.slotH / 2 + i * geom.pitch;
+
+        function quad(p0, pc, p1, t) {
+          const a = 1 - t;
+          return {
+            x: a * a * p0.x + 2 * a * t * pc.x + t * t * p1.x,
+            y: a * a * p0.y + 2 * a * t * pc.y + t * t * p1.y
+          };
+        }
+
+        function diffMotion(from, to) {
+          if (!from) return null;
+          const values = new Set([...from.enq, ...to.enq, ...from.deq, ...to.deq]);
+          const moved = [];
+          for (const v of values) {
+            const fE = from.enq.includes(v), tE = to.enq.includes(v);
+            const fD = from.deq.includes(v), tD = to.deq.includes(v);
+            if (fE !== tE || fD !== tD) moved.push(v);
+          }
+          if (moved.length !== 1) return null;
+          const v = moved[0];
+          const fE = from.enq.includes(v), tE = to.enq.includes(v);
+          const fD = from.deq.includes(v), tD = to.deq.includes(v);
+          if (fE && tD) return { kind: 'transfer', value: v };
+          if (fD && tE) return { kind: 'transfer', value: v, reverse: true };
+          if (!fE && tE) return { kind: 'push', value: v };
+          if (fD && !tD) return { kind: 'pop', value: v };
+          if (!fD && tD) return { kind: 'pop', value: v, reverse: true };
+          return null;
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom || !state) return;
+          const g = geom;
+          const active = from && t < 1 ? diffMotion(from, state) : null;
+          let skip = null;
+          let chip = null;
+          let arc = null;
+          if (active) {
+            const v = active.value;
+            if (active.kind === 'transfer') {
+              const p0 = { x: active.reverse ? g.rightCx : g.leftCx, y: slotY(0) };
+              const p1 = { x: active.reverse ? g.leftCx : g.rightCx, y: slotY(0) };
+              const pc = { x: (p0.x + p1.x) / 2, y: Math.min(p0.y, p1.y) - (g.narrow ? 22 : 28) };
+              const pos = quad(p0, pc, p1, t);
+              chip = { x: pos.x, y: pos.y, v, opacity: 1 };
+              arc = {
+                d: `M ${p0.x} ${p0.y} Q ${pc.x} ${pc.y} ${p1.x} ${p1.y}`,
+                lx: pc.x, ly: pc.y - (g.narrow ? 20 : 23),
+                label: active.reverse ? '搬回' : '搬运'
+              };
+              skip = { id: active.reverse ? 'enq' : 'deq', v };
+            } else if (active.kind === 'push') {
+              chip = { x: g.leftCx, y: slotY(0) - (1 - t) * 12, v, opacity: t };
+              skip = { id: 'enq', v };
+            } else if (active.kind === 'pop') {
+              const p0 = { x: g.rightCx, y: slotY(0) };
+              const p1 = { x: g.rightCx + (g.narrow ? 22 : 32), y: slotY(0) - (g.narrow ? 26 : 32) };
+              const k = active.reverse ? 1 - t : t;
+              chip = {
+                x: p0.x + (p1.x - p0.x) * k,
+                y: p0.y + (p1.y - p0.y) * k,
+                v,
+                opacity: active.reverse ? 0.25 + 0.75 * t : 1 - 0.7 * t
+              };
+            }
+          }
+
+          scene.update(({ path, text }) => {
+            const opText = `操作 ${currentOp}`;
+            const opW = textW(opText, g.fs) + 16;
+            path('op-box', { d: rectPath(g.pad, g.opY, opW, g.opH, 3), fill: '#fffdf8', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '5 4' });
+            text('op-text', { x: g.pad + 8, y: g.opY + g.opH / 2 + 4, 'font-size': g.fs, fill: '#272727', 'font-family': MONO }, opText);
+            const outText = `输出 = [${state.output.join(', ')}]`;
+            const outW = textW(outText, g.fs) + 16;
+            const outX = g.W - g.pad - outW;
+            path('out-box', { d: rectPath(outX, g.opY, outW, g.opH, 3), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.1 });
+            text('out-text', { x: outX + 8, y: g.opY + g.opH / 2 + 4, 'font-size': g.fs, fill: '#272727', 'font-family': MONO }, outText);
+
+            const drawStack = (id, cx, arr) => {
+              const wallL = cx - g.slotW / 2;
+              const wallR = cx + g.slotW / 2;
+              path(`u-${id}`, { d: `M ${wallL} ${g.uTop} L ${wallL} ${g.uBottom} L ${wallR} ${g.uBottom} L ${wallR} ${g.uTop}`, stroke: '#333', 'stroke-width': 1.5, fill: 'none' });
+              text(`name-${id}`, { x: cx, y: g.nameY + 4, 'text-anchor': 'middle', 'font-size': g.narrow ? 10.5 : 11.5, fill: '#272727', 'font-family': MONO }, id === 'enq' ? 'enqueue_stack' : 'dequeue_stack');
+              text(`role-${id}`, { x: cx, y: g.roleY + 4, 'text-anchor': 'middle', 'font-size': g.narrow ? 9 : 9.5, fill: '#555', 'font-family': MONO }, id === 'enq' ? '接收每次 enqueue' : '服务 dequeue / peek');
+              let drawn = 0;
+              for (let i = 0; i < arr.length; i += 1) {
+                const v = arr[arr.length - 1 - i];
+                const y = slotY(i);
+                if (skip && skip.id === id && skip.v === v && i === 0) continue;
+                path(`el-${id}-${i}`, { d: rectPath(wallL + 3, y - g.slotH / 2, g.slotW - 6, g.slotH, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.4 });
+                text(`elv-${id}-${i}`, { x: cx, y: y + (g.narrow ? 4 : 4.5), 'text-anchor': 'middle', 'font-size': g.narrow ? 12.5 : 14, fill: '#272727', 'font-family': MONO }, String(v));
+                drawn += 1;
+                if (i === 0) {
+                  text(`toplab-${id}`, { x: wallR + 5, y: y + 3, 'text-anchor': 'start', 'font-size': g.narrow ? 9 : 9.5, fill: '#555', 'font-family': MONO }, id === 'enq' ? '最新' : '队首');
+                }
+              }
+              if (drawn === 0) {
+                text(`empty-${id}`, { x: cx, y: slotY(0) + 3, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 10.5, fill: '#999', 'font-family': MONO }, '(空)');
+              }
+              if (state.hot && !active && state.hot.stack === id && arr.includes(state.hot.value)) {
+                const i = arr.length - 1 - arr.indexOf(state.hot.value);
+                const y = slotY(i);
+                path(`hot-${id}`, { d: rectPath(wallL, y - g.slotH / 2 - 3.5, g.slotW, g.slotH + 7, 4), fill: 'none', stroke: '#272727', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
+              }
+            };
+
+            drawStack('enq', g.leftCx, state.enq);
+            drawStack('deq', g.rightCx, state.deq);
+
+            if (arc) {
+              path('arc', { d: arc.d, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'stroke-dasharray': '5 4', 'marker-end': 'url(#q-arrow-soft)' });
+              text('arc-label', { x: arc.lx, y: arc.ly, 'text-anchor': 'middle', 'font-size': g.narrow ? 9 : 9.5, fill: '#555', 'font-family': MONO }, arc.label);
+            }
+            if (chip && chip.opacity > 0.02) {
+              path('chip', { d: rectPath(chip.x - g.slotW / 2, chip.y - g.slotH / 2, g.slotW, g.slotH, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.6, opacity: chip.opacity });
+              text('chip-v', { x: chip.x, y: chip.y + (g.narrow ? 4 : 4.5), 'text-anchor': 'middle', 'font-size': g.narrow ? 12.5 : 14, fill: '#272727', 'font-family': MONO, opacity: chip.opacity }, String(chip.v));
+            }
+          });
+        }
+
+        function frontOf(state) {
+          if (state.deq.length) return `${state.deq[state.deq.length - 1]}（右栈顶）`;
+          if (state.enq.length) return `${state.enq[0]}（左栈底，待搬运）`;
+          return '—';
+        }
+
+        function render({ frame, state, step, frames }) {
+          currentOp = frame.op;
+          phaseEl.textContent = frame.phase;
+          invariantEl.textContent = frame.invariant;
+          mEnq.textContent = `底 [${state.enq.join(', ')}] 顶`;
+          mDeq.textContent = `底 [${state.deq.join(', ')}] 顶`;
+          mFront.textContent = frontOf(state);
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.explanation;
+          stage.setAttribute('aria-label', `用栈实现队列演示：第 ${step + 1} / ${frames.length} 步。${frame.explanation}`);
+          layout();
+          draw(state, 1, null);
+        }
+
+        function drawNaive() {
+          const W = naiveStage.clientWidth;
+          if (!W) return;
+          const colW = W / 3;
+          const sW = Math.min(42, colW * 0.3);
+          const sH = 20;
+          const pitch = 23;
+          const top0 = 42;
+          const uBottom = top0 + 8 + 3 * pitch + 4;
+          const slot = i => top0 + 8 + sH / 2 + i * pitch;
+          const H = 180;
+          naiveSvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+          naiveStage.style.height = `${H}px`;
+          const fsT = W < 480 ? 10.5 : 11.5;
+          const fsC = W < 480 ? 9 : 10;
+
+          naiveScene.update(({ path, text }) => {
+            const mini = (id, cx, arr) => {
+              const l = cx - sW / 2;
+              const r = cx + sW / 2;
+              path(`nu-${id}`, { d: `M ${l} ${top0} L ${l} ${uBottom} L ${r} ${uBottom} L ${r} ${top0}`, stroke: '#333', 'stroke-width': 1.3, fill: 'none' });
+              arr.forEach((v, idx) => {
+                const i = arr.length - 1 - idx;
+                const y = slot(i);
+                path(`nel-${id}-${i}`, { d: rectPath(l + 2, y - sH / 2, sW - 4, sH, 2.5), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.2 });
+                text(`nelv-${id}-${i}`, { x: cx, y: y + 3.5, 'text-anchor': 'middle', 'font-size': 11, fill: '#272727', 'font-family': MONO }, String(v));
+              });
+            };
+            const caption = (id, cx, lines) => {
+              lines.forEach((line, k) => {
+                text(`ncap-${id}-${k}`, { x: cx, y: uBottom + 18 + k * 13, 'text-anchor': 'middle', 'font-size': fsC, fill: '#555', 'font-family': MONO }, line);
+              });
+            };
+            const title = (id, cx, line) => {
+              text(`ntitle-${id}`, { x: cx, y: 18, 'text-anchor': 'middle', 'font-size': fsT, fill: '#272727', 'font-family': MONO }, line);
+            };
+
+            const c1 = colW * 0.5;
+            title('p1', c1, '一个栈');
+            mini('p1', c1, [1, 2, 3]);
+            caption('p1', c1, ['队首 1 沉在栈底', '取它要先倒出 2、3']);
+
+            const s2 = colW;
+            const m2 = s2 + colW * 0.28;
+            const t2 = s2 + colW * 0.76;
+            title('p2', s2 + colW * 0.5, '倒进临时栈 temp');
+            mini('p2m', m2, [1]);
+            mini('p2t', t2, [3, 2]);
+            const a0 = { x: m2 + sW / 2 + 2, y: slot(0) };
+            const a1 = { x: t2 - sW / 2 - 2, y: slot(0) };
+            const ac = { x: (a0.x + a1.x) / 2, y: slot(0) - 20 };
+            const ap = quad(a0, ac, a1, 0.5);
+            path('narc', { d: `M ${a0.x} ${a0.y} Q ${ac.x} ${ac.y} ${a1.x} ${a1.y}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'stroke-dasharray': '5 4', 'marker-end': 'url(#n-arrow)' });
+            text('narclab', { x: ap.x, y: ap.y + 14, 'text-anchor': 'middle', 'font-size': fsC, fill: '#555', 'font-family': MONO }, 'pop');
+            caption('p2', s2 + colW * 0.5, ['3、2 依次进 temp', '1 露出来了']);
+
+            const s3 = colW * 2;
+            const c3 = s3 + colW * 0.38;
+            title('p3', s3 + colW * 0.5, '还要 push 回来');
+            mini('p3', c3, [2, 3]);
+            const gy = (slot(0) + slot(1)) / 2;
+            const gx = c3 + sW / 2 + 26;
+            path('nret-arrow', { d: `M ${c3 + sW / 2 + 3} ${gy} L ${gx - sW / 2 + 5} ${gy}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'stroke-dasharray': '4 3', 'marker-end': 'url(#n-arrow)' });
+            path('nghost', { d: rectPath(gx - (sW - 4) / 2, gy - sH / 2, sW - 4, sH, 2.5), fill: '#fffdf8', stroke: '#777', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
+            text('nghostv', { x: gx, y: gy + 3.5, 'text-anchor': 'middle', 'font-size': 11, fill: '#272727', 'font-family': MONO }, '1');
+            text('nret', { x: gx, y: gy + sH / 2 + 13, 'text-anchor': 'middle', 'font-size': fsC, fill: '#555', 'font-family': MONO }, 'return 1');
+            caption('p3', s3 + colW * 0.5, ['取走 1 再倒回去', '每次取队首都 O(n)']);
+          });
+        }
+
+        const cloneState = s => ({ ...s, enq: [...s.enq], deq: [...s.deq], output: [...s.output], hot: s.hot ? { ...s.hot } : null });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced || !diffMotion(from, state)) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 420,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        new ResizeObserver(() => drawNaive()).observe(naiveStage);
+        trace.setFrames(FRAMES);
+        drawNaive();
+      })();
+    </script>
+  </body>
+</html>
