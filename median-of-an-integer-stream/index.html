@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Interactive bilingual visualization of the median of an integer stream: two heaps (a negated min-heap as max-heap plus a min-heap) with rebalancing. 整数流的中位数：双堆结构与再平衡。" />
+  <title>Median of an Integer Stream · Algorithm Visuals</title>
+  <link rel="stylesheet" href="../assets/guide.css" />
+  <link rel="stylesheet" href="../assets/visual.css" />
+  <style>
+    .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+    .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+    .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+    .step-picker { margin-left: auto; }
+    .stage { height: 350px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+    .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 10px; margin: 12px 3px; }
+    .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+    .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+    .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+    .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+    .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+    .metrics dt { color: var(--quiet); }
+    .metrics dd { margin: 0; text-align: right; }
+    .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+    .section h2 { margin: 0 0 8px; font-size: 20px; }
+    .section-intro { max-width: 900px; color: var(--quiet); }
+    .case-grid, .edge-grid, .complexity, .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+    .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+    .paper-card p:last-child { margin-bottom: 0; }
+    .paper-card strong { font: 13px/1.4 monospace; }
+    .paper-card svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+    .rule-list { margin: 8px 0 0; padding-left: 24px; }
+    .rule-list li { margin: 6px 0; }
+    .small { color: var(--quiet); font-size: 12px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    @media (max-width: 700px) {
+      .state-grid, .case-grid, .edge-grid, .complexity, .example-grid { grid-template-columns: 1fr; }
+      .step-picker { width: 100%; margin-left: 0; }
+      .step-picker select { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main id="median-lab">
+    <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+    <header class="heading"><div><h1>Median of an Integer Stream · 整数流的中位数</h1></div></header>
+    <p class="problem">Design a data structure that supports <code>add(num: int) -&gt; None</code> and <code>get_median() -&gt; float</code>: integers arrive one at a time from a stream, and <code>get_median()</code> returns the median of everything received so far.<span lang="zh-CN">设计一个数据结构：整数流每次到来一个数 <code>add(num)</code>，随时调用 <code>get_median()</code> 返回目前所有整数的中位数。例：<code>add(3), add(6), get_median() → 4.5, add(1), get_median() → 3.0</code>。</span></p>
+
+    <div class="learning-layout" data-learning-layout>
+      <section class="animation-panel" data-animation-panel aria-label="整数流中位数双堆演示 / median of an integer stream trace">
+        <div class="controls">
+          <button type="button" data-action="previous">← 上一步</button>
+          <output data-count></output>
+          <button type="button" data-action="next">下一步 →</button>
+          <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+        </div>
+        <div class="step-meta"><span data-phase></span></div>
+        <div class="stage" data-stage tabindex="0" aria-label="整数流中位数算法演示">
+          <svg class="lines" data-lines aria-hidden="true"></svg>
+        </div>
+        <div class="state-grid">
+          <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+          <dl class="metrics">
+            <div><dt><code>num</code></dt><dd data-m-num></dd></div>
+            <div><dt>size(left_half)</dt><dd data-m-size-l></dd></div>
+            <div><dt>size(right_half)</dt><dd data-m-size-r></dd></div>
+            <div><dt>max(左) ≤ min(右)</dt><dd data-m-rule1></dd></div>
+            <div><dt>median</dt><dd data-m-median></dd></div>
+          </dl>
+        </div>
+        <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+      </section>
+
+      <aside class="code-panel" data-code-panel aria-labelledby="median-code-title">
+        <h2 id="median-code-title">完整 Python 代码</h2>
+        <p class="code-status" data-code-status></p>
+        <pre data-code-scroll tabindex="0"><code><span class="code-line">import heapq</span><span class="code-line"> </span><span class="code-line">class MedianOfAnIntegerStream:</span><span class="code-line">    def __init__(self):</span><span class="code-line" data-source-key="init-left-set">        self.left_half = []  # Max-heap.</span><span class="code-line" data-source-key="init-right-set">        self.right_half = []  # Min-heap.</span><span class="code-line"> </span><span class="code-line" data-source-key="add-def">    def add(self, num: int) -&gt; None:</span><span class="code-line">        # If 'num' is less than or equal to the max of 'left_half',</span><span class="code-line">        # it belongs to the left half.</span><span class="code-line" data-source-key="add-if">        if not self.left_half or num &lt;= -self.left_half[0]:</span><span class="code-line" data-source-key="push-left">            heapq.heappush(self.left_half, -num)</span><span class="code-line">            # Rebalance the heaps if the size of the 'left_half'</span><span class="code-line">            # exceeds the size of the 'right_half' by more than one.</span><span class="code-line" data-source-key="reb-left-if">            if len(self.left_half) &gt; len(self.right_half) + 1:</span><span class="code-line" data-source-key="reb-left-do">                heapq.heappush(self.right_half, -heapq.heappop(self.left_half))</span><span class="code-line">        # Otherwise, it belongs to the right half.</span><span class="code-line" data-source-key="add-else">        else:</span><span class="code-line" data-source-key="push-right">            heapq.heappush(self.right_half, num)</span><span class="code-line">            # Rebalance the heaps if 'right_half' is larger than</span><span class="code-line">            # 'left_half'.</span><span class="code-line" data-source-key="reb-right-if">            if len(self.left_half) &lt; len(self.right_half):</span><span class="code-line" data-source-key="reb-right-do">                heapq.heappush(self.left_half, -heapq.heappop(self.right_half))</span><span class="code-line"> </span><span class="code-line" data-source-key="median-def">    def get_median(self) -&gt; float:</span><span class="code-line" data-source-key="median-if">        if len(self.left_half) == len(self.right_half):</span><span class="code-line" data-source-key="median-even">            return (-self.left_half[0] + self.right_half[0]) / 2.0</span><span class="code-line" data-source-key="median-odd">        return -self.left_half[0]</span></code></pre>
+        <p class="note">Python 的 <code>heapq</code> 只有小顶堆：<code>left_half</code> 里存的是 <code>-num</code>，最小的负数恰好对应原数中的最大值；读取时用 <code>-left_half[0]</code> 还原。</p>
+      </aside>
+    </div>
+
+    <section class="section" aria-labelledby="median-intuition">
+      <h2 id="median-intuition">直觉：中位数住在排序后的中间 / The middle of the sorted values</h2>
+      <p class="section-intro">中位数永远落在「排好序的所有值」的正中间。数据流不会按顺序到达，但我们并不真的需要维护一个完整的有序列表——只需要随时能指出两个值：<strong>左半边的最大值</strong>和<strong>右半边的最小值</strong>，中位数由它们直接算出。</p>
+      <svg viewBox="0 0 640 132" role="img" aria-label="排序后的值 0 1 2 2 3 4 5 7 8 9，3 和 4 被 median values 虚线框标出">
+        <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">
+          <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+            <rect x="20" y="18" width="44" height="30" rx="3"/><rect x="72" y="18" width="44" height="30" rx="3"/><rect x="124" y="18" width="44" height="30" rx="3"/><rect x="176" y="18" width="44" height="30" rx="3"/><rect x="228" y="18" width="44" height="30" rx="3"/><rect x="280" y="18" width="44" height="30" rx="3"/><rect x="332" y="18" width="44" height="30" rx="3"/><rect x="384" y="18" width="44" height="30" rx="3"/><rect x="436" y="18" width="44" height="30" rx="3"/><rect x="488" y="18" width="44" height="30" rx="3"/>
+          </g>
+          <g fill="#272727" text-anchor="middle">
+            <text x="42" y="38">0</text><text x="94" y="38">1</text><text x="146" y="38">2</text><text x="198" y="38">2</text><text x="250" y="38">3</text><text x="302" y="38">4</text><text x="354" y="38">5</text><text x="406" y="38">7</text><text x="458" y="38">8</text><text x="510" y="38">9</text>
+          </g>
+          <rect x="222" y="12" width="108" height="42" fill="none" stroke="#555" stroke-width="1.3" stroke-dasharray="5 4"/>
+          <text x="276" y="74" text-anchor="middle" fill="#555" font-size="12">median values</text>
+          <path d="M 250 54 L 210 96" fill="none" stroke="#555" stroke-width="1.1" marker-end="url(#median-static-arrow)"/>
+          <path d="M 302 54 L 342 96" fill="none" stroke="#555" stroke-width="1.1" marker-end="url(#median-static-arrow)"/>
+          <text x="176" y="114" text-anchor="middle" fill="#272727" font-size="12.5">左半边的最大值 largest of left half</text>
+          <text x="396" y="114" text-anchor="middle" fill="#272727" font-size="12.5">右半边的最小值 smallest of right half</text>
+        </g>
+        <defs><marker id="median-static-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker></defs>
+      </svg>
+      <ol class="rule-list">
+        <li>第一个中位值（median value）是排序后<strong>左半边</strong>的最大值——大顶堆的堆顶恰好能给出它。</li>
+        <li>第二个中位值是排序后<strong>右半边</strong>的最小值——小顶堆的堆顶恰好能给出它。</li>
+      </ol>
+      <p class="small">把数据切成「较小的一半」和「较大的一半」后，中位数只由两半的堆顶决定：总数为偶数时取两个堆顶的平均，为奇数时取左堆顶。这就是上图虚线框里两个值与下方双堆的对应关系。</p>
+    </section>
+
+    <section class="section" aria-labelledby="median-structure">
+      <h2 id="median-structure">双堆结构：两条规则 / Two heaps, two rules</h2>
+      <p class="section-intro"><code>left_half</code> 是一棵大顶堆，保存较小的一半，堆顶 = 第一个中位值；<code>right_half</code> 是一棵小顶堆，保存较大的一半，堆顶 = 第二个中位值。任何时刻都要满足：</p>
+      <ol class="rule-list">
+        <li><strong>值规则</strong>：<code>max(left_half) ≤ min(right_half)</code>——左堆的每个值都不超过右堆的每个值，两半拼起来正好是有序的。</li>
+        <li><strong>尺寸规则</strong>：两堆大小相等；当总数为奇数时，<code>left_half</code> 恰好多 1 个，此时唯一的那个中位数就是左堆顶。</li>
+      </ol>
+      <div class="example-grid">
+        <article class="paper-card">
+          <strong>偶数个 · 两个中位值</strong>
+          <svg viewBox="0 0 320 96" role="img" aria-label="偶数个值时 3 和 4 两个中位值求平均">
+            <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">
+              <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+                <rect x="24" y="14" width="34" height="28" rx="3"/><rect x="62" y="14" width="34" height="28" rx="3"/><rect x="100" y="14" width="34" height="28" rx="3"/><rect x="138" y="14" width="34" height="28" rx="3"/><rect x="176" y="14" width="34" height="28" rx="3"/><rect x="214" y="14" width="34" height="28" rx="3"/>
+              </g>
+              <g fill="#272727" text-anchor="middle">
+                <text x="41" y="33">0</text><text x="79" y="33">1</text><text x="117" y="33">2</text><text x="155" y="33">2</text><text x="193" y="33">3</text><text x="231" y="33">4</text>
+              </g>
+              <rect x="187" y="8" width="40" height="40" fill="none" stroke="#555" stroke-width="1.3" stroke-dasharray="5 4"/>
+              <rect x="149" y="8" width="40" height="40" fill="none" stroke="#555" stroke-width="1.3" stroke-dasharray="5 4"/>
+              <text x="136" y="70" text-anchor="middle" fill="#555" font-size="11.5">median = (3 + 4) / 2 = 3.5</text>
+            </g>
+          </svg>
+          <p>两堆大小相等，各贡献一个堆顶：<code>(-left_half[0] + right_half[0]) / 2.0</code>。</p>
+        </article>
+        <article class="paper-card">
+          <strong>奇数个 · 中位数在左堆顶</strong>
+          <svg viewBox="0 0 320 96" role="img" aria-label="奇数个值时中位数是 3">
+            <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">
+              <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+                <rect x="14" y="14" width="34" height="28" rx="3"/><rect x="52" y="14" width="34" height="28" rx="3"/><rect x="90" y="14" width="34" height="28" rx="3"/><rect x="128" y="14" width="34" height="28" rx="3"/><rect x="166" y="14" width="34" height="28" rx="3"/><rect x="204" y="14" width="34" height="28" rx="3"/><rect x="242" y="14" width="34" height="28" rx="3"/>
+              </g>
+              <g fill="#272727" text-anchor="middle">
+                <text x="31" y="33">0</text><text x="69" y="33">1</text><text x="107" y="33">2</text><text x="145" y="33">2</text><text x="183" y="33">3</text><text x="221" y="33">4</text><text x="259" y="33">5</text>
+              </g>
+              <rect x="177" y="8" width="40" height="40" fill="none" stroke="#555" stroke-width="1.3" stroke-dasharray="5 4"/>
+              <text x="197" y="70" text-anchor="middle" fill="#555" font-size="11.5">median = 3</text>
+            </g>
+          </svg>
+          <p>左堆比右堆多 1 个，多出来的那个就是正中间：<code>-left_half[0]</code>。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="median-rebalance">
+      <h2 id="median-rebalance">再平衡：把多出来的堆顶搬过去 / Rebalancing</h2>
+      <p class="section-intro"><code>add</code> 之后尺寸规则可能被破坏，修复方式只有一个：从「多出来」的那一侧弹出堆顶，放进另一侧。搬的是堆顶，所以值规则依然成立——被搬走的总是左半边的最大值或右半边的最小值，搬到对面后仍然夹在中间。</p>
+      <div class="case-grid">
+        <article class="paper-card">
+          <strong>左堆过大：max 搬去右堆</strong>
+          <svg viewBox="0 0 340 210" role="img" aria-label="左堆 5 个右堆 3 个不平衡，把左堆顶搬到右堆后变成 4 比 4">
+            <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+              <text x="70" y="14" text-anchor="middle" font-size="11.5" fill="#272727">left_half</text>
+              <text x="166" y="14" text-anchor="middle" font-size="11.5" fill="#272727">right_half</text>
+              <g fill="#fffdf8" stroke="#272727" stroke-width="1.3">
+                <rect x="54" y="22" width="32" height="18" rx="2"/><rect x="54" y="44" width="32" height="18" rx="2"/><rect x="54" y="66" width="32" height="18" rx="2"/><rect x="54" y="88" width="32" height="18" rx="2"/><rect x="54" y="110" width="32" height="18" rx="2"/>
+                <rect x="150" y="66" width="32" height="18" rx="2"/><rect x="150" y="88" width="32" height="18" rx="2"/><rect x="150" y="110" width="32" height="18" rx="2"/>
+              </g>
+              <rect x="52" y="20" width="36" height="22" fill="none" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/>
+              <text x="70" y="146" text-anchor="middle" font-size="10.5" fill="#555">size = 5</text>
+              <text x="166" y="146" text-anchor="middle" font-size="10.5" fill="#555">size = 3</text>
+              <text x="118" y="40" text-anchor="middle" font-size="10" fill="#555">转移堆顶</text>
+              <path d="M 70 22 C 96 10, 130 40, 158 62" fill="none" stroke="#555" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#median-static-arrow)"/>
+              <text x="196" y="90" font-size="16" fill="#272727">→</text>
+              <g fill="#fffdf8" stroke="#272727" stroke-width="1.3">
+                <rect x="222" y="32" width="32" height="18" rx="2"/><rect x="222" y="54" width="32" height="18" rx="2"/><rect x="222" y="76" width="32" height="18" rx="2"/><rect x="222" y="98" width="32" height="18" rx="2"/>
+                <rect x="292" y="32" width="32" height="18" rx="2"/><rect x="292" y="54" width="32" height="18" rx="2"/><rect x="292" y="76" width="32" height="18" rx="2"/><rect x="292" y="98" width="32" height="18" rx="2"/>
+              </g>
+              <text x="238" y="146" text-anchor="middle" font-size="10.5" fill="#555">size = 4</text>
+              <text x="308" y="146" text-anchor="middle" font-size="10.5" fill="#555">size = 4</text>
+              <text x="170" y="176" text-anchor="middle" font-size="10.5" fill="#555">len(left) &gt; len(right) + 1 → 搬一次后平衡</text>
+            </g>
+          </svg>
+          <p><code>len(left) &gt; len(right) + 1</code>：弹出 <code>left_half</code> 堆顶，取负后推进 <code>right_half</code>。</p>
+        </article>
+        <article class="paper-card">
+          <strong>右堆过大：min 搬去左堆</strong>
+          <svg viewBox="0 0 340 210" role="img" aria-label="左堆 2 个右堆 4 个不平衡，把右堆顶搬到左堆后变成 3 比 3">
+            <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+              <text x="70" y="14" text-anchor="middle" font-size="11.5" fill="#272727">left_half</text>
+              <text x="166" y="14" text-anchor="middle" font-size="11.5" fill="#272727">right_half</text>
+              <g fill="#fffdf8" stroke="#272727" stroke-width="1.3">
+                <rect x="54" y="66" width="32" height="18" rx="2"/><rect x="54" y="88" width="32" height="18" rx="2"/>
+                <rect x="150" y="22" width="32" height="18" rx="2"/><rect x="150" y="44" width="32" height="18" rx="2"/><rect x="150" y="66" width="32" height="18" rx="2"/><rect x="150" y="88" width="32" height="18" rx="2"/>
+              </g>
+              <rect x="148" y="20" width="36" height="22" fill="none" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/>
+              <text x="70" y="134" text-anchor="middle" font-size="10.5" fill="#555">size = 2</text>
+              <text x="166" y="134" text-anchor="middle" font-size="10.5" fill="#555">size = 4</text>
+              <text x="118" y="40" text-anchor="middle" font-size="10" fill="#555">转移堆顶</text>
+              <path d="M 166 22 C 140 10, 106 40, 78 62" fill="none" stroke="#555" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#median-static-arrow)"/>
+              <text x="196" y="90" font-size="16" fill="#272727">→</text>
+              <g fill="#fffdf8" stroke="#272727" stroke-width="1.3">
+                <rect x="222" y="42" width="32" height="18" rx="2"/><rect x="222" y="64" width="32" height="18" rx="2"/><rect x="222" y="86" width="32" height="18" rx="2"/>
+                <rect x="292" y="42" width="32" height="18" rx="2"/><rect x="292" y="64" width="32" height="18" rx="2"/><rect x="292" y="86" width="32" height="18" rx="2"/>
+              </g>
+              <text x="238" y="134" text-anchor="middle" font-size="10.5" fill="#555">size = 3</text>
+              <text x="308" y="134" text-anchor="middle" font-size="10.5" fill="#555">size = 3</text>
+              <text x="170" y="176" text-anchor="middle" font-size="10.5" fill="#555">len(right) &gt; len(left) → 搬一次后平衡</text>
+            </g>
+          </svg>
+          <p><code>len(right) &gt; len(left)</code>：弹出 <code>right_half</code> 堆顶，取负后推进 <code>left_half</code>。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="median-negative">
+      <h2 id="median-negative">实现技巧：用负数伪造大顶堆 / Negated min-heap</h2>
+      <p class="section-intro">Python 的 <code>heapq</code> 只有小顶堆。把每个数取负再放进 <code>left_half</code>：原始值越大，取负后越小，就越靠近小顶堆的堆顶——于是 <code>-left_half[0]</code> 恰好是左半边的最大值。读堆顶时乘回 <code>-1</code> 即还原原值，例如堆里存 <code>-6</code>，读出来是 <code>-(-6) = 6</code>。</p>
+      <div class="example-grid">
+        <article class="paper-card"><strong>存进去 / push</strong><p><code>heapq.heappush(self.left_half, -num)</code>：<code>add(6)</code> 时实际存入的是 <code>-6</code>。</p></article>
+        <article class="paper-card"><strong>读出来 / read</strong><p><code>-self.left_half[0]</code>：堆顶是 <code>-6</code>，取负还原为 <code>6</code>，即左半边最大值。</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="median-edge">
+      <h2 id="median-edge">边界情况 / Edge cases</h2>
+      <div class="edge-grid">
+        <article class="paper-card"><strong>空堆调用 get_median</strong><p>题目保证至少添加过一个值后才会调用 <code>get_median()</code>，所以 <code>-self.left_half[0]</code> 永远不会访问空堆顶。</p></article>
+        <article class="paper-card"><strong>第一个值</strong><p><code>not self.left_half</code> 让第一个数无条件进左堆；奇数个时中位数一直在元素更多的 <code>left_half</code>。</p></article>
+        <article class="paper-card"><strong>负数与 0</strong><p>取负技巧对负数同样成立：<code>add(-5)</code> 存入 <code>5</code>，读取 <code>-5</code>，比较与搬移逻辑完全不变。</p></article>
+        <article class="paper-card"><strong>重复值</strong><p><code>num &lt;= max</code> 时进左堆，相等的值可以落在同侧相邻位置，<code>max(左) ≤ min(右)</code> 依旧成立。</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="median-complexity">
+      <h2 id="median-complexity">复杂度 / Complexity</h2>
+      <div class="complexity">
+        <article class="paper-card"><strong>add · O(log n)</strong><p>n 为已添加的元素个数。一次 <code>heappush</code> 是 <code>O(log n)</code>；若需再平衡，一次 <code>heappop</code> 加一次 <code>heappush</code> 也是 <code>O(log n)</code>，合计仍是 <code>O(log n)</code>。</p></article>
+        <article class="paper-card"><strong>get_median · O(1)</strong><p>只读取堆顶：偶数时读两个堆顶求平均，奇数时读左堆顶，都是常数时间。</p></article>
+        <article class="paper-card"><strong>Space · O(n)</strong><p>两个堆合起来保存全部 n 个元素，没有额外数据结构。</p></article>
+        <article class="paper-card"><strong>一句提醒 / Note</strong><p>文中把中间的两个值叫作「median values」只是方便说法：中位数永远只有一个，它们只是用来计算中位数的两个中间值。</p></article>
+      </div>
+    </section>
+
+    <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../k-most-frequent-strings/">前 K 个高频字符串</a><a href="../combine-sorted-linked-lists/">合并 K 个有序链表</a><a href="../">全部题目</a></nav>
+  </main>
+
+  <script src="../assets/core.js"></script>
+  <script>
+    (() => {
+      const core = window.AlgorithmVisualCore;
+      const root = document.getElementById('median-lab');
+      const stage = root.querySelector('[data-stage]');
+      const svg = root.querySelector('[data-lines]');
+      const phaseEl = root.querySelector('[data-phase]');
+      const invariantEl = root.querySelector('[data-invariant]');
+      const mNum = root.querySelector('[data-m-num]');
+      const mSizeL = root.querySelector('[data-m-size-l]');
+      const mSizeR = root.querySelector('[data-m-size-r]');
+      const mRule1 = root.querySelector('[data-m-rule1]');
+      const mMedian = root.querySelector('[data-m-median]');
+      const expressionEl = root.querySelector('[data-expression]');
+      const explanationEl = root.querySelector('[data-explanation]');
+      const explanationZhEl = root.querySelector('[data-explanation-zh]');
+
+      const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
+      const fr = (stepLabel, kind, sourceKeys, line, en, zh, invariant, state) =>
+        ({ stepLabel, kind, sourceKeys, line, en, zh, invariant, state: { num: null, median: null, move: null, target: null, ...state } });
+
+      const FRAMES = [
+        fr('初始化 · 两个空堆', 'init', ['init-left-set', 'init-right-set'], 'self.left_half = []  # Max-heap.    self.right_half = []  # Min-heap.',
+          'Two empty lists back the data structure: left_half will act as a max-heap holding the smaller half, right_half a min-heap for the larger half.',
+          '数据结构由两个空列表组成：left_half 当作大顶堆保存较小的一半，right_half 当作小顶堆保存较大的一半。',
+          '规则 1：左堆每个值 ≤ 右堆每个值；规则 2：两堆大小相等，或左堆恰好多 1。',
+          { left: [], right: [] }),
+        fr('add(3) · 判断归属', 'judge', ['add-if'], "if not self.left_half or num <= -self.left_half[0]:  # left_half 为空 → True",
+          'add(3): left_half is empty, so the condition is True — 3 belongs to the left half.',
+          'add(3)：left_half 为空，条件成立，3 归入左半边。',
+          '先和左堆顶比：num ≤ max(left_half)（或左堆为空）→ 进左堆；否则进右堆。',
+          { left: [], right: [], num: 3, target: 'left' }),
+        fr('add(3) · 入堆 left_half', 'push', ['push-left'], 'heapq.heappush(self.left_half, -num)  # 推入 -3',
+          "Push the negated value -3 into left_half — Python's heapq is a min-heap, so storing negatives mimics a max-heap. Sizes 1 vs 0: no rebalance.",
+          '把取负后的 -3 放进 left_half——Python 的堆默认是小顶堆，存入取负的数就能模拟大顶堆。大小 1 比 0，无需再平衡。',
+          '大小 1 : 0，左堆最多比右堆多 1，满足规则 2。',
+          { left: [-3], right: [], num: 3, target: 'left' }),
+        fr('add(6) · 判断归属', 'judge', ['add-if'], 'if not self.left_half or num <= -self.left_half[0]:  # 6 <= 3? False',
+          'add(6): 6 <= max(left_half) = 3 is False, so 6 belongs to the right half.',
+          'add(6)：6 ≤ 3 不成立，6 归入右半边。',
+          'num 比左堆顶大 → 进右堆。右堆是小顶堆，堆顶始终是右半边最小值。',
+          { left: [-3], right: [], num: 6, target: 'right' }),
+        fr('add(6) · 入堆 right_half', 'push', ['add-else', 'push-right'], 'heapq.heappush(self.right_half, num)  # 推入 6',
+          'Push 6 into right_half as-is. Sizes 1 : 1, rule 2 holds.',
+          '把 6 原样推进 right_half。大小 1 比 1，保持平衡。',
+          '大小 1 : 1，两堆相等，满足规则 2。',
+          { left: [-3], right: [6], num: 6, target: 'right' }),
+        fr('get_median() → 4.5', 'median', ['median-if', 'median-even'], 'return (-self.left_half[0] + self.right_half[0]) / 2.0  # (3 + 6) / 2 = 4.5',
+          'Sizes are equal (1 : 1), so the median is the average of the two heap tops: (-(-3) + 6) / 2 = 4.5.',
+          '两堆大小相等（1 比 1），中位数取两个堆顶的平均：(-(-3) + 6) / 2 = 4.5。',
+          '大小相等 → median = (max(左) + min(右)) / 2，即两个 median values 求平均。',
+          { left: [-3], right: [6], median: 4.5 }),
+        fr('add(1) · 判断归属', 'judge', ['add-if'], 'if not self.left_half or num <= -self.left_half[0]:  # 1 <= 3? True',
+          'add(1): 1 <= max(left_half) = 3 is True, so 1 belongs to the left half.',
+          'add(1)：1 ≤ 3 成立，1 归入左半边。',
+          'num ≤ max(left_half) → 进左堆，且仍满足 max(左) ≤ min(右)。',
+          { left: [-3], right: [6], num: 1, target: 'left' }),
+        fr('add(1) · 入堆 left_half', 'push', ['push-left'], 'heapq.heappush(self.left_half, -num)  # 推入 -1',
+          'Push -1 into left_half; the top is still -3, i.e. max = 3. Sizes 2 : 1, within the limit.',
+          '把 -1 推进 left_half，堆顶仍是 -3（最大值 3）。大小 2 比 1，符合规则 2。',
+          '大小 2 : 1，左堆比右堆恰好多 1，满足规则 2。',
+          { left: [-3, -1], right: [6], num: 1, target: 'left' }),
+        fr('get_median() → 3.0', 'median', ['median-if', 'median-odd'], 'return -self.left_half[0]  # -(-3) = 3.0',
+          'Sizes differ (2 vs 1), so the median is the top of left_half: -(-3) = 3.0 — the middle of [1, 3, 6].',
+          '两堆大小不同（2 比 1），中位数就是左堆顶：-(-3) = 3.0，正是 [1, 3, 6] 的中间值。',
+          '大小不等（左比右多 1）→ median = max(左) = -left_half[0]。',
+          { left: [-3, -1], right: [6], median: 3.0 }),
+        fr('add(8) · 判断归属', 'judge', ['add-if'], 'if not self.left_half or num <= -self.left_half[0]:  # 8 <= 3? False',
+          'add(8): 8 <= 3 is False, so 8 belongs to the right half.',
+          'add(8)：8 ≤ 3 不成立，8 归入右半边。',
+          'num 更大 → 进右堆，右堆顶仍是两半的分界线。',
+          { left: [-3, -1], right: [6], num: 8, target: 'right' }),
+        fr('add(8) · 入堆 right_half', 'push', ['add-else', 'push-right'], 'heapq.heappush(self.right_half, num)  # 推入 8',
+          'Push 8 into right_half. Sizes 2 : 2, balanced.',
+          '把 8 推进 right_half。大小 2 比 2，保持平衡。',
+          '大小 2 : 2，两堆相等，满足规则 2。',
+          { left: [-3, -1], right: [6, 8], num: 8, target: 'right' }),
+        fr('add(9) · 判断归属', 'judge', ['add-if'], 'if not self.left_half or num <= -self.left_half[0]:  # 9 <= 3? False',
+          'add(9): 9 <= 3 is False, so 9 belongs to the right half.',
+          'add(9)：9 ≤ 3 不成立，9 归入右半边。',
+          '连续的大数都进右堆——尺寸规则可能因此被破坏，下一步检查。',
+          { left: [-3, -1], right: [6, 8], num: 9, target: 'right' }),
+        fr('add(9) · 入堆 right_half', 'push', ['add-else', 'push-right'], 'heapq.heappush(self.right_half, num)  # 推入 9',
+          'Push 9 into right_half — now the right side has 3 values vs 2 on the left.',
+          '把 9 推进 right_half，现在右堆 3 个、左堆 2 个，规则 2 即将被破坏。',
+          '右堆 3 个、左堆 2 个：右堆更大，规则 2 被破坏，需要再平衡。',
+          { left: [-3, -1], right: [6, 8, 9], num: 9, target: 'right' }),
+        fr('add(9) · 尺寸检查', 'check', ['reb-right-if'], 'if len(self.left_half) < len(self.right_half):  # 2 < 3 → True',
+          'Rule 2 is violated: right_half has 3 values vs 2 on the left, so the heaps must be rebalanced.',
+          '检查尺寸：2 &lt; 3 成立，右堆比左堆大，规则 2 被破坏，需要再平衡。',
+          '规则 2：两堆大小相等，或左堆恰好多 1；右堆更大时必须转移堆顶。',
+          { left: [-3, -1], right: [6, 8, 9], num: 9 }),
+        fr('add(9) · 转移堆顶 6', 'transfer', ['reb-right-do'], 'heapq.heappush(self.left_half, -heapq.heappop(self.right_half))  # 移动 6',
+          "Pop right_half's top 6 and push its negation -6 into left_half. Sizes restore to 3 : 2, and max(left) = 6 <= min(right) = 8.",
+          '弹出 right_half 的堆顶 6，取负后推进 left_half。两堆恢复 3 比 2，且 max(左) = 6 ≤ min(右) = 8。',
+          '搬走右堆的最小值后，值规则与尺寸规则同时恢复。',
+          { left: [-6, -3, -1], right: [8, 9], num: 9, move: { from: 'right', stored: -6, value: 6 } }),
+        fr('get_median() → 6.0', 'median', ['median-if', 'median-odd'], 'return -self.left_half[0]  # -(-6) = 6.0',
+          'Sizes differ (3 vs 2), so the median is the top of left_half: -(-6) = 6.0 — the middle of [1, 3, 6, 8, 9].',
+          '大小 3 比 2，中位数是左堆顶：-(-6) = 6.0，正是 [1, 3, 6, 8, 9] 的中间值。',
+          '大小不等（左比右多 1）→ median = max(左)。',
+          { left: [-6, -3, -1], right: [8, 9], median: 6.0 }),
+        fr('add(0) · 判断归属', 'judge', ['add-if'], 'if not self.left_half or num <= -self.left_half[0]:  # 0 <= 6? True',
+          'add(0): 0 <= max(left_half) = 6 is True, so 0 belongs to the left half.',
+          'add(0)：0 ≤ 6 成立，0 归入左半边。',
+          '左堆顶是 6（不是 3）——读堆顶要先取负：max = -left_half[0]。',
+          { left: [-6, -3, -1], right: [8, 9], num: 0, target: 'left' }),
+        fr('add(0) · 入堆 left_half', 'push', ['push-left'], 'heapq.heappush(self.left_half, -num)  # 推入 0',
+          'Push 0 into left_half — the stored value is -0 = 0. Now left has 4 values vs 2 on the right.',
+          '把 0 推进 left_half（存的是 0 本身），现在左堆 4 个、右堆 2 个，规则 2 即将被破坏。',
+          '左堆 4 个、右堆 2 个：左堆多出 2 个，超过规则 2 允许的 1 个。',
+          { left: [-6, -3, -1, 0], right: [8, 9], num: 0, target: 'left' }),
+        fr('add(0) · 尺寸检查', 'check', ['reb-left-if'], 'if len(self.left_half) > len(self.right_half) + 1:  # 4 > 3 → True',
+          'Rule 2 is violated: left_half has 4 values, which is more than len(right_half) + 1 = 3, so the heaps must be rebalanced.',
+          '检查尺寸：4 &gt; 2 + 1 成立，左堆比右堆多出 2 个，超过规则 2 的限度，需要再平衡。',
+          '规则 2：左堆最多比右堆多 1 个；多 2 个时必须转移堆顶。',
+          { left: [-6, -3, -1, 0], right: [8, 9], num: 0 }),
+        fr('add(0) · 转移堆顶 6', 'transfer', ['reb-left-do'], 'heapq.heappush(self.right_half, -heapq.heappop(self.left_half))  # 移动 6',
+          "Pop left_half's top -6, negate it back to 6, and push it into right_half. Sizes restore to 3 : 3, and max(left) = 3 <= min(right) = 6.",
+          '弹出 left_half 的堆顶 -6，取负还原为 6 推进 right_half。两堆恢复 3 比 3，且 max(左) = 3 ≤ min(右) = 6。',
+          '搬走左堆的最大值后，值规则与尺寸规则同时恢复。',
+          { left: [-3, -1, 0], right: [6, 8, 9], num: 0, move: { from: 'left', stored: -6, value: 6 } }),
+        fr('get_median() → 4.5', 'median', ['median-if', 'median-even'], 'return (-self.left_half[0] + self.right_half[0]) / 2.0  # (3 + 6) / 2 = 4.5',
+          'Sizes are equal (3 : 3), so the median is the average of the two tops: (-(-3) + 6) / 2 = 4.5 — the middle of [0, 1, 3, 6, 8, 9].',
+          '大小 3 比 3，中位数取两堆顶平均：(-(-3) + 6) / 2 = 4.5，正是 [0, 1, 3, 6, 8, 9] 的中间。',
+          '大小相等 → median = (max(左) + min(右)) / 2。',
+          { left: [-3, -1, 0], right: [6, 8, 9], median: 4.5 }),
+        fr('add(2) · 判断归属', 'judge', ['add-if'], 'if not self.left_half or num <= -self.left_half[0]:  # 2 <= 3? True',
+          'add(2): 2 <= max(left_half) = 3 is True, so 2 belongs to the left half.',
+          'add(2)：2 ≤ 3 成立，2 归入左半边。',
+          'num ≤ max(left_half) → 进左堆。',
+          { left: [-3, -1, 0], right: [6, 8, 9], num: 2, target: 'left' }),
+        fr('add(2) · 入堆 left_half', 'push', ['push-left'], 'heapq.heappush(self.left_half, -num)  # 推入 -2',
+          'Push -2 into left_half. Sizes 4 : 3 — 4 > 3 + 1 is False, so no rebalance is needed.',
+          '把 -2 推进 left_half。大小 4 比 3，4 &gt; 3 + 1 不成立，无需再平衡。',
+          '大小 4 : 3，左堆只多 1 个，满足规则 2。',
+          { left: [-3, -2, 0, -1], right: [6, 8, 9], num: 2, target: 'left' }),
+        fr('get_median() → 3.0', 'median', ['median-if', 'median-odd'], 'return -self.left_half[0]  # -(-3) = 3.0',
+          'Sizes differ (4 vs 3), so the median is the top of left_half: -(-3) = 3.0 — the middle of [0, 1, 2, 3, 6, 8, 9].',
+          '大小 4 比 3，中位数是左堆顶：-(-3) = 3.0，正是 [0, 1, 2, 3, 6, 8, 9] 的中间值。',
+          '大小不等（左比右多 1）→ median = max(左)。get_median 只读堆顶，O(1)。',
+          { left: [-3, -2, 0, -1], right: [6, 8, 9], median: 3.0 })
+      ];
+
+      const scene = core.createSvgScene(svg);
+      scene.defineMarker('median-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+      const motion = core.createMotionController();
+      let geom = null;
+      let transitionFrom = null;
+      let currentFrame = FRAMES[0];
+      let pen = null;
+
+      const decode = stored => -stored;
+      const fmtMedian = value => Number.isInteger(value) ? value.toFixed(1) : String(value);
+
+      function rectPath(x, y, w, h, r = 0) {
+        if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+        return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+      }
+
+      function layout() {
+        const width = stage.clientWidth;
+        const compact = width < 520;
+        const cellW = compact ? 32 : 40;
+        const cellH = compact ? 22 : 26;
+        const spread = compact ? 42 : 58;
+        const rowH = compact ? 27 : 32;
+        const nameY = compact ? 46 : 50;
+        const chipW = compact ? 70 : 82;
+        const chipH = compact ? 19 : 21;
+        const chipY = nameY + (compact ? 5 : 7);
+        const row0Y = chipY + chipH + (compact ? 9 : 11);
+        const cxL = width * (compact ? 0.29 : 0.27);
+        const cxR = width - cxL;
+        const stripCellW = compact ? 24 : 28;
+        const stripGap = compact ? 5 : 7;
+        const stripCellH = compact ? 20 : 22;
+        const stripY = row0Y + 3 * rowH + cellH + (compact ? 30 : 34);
+        const height = stripY + stripCellH + 30;
+        geom = { width, compact, cellW, cellH, spread, rowH, nameY, chipW, chipH, chipY, row0Y, cxL, cxR, stripCellW, stripGap, stripCellH, stripY, height };
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        stage.style.height = `${Math.ceil(height)}px`;
+      }
+
+      function cellSlot(cx, index) {
+        // Binary-tree position: follow the bits of index + 1 from the root,
+        // halving the horizontal step at each level so children sit beside
+        // their parent and the trapezoid stays compact.
+        const bits = (index + 1).toString(2);
+        let offset = 0;
+        for (let j = 1; j < bits.length; j += 1) {
+          offset += (bits[j] === '1' ? 1 : -1) * geom.spread / Math.pow(2, j);
+        }
+        return {
+          x: cx + offset,
+          y: geom.row0Y + (bits.length - 1) * geom.rowH
+        };
+      }
+
+      function drawHeap({ cx, side, values, frame, t, from }) {
+        const { path, text } = pen;
+        const g = geom;
+        const isLeft = side === 'left';
+        const name = isLeft ? 'left_half' : 'right_half';
+        const chipText = values.length
+          ? `${isLeft ? 'max' : 'min'}: ${isLeft ? decode(values[0]) : values[0]}`
+          : `${isLeft ? 'max' : 'min'}: None`;
+
+        text(`${side}-name`, { x: cx, y: g.nameY, 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12.5, fill: '#272727', 'font-family': MONO, 'font-weight': 500 }, name);
+
+        // Trapezoid outline sized by actual cells.
+        const fromValues = from ? from[side] : null;
+        const cellPresence = index => {
+          const inTo = index < values.length;
+          const inFrom = fromValues ? index < fromValues.length : true;
+          if (inTo && inFrom) return 1;
+          if (inTo) return t;
+          if (inFrom) return 1 - t;
+          return 0;
+        };
+        let maxHalf = g.chipW / 2 + 6;
+        let rows = 1;
+        for (let i = 0; i < values.length; i += 1) {
+          const slot = cellSlot(cx, i);
+          maxHalf = Math.max(maxHalf, Math.abs(slot.x - cx) + g.cellW / 2 + (g.compact ? 8 : 12));
+          rows = Math.max(rows, Math.floor(Math.log2(i + 1)) + 1);
+        }
+        const topY = g.row0Y - 7;
+        const bottomY = g.row0Y + (rows - 1) * g.rowH + g.cellH + 8;
+        path(`${side}-trap`, {
+          d: `M ${cx - (g.cellW / 2 + 9)} ${topY} L ${cx + (g.cellW / 2 + 9)} ${topY} L ${cx + maxHalf} ${bottomY} L ${cx - maxHalf} ${bottomY} Z`,
+          fill: 'none', stroke: '#777', 'stroke-width': 1.2
+        });
+
+        // Top chip (attached to the root cell).
+        const chipAttrs = {
+          d: rectPath(cx - g.chipW / 2, g.chipY, g.chipW, g.chipH, 2),
+          fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3
+        };
+        if (!values.length) chipAttrs['stroke-dasharray'] = '4 3';
+        path(`${side}-chip`, chipAttrs);
+        const sizesEqual = frame.state.left.length === frame.state.right.length;
+        const emphasizeChip =
+          (frame.kind === 'judge' && isLeft) ||
+          (frame.kind === 'median' && frame.state.median !== null && (isLeft || sizesEqual));
+        if (emphasizeChip) {
+          path(`${side}-chip-ring`, { d: rectPath(cx - g.chipW / 2 - 4, g.chipY - 4, g.chipW + 8, g.chipH + 8, 3), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+        }
+        text(`${side}-chip-text`, { x: cx, y: g.chipY + g.chipH / 2 + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 11.5, fill: '#272727', 'font-family': MONO }, chipText);
+        path(`${side}-chip-link`, { d: `M ${cx} ${g.chipY + g.chipH} L ${cx} ${g.row0Y}`, stroke: '#555', 'stroke-width': 1, fill: 'none' });
+
+        // Cells in binary-heap tree order.
+        for (let i = 0; i < values.length; i += 1) {
+          const slot = cellSlot(cx, i);
+          const presence = cellPresence(i);
+          path(`${side}-cell-${i}`, { d: rectPath(slot.x - g.cellW / 2, slot.y, g.cellW, g.cellH, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.4, opacity: presence });
+          text(`${side}-cell-text-${i}`, { x: slot.x, y: slot.y + g.cellH / 2 + (g.compact ? 3.5 : 4.2), 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 13, fill: '#272727', 'font-family': MONO, opacity: presence }, String(values[i]));
+        }
+
+        // Size label.
+        const sizeY = bottomY + (g.compact ? 15 : 17);
+        text(`${side}-size`, { x: cx, y: sizeY, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: '#272727', 'font-family': MONO }, `size = ${values.length}`);
+        if (isLeft) {
+          text('left-note', { x: cx, y: sizeY + (g.compact ? 12 : 14), 'text-anchor': 'middle', 'font-size': g.compact ? 8 : 9, fill: '#777', 'font-family': MONO }, '(存 -num)');
+        }
+        if (frame.kind === 'check') {
+          path(`${side}-size-ring`, { d: rectPath(cx - 33, sizeY - (g.compact ? 10 : 12), 66, g.compact ? 14 : 16, 2), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+        }
+      }
+
+      function draw(state, t = 1, from = null, frame = currentFrame) {
+        if (!geom) return;
+        const g = geom;
+
+        scene.update(({ path, text }) => {
+          pen = { path, text };
+          drawHeap({ cx: g.cxL, side: 'left', values: state.left, frame, t, from });
+          drawHeap({ cx: g.cxR, side: 'right', values: state.right, frame, t, from });
+
+          // Incoming num card and arrow to its target heap.
+          if (state.num !== null && frame.kind !== 'median' && frame.kind !== 'transfer') {
+            const cardW = g.compact ? 74 : 84;
+            const cardH = g.compact ? 20 : 22;
+            const dashed = frame.kind === 'judge' || frame.kind === 'check';
+            path('num-card', { d: rectPath(8, 8, cardW, cardH, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.2, ...(dashed ? { 'stroke-dasharray': '4 3' } : {}) });
+            text('num-text', { x: 8 + cardW / 2, y: 8 + cardH / 2 + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, `num = ${state.num}`);
+            const targetCx = state.target === 'right' ? g.cxR : g.cxL;
+            const startX = 8 + cardW;
+            const startY = 8 + cardH / 2;
+            const endX = targetCx;
+            const endY = g.row0Y - 12;
+            const midX = (startX + endX) / 2;
+            const lift = g.compact ? 26 : 34;
+            path('num-arrow', { d: `M ${startX} ${startY} C ${midX} ${startY - lift}, ${midX} ${endY - lift}, ${endX} ${endY}`, fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': dashed ? '5 4' : null, 'marker-end': 'url(#median-arrow)' });
+          }
+
+          // Transfer arrow + flying chip between heap tops.
+          if (frame.kind === 'transfer' && state.move) {
+            const fromCx = state.move.from === 'left' ? g.cxL : g.cxR;
+            const toCx = state.move.from === 'left' ? g.cxR : g.cxL;
+            const startY = g.row0Y - 6;
+            const midX = (fromCx + toCx) / 2;
+            const lift = g.compact ? 44 : 56;
+            path('transfer-path', { d: `M ${fromCx} ${startY} C ${midX} ${startY - lift}, ${midX} ${startY - lift}, ${toCx} ${startY}`, fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '6 4', 'marker-end': 'url(#median-arrow)' });
+            // Quadratic interpolation for the flying chip.
+            const q = tValue => {
+              const mt = 1 - tValue;
+              return {
+                x: mt * mt * fromCx + 2 * mt * tValue * midX + tValue * tValue * toCx,
+                y: mt * mt * startY + 2 * mt * tValue * (startY - lift) + tValue * tValue * startY
+              };
+            };
+            const chipPos = q(Math.min(1, t * 1.05));
+            const chipW = g.compact ? 30 : 36;
+            const chipH = g.compact ? 20 : 23;
+            const chipOpacity = t > 0.92 ? (1 - t) / 0.08 : 1;
+            path('transfer-chip', { d: rectPath(chipPos.x - chipW / 2, chipPos.y - chipH / 2, chipW, chipH, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.4, opacity: Math.max(0, chipOpacity) });
+            text('transfer-chip-text', { x: chipPos.x, y: chipPos.y + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12.5, fill: '#272727', 'font-family': MONO, opacity: Math.max(0, chipOpacity) }, String(state.move.stored));
+            text('transfer-caption', { x: midX, y: startY - lift - (g.compact ? 4 : 6), 'text-anchor': 'middle', 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, '转移堆顶');
+          }
+
+          // Median result box.
+          if (state.median !== null) {
+            const boxW = g.compact ? 108 : 128;
+            const boxH = g.compact ? 22 : 24;
+            const boxX = g.width - boxW - 8;
+            path('median-card', { d: rectPath(boxX, 8, boxW, boxH, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
+            text('median-card-text', { x: boxX + boxW / 2, y: 8 + boxH / 2 + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, `median = ${fmtMedian(state.median)}`);
+          }
+
+          // Sorted strip with the median box.
+          const sorted = [
+            ...state.left.map(decode),
+            ...state.right
+          ].sort((a, b) => a - b);
+          const scW = g.stripCellW;
+          const gap = g.stripGap;
+          const totalW = sorted.length * scW + (sorted.length - 1) * gap;
+          const startX = (g.width - totalW) / 2;
+          text('sorted-caption', { x: 8, y: g.stripY + g.stripCellH / 2 + 3.5, 'font-size': g.compact ? 9 : 10, fill: '#777', 'font-family': MONO }, 'sorted');
+          if (!sorted.length) {
+            text('sorted-empty', { x: g.width / 2, y: g.stripY + g.stripCellH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 10.5, fill: '#999', 'font-family': MONO }, '尚无元素');
+          }
+          for (let i = 0; i < sorted.length; i += 1) {
+            const x = startX + i * (scW + gap);
+            path(`sorted-cell-${i}`, { d: rectPath(x, g.stripY, scW, g.stripCellH, 3), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.1 });
+            text(`sorted-text-${i}`, { x: x + scW / 2, y: g.stripY + g.stripCellH / 2 + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 11.5, fill: '#272727', 'font-family': MONO }, String(sorted[i]));
+          }
+          if (sorted.length) {
+            const midIndex = (sorted.length - 1) / 2;
+            const even = sorted.length % 2 === 0;
+            const boxStart = even ? midIndex - 0.5 : midIndex;
+            const boxCount = even ? 2 : 1;
+            const bx = startX + boxStart * (scW + gap) - 4;
+            const bw = boxCount * scW + (boxCount - 1) * gap + 8;
+            path('sorted-median-box', { d: rectPath(bx, g.stripY - 4, bw, g.stripCellH + 8, 4), fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 4' });
+            text('sorted-median-label', { x: bx + bw / 2, y: g.stripY + g.stripCellH + (g.compact ? 13 : 15), 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 9.5, fill: '#555', 'font-family': MONO }, even ? 'median values' : 'median');
+          }
+        });
+      }
+
+      function render({ frame, state, step, frames }) {
+        currentFrame = frame;
+        phaseEl.textContent = frame.stepLabel;
+        invariantEl.textContent = frame.invariant;
+        mNum.textContent = state.num === null ? '—' : String(state.num);
+        mSizeL.textContent = String(state.left.length);
+        mSizeR.textContent = String(state.right.length);
+        mRule1.textContent = state.right.length ? `${decode(state.left[0])} ≤ ${state.right[0]} ✓` : '—';
+        mMedian.textContent = state.median === null ? '—' : fmtMedian(state.median);
+        expressionEl.textContent = frame.line;
+        explanationEl.textContent = frame.en;
+        explanationZhEl.innerHTML = frame.zh;
+        stage.setAttribute('aria-label', `整数流中位数演示：第 ${step + 1} / ${frames.length} 步。${frame.zh.replace(/<[^>]*>/g, '')}`);
+        draw(state, 1, null, frame);
+      }
+
+      const cloneState = s => ({ ...s, left: [...s.left], right: [...s.right], move: s.move ? { ...s.move } : null });
+      const trace = core.createTrace({
+        root,
+        cloneState,
+        motion,
+        onRender: render,
+        onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+        onTransition: ({ state, frame }) => {
+          const from = transitionFrom;
+          transitionFrom = null;
+          if (!from || motion.reduced) { draw(state, 1, from, frame); return; }
+          motion.tween({
+            duration: 420,
+            update: eased => draw(state, eased, from, frame),
+            complete: () => draw(state, 1, null, frame)
+          });
+        },
+        formatStepOption: frame => frame.stepLabel
+      });
+
+      layout();
+      new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null, trace.frame || FRAMES[0]); }).observe(stage);
+      trace.setFrames(FRAMES);
+    })();
+  </script>
+</body>
+</html>
