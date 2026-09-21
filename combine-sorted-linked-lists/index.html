@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of combining k sorted linked lists with a min-heap and a dummy node. 合并 K 个有序链表：小顶堆 + 哑节点。" />
+    <title>Combine Sorted Linked Lists · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { height: 330px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .case-grid, .edge-grid, .complexity, .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .case-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .reason-list { margin: 8px 0 0; padding-left: 24px; }
+      .reason-list li { margin: 6px 0; }
+      .small { color: var(--quiet); font-size: 12px; }
+      .merge-figure { margin: 12px 0 0; }
+      .merge-figure svg { display: block; width: 100%; height: auto; }
+      @media (max-width: 700px) {
+        .state-grid, .case-grid, .edge-grid, .complexity, .example-grid { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="combine-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Combine Sorted Linked Lists · 合并 K 个有序链表</h1></div></header>
+      <p class="problem">Given <code>k</code> singly linked lists, each sorted in ascending order, combine them into one sorted linked list. Example: <code>1→6</code>, <code>1→4→6</code>, <code>3→7</code> → <code>1→1→3→4→6→6→7</code>.<span lang="zh-CN">给定 k 条升序单链表，把它们合并成一条升序链表。例如 lists = [1→6, 1→4→6, 3→7]，合并结果是 1→1→3→4→6→6→7。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="合并 K 个有序链表小顶堆演示 / combine sorted lists min-heap trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="合并 K 个有序链表演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>heap</code> 大小</dt><dd data-m-heap></dd></div>
+              <div><dt>已接入 output</dt><dd data-m-out></dd></div>
+              <div><dt><code>smallest_node</code></dt><dd data-m-smallest></dd></div>
+              <div><dt><code>curr</code></dt><dd data-m-curr></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="combine-code-title">
+          <h2 id="combine-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val: int, next=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line"> </span><span class="code-line" data-source-key="func">def combine_sorted_linked_lists(lists: List[ListNode]) -&gt; ListNode:</span><span class="code-line">    # Define a custom comparator for 'ListNode', enabling the min-heap</span><span class="code-line">    # to prioritize nodes with smaller values.</span><span class="code-line" data-source-key="comparator">    ListNode.__lt__ = lambda self, other: self.val &lt; other.val</span><span class="code-line" data-source-key="heap-init">    heap = []</span><span class="code-line">    # Push the head of each linked list into the heap.</span><span class="code-line" data-source-key="for-heads">    for head in lists:</span><span class="code-line" data-source-key="if-head">        if head:</span><span class="code-line" data-source-key="push-head">            heapq.heappush(heap, head)</span><span class="code-line">    # Set a dummy node to point to the head of the output linked list.</span><span class="code-line" data-source-key="dummy">    dummy = ListNode(-1)</span><span class="code-line">    # Create a pointer to iterate through the combined linked list as</span><span class="code-line">    # we add nodes to it.</span><span class="code-line" data-source-key="curr-init">    curr = dummy</span><span class="code-line" data-source-key="loop">    while heap:</span><span class="code-line">        # Pop the node with the smallest value from the heap and add it</span><span class="code-line">        # to the output linked list.</span><span class="code-line" data-source-key="pop">        smallest_node = heapq.heappop(heap)</span><span class="code-line" data-source-key="link">        curr.next = smallest_node</span><span class="code-line" data-source-key="advance">        curr = curr.next</span><span class="code-line">        # Push the popped node's subsequent node to the heap.</span><span class="code-line" data-source-key="if-next">        if smallest_node.next:</span><span class="code-line" data-source-key="push-next">            heapq.heappush(heap, smallest_node.next)</span><span class="code-line" data-source-key="return">    return dummy.next</span></code></pre>
+          <p class="note">图中每一行是一个堆元素：圆圈内是该链表当前的候选头（堆里的那个节点），右侧是它后面的节点；<code>min</code> 标记指向当前堆顶。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="combine-intuition">
+        <h2 id="combine-intuition">直觉：先会合并两条链表 / Two-list merge</h2>
+        <p class="section-intro">合并两条有序链表很简单：<code>ptr_1</code>、<code>ptr_2</code> 各指向一条链表的头，每次比较两个头，把较小的接入 <code>output</code> 并前进对应指针；一条走完后，把另一条剩余部分直接接上。</p>
+        <figure class="merge-figure">
+          <svg viewBox="0 0 820 182" role="img" aria-label="合并 1→3 和 2→4 的四个步骤：每次把较小的头接入 output 并前进对应指针；一条走完后指针指向 None">
+            <g font-family="Arial, Helvetica, sans-serif">
+              <g transform="translate(10,4)">
+                <text x="95" y="10" text-anchor="middle" font-size="10" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">①</text>
+                <rect x="7" y="20" width="38" height="15" rx="2" fill="#fffdf8" stroke="#555" stroke-width="1.1"/>
+                <text x="26" y="31" text-anchor="middle" font-size="9.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">ptr_1</text>
+                <path d="M 26 35 L 26 42" stroke="#555" stroke-width="1.2" fill="none" marker-end="url(#mi-arrow)"/>
+                <circle cx="26" cy="56" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="26" y="60.5" text-anchor="middle" font-size="13" fill="#272727">1</text>
+                <path d="M 41 56 L 50 56" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)"/>
+                <circle cx="66" cy="56" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="66" y="60.5" text-anchor="middle" font-size="13" fill="#272727">3</text>
+                <rect x="7" y="72" width="38" height="15" rx="2" fill="#fffdf8" stroke="#555" stroke-width="1.1"/>
+                <text x="26" y="83" text-anchor="middle" font-size="9.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">ptr_2</text>
+                <path d="M 26 87 L 26 94" stroke="#555" stroke-width="1.2" fill="none" marker-end="url(#mi-arrow)"/>
+                <circle cx="26" cy="108" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="26" y="112.5" text-anchor="middle" font-size="13" fill="#272727">2</text>
+                <path d="M 41 108 L 50 108" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)"/>
+                <circle cx="66" cy="108" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="66" y="112.5" text-anchor="middle" font-size="13" fill="#272727">4</text>
+                <text x="0" y="162" font-size="10.5" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">output:</text>
+                <circle cx="60" cy="158" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="60" y="162.5" text-anchor="middle" font-size="13" fill="#272727">1</text>
+              </g>
+              <g transform="translate(215,4)">
+                <text x="95" y="10" text-anchor="middle" font-size="10" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">②</text>
+                <rect x="47" y="20" width="38" height="15" rx="2" fill="#fffdf8" stroke="#555" stroke-width="1.1"/>
+                <text x="66" y="31" text-anchor="middle" font-size="9.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">ptr_1</text>
+                <path d="M 66 35 L 66 42" stroke="#555" stroke-width="1.2" fill="none" marker-end="url(#mi-arrow)"/>
+                <circle cx="26" cy="56" r="13" fill="#fffdf8" stroke="#999" stroke-width="1.4" opacity="0.38"/><text x="26" y="60.5" text-anchor="middle" font-size="13" fill="#272727" opacity="0.38">1</text>
+                <path d="M 41 56 L 50 56" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)" opacity="0.38"/>
+                <circle cx="66" cy="56" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="66" y="60.5" text-anchor="middle" font-size="13" fill="#272727">3</text>
+                <rect x="7" y="72" width="38" height="15" rx="2" fill="#fffdf8" stroke="#555" stroke-width="1.1"/>
+                <text x="26" y="83" text-anchor="middle" font-size="9.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">ptr_2</text>
+                <path d="M 26 87 L 26 94" stroke="#555" stroke-width="1.2" fill="none" marker-end="url(#mi-arrow)"/>
+                <circle cx="26" cy="108" r="13" fill="#fffdf8" stroke="#999" stroke-width="1.4" opacity="0.38"/><text x="26" y="112.5" text-anchor="middle" font-size="13" fill="#272727" opacity="0.38">2</text>
+                <path d="M 41 108 L 50 108" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)" opacity="0.38"/>
+                <circle cx="66" cy="108" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="66" y="112.5" text-anchor="middle" font-size="13" fill="#272727">4</text>
+                <text x="0" y="162" font-size="10.5" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">output:</text>
+                <circle cx="60" cy="158" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="60" y="162.5" text-anchor="middle" font-size="13" fill="#272727">1</text>
+                <path d="M 75 158 L 84 158" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)"/>
+                <circle cx="96" cy="158" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="96" y="162.5" text-anchor="middle" font-size="13" fill="#272727">2</text>
+              </g>
+              <g transform="translate(420,4)">
+                <text x="95" y="10" text-anchor="middle" font-size="10" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">③</text>
+                <rect x="47" y="20" width="38" height="15" rx="2" fill="#fffdf8" stroke="#999" stroke-width="1.1" stroke-dasharray="3 2"/>
+                <text x="66" y="31" text-anchor="middle" font-size="9.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">ptr_1</text>
+                <path d="M 66 35 C 66 44, 88 42, 92 50" stroke="#555" stroke-width="1.2" fill="none" marker-end="url(#mi-arrow)"/>
+                <text x="97" y="60" font-size="9.5" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">None</text>
+                <circle cx="26" cy="56" r="13" fill="#fffdf8" stroke="#999" stroke-width="1.4" opacity="0.38"/><text x="26" y="60.5" text-anchor="middle" font-size="13" fill="#272727" opacity="0.38">1</text>
+                <path d="M 41 56 L 50 56" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)" opacity="0.38"/>
+                <circle cx="66" cy="56" r="13" fill="#fffdf8" stroke="#999" stroke-width="1.4" opacity="0.38"/><text x="66" y="60.5" text-anchor="middle" font-size="13" fill="#272727" opacity="0.38">3</text>
+                <rect x="47" y="72" width="38" height="15" rx="2" fill="#fffdf8" stroke="#555" stroke-width="1.1"/>
+                <text x="66" y="83" text-anchor="middle" font-size="9.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">ptr_2</text>
+                <path d="M 66 87 L 66 94" stroke="#555" stroke-width="1.2" fill="none" marker-end="url(#mi-arrow)"/>
+                <circle cx="26" cy="108" r="13" fill="#fffdf8" stroke="#999" stroke-width="1.4" opacity="0.38"/><text x="26" y="112.5" text-anchor="middle" font-size="13" fill="#272727" opacity="0.38">2</text>
+                <path d="M 41 108 L 50 108" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)" opacity="0.38"/>
+                <circle cx="66" cy="108" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="66" y="112.5" text-anchor="middle" font-size="13" fill="#272727">4</text>
+                <text x="0" y="162" font-size="10.5" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">output:</text>
+                <circle cx="52" cy="158" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="52" y="162.5" text-anchor="middle" font-size="13" fill="#272727">1</text>
+                <path d="M 67 158 L 76 158" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)"/>
+                <circle cx="88" cy="158" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="88" y="162.5" text-anchor="middle" font-size="13" fill="#272727">2</text>
+                <path d="M 103 158 L 112 158" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)"/>
+                <circle cx="124" cy="158" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="124" y="162.5" text-anchor="middle" font-size="13" fill="#272727">3</text>
+              </g>
+              <g transform="translate(625,4)">
+                <text x="95" y="10" text-anchor="middle" font-size="10" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">④</text>
+                <rect x="47" y="20" width="38" height="15" rx="2" fill="#fffdf8" stroke="#999" stroke-width="1.1" stroke-dasharray="3 2"/>
+                <text x="66" y="31" text-anchor="middle" font-size="9.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">ptr_1</text>
+                <path d="M 66 35 C 66 44, 88 42, 92 50" stroke="#555" stroke-width="1.2" fill="none" marker-end="url(#mi-arrow)"/>
+                <text x="97" y="60" font-size="9.5" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">None</text>
+                <circle cx="26" cy="56" r="13" fill="#fffdf8" stroke="#999" stroke-width="1.4" opacity="0.38"/><text x="26" y="60.5" text-anchor="middle" font-size="13" fill="#272727" opacity="0.38">1</text>
+                <path d="M 41 56 L 50 56" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)" opacity="0.38"/>
+                <circle cx="66" cy="56" r="13" fill="#fffdf8" stroke="#999" stroke-width="1.4" opacity="0.38"/><text x="66" y="60.5" text-anchor="middle" font-size="13" fill="#272727" opacity="0.38">3</text>
+                <rect x="47" y="72" width="38" height="15" rx="2" fill="#fffdf8" stroke="#999" stroke-width="1.1" stroke-dasharray="3 2"/>
+                <text x="66" y="83" text-anchor="middle" font-size="9.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">ptr_2</text>
+                <path d="M 66 87 C 66 96, 88 94, 92 102" stroke="#555" stroke-width="1.2" fill="none" marker-end="url(#mi-arrow)"/>
+                <text x="97" y="112" font-size="9.5" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">None</text>
+                <circle cx="26" cy="108" r="13" fill="#fffdf8" stroke="#999" stroke-width="1.4" opacity="0.38"/><text x="26" y="112.5" text-anchor="middle" font-size="13" fill="#272727" opacity="0.38">2</text>
+                <path d="M 41 108 L 50 108" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)" opacity="0.38"/>
+                <circle cx="66" cy="108" r="13" fill="#fffdf8" stroke="#999" stroke-width="1.4" opacity="0.38"/><text x="66" y="112.5" text-anchor="middle" font-size="13" fill="#272727" opacity="0.38">4</text>
+                <text x="0" y="162" font-size="10.5" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">output:</text>
+                <circle cx="36" cy="158" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="36" y="162.5" text-anchor="middle" font-size="13" fill="#272727">1</text>
+                <path d="M 51 158 L 60 158" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)"/>
+                <circle cx="72" cy="158" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="72" y="162.5" text-anchor="middle" font-size="13" fill="#272727">2</text>
+                <path d="M 87 158 L 96 158" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)"/>
+                <circle cx="108" cy="158" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="108" y="162.5" text-anchor="middle" font-size="13" fill="#272727">3</text>
+                <path d="M 123 158 L 132 158" stroke="#333" stroke-width="1.6" fill="none" marker-end="url(#mi-node)"/>
+                <circle cx="144" cy="158" r="13" fill="#fffdf8" stroke="#272727" stroke-width="1.6"/><text x="144" y="162.5" text-anchor="middle" font-size="13" fill="#272727">4</text>
+              </g>
+            </g>
+            <defs>
+              <marker id="mi-node" viewBox="0 0 8 8" markerWidth="7" markerHeight="7" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#333"/></marker>
+              <marker id="mi-arrow" viewBox="0 0 8 8" markerWidth="6.4" markerHeight="6.4" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker>
+            </defs>
+          </svg>
+        </figure>
+        <p class="small">问题在 k 条链表上：每一轮要在 k 个头里找最小，逐个比较是 <code>O(k)</code>，n 个节点总共 <code>O(nk)</code>。瓶颈是“反复取最小”——小顶堆恰好把“取最小”降到 <code>O(log k)</code>。</p>
+      </section>
+
+      <section class="section" aria-labelledby="combine-heap">
+        <h2 id="combine-heap">小顶堆做法 / Min-heap strategy</h2>
+        <div class="case-grid">
+          <article class="paper-card"><strong>① 压入 k 个头</strong><p>先用 <code>ListNode.__lt__</code> 让堆按 <code>val</code> 比大小，再把 <code>lists</code> 里每条非空链表的头 <code>heapq.heappush</code> 进堆。</p></article>
+          <article class="paper-card"><strong>② 弹出最小并接入</strong><p>哑节点 <code>dummy = ListNode(-1)</code> 做占位头，<code>curr</code> 从它开始。每轮 <code>heappop</code> 出最小节点，执行 <code>curr.next = smallest_node</code>，再 <code>curr = curr.next</code> 前移。</p></article>
+          <article class="paper-card"><strong>③ 后继补回堆</strong><p>被弹出节点的 <code>next</code> 是同一链表的下一个候选；若非空就压回堆。重复直到堆空，返回 <code>dummy.next</code>。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="combine-why">
+        <h2 id="combine-why">为什么正确 / Why it works</h2>
+        <p class="section-intro">核心不变量：堆中始终恰好保存每条未耗尽链表的一个候选头。每条链表自身升序，所以候选头就是该链表的最小剩余节点；所有链表的最小值中再取最小（堆顶），必是全局最小。把它接到输出尾部，输出链表保持升序；堆空时所有节点都已接入。</p>
+        <div class="example-grid">
+          <article class="paper-card"><strong>旧 next 不用手动断开</strong><p>节点接入输出时还带着原来的 <code>.next</code>（例如第一个 <code>1</code> 仍指着 <code>6</code>）。但 <code>curr</code> 前移后，下一轮 <code>curr.next = smallest_node</code> 会直接把这条旧链接改写成新节点，所以无需额外断链。</p></article>
+          <article class="paper-card"><strong>相等值任取其一</strong><p>两个 <code>1</code>、两个 <code>6</code> 相等时，堆先弹哪个都行：它们数值相同，接入顺序不同但结果链表完全一样。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="combine-edge">
+        <h2 id="combine-edge">边界与细节 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>输入含空链表</strong><p><code>if head:</code> 会跳过 <code>None</code>，空链表不参与压栈，堆只收集真实头节点。</p></article>
+          <article class="paper-card"><strong>所有链表为空</strong><p>堆一直为空，<code>while heap:</code> 直接结束，返回 <code>dummy.next</code> 即 <code>None</code>。</p></article>
+          <article class="paper-card"><strong>全局修改的提醒</strong><p><code>ListNode.__lt__ = ...</code> 修改的是全局的 <code>ListNode</code> 类，会影响程序里所有链表。面试时先确认这种全局改动可以接受；避免的方式是压入 <code>(val, node)</code> 二元组再取出节点。</p></article>
+          <article class="paper-card"><strong>k = 1 或单节点</strong><p>只有一条链表时堆大小恒为 1，算法退化为“逐个取出再接上”，依然正确。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="combine-complexity">
+        <h2 id="combine-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n log k)</strong><p>建堆时把 k 个头逐个插入，<code>O(k log k)</code>；之后 n 个节点每个各经历一次 push 和一次 pop，各 <code>O(log k)</code>。合计 <code>O(k log k) + n·O(log k) = O(n log k)</code>。</p></article>
+          <article class="paper-card"><strong>Extra space · O(k)</strong><p>堆在任何时刻至多保存每条链表的一个候选头，最多 <code>k</code> 个节点；输出链表复用原节点，不额外分配。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../k-most-frequent-strings/">前 K 个高频字符串</a><a href="../median-of-an-integer-stream/">整数流的中位数</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('combine-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mHeap = root.querySelector('[data-m-heap]');
+        const mOut = root.querySelector('[data-m-out]');
+        const mSmallest = root.querySelector('[data-m-smallest]');
+        const mCurr = root.querySelector('[data-m-curr]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+        const explanationZhEl = root.querySelector('[data-explanation-zh]');
+
+        const VAL = { a1: 1, a6: 6, b1: 1, b4: 4, b6: 6, c3: 3, c7: 7 };
+        const ORDER = ['a1', 'a6', 'b1', 'b4', 'b6', 'c3', 'c7'];
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const SANS = 'Arial, Helvetica, sans-serif';
+
+        const st = (rows, popped, output, hasDummy, curr) => ({ rows, popped, output, hasDummy, curr });
+
+        const fr = (stepLabel, sourceKeys, line, en, zh, invariant, state) =>
+          ({ stepLabel, sourceKeys, line, en, zh, invariant, state });
+
+        const FRAMES = [
+          fr('初始：3 条有序链表', ['func'], 'def combine_sorted_linked_lists(lists)  # lists = [1→6, 1→4→6, 3→7]',
+            'k = 3 sorted lists hold 7 nodes in total; they must become one sorted list.',
+            '给定 k = 3 条升序链表：lists[0] = 1→6、lists[1] = 1→4→6、lists[2] = 3→7，共 7 个节点，要合成一条升序链表。',
+            '每条链表内部升序，目标是全局升序。',
+            st([{ front: null, rest: ['a1', 'a6'] }, { front: null, rest: ['b1', 'b4', 'b6'] }, { front: null, rest: ['c3', 'c7'] }], null, [], false, -1)),
+          fr('定义比较器，建空堆', ['comparator', 'heap-init'], 'ListNode.__lt__ = lambda self, other: self.val < other.val; heap = []',
+            'A custom __lt__ lets heapq order nodes by val; the heap starts as an empty list.',
+            '小顶堆需要知道节点谁小：给 ListNode 定义 __lt__ 按 val 比较，heap 从空列表开始。注意这会全局修改 ListNode 类，面试时先确认可以接受。',
+            '堆中每条链表至多保留一个候选头。',
+            st([{ front: null, rest: ['a1', 'a6'] }, { front: null, rest: ['b1', 'b4', 'b6'] }, { front: null, rest: ['c3', 'c7'] }], null, [], false, -1)),
+          fr('压入 lists[0] 的头 1', ['for-heads', 'if-head', 'push-head'], 'heapq.heappush(heap, head)  # head = 1（lists[0]）',
+            'Iteration 1 pushes the head of lists[0]; each heap row shows one candidate front plus the rest of its list.',
+            'for 循环第 1 轮：head 指向 lists[0] 的头 1，非空，压入堆。图中每行是一个堆元素：圆圈内是该链表的候选头，右侧是它后面的节点。',
+            '堆中每条链表至多保留一个候选头。',
+            st([{ front: 'a1', rest: ['a6'] }, { front: null, rest: ['b1', 'b4', 'b6'] }, { front: null, rest: ['c3', 'c7'] }], null, [], false, -1)),
+          fr('压入 lists[1] 的头 1', ['for-heads', 'if-head', 'push-head'], 'heapq.heappush(heap, head)  # head = 1（lists[1]）',
+            'Iteration 2 pushes the head of lists[1]; the two 1s are tied, so either can pop first.',
+            '第 2 轮：lists[1] 的头 1 入堆。两个 1 相等，min 指向上方那个——先弹哪个都不影响结果。',
+            '堆中每条链表至多保留一个候选头。',
+            st([{ front: 'a1', rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: null, rest: ['c3', 'c7'] }], null, [], false, -1)),
+          fr('压入 lists[2] 的头 3', ['for-heads', 'if-head', 'push-head'], 'heapq.heappush(heap, head)  # head = 3（lists[2]）',
+            'Iteration 3 pushes the head of lists[2]; the smallest candidate (1) is now the global smallest node.',
+            '第 3 轮：lists[2] 的头 3 入堆。现在堆里有三条链表的候选头，其中最小的候选（1）就是当前全局最小节点。',
+            '链表已排序 ⇒ 候选头就是该链表的最小剩余节点；全局最小必在堆顶。',
+            st([{ front: 'a1', rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, [], false, -1)),
+          fr('建哑节点 D', ['dummy'], 'dummy = ListNode(-1)',
+            'The dummy node D is a placeholder head, so appends can start uniformly from curr = D.',
+            '哑节点 D（虚线圆）不存放数据，只做输出链表的占位头：有了它，curr 从 D 开始拼接，不用单独处理“第一个节点”这种特殊情况。',
+            'D.next 最终将指向合并结果的头节点。',
+            st([{ front: 'a1', rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, [], true, -1)),
+          fr('curr 指向 D', ['curr-init'], 'curr = dummy',
+            'curr marks the tail of the output list; every new node is attached right after it.',
+            'curr 表示输出链表的尾部，新节点总是接到 curr 之后。现在 curr = D，输出链表还是空的。',
+            'curr 始终指向输出链表的最后一个节点。',
+            st([{ front: 'a1', rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, [], true, -1)),
+          fr('弹出堆顶最小 1', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 1（lists[0] 的候选头）',
+            'The heap is non-empty; pop its smallest candidate (1, front of lists[0]). Remaining candidates: 1 and 3.',
+            'while heap 成立，进入循环。堆顶最小的候选是 1（lists[0] 的头），弹出它——图中该行候选被划掉。堆里剩下的候选是 1、3。',
+            '全局最小必在堆顶：每条链表的头就是它的最小剩余节点，再取候选中的最小。',
+            st([{ front: null, rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], 'a1', [], true, -1)),
+          fr('curr.next = 1', ['link'], 'curr.next = smallest_node  # D.next = 1',
+            'Attach the popped 1 after curr (D); the output list gets its first real node. Its stale next still points at 6 and will be rewritten later.',
+            '把弹出的 1 接到 curr（D）后面，输出链表有了第一个真实节点。注意 1 的旧 next 还指着 6，这条旧链接之后会被改写。',
+            '输出链表保持升序：新接入的总是当前最小节点。',
+            st([{ front: null, rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1'], true, -1)),
+          fr('curr 前移到 1', ['advance'], 'curr = curr.next',
+            'curr advances to the node just attached; only the variable moves, no node moves.',
+            'curr 前移到刚接入的 1；下一轮新节点就接在它后面。这一步只有变量在动，节点本身没有移动。',
+            'curr 始终指向输出链表的最后一个节点。',
+            st([{ front: null, rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1'], true, 0)),
+          fr('压入后继 6', ['if-next', 'push-next'], 'heapq.heappush(heap, smallest_node.next)  # 压入 6',
+            'The popped 1 has a successor 6; push it as the new candidate front of lists[0]. Candidates are 6, 1, 3 again.',
+            '刚弹出的 1 还有后继 6：把它压入堆，成为 lists[0] 新的候选头。候选又变回 6、1、3 三个。',
+            '候选一弹出，它的后继立刻补上，堆仍覆盖每条未耗尽的链表。',
+            st([{ front: 'a6', rest: [] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1'], true, 0)),
+          fr('弹出堆顶最小 1', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 1（lists[1] 的候选头）',
+            'Pop the smallest candidate (1, front of lists[1]). Remaining candidates: 6 and 3.',
+            '堆顶最小的候选是 1（lists[1] 的头），弹出。堆里剩下的候选是 6、3。',
+            '全局最小必在堆顶。',
+            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], 'b1', ['a1'], true, 0)),
+          fr('curr.next = 1', ['link'], 'curr.next = smallest_node  # 第二个 1 接到第一个 1 后',
+            'Attach the second 1 after the first one; the stale 1.next = 6 is overwritten, so no manual unlinking is needed.',
+            '接到 curr（第一个 1）后面。这一步改写了 1.next：原来指向 6 的旧链接被覆盖，输出变成 1→1，不需要手动断开原链表。',
+            '输出链表保持升序。',
+            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1', 'b1'], true, 0)),
+          fr('curr 前移到第二个 1', ['advance'], 'curr = curr.next',
+            'curr advances to the second 1.',
+            'curr 前移到第二个 1，继续等下一个最小节点。',
+            'curr 始终指向输出链表的最后一个节点。',
+            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1', 'b1'], true, 1)),
+          fr('压入后继 4', ['if-next', 'push-next'], 'heapq.heappush(heap, smallest_node.next)  # 压入 4',
+            'Push 4, the successor of the second 1, as the new candidate of lists[1]. Candidates: 6, 4, 3.',
+            '第二个 1 的后继 4 入堆，成为 lists[1] 的新候选头。候选：6、4、3。',
+            '候选一弹出，它的后继立刻补上。',
+            st([{ front: 'a6', rest: [] }, { front: 'b4', rest: ['b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1', 'b1'], true, 1)),
+          fr('弹出堆顶最小 3', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 3（lists[2] 的候选头）',
+            'Pop 3, the candidate front of lists[2]. Remaining candidates: 6 and 4.',
+            '堆顶最小的候选是 3（lists[2] 的头），弹出。剩下的候选是 6、4。',
+            '全局最小必在堆顶。',
+            st([{ front: 'a6', rest: [] }, { front: 'b4', rest: ['b6'] }, { front: null, rest: ['c7'] }], 'c3', ['a1', 'b1'], true, 1)),
+          fr('curr.next = 3', ['link'], 'curr.next = smallest_node  # 输出 1→1→3',
+            'Attach 3 after curr; the output is now 1→1→3.',
+            '把 3 接到 curr（第二个 1）后面，输出变成 1→1→3。',
+            '输出链表保持升序。',
+            st([{ front: 'a6', rest: [] }, { front: 'b4', rest: ['b6'] }, { front: null, rest: ['c7'] }], null, ['a1', 'b1', 'c3'], true, 1)),
+          fr('curr 前移到 3', ['advance'], 'curr = curr.next',
+            'curr advances to 3.',
+            'curr 前移到 3。',
+            'curr 始终指向输出链表的最后一个节点。',
+            st([{ front: 'a6', rest: [] }, { front: 'b4', rest: ['b6'] }, { front: null, rest: ['c7'] }], null, ['a1', 'b1', 'c3'], true, 2)),
+          fr('压入后继 7', ['if-next', 'push-next'], 'heapq.heappush(heap, smallest_node.next)  # 压入 7',
+            'Push 7, the successor of 3, as the new candidate of lists[2]. Candidates: 6, 4, 7.',
+            '3 的后继 7 入堆，成为 lists[2] 的新候选头。候选：6、4、7。',
+            '候选一弹出，它的后继立刻补上。',
+            st([{ front: 'a6', rest: [] }, { front: 'b4', rest: ['b6'] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3'], true, 2)),
+          fr('弹出堆顶最小 4', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 4（lists[1] 的候选头）',
+            'Pop 4, the candidate front of lists[1]. Remaining candidates: 6 and 7.',
+            '堆顶最小的候选是 4（lists[1] 的头），弹出。剩下的候选是 6、7——两个 6 马上就要碰头了。',
+            '全局最小必在堆顶。',
+            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b6'] }, { front: 'c7', rest: [] }], 'b4', ['a1', 'b1', 'c3'], true, 2)),
+          fr('curr.next = 4', ['link'], 'curr.next = smallest_node  # 输出 1→1→3→4',
+            'Attach 4 after curr; the output is now 1→1→3→4.',
+            '把 4 接到 curr（3）后面，输出变成 1→1→3→4。',
+            '输出链表保持升序。',
+            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b6'] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4'], true, 2)),
+          fr('curr 前移到 4', ['advance'], 'curr = curr.next',
+            'curr advances to 4.',
+            'curr 前移到 4。',
+            'curr 始终指向输出链表的最后一个节点。',
+            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b6'] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4'], true, 3)),
+          fr('压入后继 6', ['if-next', 'push-next'], 'heapq.heappush(heap, smallest_node.next)  # 压入 6（lists[1]）',
+            'Push 6, the successor of 4, as the new candidate of lists[1]. Candidates: 6, 6, 7 — either 6 can pop first.',
+            '4 的后继 6 入堆。候选：6、6、7——两个 6 相等，任取先弹结果都一样。',
+            '候选一弹出，它的后继立刻补上。',
+            st([{ front: 'a6', rest: [] }, { front: 'b6', rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4'], true, 3)),
+          fr('弹出堆顶最小 6', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 6（lists[0] 的候选头）',
+            'Pop 6, the last node of lists[0]. Remaining candidates: 6 and 7.',
+            '堆顶最小的候选是 6（lists[0] 的头，也是它最后一个节点），弹出。剩下的候选是 6、7。',
+            '全局最小必在堆顶。',
+            st([{ front: null, rest: [] }, { front: 'b6', rest: [] }, { front: 'c7', rest: [] }], 'a6', ['a1', 'b1', 'c3', 'b4'], true, 3)),
+          fr('curr.next = 6', ['link'], 'curr.next = smallest_node  # 输出 1→1→3→4→6',
+            'Attach 6 after curr; the output is now 1→1→3→4→6.',
+            '把 6 接到 curr（4）后面，输出变成 1→1→3→4→6。',
+            '输出链表保持升序。',
+            st([{ front: null, rest: [] }, { front: 'b6', rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6'], true, 3)),
+          fr('curr 前移到 6', ['advance'], 'curr = curr.next',
+            'curr advances to 6.',
+            'curr 前移到 6。',
+            'curr 始终指向输出链表的最后一个节点。',
+            st([{ front: null, rest: [] }, { front: 'b6', rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6'], true, 4)),
+          fr('next 为 None，不压入', ['if-next'], 'if smallest_node.next:  # None，跳过 push',
+            'The popped 6 has no successor; lists[0] is exhausted and its row leaves the heap.',
+            '刚弹出的 6 的 next 是 None：lists[0] 已耗尽，从图中移除，不再压入。候选只剩 6、7。',
+            '堆仍覆盖每条未耗尽的链表；耗尽的链表直接消失。',
+            st([{ front: 'b6', rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6'], true, 4)),
+          fr('弹出堆顶最小 6', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 6（lists[1] 的候选头）',
+            'Pop 6, the last node of lists[1]. The only remaining candidate is 7.',
+            '弹出 lists[1] 的最后节点 6。堆里只剩一个候选：7。',
+            '全局最小必在堆顶。',
+            st([{ front: null, rest: [] }, { front: 'c7', rest: [] }], 'b6', ['a1', 'b1', 'c3', 'b4', 'a6'], true, 4)),
+          fr('curr.next = 6', ['link'], 'curr.next = smallest_node  # 输出 1→1→3→4→6→6',
+            'Attach the second 6; the output is now 1→1→3→4→6→6.',
+            '把第二个 6 接到 curr 后面，输出变成 1→1→3→4→6→6。',
+            '输出链表保持升序。',
+            st([{ front: null, rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6'], true, 4)),
+          fr('curr 前移到 6', ['advance'], 'curr = curr.next',
+            'curr advances to the second 6.',
+            'curr 前移到第二个 6。',
+            'curr 始终指向输出链表的最后一个节点。',
+            st([{ front: null, rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6'], true, 5)),
+          fr('next 为 None，不压入', ['if-next'], 'if smallest_node.next:  # None，跳过 push',
+            'The popped 6 has no successor; lists[1] is exhausted, only the 7 of lists[2] remains.',
+            '6 的 next 是 None，lists[1] 耗尽移除。只剩 lists[2] 的候选 7。',
+            '堆仍覆盖每条未耗尽的链表。',
+            st([{ front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6'], true, 5)),
+          fr('弹出堆顶最小 7', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 7（lists[2] 的候选头）',
+            'Pop 7, the last candidate; the heap is now empty.',
+            '弹出 7（lists[2] 的头）。堆空了——所有节点都已经接进输出链表。',
+            '全局最小必在堆顶。',
+            st([{ front: null, rest: [] }], 'c7', ['a1', 'b1', 'c3', 'b4', 'a6', 'b6'], true, 5)),
+          fr('curr.next = 7', ['link'], 'curr.next = smallest_node  # 输出 1→1→3→4→6→6→7',
+            'Attach 7; the output is the full sorted list 1→1→3→4→6→6→7.',
+            '把 7 接到 curr 后面，输出完成：1→1→3→4→6→6→7。',
+            '输出链表保持升序。',
+            st([{ front: null, rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6', 'c7'], true, 5)),
+          fr('curr 前移到 7', ['advance'], 'curr = curr.next',
+            'curr advances to 7, the tail.',
+            'curr 前移到 7，即输出链表的尾节点。',
+            'curr 始终指向输出链表的最后一个节点。',
+            st([{ front: null, rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6', 'c7'], true, 6)),
+          fr('next 为 None，不压入', ['if-next'], 'if smallest_node.next:  # None，跳过 push',
+            '7 has no successor; lists[2] is exhausted and the heap is completely empty.',
+            '7 的 next 是 None，lists[2] 也耗尽了，堆彻底变空。',
+            '堆空 ⇒ 所有节点都已接入输出链表。',
+            st([], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6', 'c7'], true, 6)),
+          fr('堆空，循环结束', ['loop'], 'while heap:  # 空，退出循环',
+            'while heap is false; the loop ends with every node attached in sorted order.',
+            'while heap 不成立，循环结束。此时全部 7 个节点已按升序接入输出链表。',
+            '堆空 ⇒ 所有节点都已接入输出链表。',
+            st([], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6', 'c7'], true, 6)),
+          fr('返回 dummy.next', ['return'], 'return dummy.next  # 1→1→3→4→6→6→7',
+            'Skip the placeholder D and return dummy.next — the head of the combined sorted list.',
+            '跳过哑节点 D，返回 dummy.next：合并后的升序链表 1→1→3→4→6→6→7。',
+            'dummy.next 就是合并结果的头节点。',
+            st([], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6', 'c7'], true, 6, true))
+        ];
+        FRAMES[FRAMES.length - 1].state.done = true;
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('cb-node-arrow', { fill: '#333' });
+        scene.defineMarker('cb-label-arrow', { markerWidth: 6.4, markerHeight: 6.4, refX: 5.6, refY: 3.2, fill: '#555' });
+
+        const motion = core.createMotionController();
+        let geom = {};
+        let transitionFrom = null;
+
+        function minRowOf(s) {
+          let best = null;
+          s.rows.forEach((row, i) => {
+            if (!row.front || row.front === s.popped) return;
+            if (best === null || VAL[row.front] < VAL[s.rows[best].front]) best = i;
+          });
+          return best;
+        }
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const compact = width < 560;
+          const nodeR = compact ? 13 : 16;
+          const cellW = compact ? 46 : 56;
+          const cellH = compact ? 38 : 44;
+          const cellX = compact ? 42 : 68;
+          const heapTop = 30;
+          const rowGap = compact ? 10 : 14;
+          const rowPitch = cellH + rowGap;
+          const chainGap = compact ? 24 : 30;
+          let chainDx = compact ? 46 : 56;
+          chainDx = Math.min(chainDx, (width - 14) / 8);
+          const rowsBottom = heapTop + 3 * rowPitch - rowGap;
+          const outLabelY = rowsBottom + (compact ? 28 : 32);
+          const chipY = outLabelY + (compact ? 20 : 24);
+          const outCy = chipY + (compact ? 40 : 46);
+          const dX = compact
+            ? Math.max(10, (width - 8 * chainDx) / 2)
+            : 92;
+          const stageH = outCy + nodeR + (compact ? 22 : 26);
+          geom = { width, compact, nodeR, cellW, cellH, cellX, heapTop, rowPitch, chainGap, chainDx, rowsBottom, outLabelY, chipY, outCy, dX, stageH };
+          svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
+          stage.style.height = `${Math.ceil(stageH)}px`;
+        }
+
+        const rowCY = i => geom.heapTop + i * geom.rowPitch + geom.cellH / 2;
+        const cellCenterX = () => geom.cellX + geom.cellW / 2;
+        const chainX = (i, k) => geom.cellX + geom.cellW + geom.chainGap + geom.nodeR + k * geom.chainDx;
+        const outX = i => geom.dX + (i + 1) * geom.chainDx;
+
+        const locate = (s, id) => {
+          if (!s) return null;
+          for (let i = 0; i < s.rows.length; i += 1) {
+            const row = s.rows[i];
+            if (row.front === id) return { area: 'front', row: i };
+            const k = row.rest.indexOf(id);
+            if (k !== -1) return { area: 'rest', row: i, idx: k };
+          }
+          const o = s.output.indexOf(id);
+          if (o !== -1) return { area: 'output', idx: o };
+          if (s.popped === id) {
+            for (let i = 0; i < s.rows.length; i += 1) {
+              if (s.rows[i].front === null) return { area: 'front', row: i };
+            }
+          }
+          return null;
+        };
+        const posOf = loc => {
+          if (!loc) return null;
+          if (loc.area === 'front') return { x: cellCenterX(), y: rowCY(loc.row) };
+          if (loc.area === 'rest') return { x: chainX(loc.row, loc.idx), y: rowCY(loc.row) };
+          return { x: outX(loc.idx), y: geom.outCy };
+        };
+
+        function arrowPath(from, to) {
+          const dx = to.x - from.x, dy = to.y - from.y;
+          const len = Math.hypot(dx, dy) || 1;
+          const ux = dx / len, uy = dy / len;
+          return `M ${from.x + ux * (geom.nodeR + 3)} ${from.y + uy * (geom.nodeR + 3)} L ${to.x - ux * (geom.nodeR + 6)} ${to.y - uy * (geom.nodeR + 6)}`;
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom.width || !state) return;
+          const lerp = (a, b) => a + (b - a) * t;
+          const presence = (was, is) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
+          const minRow = minRowOf(state);
+          const fromMin = from ? minRowOf(from) : minRow;
+
+          scene.update(({ path, text, circle }) => {
+            const chip = (id, x, y, label) => {
+              const w = label.length * 6.2 + 12;
+              path(`${id}-box`, { d: rectPath(x - w / 2, y, w, 15, 2), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.1 });
+              text(`${id}-label`, { x, y: y + 11, 'text-anchor': 'middle', 'font-size': 10, fill: '#272727', 'font-family': MONO }, label);
+            };
+            text('heap-title', { x: cellCenterX(), y: geom.heapTop - 9, 'text-anchor': 'middle', 'font-size': geom.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, 'heap');
+
+            const wasEmpty = Boolean(from && from.hasDummy && from.rows.length === 0);
+            const isEmpty = state.hasDummy && state.rows.length === 0;
+            const eOp = presence(wasEmpty, isEmpty);
+            if (eOp > 0) {
+              path('heap-empty-cell', { d: rectPath(geom.cellX, rowCY(0) - geom.cellH / 2, geom.cellW, geom.cellH, 5), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', opacity: eOp });
+              text('heap-empty-text', { x: cellCenterX(), y: rowCY(0) + 3.5, 'text-anchor': 'middle', 'font-size': 10.5, fill: '#777', 'font-family': MONO, opacity: eOp }, '空');
+            }
+
+            state.rows.forEach((row, i) => {
+              const cellOp = presence(from ? from.rows[i] !== undefined : true, true);
+              if (!cellOp) return;
+              const cy = rowCY(i);
+              path(`cell-${i}`, {
+                d: rectPath(geom.cellX, cy - geom.cellH / 2, geom.cellW, geom.cellH, 5),
+                fill: 'none', stroke: '#999', 'stroke-width': 1.2,
+                ...(row.front ? {} : { 'stroke-dasharray': '4 3' }),
+                opacity: cellOp
+              });
+              if (row.front && row.rest.length) {
+                const was = Boolean(from && from.rows[i] && from.rows[i].front === row.front && from.rows[i].rest[0] === row.rest[0]);
+                const op = presence(was, true);
+                if (op > 0) path(`arr-f-${i}`, { d: arrowPath({ x: cellCenterX(), y: cy }, { x: chainX(i, 0), y: cy }), fill: 'none', stroke: '#333', 'stroke-width': 1.7, 'marker-end': 'url(#cb-node-arrow)', opacity: op });
+              }
+              row.rest.forEach((id, k) => {
+                if (k > 0) {
+                  const was = Boolean(from && locate(from, id) && locate(from, row.rest[k - 1]) && locate(from, id).area === 'rest' && locate(from, row.rest[k - 1]).area === 'rest' && locate(from, id).row === i && locate(from, row.rest[k - 1]).row === i);
+                  const op = presence(was, true);
+                  if (op > 0) path(`arr-r-${i}-${k}`, { d: arrowPath({ x: chainX(i, k - 1), y: cy }, { x: chainX(i, k), y: cy }), fill: 'none', stroke: '#333', 'stroke-width': 1.7, 'marker-end': 'url(#cb-node-arrow)', opacity: op });
+                }
+              });
+            });
+
+            for (const id of ORDER) {
+              const locTo = locate(state, id);
+              const locFrom = locate(from, id);
+              const op = presence(Boolean(locFrom), Boolean(locTo));
+              if (!op || !locTo) continue;
+              const to = posOf(locTo);
+              const fromPos = locFrom ? posOf(locFrom) : to;
+              const x = lerp(fromPos.x, to.x);
+              const y = lerp(fromPos.y, to.y);
+              circle(`node-${id}`, { cx: x, cy: y, r: geom.nodeR, fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.8, opacity: op });
+              text(`value-${id}`, { x, y: y + (geom.compact ? 4.2 : 5), 'text-anchor': 'middle', 'font-size': geom.compact ? 12.5 : 15, fill: '#272727', 'font-family': SANS, opacity: op }, String(VAL[id]));
+              if (state.popped === id) {
+                const cOp = presence(Boolean(from && from.popped === id), true);
+                const r = geom.nodeR - 3;
+                path(`cross-${id}-a`, { d: `M ${x - r} ${y - r} L ${x + r} ${y + r}`, stroke: '#555', 'stroke-width': 1.6, opacity: cOp * op });
+                path(`cross-${id}-b`, { d: `M ${x - r} ${y + r} L ${x + r} ${y - r}`, stroke: '#555', 'stroke-width': 1.6, opacity: cOp * op });
+              }
+            }
+
+            let traveling = state.popped;
+            if (!traveling && from && from.popped && state.output.includes(from.popped)) traveling = from.popped;
+            if (traveling) {
+              const loc = locate(state, traveling);
+              if (loc) {
+                const p = posOf(loc);
+                text('smallest-tag', { x: p.x, y: p.y + geom.nodeR + 13, 'text-anchor': 'middle', 'font-size': 9.5, fill: '#555', 'font-family': MONO }, 'smallest_node');
+              }
+            }
+
+            const dOp = presence(Boolean(from && from.hasDummy), state.hasDummy);
+            if (dOp > 0) {
+              circle('dummy-node', { cx: geom.dX, cy: geom.outCy, r: geom.nodeR, fill: '#fffdf8', stroke: '#777', 'stroke-width': 1.5, 'stroke-dasharray': '5 3', opacity: dOp });
+              text('dummy-value', { x: geom.dX, y: geom.outCy + (geom.compact ? 4 : 5), 'text-anchor': 'middle', 'font-size': geom.compact ? 12 : 14, fill: '#555', 'font-family': SANS, opacity: dOp }, 'D');
+            }
+            if (state.hasDummy) {
+              text('out-label', { x: geom.compact ? geom.width / 2 : 6, y: geom.compact ? geom.outLabelY : geom.outCy + 4, 'text-anchor': geom.compact ? 'middle' : 'start', 'font-size': geom.compact ? 10 : 11.5, fill: '#555', 'font-family': MONO }, 'output:');
+            }
+
+            state.output.forEach((id, k) => {
+              if (k > 0) {
+                const was = Boolean(from && from.output.includes(id) && from.output.includes(state.output[k - 1]));
+                const op = presence(was, true);
+                if (op > 0) path(`arr-o-${k}`, { d: arrowPath({ x: outX(k - 1), y: geom.outCy }, { x: outX(k), y: geom.outCy }), fill: 'none', stroke: '#333', 'stroke-width': 1.7, 'marker-end': 'url(#cb-node-arrow)', opacity: op });
+              }
+            });
+            const firstOp = presence(Boolean(from && from.output.length), state.output.length > 0);
+            if (firstOp > 0) path('arr-o-first', { d: arrowPath({ x: geom.dX, y: geom.outCy }, { x: outX(0), y: geom.outCy }), fill: 'none', stroke: '#333', 'stroke-width': 1.7, 'marker-end': 'url(#cb-node-arrow)', opacity: firstOp });
+
+            if (state.hasDummy) {
+              const dummyW = 5 * 6.2 + 12;
+              const currW = 4 * 6.2 + 12;
+              const dummyX = Math.max(dummyW / 2 + 3, geom.dX - 30);
+              chip('dummy-chip', dummyX, geom.chipY, 'dummy');
+              path('dummy-chip-arrow', { d: `M ${dummyX} ${geom.chipY + 15} L ${geom.dX} ${geom.outCy - geom.nodeR - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#cb-label-arrow)' });
+
+              const chipXFor = s => {
+                if (s.curr === -1) return dummyX + dummyW / 2 + currW / 2 + 8;
+                return outX(s.curr);
+              };
+              const targetX = state.curr === -1 ? geom.dX : outX(state.curr);
+              const fromChipX = from && from.hasDummy ? chipXFor(from) : chipXFor(state);
+              const cx = Math.max(currW / 2 + 3, Math.min(geom.width - currW / 2 - 3, lerp(fromChipX, chipXFor(state))));
+              chip('curr-chip', cx, geom.chipY, 'curr');
+              path('curr-chip-arrow', { d: `M ${cx} ${geom.chipY + 15} L ${targetX} ${geom.outCy - geom.nodeR - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#cb-label-arrow)' });
+            }
+
+            const minOp = presence(fromMin !== null && Boolean(from), minRow !== null);
+            if (minOp > 0 && minRow !== null) {
+              const fromY = fromMin !== null ? rowCY(fromMin) : rowCY(minRow);
+              const y = lerp(fromY, rowCY(minRow));
+              path('min-chip-box', { d: rectPath(2, y - 9, 32, 18, 3), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.1, opacity: minOp });
+              text('min-chip-label', { x: 18, y: y + 3.5, 'text-anchor': 'middle', 'font-size': 10, fill: '#272727', 'font-family': MONO, opacity: minOp }, 'min');
+              path('min-chip-arrow', { d: `M 36 ${y} L ${geom.cellX - 5} ${y}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#cb-label-arrow)', opacity: minOp });
+            }
+
+            if (state.done) {
+              circle('return-ring', { cx: outX(0), cy: geom.outCy, r: geom.nodeR + 5.5, fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
+              text('return-tag', { x: outX(0), y: geom.outCy + geom.nodeR + 14, 'text-anchor': 'middle', 'font-size': 9.5, fill: '#555', 'font-family': MONO }, 'dummy.next');
+            }
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.stepLabel;
+          invariantEl.textContent = frame.invariant;
+          const heapSize = state.rows.filter(row => row.front).length;
+          mHeap.textContent = String(heapSize);
+          mOut.textContent = `${state.output.length} / 7`;
+          mSmallest.textContent = state.popped ? `节点 ${VAL[state.popped]}` : '—';
+          mCurr.textContent = state.curr === -1 ? 'D' : `节点 ${VAL[state.output[state.curr]]}`;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.en;
+          explanationZhEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `合并 K 个有序链表演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({
+          ...s,
+          popped: s.popped,
+          output: [...s.output],
+          rows: s.rows.map(row => ({ front: row.front, rest: [...row.rest] }))
+        });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 380,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>
