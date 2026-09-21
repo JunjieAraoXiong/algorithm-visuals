@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of evaluating an arithmetic expression with +, -, and parentheses using a stack. 表达式求值：用栈保存外层状态，逐字符求值。" />
+    <title>Evaluate Expression · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .flat-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .trace-stat { display: block; margin: 6px 0 4px; font: 15px/1.4 monospace; }
+      .reason-list { margin: 8px 0 0; padding-left: 24px; color: var(--quiet); font-size: 13px; line-height: 1.55; }
+      .reason-list li { margin: 6px 0; }
+      .reason-list code { color: var(--ink); }
+      .solve { margin-top: 12px; display: grid; gap: 9px; }
+      .solve-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px; font: 16px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .solve-row .s-tok { padding: 0 2px; }
+      .solve-row .s-group { border-bottom: 2px solid var(--ink); padding: 0 3px 1px; }
+      .solve-row .s-eq { color: var(--quiet); }
+      .solve-note { margin-left: 10px; color: var(--quiet); font-size: 11px; font-family: Arial, Helvetica, sans-serif; }
+      .solve-arrow { color: var(--quiet); font-size: 13px; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .flat-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="expr-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Evaluate Expression · 表达式求值</h1></div></header>
+      <p class="problem">Given a string <code>s</code> representing a mathematical expression containing integers, parentheses, and <code>'+'</code> / <code>'-'</code> operators, evaluate and return the result. For example, <code>s = "18-(7+(2-4))"</code> returns <code>13</code>.<span lang="zh-CN">给定一个只包含非负整数、加减运算符和括号的字符串表达式，求它的值。表达式里没有乘除，也没有空格。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="表达式求值逐步演示 / evaluate expression trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span><span data-char></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="表达式求值演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>curr_num</code></dt><dd data-m-curr></dd></div>
+              <div><dt><code>sign</code></dt><dd data-m-sign></dd></div>
+              <div><dt><code>res</code></dt><dd data-m-res></dd></div>
+              <div><dt><code>stack</code>（右端栈顶）</dt><dd data-m-stack></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="expr-code-title">
+          <h2 id="expr-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def evaluate_expression(s: str) -&gt; int:</span><span class="code-line" data-source-key="init-stack">    stack = []</span><span class="code-line" data-source-key="init-vars">    curr_num, sign, res = 0, 1, 0</span><span class="code-line" data-source-key="loop">    for c in s:</span><span class="code-line" data-source-key="digit-if">        if c.isdigit():</span><span class="code-line" data-source-key="digit">            curr_num = curr_num * 10 + int(c)</span><span class="code-line">        # If the current character is an operator, add 'curr_num' to</span><span class="code-line">        # the result after multiplying it by its sign.</span><span class="code-line" data-source-key="op-elif">        elif c == '+' or c == '-':</span><span class="code-line" data-source-key="op-add">            res += curr_num * sign</span><span class="code-line">            # Update the sign and reset 'curr_num'.</span><span class="code-line" data-source-key="op-sign">            sign = -1 if c == '-' else 1</span><span class="code-line" data-source-key="op-reset">            curr_num = 0</span><span class="code-line">        # If the current character is an opening parenthesis, a new</span><span class="code-line">        # nested expression is starting.</span><span class="code-line" data-source-key="open-elif">        elif c == '(':</span><span class="code-line">            # Save the current 'res' and 'sign' values by pushing them</span><span class="code-line">            # onto the stack, then reset their values to start</span><span class="code-line">            # calculating the new nested expression.</span><span class="code-line" data-source-key="open-push-res">            stack.append(res)</span><span class="code-line" data-source-key="open-push-sign">            stack.append(sign)</span><span class="code-line" data-source-key="open-reset">            res, sign = 0, 1</span><span class="code-line">        # If the current character is a closing parenthesis, a nested</span><span class="code-line">        # expression has ended.</span><span class="code-line" data-source-key="close-elif">        elif c == ')':</span><span class="code-line">            # Finalize the result of the current nested expression.</span><span class="code-line" data-source-key="close-add">            res += sign * curr_num</span><span class="code-line">            # Apply the sign of the current nested expression's result</span><span class="code-line">            # before adding this result to the result of the outer</span><span class="code-line">            # expression.</span><span class="code-line" data-source-key="close-mul">            res *= stack.pop()</span><span class="code-line" data-source-key="close-add2">            res += stack.pop()</span><span class="code-line" data-source-key="close-reset">            curr_num = 0</span><span class="code-line"> </span><span class="code-line">    # Finalize the result of the overall expression.</span><span class="code-line" data-source-key="return">    return res + curr_num * sign</span></code></pre>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="expr-intuition">
+        <h2 id="expr-intuition">直觉：把减法变成加法 / Signs turn everything into addition</h2>
+        <p class="section-intro">表达式里只有非负整数、<code>'+'</code>、<code>'-'</code> 和括号。给每个数配上一个符号 <code>sign</code>（<code>'+'</code> 记为 <code>1</code>，<code>'-'</code> 记为 <code>-1</code>），那么 <code>curr_num * sign</code> 就把减法变成了加法——<code>res</code> 从头到尾只做累加。</p>
+        <p class="section-intro">多位数不能逐位直接算，用 <code>curr_num</code> 一位一位构建：<code>curr_num = curr_num * 10 + int(c)</code>，相当于把已有数字左移一位再补上新的数字位。遇到运算符或括号这种非数字字符，就说明当前数读完了。</p>
+        <div class="flat-grid">
+          <article class="paper-card"><strong>没有括号 · 28 - 10 + 7</strong><span class="trace-stat">res：0 → 28 → 18 → 25</span><p>遇到 <code>'-'</code> 时把已读完的 <code>28</code> 按符号 <code>+1</code> 加进 <code>res</code>，再把 <code>sign</code> 换成 <code>-1</code>、<code>curr_num</code> 归零；字符串结尾还要把最后的 <code>7</code> 加进去。</p></article>
+          <article class="paper-card"><strong>同一套规则处理每个字符</strong><span class="trace-stat">digit / op / '(' / ')' 四类分支</span><p>数字扩展 <code>curr_num</code>；运算符收尾当前数并更新 <code>sign</code>；<code>'('</code> 与 <code>')'</code> 借助栈保存和恢复外层状态。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="expr-parens">
+        <h2 id="expr-parens">括号与栈：先算内层 / Nested expressions</h2>
+        <p class="section-intro"><code>'('</code> 开始一段新的嵌套表达式。先把外层进度保存起来——<code>stack.append(res)</code> 再 <code>stack.append(sign)</code>，栈里从底到顶是「外层的 <code>res</code>，括号前的 <code>sign</code>」；然后 <code>res, sign = 0, 1</code>，用同一套规则计算括号内部。</p>
+        <p class="section-intro"><code>')'</code> 结束嵌套表达式：先 <code>res += sign * curr_num</code> 把括号内的最后一个数收尾，得到内层结果；<code>res *= stack.pop()</code> 弹出括号前的符号乘上去；<code>res += stack.pop()</code> 把外层累计值加回来。有几层括号就重复几次。</p>
+        <div class="solve" aria-label="嵌套表达式逐步坍缩示意">
+          <div class="solve-row"><span class="s-tok">1</span><span class="s-tok">8</span><span class="s-tok">-</span><span class="s-tok">(</span><span class="s-tok">7</span><span class="s-tok">+</span><span class="s-tok">(</span><span class="s-group">2 - 4</span><span class="s-tok">)</span><span class="s-tok">)</span><span class="solve-note">solve · 最内层 (2 - 4) = -2</span></div>
+          <div class="solve-row"><span class="solve-arrow" aria-hidden="true">↓</span><span class="s-tok">1</span><span class="s-tok">8</span><span class="s-tok">-</span><span class="s-tok">(</span><span class="s-group">7 - 2</span><span class="s-tok">)</span><span class="solve-note">solve · (7 - 2) = 5</span></div>
+          <div class="solve-row"><span class="solve-arrow" aria-hidden="true">↓</span><span class="s-group">18 - 5</span><span class="s-eq">= 13</span><span class="solve-note">solve · 整个表达式的值</span></div>
+        </div>
+        <p class="small">弹出顺序和压入顺序相反：后压入的 <code>sign</code> 先弹出，所以先乘符号、再加外层结果。栈先保存 <code>res</code> 再保存 <code>sign</code>，正好让 <code>sign</code> 位于栈顶。</p>
+      </section>
+
+      <section class="section" aria-labelledby="expr-edge">
+        <h2 id="expr-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>多位数</strong><p>读 <code>"123"</code> 时 <code>curr_num</code> 依次是 <code>1 → 12 → 123</code>；数字结束于下一个非数字字符，不需要提前知道位数。</p></article>
+          <article class="paper-card"><strong>内层结果为负</strong><p><code>(2 - 4) = -2</code>。负号由 <code>sign</code> 保存在 <code>res</code> 里，<code>')'</code> 时乘的是括号前的符号（本例为 <code>1</code>），负数无需特殊处理。</p></article>
+          <article class="paper-card"><strong>结尾没有运算符</strong><p>最后一个数之后可能直接是字符串结尾或 <code>')'</code>。结尾靠 <code>return res + curr_num * sign</code> 收尾；遇到 <code>')'</code> 则靠 <code>res += sign * curr_num</code> 收尾。</p></article>
+          <article class="paper-card"><strong>嵌套很深</strong><p>每遇到一层 <code>'('</code> 压入两个值，栈的深度与括号层数成正比，最坏 <code>O(n)</code>。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="expr-complexity">
+        <h2 id="expr-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n)</strong><p>每个字符只访问一次；栈的 <code>append</code> 和 <code>pop</code> 都是 <code>O(1)</code>。n 是表达式 <code>s</code> 的长度。</p></article>
+          <article class="paper-card"><strong>Extra space · O(n)</strong><p>每层嵌套括号在栈中保存 <code>res</code> 和 <code>sign</code> 两个值，最坏情况下栈随表达式长度线性增长。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../valid-parenthesis-expression/">有效的括号</a><a href="../next-largest-number-to-the-right/">右侧下一个更大数</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('expr-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const charEl = root.querySelector('[data-char]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mCurr = root.querySelector('[data-m-curr]');
+        const mSign = root.querySelector('[data-m-sign]');
+        const mRes = root.querySelector('[data-m-res]');
+        const mStack = root.querySelector('[data-m-stack]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const S = '18-(7+(2-4))';
+        const CHARS = [...S];
+        const N = CHARS.length;
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const SIGN_MARKS = [{ i: 2, v: -1 }, { i: 5, v: 1 }, { i: 8, v: -1 }];
+
+        const fr = (stepLabel, phase, charDesc, sourceKeys, line, explanation, invariant, state) =>
+          ({ stepLabel, phase, charDesc, sourceKeys, line, explanation, invariant, state: { pops: null, push: false, ...state } });
+
+        const FRAMES = [
+          fr('初始化：stack、curr_num、sign、res', '初始化', '准备遍历 s = "18-(7+(2-4))"', ['init-stack', 'init-vars'],
+            'stack = []；curr_num, sign, res = 0, 1, 0',
+            '开始前：栈为空；curr_num = 0 准备逐位读数，sign = 1 表示默认是加，res = 0 是累计结果。',
+            'sign 是“下一个数”的符号，res 是已处理部分的总和。',
+            { i: -1, stack: [], currNum: 0, sign: 1, res: 0, calc: ['stack = []', 'curr_num, sign, res', '= 0, 1, 0'] }),
+          fr("读数字 '1'：curr_num = 1", '数字', "i = 1 / 12 · c = '1'", ['digit-if', 'digit'],
+            'curr_num = curr_num * 10 + int(c)',
+            "c = '1' 是数字：curr_num = 10 * 0 + 1 = 1，开始构建当前数。",
+            '连续的数字属于同一个数，用 curr_num 逐位拼接。',
+            { i: 0, stack: [], currNum: 1, sign: 1, res: 0, calc: ['curr_num = 10 * 0 + 1', '= 1'] }),
+          fr("读数字 '8'：curr_num = 18", '数字', "i = 2 / 12 · c = '8'", ['digit-if', 'digit'],
+            'curr_num = curr_num * 10 + int(c)',
+            "c = '8'：curr_num = 10 * 1 + 8 = 18，多位数 18 拼好了。",
+            '连续的数字属于同一个数，用 curr_num 逐位拼接。',
+            { i: 1, stack: [], currNum: 18, sign: 1, res: 0, calc: ['curr_num = 10 * 1 + 8', '= 18'] }),
+          fr("遇到 '-'：res = 18，sign = -1", '运算符', "i = 3 / 12 · c = '-'", ['op-elif', 'op-add', 'op-sign', 'op-reset'],
+            "res += curr_num * sign；sign = -1 if c == '-' else 1；curr_num = 0",
+            "c = '-' 是运算符：先把已读完的 18 按符号 +1 收进 res，再把 sign 改为 -1，curr_num 归零。",
+            '遇到运算符就把刚读完的数收尾：先加进 res，再换符号。',
+            { i: 2, stack: [], currNum: 0, sign: -1, res: 18, calc: ['res += sign * curr_num', '+= 1 * 18 = 18', 'sign = -1', 'curr_num = 0'] }),
+          fr("遇到 '('：压入 18 和 -1", '左括号', "i = 4 / 12 · c = '('", ['open-elif', 'open-push-res', 'open-push-sign', 'open-reset'],
+            'stack.append(res)；stack.append(sign)；res, sign = 0, 1',
+            "c = '('：外层进度入栈（先 push res = 18，再 push sign = -1），res、sign 清零，开始算括号里的新表达式。",
+            "进入括号前，外层的 res 和括号前的 sign 全部入栈保存。",
+            { i: 3, stack: [18, -1], currNum: 0, sign: 1, res: 0, push: true, calc: ['stack.append(res) → 18', 'stack.append(sign) → -1', 'res, sign = 0, 1'] }),
+          fr("读数字 '7'：curr_num = 7", '数字', "i = 5 / 12 · c = '7'", ['digit-if', 'digit'],
+            'curr_num = curr_num * 10 + int(c)',
+            "c = '7'：curr_num = 10 * 0 + 7 = 7。",
+            '括号内部沿用同一套规则：数字拼进 curr_num。',
+            { i: 4, stack: [18, -1], currNum: 7, sign: 1, res: 0, calc: ['curr_num = 10 * 0 + 7', '= 7'] }),
+          fr("遇到 '+'：res = 7，sign = 1", '运算符', "i = 6 / 12 · c = '+'", ['op-elif', 'op-add', 'op-sign', 'op-reset'],
+            "res += curr_num * sign；sign = -1 if c == '-' else 1；curr_num = 0",
+            "c = '+'：res += 7 * 1 = 7；sign 保持 1；curr_num 归零。",
+            '遇到运算符就把刚读完的数收尾：先加进 res，再换符号。',
+            { i: 5, stack: [18, -1], currNum: 0, sign: 1, res: 7, calc: ['res += sign * curr_num', '+= 1 * 7 = 7', 'sign = 1', 'curr_num = 0'] }),
+          fr("遇到 '('：压入 7 和 1", '左括号', "i = 7 / 12 · c = '('", ['open-elif', 'open-push-res', 'open-push-sign', 'open-reset'],
+            'stack.append(res)；stack.append(sign)；res, sign = 0, 1',
+            "c = '('：再入栈 res = 7、sign = 1，开始算最内层的 (2 - 4)。",
+            "进入括号前，外层的 res 和括号前的 sign 全部入栈保存。",
+            { i: 6, stack: [18, -1, 7, 1], currNum: 0, sign: 1, res: 0, push: true, calc: ['stack.append(res) → 7', 'stack.append(sign) → 1', 'res, sign = 0, 1'] }),
+          fr("读数字 '2'：curr_num = 2", '数字', "i = 8 / 12 · c = '2'", ['digit-if', 'digit'],
+            'curr_num = curr_num * 10 + int(c)',
+            "c = '2'：curr_num = 10 * 0 + 2 = 2。",
+            '括号内部沿用同一套规则：数字拼进 curr_num。',
+            { i: 7, stack: [18, -1, 7, 1], currNum: 2, sign: 1, res: 0, calc: ['curr_num = 10 * 0 + 2', '= 2'] }),
+          fr("遇到 '-'：res = 2，sign = -1", '运算符', "i = 9 / 12 · c = '-'", ['op-elif', 'op-add', 'op-sign', 'op-reset'],
+            "res += curr_num * sign；sign = -1 if c == '-' else 1；curr_num = 0",
+            "c = '-'：res += 2 * 1 = 2；sign 改为 -1；curr_num 归零。",
+            '遇到运算符就把刚读完的数收尾：先加进 res，再换符号。',
+            { i: 8, stack: [18, -1, 7, 1], currNum: 0, sign: -1, res: 2, calc: ['res += sign * curr_num', '+= 1 * 2 = 2', 'sign = -1', 'curr_num = 0'] }),
+          fr("读数字 '4'：curr_num = 4", '数字', "i = 10 / 12 · c = '4'", ['digit-if', 'digit'],
+            'curr_num = curr_num * 10 + int(c)',
+            "c = '4'：curr_num = 10 * 0 + 4 = 4。内层表达式读完，等右括号来收尾。",
+            '连续的数字属于同一个数，用 curr_num 逐位拼接。',
+            { i: 9, stack: [18, -1, 7, 1], currNum: 4, sign: -1, res: 2, calc: ['curr_num = 10 * 0 + 4', '= 4'] }),
+          fr("遇到 ')'：弹出 1、7，res = 5", '右括号', "i = 11 / 12 · c = ')'", ['close-elif', 'close-add', 'close-mul', 'close-add2', 'close-reset'],
+            'res += sign * curr_num；res *= stack.pop()；res += stack.pop()；curr_num = 0',
+            "c = ')'：先 res += (-1) * 4 = -2 收尾内层；res *= 弹出 1（括号前的符号）得 -2；res += 弹出 7（外层累计）得 5；curr_num 归零，sign 保持 -1。",
+            "右括号：先收尾内层，再乘括号前的符号，最后加回外层的 res。",
+            { i: 10, stack: [18, -1], currNum: 0, sign: -1, res: 5, pops: [1, 7], calc: ['res += sign * curr_num', '+= -1 * 4 = -2', 'res *= stack.pop() → 1', 'res = -2 * 1 = -2', 'res += stack.pop() → 7', 'res = -2 + 7 = 5', 'curr_num = 0'] }),
+          fr("遇到 ')'：弹出 -1、18，res = 13", '右括号', "i = 12 / 12 · c = ')'", ['close-elif', 'close-add', 'close-mul', 'close-add2', 'close-reset'],
+            'res += sign * curr_num；res *= stack.pop()；res += stack.pop()；curr_num = 0',
+            "c = ')'：res += (-1) * 0 = 5；res *= 弹出 -1（括号前的符号）得 -5；res += 弹出 18（外层累计）得 13。",
+            "右括号：先收尾内层，再乘括号前的符号，最后加回外层的 res。",
+            { i: 11, stack: [], currNum: 0, sign: -1, res: 13, pops: [-1, 18], calc: ['res += sign * curr_num', '+= -1 * 0 = 5', 'res *= stack.pop() → -1', 'res = 5 * -1 = -5', 'res += stack.pop() → 18', 'res = -5 + 18 = 13', 'curr_num = 0'] }),
+          fr('返回 res + curr_num * sign = 13', '返回', '遍历结束', ['return'],
+            'return res + curr_num * sign',
+            '遍历结束：return res + curr_num * sign = 13 + 0 * (-1) = 13。表达式的值是 13。',
+            '最后一段数还没有运算符收尾，返回时再算一次 curr_num * sign。',
+            { i: 12, stack: [], currNum: 0, sign: -1, res: 13, calc: ['res + curr_num * sign', '= 13 + 0 * -1', '= 13'] })
+        ];
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('ex-arrow', { fill: '#333' });
+        scene.defineMarker('ex-arrow-soft', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const W = stage.clientWidth;
+          const wide = W >= 660;
+          const pad = W < 400 ? 8 : (wide ? 16 : 12);
+          const gap = wide ? 7 : 6;
+          const popPad = W < 400 ? 34 : (wide ? 46 : 40);
+          const stackW = W < 400 ? 72 : (wide ? 104 : 84);
+          const stackRight = W - pad - popPad;
+          const stackLeft = stackRight - stackW;
+          const availTok = (wide ? stackLeft : W) - pad - 10;
+          const tokenW = Math.min(wide ? 32 : 30, (availTok - gap * (N - 1)) / N);
+          const tokenH = wide ? 30 : 26;
+          const tokensY = wide ? 106 : 92;
+          const xs = CHARS.map((_, i) => pad + tokenW / 2 + i * (tokenW + gap));
+          const chipY = 32;
+          const signY = tokensY - tokenH / 2 - (wide ? 15 : 12);
+          const currLabelY = tokensY + tokenH / 2 + (wide ? 15 : 13);
+          const uTop = wide ? tokensY - tokenH / 2 - 2 : currLabelY + 24;
+          const entryH = W < 400 ? 17 : (wide ? 23 : 19);
+          const uBottom = uTop + 4 * entryH + 6;
+          const calcX = pad;
+          const calcY = wide ? currLabelY + 18 : uTop - 2;
+          const calcW = stackLeft - calcX - 12;
+          const calcFont = W < 400 ? 9 : (wide ? 11.5 : 9.5);
+          const lineH = Math.round(calcFont * 1.5);
+          geom = { W, wide, pad, gap, stackW, stackRight, stackLeft, tokenW, tokenH, tokensY, xs, chipY, signY, currLabelY, uTop, entryH, uBottom, calcX, calcY, calcW, calcFont, lineH };
+          const maxCalcLines = Math.max(...FRAMES.map(frame => frame.state.calc.length));
+          const calcH = maxCalcLines * lineH + 14;
+          const stageH = Math.max(calcY + calcH + 12, uBottom + 24);
+          svg.setAttribute('viewBox', `0 0 ${W} ${Math.ceil(stageH)}`);
+          stage.style.height = `${Math.ceil(stageH)}px`;
+        }
+
+        function chipXFor(i) {
+          const g = geom;
+          const last = g.xs[N - 1];
+          if (i < 0) return g.xs[0];
+          if (i >= N) return Math.min(last + (g.tokenW + g.gap) * 0.55, g.W - g.pad - 14);
+          return g.xs[i];
+        }
+
+        function numberSpan(state) {
+          if (state.currNum <= 0) return null;
+          const pos = Math.min(Math.max(state.i, 0), N - 1);
+          let end = pos;
+          if (!/[0-9]/.test(CHARS[end])) end = pos - 1;
+          if (end < 0 || !/[0-9]/.test(CHARS[end])) return null;
+          let start = end;
+          while (start > 0 && /[0-9]/.test(CHARS[start - 1])) start -= 1;
+          while (end < N - 1 && /[0-9]/.test(CHARS[end + 1])) end += 1;
+          return { start, end };
+        }
+
+        function stackSlots(state) {
+          const slots = [];
+          if (state.pops) for (const v of state.pops) slots.push({ v, ghost: true });
+          for (let j = state.stack.length - 1; j >= 0; j -= 1) slots.push({ v: state.stack[j], ghost: false });
+          return slots;
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom || !state) return;
+          const g = geom;
+          const lerp = (a, b) => a + (b - a) * t;
+          const numSpan = numberSpan(state);
+          const fromSpan = from ? numberSpan(from) : null;
+          const numSig = numSpan ? `${numSpan.start}-${numSpan.end}` : 'none';
+          const fromNumSig = fromSpan ? `${fromSpan.start}-${fromSpan.end}` : 'none';
+          const numOp = numSig === fromNumSig && state.currNum === (from?.currNum ?? state.currNum) ? 1 : t;
+          const slots = stackSlots(state);
+          const fromSlots = from ? stackSlots(from) : [];
+          const slotOp = j => (fromSlots[j] && fromSlots[j].v === slots[j]?.v ? 1 : t);
+          const chipFrom = from ? chipXFor(from.i) : chipXFor(state.i);
+          const chipTo = chipXFor(state.i);
+          const chipX = lerp(chipFrom, chipTo);
+          const calcOp = from && from.calc.join('|') === state.calc.join('|') ? 1 : t;
+          const charW = g.calcFont * 0.63;
+          const longest = Math.max(...state.calc.map(line => line.length));
+          const boxW = Math.min(g.calcW, longest * charW + 18);
+
+          scene.update(({ path, text }) => {
+            for (let i = 0; i < N; i += 1) {
+              const x = g.xs[i];
+              const isCur = i === Math.min(Math.max(state.i, 0), N - 1) && state.i >= 0;
+              path(`tok-${i}`, { d: rectPath(x - g.tokenW / 2, g.tokensY - g.tokenH / 2, g.tokenW, g.tokenH, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': isCur ? 2.2 : 1.3 });
+              text(`tokt-${i}`, { x, y: g.tokensY + (g.wide ? 4.5 : 4), 'text-anchor': 'middle', 'font-size': g.wide ? 15 : 13, fill: '#272727', 'font-family': MONO }, CHARS[i]);
+            }
+            for (const mark of SIGN_MARKS) {
+              text(`sign-${mark.i}`, { x: g.xs[mark.i] - 7, y: g.signY, 'text-anchor': 'end', 'font-size': g.wide ? 10.5 : 8.5, fill: '#555', 'font-family': MONO }, `sign = ${mark.v}`);
+            }
+            path('i-arrow', { d: `M ${chipX} ${g.chipY + 10} L ${chipX} ${g.tokensY - g.tokenH / 2 - 5}`, stroke: '#333', 'stroke-width': 1.3, fill: 'none', 'marker-end': 'url(#ex-arrow)' });
+            path('i-chip', { d: rectPath(chipX - 9, g.chipY - 9, 18, 18, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3 });
+            text('i-chip-t', { x: chipX, y: g.chipY + 3.5, 'text-anchor': 'middle', 'font-size': 11, fill: '#272727', 'font-family': MONO }, 'i');
+
+            if (numSpan) {
+              const x1 = g.xs[numSpan.start] - g.tokenW / 2 - 4;
+              const x2 = g.xs[numSpan.end] + g.tokenW / 2 + 4;
+              const cx = (x1 + x2) / 2;
+              path('num-box', { d: rectPath(x1, g.tokensY - g.tokenH / 2 - 4, x2 - x1, g.tokenH + 8, 5), fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '4 3', opacity: numOp });
+              text('num-label', { x: cx, y: g.currLabelY + 4, 'text-anchor': 'middle', 'font-size': g.wide ? 11.5 : 9.5, fill: '#272727', 'font-family': MONO, opacity: numOp }, `curr_num = ${state.currNum}`);
+            }
+
+            path('stack-u', { d: `M ${g.stackLeft} ${g.uTop} L ${g.stackLeft} ${g.uBottom} L ${g.stackRight} ${g.uBottom} L ${g.stackRight} ${g.uTop}`, stroke: '#333', 'stroke-width': 1.5, fill: 'none' });
+            text('stack-cap', { x: (g.stackLeft + g.stackRight) / 2, y: g.uBottom + 14, 'text-anchor': 'middle', 'font-size': g.wide ? 10.5 : 9, fill: '#555', 'font-family': MONO }, 'stack');
+            slots.forEach((slot, j) => {
+              const y = g.uTop + j * g.entryH + g.entryH * 0.72;
+              const op = slotOp(j);
+              text(`slot-${j}`, { x: (g.stackLeft + g.stackRight) / 2, y, 'text-anchor': 'middle', 'font-size': g.wide ? 13 : 11, fill: slot.ghost ? '#777' : '#272727', 'font-family': MONO, opacity: op }, String(slot.v));
+              path(`slot-line-${j}`, { d: `M ${g.stackLeft + 7} ${y + 3.5} L ${g.stackRight - 7} ${y + 3.5}`, stroke: slot.ghost ? '#999' : '#d8d8d0', 'stroke-width': 1, fill: 'none', 'stroke-dasharray': slot.ghost ? '3 3' : null, opacity: op });
+              if (slot.ghost) {
+                path(`pop-arrow-${j}`, { d: `M ${g.stackRight + 3} ${y - 4} L ${g.stackRight + 15} ${y - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#ex-arrow-soft)', opacity: op });
+                text(`pop-label-${j}`, { x: g.stackRight + 19, y, 'text-anchor': 'start', 'font-size': g.wide ? 10 : 8.5, fill: '#555', 'font-family': MONO, opacity: op }, 'pop');
+              }
+            });
+            if (state.push) {
+              const cx = (g.stackLeft + g.stackRight) / 2;
+              path('push-arrow', { d: `M ${cx} ${g.uTop - 16} L ${cx} ${g.uTop - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#ex-arrow-soft)' });
+              text('push-label', { x: cx + 5, y: g.uTop - 18, 'text-anchor': 'start', 'font-size': g.wide ? 10 : 8.5, fill: '#555', 'font-family': MONO }, 'push');
+            }
+
+            path('calc-box', { d: rectPath(g.calcX, g.calcY, boxW, state.calc.length * g.lineH + 14, 4), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '5 4', opacity: calcOp });
+            state.calc.forEach((line, k) => {
+              text(`calc-${k}`, { x: g.calcX + 9, y: g.calcY + 13 + k * g.lineH, 'text-anchor': 'start', 'font-size': g.calcFont, fill: '#272727', 'font-family': MONO, opacity: calcOp }, line);
+            });
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.phase;
+          charEl.textContent = frame.charDesc;
+          invariantEl.textContent = frame.invariant;
+          mCurr.textContent = state.currNum;
+          mSign.textContent = state.sign;
+          mRes.textContent = state.res;
+          mStack.textContent = `底 [${state.stack.join(', ')}] 顶`;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.explanation;
+          stage.setAttribute('aria-label', `表达式求值演示：第 ${step + 1} / ${frames.length} 步。${frame.explanation}`);
+          layout();
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({ ...s, stack: [...s.stack], calc: [...s.calc], pops: s.pops ? [...s.pops] : null });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 380,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>
