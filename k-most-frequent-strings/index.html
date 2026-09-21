@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of the max-heap and size-k min-heap solutions for the k most frequent strings problem. 前 K 个高频字符串：大顶堆与大小为 K 的小顶堆两种解法。" />
+    <title>K Most Frequent Strings · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      @media (max-width: 700px) {
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+      .stage { height: 400px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .case-grid, .edge-grid, .complexity, .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .compare-table { margin: 10px 0 0; border-collapse: collapse; font: 12px/1.5 monospace; }
+      .compare-table th, .compare-table td { padding: 4px 13px; border: 1px solid var(--rule); text-align: center; }
+      .compare-table th { background: var(--wash, #f5f2e9); font-weight: 500; }
+      .compare-table td:first-child { text-align: left; }
+      .compare-table tr.answer td { background: #f5f2e9; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+      .reason-list { margin: 8px 0 0; padding-left: 24px; }
+      .reason-list li { margin: 6px 0; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .case-grid, .edge-grid, .complexity, .example-grid { grid-template-columns: 1fr; }
+        .compare-table { font-size: 11px; }
+        .compare-table th, .compare-table td { padding: 3px 7px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="kfreq-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>K Most Frequent Strings · 前 K 个高频字符串</h1></div></header>
+      <p class="problem">Given <code>strs = ["go", "coding", "byte", "byte", "go", "interview", "go"]</code> and <code>k = 2</code>, return the <code>k</code> most frequent strings sorted by frequency in descending order. If two strings have the same frequency, sort them in lexicographical order.<span lang="zh-CN">给定字符串数组 strs 和整数 k（k ≤ n），返回出现次数最多的前 k 个字符串，按频率从高到低排列；频率相同按字典序排列。例：strs = ["go", "coding", "byte", "byte", "go", "interview", "go"]，k = 2，答案 ["go", "byte"]。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="前 K 个高频字符串堆演示 / k most frequent strings heap trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="前 K 个高频字符串演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>k</code></dt><dd>2</dd></div>
+              <div><dt><code>heap</code></dt><dd data-m-heap></dd></div>
+              <div><dt><code>res</code></dt><dd data-m-res></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="kfreq-code-title">
+          <h2 id="kfreq-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code></code></pre>
+          <p class="note">两个实现共用同一组名字：<code>Pair</code>、<code>freqs</code>、<code>res</code>。小顶堆的 <code>Pair.__lt__</code> 把不等号全部反转，让优先级完全倒过来。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="kfreq-intuition">
+        <h2 id="kfreq-intuition">直觉：先计数，再挑出前 k 个 / Count first</h2>
+        <p class="section-intro">不知道频率就无从比较。先用哈希表 <code>freqs</code> 扫一遍数组：键是字符串，值是出现次数。之后两种堆方案面对的都只是 <code>n</code> 个不同的 <code>(str, freq)</code> 对。</p>
+        <div class="example-grid">
+          <article class="paper-card"><strong>排序的浪费 / Sorting everything</strong><p>把 <code>n</code> 个字符串按频率倒序排序再取前 <code>k</code> 个是 <code>O(n log n)</code>。但答案只有 <code>k</code> 个——为 <code>k</code> 个答案给全部 <code>n</code> 个字符串排序并不划算，堆可以把代价压到 <code>O(n log k)</code>。</p></article>
+          <article class="paper-card"><strong>并列谁在前 / Tie-breaking</strong><p>题目要求频率相同时按字典序。比较器必须同时编码两条规则：频率高者胜出；频率相等时，字典序小者胜出。两条规则分别写在 <code>__lt__</code> 的两个分支里。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="kfreq-maxheap">
+        <h2 id="kfreq-maxheap">解法一：大顶堆 · O(n + k log n)</h2>
+        <p class="section-intro">每次拿走当前最频繁的一个字符串，剩下的堆顶自然变成下一个——连续 <code>pop</code> <code>k</code> 次就得到答案。建堆不必逐个 <code>push</code>（<code>O(n log n)</code>），用 <code>heapify</code> 对所有 <code>(str, freq)</code> 对一次性自底向上调整，只要 <code>O(n)</code>。</p>
+        <div class="case-grid">
+          <article class="paper-card"><strong>heapify · O(n) 建堆</strong><p><code>heapq.heapify(max_heap)</code> 直接在数组上自底向上交换，把最大的频率换到堆顶。这一步只比较交换，不额外分配新的节点。</p></article>
+          <article class="paper-card"><strong>自定义比较器 / Pair.__lt__</strong><p><code>return self.freq &gt; other.freq</code>：频率高者"更小"、排在堆顶；<code>self.freq == other.freq</code> 时 <code>return self.str &lt; other.str</code>：字典序小者优先。比如 <code>(coding, 1)</code> 与 <code>(interview, 1)</code> 并列时，<code>coding</code> 胜出。</p></article>
+        </div>
+        <p class="small">之后 <code>pop</code> <code>k</code> 次，每次 <code>O(log n)</code>：总计 <code>O(n) + k · O(log n) = O(n + k log n)</code>。</p>
+      </section>
+
+      <section class="section" aria-labelledby="kfreq-minheap">
+        <h2 id="kfreq-minheap">解法二：大小为 k 的小顶堆 · O(n log k)</h2>
+        <p class="section-intro">堆里只留 <code>k</code> 个候选。每 <code>push</code> 一个新对，若堆大小超过 <code>k</code>，堆顶就是当前第 <code>k+1</code> 频繁的字符串——把它弹出，堆立刻恢复到 <code>k</code> 个。</p>
+        <div class="case-grid">
+          <article class="paper-card"><strong>为什么弹出是安全的 / Safe to evict</strong><p>被弹出的那一刻，堆里剩下的 <code>k</code> 个字符串频率都不比它小；继续扫描只会让这些频率增大，所以它们最终也不比它小——这个字符串注定进不了前 <code>k</code>。</p></article>
+          <article class="paper-card"><strong>比较器反转 / Inverted comparator</strong><p>小顶堆的 <code>__lt__</code> 把不等号全部反转：<code>self.freq &lt; other.freq</code>，并列时 <code>self.str &gt; other.str</code>。频率相等时，字典序大的反而排在堆顶、先被弹出，留下的都是字典序小者。</p></article>
+          <article class="paper-card"><strong>取出后要 reverse</strong><p>小顶堆先弹出的是第 <code>k</code> 频繁、最后弹出的才是第 1 频繁，所以 <code>res</code> 里是反的，返回前执行 <code>res.reverse()</code>。</p></article>
+          <article class="paper-card"><strong>为什么不能用大顶堆做同样的事</strong><p>要丢弃"当前最小"就必须能读到它：大顶堆只能访问最频繁者，拿不到最不需保留的那个，所以只能改用维护小顶堆。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="kfreq-complexity">
+        <h2 id="kfreq-complexity">复杂度对比 / Complexity</h2>
+        <table class="compare-table">
+          <thead><tr><th>方法</th><th>建堆</th><th>取前 k 个</th><th>总时间</th><th>堆空间</th></tr></thead>
+          <tbody>
+            <tr><td>大顶堆 max_heap</td><td>heapify · O(n)</td><td>k 次 pop · O(log n)</td><td>O(n + k log n)</td><td>O(n)</td></tr>
+            <tr class="answer"><td>小顶堆 min_heap</td><td>n 次 push · O(log k)</td><td>k 次 pop · O(k log k) + reverse O(k)</td><td>O(n log k)</td><td>O(k)</td></tr>
+          </tbody>
+        </table>
+        <p class="small">两种方法都需要 <code>O(n)</code> 的 <code>freqs</code> 哈希表（最多存 <code>n</code> 个不同的字符串）；输出数组 <code>res</code> 不计入空间复杂度。当 <code>k</code> 远小于 <code>n</code> 时，小顶堆的 <code>O(n log k)</code> 明显优于大顶堆的 <code>O(n + k log n)</code>，也优于完整排序的 <code>O(n log n)</code>。</p>
+      </section>
+
+      <section class="section" aria-labelledby="kfreq-edge">
+        <h2 id="kfreq-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>k = n</strong><p>每个字符串都要返回。小顶堆的大小永远不会超过 <code>k</code>，不会触发任何弹出；最后弹出全部 <code>n</code> 个再 reverse。</p></article>
+          <article class="paper-card"><strong>频率全部相同</strong><p>顺序完全由字典序决定：比较器的并列分支是唯一裁决者，两种方法都返回字典序最小的 <code>k</code> 个。</p></article>
+          <article class="paper-card"><strong>并列发生在切分线上</strong><p>例中 <code>coding</code> 与 <code>interview</code> 同为 1 次且 <code>k = 2</code>，两个都进不了前 2。若某个并列者被弹出而另一个是答案，比较器保证字典序小者留下。</p></article>
+          <article class="paper-card"><strong>只有一个不同字符串</strong><p><code>freqs</code> 只有一项，<code>k</code> 必为 1：两种方法都直接返回它，堆操作退化为常数。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../combine-sorted-linked-lists/">合并 K 个有序链表</a><a href="../median-of-an-integer-stream/">整数流的中位数</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('kfreq-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mHeap = root.querySelector('[data-m-heap]');
+        const mRes = root.querySelector('[data-m-res]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+        const explanationZhEl = root.querySelector('[data-explanation-zh]');
+
+        const STRS = ['go', 'coding', 'byte', 'byte', 'go', 'interview', 'go'];
+        const K = 2;
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const ITEMS = [];
+        const seen = new Map();
+        for (const s of STRS) seen.set(s, (seen.get(s) || 0) + 1);
+        for (const [str, freq] of seen) ITEMS.push({ str, freq });
+
+        const ltMax = (a, b) => a.freq > b.freq || (a.freq === b.freq && a.str < b.str);
+        const ltMin = (a, b) => a.freq < b.freq || (a.freq === b.freq && a.str > b.str);
+        function siftdown(heap, startpos, pos, lt) {
+          const newitem = heap[pos];
+          while (pos > startpos) {
+            const parentpos = (pos - 1) >> 1;
+            const parent = heap[parentpos];
+            if (lt(newitem, parent)) { heap[pos] = parent; pos = parentpos; }
+            else break;
+          }
+          heap[pos] = newitem;
+        }
+        function siftup(heap, pos, lt) {
+          const endpos = heap.length;
+          const startpos = pos;
+          const newitem = heap[pos];
+          let childpos = 2 * pos + 1;
+          while (childpos < endpos) {
+            const rightpos = childpos + 1;
+            if (rightpos < endpos && !lt(heap[childpos], heap[rightpos])) childpos = rightpos;
+            heap[pos] = heap[childpos];
+            pos = childpos;
+            childpos = 2 * pos + 1;
+          }
+          heap[pos] = newitem;
+          siftdown(heap, startpos, pos, lt);
+        }
+        function heappush(heap, item, lt) {
+          heap.push(item);
+          siftdown(heap, 0, heap.length - 1, lt);
+        }
+        function heappop(heap, lt) {
+          const lastelt = heap.pop();
+          if (heap.length) {
+            const returnitem = heap[0];
+            heap[0] = lastelt;
+            siftup(heap, 0, lt);
+            return returnitem;
+          }
+          return lastelt;
+        }
+        function heapify(heap, lt) {
+          for (let i = heap.length >> 1; i >= 0; i--) siftup(heap, i, lt);
+        }
+
+        const CODE = [
+          { text: 'class Pair:' },
+          { text: '    def __init__(self, str, freq):' },
+          { text: '        self.str = str' },
+          { text: '        self.freq = freq' },
+          { text: ' ' },
+          { text: '    # Define a custom comparator.' },
+          { text: '    def __lt__(self, other):' },
+          { text: '        # Prioritize lexicographical order for strings with equal' },
+          { text: '        # frequencies.' },
+          { text: '        if self.freq == other.freq:' },
+          { text: '            return self.str < other.str' },
+          { text: '        # Otherwise, prioritize strings with higher frequencies.' },
+          { text: '        return self.freq > other.freq' },
+          { text: ' ' },
+          { text: 'def k_most_frequent_strings_max_heap(strs: List[str],' },
+          { text: '                                     k: int) -> List[str]:' },
+          { text: "    # We use 'Counter' to create a hash map that counts the frequency" },
+          { text: '    # of each string.' },
+          { text: '    freqs = Counter(strs)', key: 'mh-counter' },
+          { text: '    # Create the max heap by performing heapify on all string-frequency' },
+          { text: '    # pairs.' },
+          { text: '    max_heap = [Pair(str, freq) for str, freq in freqs.items()]', key: 'mh-build' },
+          { text: '    heapq.heapify(max_heap)', key: 'mh-heapify' },
+          { text: "    # Pop the most frequent string off the heap 'k' times and return" },
+          { text: "    # these 'k' most frequent strings." },
+          { text: '    return [heapq.heappop(max_heap).str for _ in range(k)]', key: 'mh-return' },
+          { text: ' ' },
+          { text: '# Min-heap implementation:', head: true },
+          { text: ' ' },
+          { text: 'class Pair:' },
+          { text: '    def __init__(self, str, freq):' },
+          { text: '        self.str = str' },
+          { text: '        self.freq = freq' },
+          { text: ' ' },
+          { text: '    # Since this is a min-heap comparator, we can use the same' },
+          { text: '    # comparator as the one used in the max-heap, but reversing the' },
+          { text: '    # inequality signs to invert the priority.' },
+          { text: '    def __lt__(self, other):' },
+          { text: '        if self.freq == other.freq:' },
+          { text: '            return self.str > other.str' },
+          { text: '        return self.freq < other.freq' },
+          { text: ' ' },
+          { text: 'def k_most_frequent_strings_min_heap(strs: List[str],' },
+          { text: '                                     k: int) -> List[str]:' },
+          { text: '    freqs = Counter(strs)', key: 'nh-counter' },
+          { text: '    min_heap = []', key: 'nh-init' },
+          { text: '    for str, freq in freqs.items():', key: 'nh-for' },
+          { text: '        heapq.heappush(min_heap, Pair(str, freq))', key: 'nh-push' },
+          { text: "        # If heap size exceeds 'k', pop the lowest frequency string to" },
+          { text: "        # ensure the heap only contains the 'k' most frequent words so" },
+          { text: '        # far.' },
+          { text: '        if len(min_heap) > k:', key: 'nh-if' },
+          { text: '            heapq.heappop(min_heap)', key: 'nh-pop' },
+          { text: "    # Return the 'k' most frequent strings by popping the remaining 'k'" },
+          { text: '    # strings from the heap. Since we\'re using a min-heap, we need to' },
+          { text: '    # reverse the result after popping the elements to ensure the most' },
+          { text: '    # frequent strings are listed first.' },
+          { text: '    res = [heapq.heappop(min_heap).str for _ in range(k)]', key: 'nh-res' },
+          { text: '    res.reverse()', key: 'nh-reverse' },
+          { text: '    return res', key: 'nh-return' }
+        ];
+        const codeCode = root.querySelector('[data-code-scroll] code');
+        for (const line of CODE) {
+          const span = document.createElement('span');
+          span.className = 'code-line';
+          if (line.key) span.dataset.sourceKey = line.key;
+          if (line.head) span.style.color = '#555';
+          span.textContent = line.text;
+          codeCode.append(span);
+        }
+
+        const itemOf = key => ITEMS.find(it => it.str === key);
+        const snapKeys = heap => heap.map(p => p.str);
+        const fr = (stepLabel, anim, sourceKeys, line, en, zh, invariant, state) =>
+          ({ stepLabel, anim, sourceKeys, line, en, zh, invariant, state });
+
+        const base = (phase) => ({ phase, strs: false, heap: null, res: [], pushKey: null, mid: null, evictKey: null, collectKey: null, done: false });
+        const FRAMES = [];
+
+        FRAMES.push(fr(
+          '读入 strs · Counter 计数', 'none', ['mh-counter'], 'freqs = Counter(strs)',
+          'Count occurrences with a hash map: go ×3, byte ×2, coding ×1, interview ×1.',
+          '先用 Counter 统计频率：go 出现 3 次，byte 2 次，coding、interview 各 1 次。',
+          'freqs 的键是字符串、值是出现次数；两种堆方案都只用这 4 个 (str, freq) 对。',
+          { ...base('max'), strs: true }
+        ));
+
+        const maxHeap = ITEMS.map(p => ({ ...p }));
+        heapify(maxHeap, ltMax);
+        FRAMES.push(fr(
+          'heapify · O(n) 建大顶堆', 'heapify', ['mh-build', 'mh-heapify'], 'heapq.heapify(max_heap)',
+          'Build all four Pairs and heapify at once — O(n), faster than pushing one by one. The root (go, 3) is the most frequent string.',
+          '把 4 个 (str, freq) 对一次性建好再 heapify，O(n) 完成建堆；堆顶 (go, 3) 就是最频繁的字符串。',
+          '大顶堆堆顶 max: 永远是优先级最高的 Pair：频率大者胜出，并列时字典序小者胜出。',
+          { ...base('max'), heap: snapKeys(maxHeap) }
+        ));
+
+        const pop1 = heappop(maxHeap, ltMax);
+        FRAMES.push(fr(
+          'pop 堆顶 → res = [go]', 'collect', ['mh-return'], 'heapq.heappop(max_heap).str  # 第 1 次 pop',
+          'Pop the root and append its string to res; (byte, 2) floats up as the new root.',
+          '弹出堆顶 (go, 3)，把 "go" 加入 res；(byte, 2) 升为新的堆顶。',
+          '每次 pop 拿走当前最频繁的字符串，剩下的堆顶就是下一个。',
+          { ...base('max'), heap: snapKeys(maxHeap), res: [pop1.str], collectKey: pop1.str }
+        ));
+        const pop2 = heappop(maxHeap, ltMax);
+        FRAMES.push(fr(
+          'pop 堆顶 → res = [go, byte]', 'collect', ['mh-return'], 'heapq.heappop(max_heap).str  # 第 2 次 pop',
+          'Pop again to get "byte". Two pops for k = 2 — the max-heap solution is done: ["go", "byte"].',
+          '再弹出 (byte, 2)。k = 2 只需 pop 两次，大顶堆方案完成，得到 ["go", "byte"]。',
+          'pop 满 k 次，res 就是按频率降序（并列按字典序）的前 k 个字符串。',
+          { ...base('max'), heap: snapKeys(maxHeap), res: [pop1.str, pop2.str], collectKey: pop2.str }
+        ));
+
+        FRAMES.push(fr(
+          '换小顶堆 · min_heap = []', 'none', ['nh-counter', 'nh-init'], 'min_heap = []',
+          'The min-heap solution recomputes freqs and starts with an empty min_heap that will hold at most k items.',
+          '小顶堆方案同样先计数；min_heap 从空开始，最多只保留 k 个候选。',
+          '换用小顶堆：堆里只保留目前出现最多的 k 个，堆空间降到 O(k)。',
+          { ...base('min'), heap: [] }
+        ));
+
+        const minHeap = [];
+        for (const it of ITEMS) {
+          heappush(minHeap, { ...it }, ltMin);
+          const mid = snapKeys(minHeap);
+          if (minHeap.length > K) {
+            const ev = heappop(minHeap, ltMin);
+            const label = `push (${it.str}, ${it.freq}) → 弹出 (${ev.str}, ${ev.freq})`;
+            FRAMES.push(fr(
+              label, 'push-evict', ['nh-for', 'nh-push', 'nh-if', 'nh-pop'],
+              `if len(min_heap) > k:  # ${minHeap.length + 1} > ${K}，heapq.heappop(min_heap) 弹出 (${ev.str}, ${ev.freq})`,
+              `Push (${it.str}, ${it.freq}): heap size ${minHeap.length + 1} > k, so pop the root (${ev.str}, ${ev.freq}) — it can never be in the top ${K}.`,
+              `push (${it.str}, ${it.freq}) 后大小为 ${minHeap.length + 1} > k，弹出堆顶 (${ev.str}, ${ev.freq})：它是当前第 k+1 频繁，不可能是前 ${K} 名。`,
+              '大小一旦超过 k，堆顶就是目前第 k+1 频繁的字符串——把它弹掉是安全的。',
+              { ...base('min'), heap: snapKeys(minHeap), pushKey: it.str, mid, evictKey: ev.str }
+            ));
+          } else {
+            FRAMES.push(fr(
+              `push (${it.str}, ${it.freq})`, 'push', ['nh-for', 'nh-push'],
+              `heapq.heappush(min_heap, Pair(str, freq))  # push (${it.str}, ${it.freq})`,
+              `Push (${it.str}, ${it.freq}); heap size ${minHeap.length} ≤ k, so nothing is popped.`,
+              `push (${it.str}, ${it.freq})，堆大小 ${minHeap.length} ≤ k = 2，无需弹出。`,
+              '堆的大小 ≤ k：候选还不够 k 个，谁都还不能丢。',
+              { ...base('min'), heap: snapKeys(minHeap), pushKey: it.str }
+            ));
+          }
+        }
+
+        const minPop1 = heappop(minHeap, ltMin);
+        FRAMES.push(fr(
+          '取出 pop #1 → res = [byte]', 'collect', ['nh-res'], 'heapq.heappop(min_heap).str  # 第 1 次 pop',
+          'All strings processed; the heap holds exactly the top 2. Pop the root (byte, 2) into res.',
+          '全部处理完，堆里正好是前 2 名。弹出堆顶 (byte, 2) 放入 res。',
+          '扫描结束后，堆里剩下的 k 个就是 top-k；小顶堆先弹出其中最不频繁的。',
+          { ...base('min'), heap: snapKeys(minHeap), res: [minPop1.str], collectKey: minPop1.str }
+        ));
+        const minPop2 = heappop(minHeap, ltMin);
+        FRAMES.push(fr(
+          '取出 pop #2 → res = [byte, go]', 'collect', ['nh-res'], 'heapq.heappop(min_heap).str  # 第 2 次 pop',
+          'Pop (go, 3) — the most frequent string comes out last in a min-heap.',
+          '再弹出 (go, 3)——小顶堆里频率最高的最后才出来。',
+          '取出顺序是第 k 频繁 → 第 1 频繁，与题目要求的顺序相反。',
+          { ...base('min'), heap: snapKeys(minHeap), res: [minPop1.str, minPop2.str], collectKey: minPop2.str }
+        ));
+
+        FRAMES.push(fr(
+          'res.reverse()', 'reverse', ['nh-reverse'], 'res.reverse()',
+          'res is [byte, go] — retrieved least-frequent-first, so reverse it.',
+          '取出顺序是 [byte, go]（先低后高），执行 res.reverse() 调转顺序。',
+          'reverse 只反转结果数组，O(k)，不改变任何频率信息。',
+          { ...base('min'), heap: [], res: [minPop2.str, minPop1.str] }
+        ));
+        FRAMES.push(fr(
+          'return res → ["go", "byte"]', 'none', ['nh-return'], 'return res  # ["go", "byte"]',
+          'Return ["go", "byte"]: sorted by frequency descending, ties by lexicographical order.',
+          '返回 ["go", "byte"]：按频率降序排列，频率相同再按字典序。',
+          '两种方法得到同一个答案；小顶堆在 k 远小于 n 时更快、更省空间。',
+          { ...base('min'), heap: [], res: [minPop2.str, minPop1.str], done: true }
+        ));
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('kf-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const motion = core.createMotionController();
+        let geom = {};
+        let transitionFrom = null;
+
+        function layout() {
+          const width = stage.clientWidth;
+          const compact = width < 640;
+          const fx = compact ? 8 : 14;
+          const colStrW = compact ? 96 : 118;
+          const tableW = colStrW + (compact ? 42 : 46);
+          const hy = compact ? 40 : 46;
+          const headerH = 20;
+          const rowH = compact ? 27 : 30;
+          const freqsBottom = hy + headerH + 4 * rowH + 8;
+          const heapCx = compact ? width * 0.55 : Math.max(390, Math.min(width * 0.62, width - 200));
+          const rootY = compact ? freqsBottom + 44 : 84;
+          const slotH = compact ? 29 : 32;
+          const tokenW = compact ? 104 : 126;
+          const resY = rootY + 3 * slotH + (compact ? 66 : 76);
+          const discardX = compact ? width - 22 : Math.min(heapCx + 196, width - 136);
+          geom = {
+            width, compact, fx, colStrW, tableW, hy, headerH, rowH, freqsBottom,
+            heapCx, rootY, slotH, tokenW, resY, discardX,
+            stageH: resY + (compact ? 30 : 34)
+          };
+          svg.setAttribute('viewBox', `0 0 ${width} ${geom.stageH}`);
+          stage.style.height = `${Math.ceil(geom.stageH)}px`;
+        }
+        const rowCenter = i => geom.hy + geom.headerH + i * geom.rowH + geom.rowH / 2;
+        const slotPos = i => ({ x: geom.heapCx, y: geom.rootY + i * geom.slotH });
+        const freqsPos = key => ({ x: geom.fx + geom.colStrW / 2, y: rowCenter(ITEMS.findIndex(it => it.str === key)) });
+        const resTokenPos = i => ({ x: geom.heapCx - (geom.compact ? 26 : 30) + i * (geom.compact ? 56 : 62), y: geom.resY });
+        const discardPos = () => ({ x: geom.discardX - (geom.compact ? 0 : 58), y: geom.rootY });
+        const pairText = key => { const it = itemOf(key); return `(${it.str}, ${it.freq})`; };
+
+        const ease = core.smoothstep;
+        const lerpP = (a, b, u) => ({ x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u });
+        const clamp01 = v => Math.max(0, Math.min(1, v));
+
+        function anchorsFor(key, state, from, anim) {
+          const fin = state.heap ? state.heap.indexOf(key) : -1;
+          const fromIdx = from.heap ? from.heap.indexOf(key) : -1;
+          const midIdx = state.mid ? state.mid.indexOf(key) : -1;
+          if (anim.kind === 'heapify') return { a: freqsPos(key), c: slotPos(fin) };
+          if (anim.kind === 'push') {
+            return key === state.pushKey
+              ? { a: freqsPos(key), c: slotPos(fin) }
+              : { a: slotPos(fromIdx), c: slotPos(fin) };
+          }
+          if (anim.kind === 'push-evict') {
+            if (key === state.evictKey) {
+              const start = key === state.pushKey ? freqsPos(key) : slotPos(fromIdx);
+              return { a: start, b: slotPos(midIdx), c: discardPos(), fade: true };
+            }
+            if (key === state.pushKey) return { a: freqsPos(key), b: slotPos(midIdx), c: slotPos(fin) };
+            return { a: slotPos(fromIdx), b: slotPos(midIdx), c: slotPos(fin) };
+          }
+          if (anim.kind === 'collect') {
+            return key === state.collectKey
+              ? { a: slotPos(fromIdx), c: resTokenPos(state.res.indexOf(key)) }
+              : { a: slotPos(fromIdx), c: slotPos(fin) };
+          }
+          if (anim.kind === 'reverse') return { a: resTokenPos(from.res.indexOf(key)), c: resTokenPos(state.res.indexOf(key)) };
+          return { a: slotPos(fin), c: slotPos(fin) };
+        }
+
+        function draw(state, progress = 1, from = null, frame = null) {
+          if (!geom.width || !state) return;
+          const g = geom;
+          const anim = frame && frame.anim && frame.anim !== 'none' ? { kind: frame.anim } : null;
+          const active = anim && from && progress < 1;
+          const phase = state.phase;
+          const chip = phase === 'max' ? 'max:' : 'min:';
+          const heapLabel = phase === 'max' ? 'max_heap' : 'min_heap';
+
+          scene.update(({ path, text }) => {
+            // freqs hash map (stable left column)
+            text('freqs-title', { x: g.fx + g.tableW / 2, y: g.hy - 7, 'text-anchor': 'middle', 'font-size': g.compact ? 12 : 13.5, fill: '#272727', 'font-family': MONO, 'font-weight': 500 }, 'freqs');
+            path('freqs-box', {
+              d: `M ${g.fx} ${g.hy} h ${g.tableW} v ${g.headerH + 4 * g.rowH + 8} h ${-g.tableW} Z`,
+              fill: 'none', stroke: '#555', 'stroke-width': 1.3
+            });
+            path('freqs-div', { d: `M ${g.fx + g.colStrW} ${g.hy} v ${g.headerH + 4 * g.rowH + 8}`, stroke: '#999', 'stroke-width': 1, fill: 'none' });
+            text('freqs-h1', { x: g.fx + g.colStrW / 2, y: g.hy + 14, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 10.5, fill: '#777', 'font-family': MONO }, 'str');
+            text('freqs-h2', { x: g.fx + g.colStrW + (g.tableW - g.colStrW) / 2, y: g.hy + 14, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 10.5, fill: '#777', 'font-family': MONO }, 'freq');
+            ITEMS.forEach((it, i) => {
+              text(`freqs-str-${i}`, { x: g.fx + 9, y: rowCenter(i) + 4, 'text-anchor': 'start', 'font-size': g.compact ? 11.5 : 13, fill: '#272727', 'font-family': MONO }, it.str);
+              text(`freqs-frq-${i}`, { x: g.fx + g.tableW - 9, y: rowCenter(i) + 4, 'text-anchor': 'end', 'font-size': g.compact ? 11.5 : 13, fill: '#272727', 'font-family': MONO }, String(it.freq));
+            });
+            if (state.pushKey) {
+              const i = ITEMS.findIndex(it => it.str === state.pushKey);
+              path('freqs-hl', {
+                d: `M ${g.fx + 3} ${g.hy + g.headerH + i * g.rowH + 3} h ${g.tableW - 6} v ${g.rowH - 6} h ${-(g.tableW - 6)} Z`,
+                fill: 'none', stroke: '#777', 'stroke-width': 1.2, 'stroke-dasharray': '4 3'
+              });
+            }
+
+            // input strs row (setup frame only)
+            if (state.strs) {
+              const chipW = g.compact ? 62 : 78;
+              const chipH = g.compact ? 26 : 30;
+              if (g.compact) {
+                text('strs-caption', {
+                  x: g.width / 2, y: g.freqsBottom + 15, 'text-anchor': 'middle',
+                  'font-size': 9.5, fill: '#555', 'font-family': MONO
+                }, 'strs（7 个字符串）· Counter 统计次数');
+              } else {
+                text('strs-caption', {
+                  x: g.fx + g.tableW + 46, y: g.rootY - 46, 'text-anchor': 'start',
+                  'font-size': 11.5, fill: '#555', 'font-family': MONO
+                }, g.width >= 860
+                  ? 'strs = [ "go", "coding", "byte", "byte", "go", "interview", "go" ] · Counter 统计次数'
+                  : 'Counter 统计每个字符串的次数');
+              }
+              const chipY0 = g.compact ? g.freqsBottom + 46 : g.rootY - 8;
+              STRS.forEach((s, i) => {
+                const perRow = g.compact ? 4 : (g.width >= 860 ? 7 : 4);
+                const col = i % perRow;
+                const rowI = (i / perRow) | 0;
+                const x0 = g.compact ? (g.width - (perRow * chipW + (perRow - 1) * 6)) / 2 : g.fx + g.tableW + 46;
+                const x = x0 + col * (chipW + 6) + chipW / 2 + (rowI === 1 ? (chipW + 6) / 2 : 0);
+                const y = chipY0 + rowI * (chipH + 8);
+                path(`strs-chip-${i}`, {
+                  d: `M ${x - chipW / 2} ${y - chipH / 2} h ${chipW} v ${chipH} h ${-chipW} Z`,
+                  fill: '#fffdf8', stroke: '#777', 'stroke-width': 1.2
+                });
+                text(`strs-txt-${i}`, { x, y: y + 4, 'text-anchor': 'middle', 'font-size': g.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, `"${s}"`);
+              });
+              path('strs-arrow', {
+                d: g.compact
+                  ? `M ${g.width * 0.6} ${g.freqsBottom + 28} L ${g.fx + g.tableW + 2} ${g.freqsBottom + 6}`
+                  : `M ${g.fx + g.tableW + 40} ${g.rootY + 6} L ${g.fx + g.tableW + 6} ${g.rootY + 6}`,
+                fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+              });
+            }
+
+            // heap trapezoid
+            const n = state.heap ? state.heap.length : 0;
+            const drawHeap = state.heap !== null;
+            if (drawHeap) {
+              const topY = g.rootY - (g.compact ? 21 : 24);
+              const bottomY = n === 0 ? g.rootY + 12 : g.rootY + (n - 1) * g.slotH + (g.compact ? 22 : 26);
+              const topHalf = Math.max(56, g.tokenW / 2 + 6);
+              const bottomHalf = g.compact ? 94 : 104;
+              path('heap-trap', {
+                d: `M ${g.heapCx - topHalf} ${topY} L ${g.heapCx + topHalf} ${topY} L ${g.heapCx + bottomHalf} ${bottomY} L ${g.heapCx - bottomHalf} ${bottomY} Z`,
+                fill: 'none', stroke: '#555', 'stroke-width': 1.4
+              });
+              text('heap-label', { x: g.heapCx, y: bottomY + (g.compact ? 15 : 17), 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12.5, fill: '#272727', 'font-family': MONO }, heapLabel);
+            }
+
+            // discard zone target (visible whenever a size-k eviction happens)
+            if (frame.anim === 'push-evict' && !g.compact) {
+              path('discard-box', {
+                d: `M ${g.discardX} ${g.rootY - 18} h 116 v 36 h -116 Z`,
+                fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3'
+              });
+              text('discard-label', { x: g.discardX + 58, y: g.rootY + 32, 'text-anchor': 'middle', 'font-size': 10, fill: '#777', 'font-family': MONO }, '已弹出 · 不可能是 top-k');
+            }
+
+            // arrows (rest states)
+            if (!active) {
+              if (state.pushKey && (frame.anim === 'push' || frame.anim === 'push-evict')) {
+                const rowY = rowCenter(ITEMS.findIndex(it => it.str === state.pushKey));
+                const to = slotPos(0);
+                if (g.compact) {
+                  path('push-arrow', {
+                    d: `M ${Math.min(g.fx + g.tableW / 2, g.heapCx - 40)} ${g.freqsBottom + 6} L ${g.heapCx - 30} ${to.y - 16}`,
+                    fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+                  });
+                  text('push-arrow-label', { x: g.heapCx - 62, y: (g.freqsBottom + to.y) / 2 - 2, 'text-anchor': 'end', 'font-size': 10, fill: '#555', 'font-family': MONO }, 'push to heap');
+                } else {
+                  path('push-arrow', {
+                    d: `M ${g.fx + g.tableW + 4} ${rowY} L ${g.heapCx - g.tokenW / 2 - 10} ${to.y}`,
+                    fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+                  });
+                  text('push-arrow-label', { x: (g.fx + g.tableW + g.heapCx - g.tokenW / 2) / 2, y: (rowY + to.y) / 2 - 7, 'text-anchor': 'middle', 'font-size': 11, fill: '#555', 'font-family': MONO }, 'push to heap');
+                }
+              }
+              if (frame.anim === 'collect') {
+                const from = slotPos(0);
+                if (g.compact) {
+                  path('collect-arrow', {
+                    d: `M ${g.heapCx} ${from.y + 16} L ${g.heapCx} ${g.resY - 24}`,
+                    fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+                  });
+                  text('collect-arrow-label', { x: g.heapCx, y: g.resY - 30, 'text-anchor': 'middle', 'font-size': 10, fill: '#555', 'font-family': MONO }, 'pop: add to res');
+                } else {
+                  const midX = g.heapCx + g.tokenW / 2 + 46;
+                  path('collect-arrow', {
+                    d: `M ${g.heapCx + g.tokenW / 2 + 4} ${from.y} L ${midX} ${from.y} L ${midX} ${g.resY} L ${g.heapCx + 112} ${g.resY}`,
+                    fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+                  });
+                  text('collect-arrow-label', { x: midX + 8, y: (from.y + g.resY) / 2 + 4, 'text-anchor': 'start', 'font-size': 11, fill: '#555', 'font-family': MONO }, 'pop: add to res');
+                }
+              }
+              if (frame.anim === 'push-evict') {
+                const from = slotPos(0);
+                if (g.compact) {
+                  path('evict-arrow', {
+                    d: `M ${g.heapCx + g.tokenW / 2 + 4} ${from.y} L ${g.discardX} ${from.y}`,
+                    fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+                  });
+                  text('evict-arrow-label', { x: g.heapCx, y: from.y - 34, 'text-anchor': 'middle', 'font-size': 10, fill: '#555', 'font-family': MONO }, `len(min_heap) > ${K} → pop`);
+                } else {
+                  path('evict-arrow', {
+                    d: `M ${g.heapCx + g.tokenW / 2 + 4} ${from.y} L ${g.discardX - 4} ${from.y}`,
+                    fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+                  });
+                  text('evict-arrow-label', { x: (g.heapCx + g.tokenW / 2 + g.discardX) / 2, y: from.y - 30, 'text-anchor': 'middle', 'font-size': 11, fill: '#555', 'font-family': MONO }, `len(min_heap) > ${K} → pop`);
+                }
+              }
+              if (frame.anim === 'reverse') {
+                const a = resTokenPos(0);
+                const b = resTokenPos(1);
+                path('swap-a', {
+                  d: `M ${a.x - 24} ${a.y - 24} C ${a.x - 44} ${a.y - 40}, ${b.x - 44} ${b.y - 40}, ${b.x - 24} ${b.y - 24}`,
+                  fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'marker-end': 'url(#kf-arrow)'
+                });
+                path('swap-b', {
+                  d: `M ${b.x + 24} ${b.y + 24} C ${b.x + 44} ${b.y + 40}, ${a.x + 44} ${a.y + 40}, ${a.x + 24} ${a.y + 24}`,
+                  fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'marker-end': 'url(#kf-arrow)'
+                });
+              }
+            }
+
+            // heap items + moving tokens
+            const records = new Map();
+            if (state.heap) state.heap.forEach((k, i) => records.set(k, { zone: 'heap', idx: i, item: k }));
+            state.res.forEach((k, i) => records.set(k, { zone: 'res', idx: i, item: k }));
+            if (active) {
+              if (from.heap) from.heap.forEach((k, i) => { if (!records.has(k)) records.set(k, { zone: 'heap', idx: i, item: k }); });
+              from.res.forEach((k, i) => { if (!records.has(k)) records.set(k, { zone: 'res', idx: i, item: k }); });
+            }
+            const moving = new Set();
+            for (const [k, rec] of records) {
+              let pos; let opacity = 1; let isRoot = false;
+              if (!active) {
+                pos = rec.zone === 'heap' ? slotPos(rec.idx) : resTokenPos(rec.idx);
+                isRoot = rec.zone === 'heap' && rec.idx === 0;
+              } else {
+                moving.add(k);
+                const an = anchorsFor(k, state, from, anim);
+                if (an.b) {
+                  const u = ease(clamp01(progress / 0.45));
+                  const v = ease(clamp01((progress - 0.45) / 0.55));
+                  pos = v > 0 ? lerpP(lerpP(an.a, an.b, u), an.c, v) : lerpP(an.a, an.b, u);
+                  if (an.fade) opacity = 1 - v * 0.88;
+                } else {
+                  pos = lerpP(an.a, an.c, ease(progress));
+                }
+              }
+              const w = rec.zone === 'res' ? (g.compact ? 56 : 62) : g.tokenW;
+              const h = g.compact ? 26 : 30;
+              const half = g.tokenW / 2 + 6;
+              const isRootAnim = isRoot && !active;
+              path(`item-box-${k}`, {
+                d: `M ${pos.x - w / 2} ${pos.y - h / 2} h ${w} v ${h} h ${-w} Z`,
+                fill: '#fffdf8',
+                stroke: isRootAnim ? '#272727' : '#555',
+                'stroke-width': isRootAnim ? 1.8 : 1.2,
+                opacity
+              });
+              text(`item-txt-${k}`, {
+                x: pos.x, y: pos.y + (g.compact ? 3.8 : 4.5), 'text-anchor': 'middle',
+                'font-size': rec.zone === 'res' ? (g.compact ? 10.5 : 12) : (g.compact ? 10.5 : 12.5),
+                fill: '#272727', 'font-family': MONO, opacity
+              }, rec.zone === 'res' ? k : pairText(k));
+              if (isRootAnim) {
+                const cw = g.compact ? 40 : 46;
+                const ch = g.compact ? 20 : 22;
+                const cx = pos.x - half - cw / 2 - 6;
+                path(`item-chip-${k}`, { d: `M ${cx - cw / 2} ${pos.y - ch / 2} h ${cw} v ${ch} h ${-cw} Z`, fill: '#f5f2e9', stroke: '#555', 'stroke-width': 1.2 });
+                text(`item-chip-txt-${k}`, { x: cx, y: pos.y + 3.5, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 10.5, fill: '#272727', 'font-family': MONO }, chip);
+              }
+            }
+
+            // res box
+            const resBoxW = g.compact ? 190 : 216;
+            path('res-box', {
+              d: `M ${g.heapCx - resBoxW / 2} ${g.resY - (g.compact ? 18 : 21)} h ${resBoxW} v ${g.compact ? 36 : 42} h ${-resBoxW} Z`,
+              fill: 'none', stroke: state.done ? '#272727' : '#999',
+              'stroke-width': state.done ? 1.8 : 1.2, 'stroke-dasharray': '5 4'
+            });
+            text('res-label', { x: g.heapCx - resBoxW / 2 + 10, y: g.resY + 4, 'text-anchor': 'start', 'font-size': g.compact ? 10.5 : 12, fill: '#555', 'font-family': MONO }, 'res =');
+            text('res-close', { x: g.heapCx + resBoxW / 2 - 10, y: g.resY + 4, 'text-anchor': 'end', 'font-size': g.compact ? 10.5 : 12, fill: '#555', 'font-family': MONO }, ']');
+            if (state.done) {
+              text('res-answer', { x: g.heapCx + resBoxW / 2 + 8, y: g.resY - 26, 'text-anchor': 'start', 'font-size': g.compact ? 9.5 : 11, fill: '#272727', 'font-family': MONO }, 'answer · 答案');
+            }
+          });
+        }
+
+        function fmtHeap(heap) {
+          if (!heap || !heap.length) return '[]';
+          return `[${heap.map(k => pairText(k)).join(', ')}]`;
+        }
+        const fmtRes = res => `[${res.join(', ')}]`;
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.stepLabel;
+          invariantEl.textContent = frame.invariant;
+          mHeap.textContent = fmtHeap(state.heap);
+          mRes.textContent = fmtRes(state.res);
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.en;
+          explanationZhEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `前 K 个高频字符串演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          draw(state, 1, null, frame);
+        }
+
+        const cloneState = s => ({
+          ...s,
+          heap: s.heap ? [...s.heap] : null,
+          res: [...s.res],
+          mid: s.mid ? [...s.mid] : null
+        });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state, frame }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || !frame.anim || frame.anim === 'none' || motion.reduced) { draw(state, 1, null, frame); return; }
+            motion.tween({
+              duration: 520,
+              update: (eased, progress) => draw(state, progress, from, frame),
+              complete: () => draw(state, 1, null, frame)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null, trace.frame); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>
