@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of Dijkstra's shortest path algorithm with a min-heap: greedy pop of the nearest unsettled node, edge relaxation, stale heap entries, and the infinity to -1 conversion for unreachable nodes. 最短路径：小顶堆 + 迪杰斯特拉算法，贪心确定最近节点、松弛边、跳过过时条目、不可达记为 -1。" />
+    <title>Shortest Path · 最短路径 · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .card-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="dijkstra-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Shortest Path · <span lang="zh-CN">最短路径</span></h1></div></header>
+      <p class="problem">Given an integer <code>n</code> representing nodes labeled from 0 to n - 1 in an undirected graph, and an array of non-negative weighted edges, return an array where each index <code>i</code> contains the shortest path length from a specified start node to node <code>i</code>. If a node is unreachable, set its distance to -1. Each edge is a triplet: <code>[start, end, weight]</code>. Example: <code>n = 6</code>, <code>edges = [[0,1,5],[0,2,3],[1,2,1],[1,3,4],[2,3,4],[2,4,5]]</code>, <code>start = 0</code> → <code>[0, 4, 3, 7, 8, -1]</code>.<span lang="zh-CN">给定 n 个节点（编号 0 到 n-1）的带权无向图，返回 start 到每个节点的最短路径长度；不可达的节点距离记为 -1，每条边是 [起点, 终点, 权重] 三元组。书例：n=6、start=0，答案是 [0, 4, 3, 7, 8, -1]——节点 5 与图不连通，所以是 -1。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="最短路径 Dijkstra 演示 / shortest path trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="最短路径 Dijkstra 演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>curr_node</code></dt><dd data-m-curr></dd></div>
+              <div><dt><code>curr_dist</code></dt><dd data-m-currd></dd></div>
+              <div><dt><code>min_heap</code> 大小</dt><dd data-m-heap></dd></div>
+              <div><dt>已确定节点</dt><dd data-m-settled></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="sp-code-title">
+          <h2 id="sp-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def shortest_path(n: int, edges: List[int], start: int) -&gt; List[int]:</span><span class="code-line" data-source-key="graph-init">    graph = defaultdict(list)</span><span class="code-line" data-source-key="dist-init">    distances = [float('inf')] * n</span><span class="code-line" data-source-key="dist-start">    distances[start] = 0</span><span class="code-line">    # Represent the graph as an adjacency list.</span><span class="code-line" data-source-key="build-loop">    for u, v, w in edges:</span><span class="code-line" data-source-key="build-append-u">        graph[u].append((v, w))</span><span class="code-line" data-source-key="build-append-v">        graph[v].append((u, w))</span><span class="code-line" data-source-key="heap-init">    min_heap = [(0, start)]  # (distance, node)</span><span class="code-line">    # Use Dijkstra's algorithm to find the shortest path between the start node</span><span class="code-line">    # and all other nodes.</span><span class="code-line" data-source-key="while">    while min_heap:</span><span class="code-line" data-source-key="pop">        curr_dist, curr_node = heapq.heappop(min_heap)</span><span class="code-line">        # If the current distance to this node is greater than the recorded</span><span class="code-line">        # distance, we've already found the shortest distance to this node.</span><span class="code-line" data-source-key="stale-check">        if curr_dist &gt; distances[curr_node]:</span><span class="code-line" data-source-key="stale-continue">            continue</span><span class="code-line">        # Update the distances of the neighboring nodes.</span><span class="code-line" data-source-key="neighbors-loop">        for neighbor, weight in graph[curr_node]:</span><span class="code-line" data-source-key="cand">            neighbor_dist = curr_dist + weight</span><span class="code-line">            # Only update the distance if we find a shorter path to this</span><span class="code-line">            # neighbor.</span><span class="code-line" data-source-key="relax-if">            if neighbor_dist &lt; distances[neighbor]:</span><span class="code-line" data-source-key="relax-update">                distances[neighbor] = neighbor_dist</span><span class="code-line" data-source-key="relax-push">                heapq.heappush(min_heap, (neighbor_dist, neighbor))</span><span class="code-line">    # Convert all infinity values to -1, representing unreachable nodes.</span><span class="code-line" data-source-key="return">    return [-1 if dist == float('inf') else dist for dist in distances]</span></code></pre>
+          <p class="note">边权标在连线上；<code>distances</code> 与 <code>min_heap</code> 的实时内容常驻图下方，邻接表即代码里的 <code>graph</code>。堆是二元组 <code>(距离, 节点)</code> 的小顶堆，堆顶在左。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="sp-intuition">
+        <h2 id="sp-intuition">直觉：选 Dijkstra / Choosing the algorithm</h2>
+        <p class="section-intro">单源最短路的四个候选：BFS 只适合无权（等权）图；Bellman-Ford 容忍负权边；Floyd-Warshall 求全点对；<strong>Dijkstra</strong> 管“非负权 + 单源”——正是本题。它的过程像涟漪：从 start 出发，每轮取当前距离最小的未确定节点，把它“定死”，再用它的出边尝试松动邻居的距离（松弛）。</p>
+        <p class="section-intro">为什么是“取最小者定死”而不是别的？这就是贪心选择：当前已知距离最小的节点，不可能再通过别的未确定节点变得更近——任何绕路都必须先经过某个距离已经不小于它的节点，而非负权意味着之后只会更长。于是它的 distances 值就是最终答案。</p>
+      </section>
+
+      <section class="section" aria-labelledby="sp-stale">
+        <h2 id="sp-stale">过时条目：不需要 visited 集合 / Stale heap entries</h2>
+        <p class="section-intro">堆允许同一个节点暂存多个条目：节点 1 先以 (5, 1) 入堆，后来经 0→2→1 把它改进到 4，又压入 (4, 1)。两个条目都在堆里，先弹出 (4, 1) 把节点 1 定死；之后弹出的 (5, 1) 一比对 <code>curr_dist &gt; distances[curr_node]</code> 便知是旧账，直接 <code>continue</code>。所以代码不需要单独的 visited 集合——首次弹出即确定，再弹到的都是过时条目。</p>
+        <p class="section-intro">书中特别演示过：去掉这个检查，节点 1 会被以更大的 curr_dist 重复访问一次（书中原图 0→1 边权取 6，于是条目是 (6, 1)；本页示例该边权为 5，条目是 (5, 1)，机制完全相同）。</p>
+      </section>
+
+      <section class="section" aria-labelledby="sp-why">
+        <h2 id="sp-why">为什么贪心成立，以及非负权前提 / Why it works</h2>
+        <div class="card-grid">
+          <article class="paper-card"><strong>局部最优 ⇒ 全局最优 / Greedy is safe</strong><p>弹出 curr_node 时，它的 curr_dist 是所有未确定节点的已知距离里最小的。任何另一条到 curr_node 的路径，第一步必须离开已确定集合、踏入某个 distances ≥ curr_dist 的节点；从那里走到 curr_node 还要再加非负的边权，所以不可能更短。它的距离就此确定。</p></article>
+          <article class="paper-card"><strong>负权会让论证失效 / Non-negative only</strong><p>若有负权边，“绕路只会更长”不再成立——先走远路再被负边拉回反而可能更短，此时“距离最小者先确定”是错的。负权图请用 Bellman-Floyd 思路的 Bellman-Ford；本题边权非负，Dijkstra 安全。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="sp-edge">
+        <h2 id="sp-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>不可达节点 → -1</strong><p>节点 5 没有任何邻接边，distances[5] 始终是 ∞，收尾的列表推导统一把 ∞ 转成 -1。无需在循环里特判。</p></article>
+          <article class="paper-card"><strong>起点即终点</strong><p><code>distances[start] = 0</code> 在建堆前就写好，(0, start) 第一个被弹出、第一个确定，天然正确。</p></article>
+          <article class="paper-card"><strong>重边与自环</strong><p>邻接表照单全收：重边只是多一个候选，松弛时自动取最小；自环的候选值 <code>curr_dist + w ≥ curr_dist</code>（非负权），永远不可能触发更新。</p></article>
+          <article class="paper-card"><strong>距离并列</strong><p>堆按 (distance, node) 二元组比较：距离相等再比节点编号，与 Python tuple 顺序一致，结果与手写 heapq 完全同步。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="sp-complexity">
+        <h2 id="sp-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O((n + e) log n)</strong><p>建邻接表 O(e)。主循环里每个节点只确定一次，每条边最多触发一次松弛入堆；每次 heappush / heappop 是 O(log n)，合计 O((n + e) log n)。</p></article>
+          <article class="paper-card"><strong>Space · O(n + e)</strong><p>邻接表存 2e 条 (邻居, 权) 记录，O(n + e)；distances O(n)；堆里每个节点至多一个有效条目加少量待清理的过时条目，O(n)。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../k-most-frequent-strings/">前 K 个高频字符串</a><a href="../median-of-an-integer-stream/">整数流的中位数</a><a href="../combine-sorted-linked-lists/">合并 K 个有序链表</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('dijkstra-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mCurr = root.querySelector('[data-m-curr]');
+        const mCurrD = root.querySelector('[data-m-currd]');
+        const mHeap = root.querySelector('[data-m-heap]');
+        const mSettled = root.querySelector('[data-m-settled]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const SANS = 'Arial, Helvetica, sans-serif';
+        const N = 6;
+        const EDGES = [[0, 1, 5], [0, 2, 3], [1, 2, 1], [1, 3, 4], [2, 3, 4], [2, 4, 5]];
+        const NODE_POS = [
+          { fx: 0.14, fy: 0.50 },
+          { fx: 0.40, fy: 0.15 },
+          { fx: 0.40, fy: 0.57 },
+          { fx: 0.68, fy: 0.32 },
+          { fx: 0.68, fy: 0.80 },
+          { fx: 0.14, fy: 0.84 }
+        ];
+        const EDGE_LABEL_N = {
+          '0-1': [-0.75, -0.66],
+          '0-2': [0, -1],
+          '1-2': [-1, 0],
+          '1-3': [0.25, -1],
+          '2-3': [0.25, 1],
+          '2-4': [-0.7, 0.7]
+        };
+        const EXAMPLE = { n: N, edges: EDGES, start: 0 };
+
+        // ---- simulation: mirrors the Python implementation line by line ----
+        // SIM-START
+        function createMinHeap() {
+          // Binary min-heap that replicates CPython heapq exactly: tuple order
+          // is (distance, node) — compare distance first, then node id.
+          const items = [];
+          const less = (a, b) => (a[0] < b[0]) || (a[0] === b[0] && a[1] < b[1]);
+          function siftTowardRoot(startPos, pos) {
+            // heapq._siftdown: follow the path to the root, moving parents down.
+            const newItem = items[pos];
+            while (pos > startPos) {
+              const parentPos = (pos - 1) >> 1;
+              const parent = items[parentPos];
+              if (less(newItem, parent)) {
+                items[pos] = parent;
+                pos = parentPos;
+              } else break;
+            }
+            items[pos] = newItem;
+          }
+          function siftTowardLeaves(pos) {
+            // heapq._siftup: bubble the smaller child up to a leaf, then settle.
+            const endPos = items.length;
+            const startPos = pos;
+            const newItem = items[pos];
+            let childPos = 2 * pos + 1;
+            while (childPos < endPos) {
+              const rightPos = childPos + 1;
+              if (rightPos < endPos && !less(items[childPos], items[rightPos])) childPos = rightPos;
+              items[pos] = items[childPos];
+              pos = childPos;
+              childPos = 2 * pos + 1;
+            }
+            items[pos] = newItem;
+            siftTowardRoot(startPos, pos);
+          }
+          return {
+            items,
+            push(item) {
+              items.push(item);
+              siftTowardRoot(0, items.length - 1);
+            },
+            pop() {
+              const last = items.pop();
+              if (items.length) {
+                const top = items[0];
+                items[0] = last;
+                siftTowardLeaves(0);
+                return top;
+              }
+              return last;
+            }
+          };
+        }
+
+        function simulateShortestPath(n, edges, start) {
+          const events = [];
+          const snapDist = d => d.map(x => (x === Infinity ? 'inf' : x));
+          const snapHeap = h => h.map(([d, v]) => [d, v]);
+
+          const distances = new Array(n).fill(Infinity);
+          events.push({ type: 'dist-init', distances: snapDist(distances), heap: [] });
+          distances[start] = 0;
+          events.push({ type: 'dist-start', node: start, distances: snapDist(distances), heap: [] });
+
+          const graph = Array.from({ length: n }, () => []);
+          events.push({ type: 'adj-init', distances: snapDist(distances), heap: [] });
+          for (const [u, v, w] of edges) {
+            graph[u].push([v, w]);
+            graph[v].push([u, w]);
+            events.push({ type: 'adj-edge', u, v, w, distances: snapDist(distances), heap: [] });
+          }
+
+          const minHeap = createMinHeap();
+          minHeap.push([0, start]);
+          events.push({ type: 'heap-init', distances: snapDist(distances), heap: snapHeap(minHeap.items) });
+
+          while (minHeap.items.length) {
+            const [currDist, currNode] = minHeap.pop();
+            if (currDist > distances[currNode]) {
+              events.push({ type: 'stale', node: currNode, dist: currDist, distances: snapDist(distances), heap: snapHeap(minHeap.items) });
+              continue;
+            }
+            events.push({ type: 'pop', node: currNode, dist: currDist, distances: snapDist(distances), heap: snapHeap(minHeap.items) });
+            for (const [neighbor, weight] of graph[currNode]) {
+              const neighborDist = currDist + weight;
+              const updated = neighborDist < distances[neighbor];
+              if (updated) {
+                distances[neighbor] = neighborDist;
+                minHeap.push([neighborDist, neighbor]);
+              }
+              events.push({ type: 'relax', from: currNode, to: neighbor, weight, cand: neighborDist, updated, distances: snapDist(distances), heap: snapHeap(minHeap.items) });
+            }
+          }
+          events.push({ type: 'loop-end', distances: snapDist(distances), heap: snapHeap(minHeap.items) });
+          const result = distances.map(d => (d === Infinity ? -1 : d));
+          events.push({ type: 'convert', distances: snapDist(distances), heap: [], result });
+          events.push({ type: 'final', distances: result.slice(), heap: [], result });
+          return events;
+        }
+        // SIM-END
+
+        const textW = (s, fs) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? fs : fs * 0.62), 0);
+        const fmtD = v => (v === null || v === undefined ? '—' : (v === Infinity ? '∞' : String(v)));
+        const fromSnap = arr => arr.map(v => (v === 'inf' ? Infinity : v));
+
+        function freshState() {
+          return {
+            intro: false,
+            showTable: false,
+            distances: null,
+            determined: new Array(N).fill(false),
+            heap: [],
+            adjReady: false,
+            current: null,
+            staleNode: null,
+            ghost: null,
+            edge: null,
+            result: null,
+            done: false
+          };
+        }
+
+        function buildFrames() {
+          const events = simulateShortestPath(EXAMPLE.n, EXAMPLE.edges, EXAMPLE.start);
+          const frames = [];
+          const fr = (stepLabel, phase, sourceKeys, line, explanation, invariant, state) =>
+            frames.push({ stepLabel, phase, sourceKeys, line, explanation, invariant, state });
+
+          const INV = {
+            unknown: 'distances[i] 将记录 start(=0) 到节点 i 的最短路径长度。',
+            upper: 'distances[v] = 当前已知的 0→v 最短距离上界；∞ 表示还没找到路。',
+            adj: '邻接表 graph：每个节点挂一个 (邻居, 边权) 列表；无向边登记两次。',
+            heapTop: '堆顶 = 未确定节点中 distances 最小者（过时条目除外）。',
+            greedy: '弹出的非过时条目 = 该节点的最终最短距离：非负权下不存在更短的绕路。',
+            relax: '松弛：若经 curr_node 绕路更短（neighbor_dist < distances[neighbor]），就更新距离并把新候选压入堆。',
+            noUpdate: '候选值不小于当前记录 → 什么都不做，直接进入下一条边。',
+            stale: 'curr_dist > distances[curr_node] ⇒ 这是更新前压入的旧条目，跳过即可，无需 visited 集合。',
+            done: '堆空 ⇒ 所有可达节点都已确定，只剩不可达节点的 ∞ 待转换。'
+          };
+
+          let s = freshState();
+          s.intro = true;
+          fr('题面与示例图', '题面', ['func'],
+            'def shortest_path(n, edges, start)  # n=6, start=0',
+            '上方是书例的带权无向图：6 个节点、6 条边，边权标在连线上，start=0。要求 0 到每个节点的最短路径长度；节点 5 不连通，应是 -1。下面由 Dijkstra 逐步算出答案 [0, 4, 3, 7, 8, -1]。',
+            INV.unknown, s);
+
+          s = { ...s, showTable: true };
+          fr('选算法：四种单源/最短路算法对比', '算法选择', ['func'],
+            'def shortest_path(n, edges, start)  # 非负权 + 单源 → Dijkstra',
+            'BFS 只适合无权（等权）图；Bellman-Ford 支持负权边；Floyd-Warshall 求全点对最短路。本题是“非负权 + 单源”，正属 Dijkstra：每轮取当前距离最小的节点，其距离就此确定。',
+            INV.unknown, s);
+
+          s = freshState();
+          let round = 0;
+          let currDist = null;
+          let currNode = null;
+          for (const ev of events) {
+            if (ev.type === 'adj-edge') continue;
+            const prev = s;
+            switch (ev.type) {
+              case 'dist-init':
+                s = { ...s, distances: fromSnap(ev.distances) };
+                fr('distances 全部初始化为 ∞', '初始化', ['dist-init'],
+                  "distances = [float('inf')] * n",
+                  'distances 先全部写成 ∞：此刻还没有找到任何路径，每个节点的距离都是“未知”。',
+                  INV.upper, s);
+                break;
+              case 'dist-start':
+                s = { ...s, distances: fromSnap(ev.distances) };
+                fr('起点距离 = 0', '初始化', ['dist-start'],
+                  'distances[start] = 0  # distances[0] = 0',
+                  'start=0：自己到自己的距离是 0，所以 distances[0] = 0，其余 5 格仍是 ∞。',
+                  INV.upper, s);
+                break;
+              case 'adj-init':
+                fr('建邻接表：从空表开始', '初始化', ['graph-init', 'build-loop'],
+                  'graph = defaultdict(list)；for u, v, w in edges:',
+                  '图用邻接表 graph 存储。无向图的每条边 (u, v, w) 要登记两次：graph[u] 追加 (v, w)，graph[v] 追加 (u, w)。',
+                  INV.adj, s);
+                break;
+              case 'heap-init':
+                s = { ...s, heap: ev.heap.map(h => [...h]), adjReady: true };
+                fr('邻接表建成，小顶堆初始化', '初始化', ['build-append-u', 'build-append-v', 'heap-init'],
+                  'graph[u].append((v, w)); graph[v].append((u, w))；min_heap = [(0, start)]',
+                  '6 条边全部写入邻接表：节点 0 的邻居是 (1,5)、(2,3)；节点 5 没有任何邻居——它已经注定不可达。堆 min_heap 只放 (0, 0)：堆顶永远是“已知距离最小”的候选。',
+                  INV.heapTop, s);
+                break;
+              case 'pop': {
+                round += 1;
+                currDist = ev.dist; currNode = ev.node;
+                s = {
+                  ...s,
+                  heap: ev.heap.map(h => [...h]),
+                  current: ev.node,
+                  staleNode: null,
+                  ghost: { d: ev.dist, n: ev.node, stale: false },
+                  edge: null,
+                  determined: s.determined.map((v, i) => (i === ev.node ? true : v))
+                };
+                const isStart = ev.node === 0;
+                const label = isStart ? '弹出 (0, 0)：起点确定' : `弹出 (${ev.dist}, ${ev.node})：节点 ${ev.node} 确定`;
+                const expl = isStart
+                  ? 'while 堆非空：弹出堆顶 (0, 0)。curr_dist=0 等于 distances[0]，不是过时条目——0 号节点的最短距离确定为 0。接着松弛它的每个邻居。'
+                  : `弹出堆顶 (${ev.dist}, ${ev.node})：curr_dist=${ev.dist} 等于 distances[${ev.node}]，节点 ${ev.node} 的最短距离就此确定。它是所有未确定节点里距离最小的——非负权保证不存在更短的绕路。`;
+                fr(label, `第 ${round} 轮 · 弹出`, ['while', 'pop'],
+                  `curr_dist, curr_node = heapq.heappop(min_heap)  # (${ev.dist}, ${ev.node})`,
+                  expl, INV.greedy, s);
+                break;
+              }
+              case 'relax': {
+                const prevBest = fmtD(prev.distances ? prev.distances[ev.to] : null);
+                s = {
+                  ...s,
+                  distances: fromSnap(ev.distances),
+                  heap: ev.heap.map(h => [...h]),
+                  edge: { from: ev.from, to: ev.to, curr: currDist, weight: ev.weight, cand: ev.cand, updated: ev.updated }
+                };
+                const cmp = ev.updated ? '<' : '≥';
+                const label = ev.updated
+                  ? `松弛 ${ev.from}→${ev.to}：${ev.cand} < ${prevBest}，更新`
+                  : `松弛 ${ev.from}→${ev.to}：${ev.cand} ≥ ${prevBest}，不更新`;
+                const line = ev.updated
+                  ? `neighbor_dist = ${currDist} + ${ev.weight} = ${ev.cand} < distances[${ev.to}](=${prevBest}) → 更新并入堆`
+                  : `neighbor_dist = ${currDist} + ${ev.weight} = ${ev.cand} ≥ distances[${ev.to}](=${prevBest}) → 不更新`;
+                let expl;
+                if (ev.updated && ev.from === 2 && ev.to === 1) {
+                  expl = '关键一步：经 2 绕到 1 的候选 3 + 1 = 4，比 0→1 直达的 5 更短！更新 distances[1] = 4，压入 (4, 1)。注意：旧的 (5, 1) 仍留在堆里，稍后它会作为“过时条目”被认出并跳过。';
+                } else if (ev.updated) {
+                  expl = `松弛 ${ev.from}→${ev.to}：候选 ${currDist} + ${ev.weight} = ${ev.cand} 小于 ∞，更新 distances[${ev.to}] = ${ev.cand}，把 (${ev.cand}, ${ev.to}) 压入堆。`;
+                } else if (ev.to === 0) {
+                  expl = `松弛 ${ev.from}→${ev.to}：候选 ${currDist} + ${ev.weight} = ${ev.cand}，不比 distances[0]=0 小——绕回起点没有意义，不更新。`;
+                } else {
+                  expl = `松弛 ${ev.from}→${ev.to}：候选 ${currDist} + ${ev.weight} = ${ev.cand}，不小于 distances[${ev.to}]=${prevBest}，不更新。`;
+                }
+                fr(label, `第 ${round} 轮 · 松弛`,
+                  ev.updated ? ['neighbors-loop', 'cand', 'relax-if', 'relax-update', 'relax-push'] : ['neighbors-loop', 'cand', 'relax-if'],
+                  line, expl, ev.updated ? INV.relax : INV.noUpdate, s);
+                break;
+              }
+              case 'stale':
+                s = {
+                  ...s,
+                  heap: ev.heap.map(h => [...h]),
+                  current: null,
+                  staleNode: ev.node,
+                  ghost: { d: ev.dist, n: ev.node, stale: true },
+                  edge: null
+                };
+                fr(`弹出 (${ev.dist}, ${ev.node})：过时条目，跳过`, '过时条目', ['while', 'pop', 'stale-check', 'stale-continue'],
+                  `if curr_dist > distances[curr_node]:  # ${ev.dist} > ${fmtD(prev.distances[ev.node])}，continue`,
+                  `弹出 (${ev.dist}, ${ev.node})：curr_dist=${ev.dist} 大于 distances[${ev.node}]=${fmtD(prev.distances[ev.node])}——这是 0→1 直达的旧候选，已被 (4, 1) 取代，直接 continue。这个检查替代了 visited 集合。（书中原图 0→1 边权取 6 时，这里弹出的就是 (6, 1)，道理相同。）`,
+                  INV.stale, s);
+                break;
+              case 'loop-end':
+                s = { ...s, current: null, ghost: null, staleNode: null, edge: null };
+                fr('堆空，循环结束', '收尾', ['while'],
+                  'while min_heap:  # 空，退出循环',
+                  'min_heap 为空，while 结束。0–4 号节点的距离全部确定，只有 5 号还是 ∞。',
+                  INV.done, s);
+                break;
+              case 'convert':
+                s = { ...s, distances: ev.result.slice(), result: ev.result.slice(), ghost: null, edge: null };
+                fr('∞ 转成 -1：标记不可达节点', '收尾', ['return'],
+                  "return [-1 if dist == float('inf') else dist for dist in distances]",
+                  '收尾转换：distances[5] 仍是 ∞——节点 5 与图不连通，从 0 不可达，按题意写成 -1。',
+                  '∞ ⇒ 从 start 不可达，统一记为 -1。', s);
+                break;
+              case 'final':
+                s = { ...s, done: true, edge: null };
+                fr('返回 [0, 4, 3, 7, 8, -1]', '收尾', ['return'],
+                  'return [0, 4, 3, 7, 8, -1]',
+                  '返回最终结果 [0, 4, 3, 7, 8, -1]，与书例输出逐字一致。复盘：0→1 走 0-2-1 长 4；0→3 走 0-2-3 长 7；0→4 走 0-2-4 长 8。',
+                  'Dijkstra 完成：每个 distances[i] 都是从 0 出发的最短路径长度。', s);
+                break;
+              default:
+                break;
+            }
+          }
+          return frames;
+        }
+
+        const FRAMES = buildFrames();
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('sp-arrow-soft', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout(state) {
+          const W = stage.clientWidth;
+          const narrow = W < 620;
+          const r = Math.max(13, Math.min(18, W * 0.024));
+          const graphH = Math.round(Math.max(narrow ? 205 : 195, Math.min(250, W * 0.34)));
+          const pad = 8;
+          const distBlock = 16 + 30;
+          const heapBlock = 18 + 24;
+          const adjBlock = 16 + N * 15 + 2;
+          let bottom;
+          if (state && state.showTable) bottom = 12 + 24 + 4 * 27 + 10;
+          else if (narrow) bottom = distBlock + 10 + heapBlock + 10 + adjBlock + 8;
+          else bottom = distBlock + 10 + Math.max(heapBlock, adjBlock) + 12;
+          const H = graphH + 10 + bottom;
+          geom = { W, narrow, r, graphH, pad, distBlock, heapBlock, adjBlock, bottom, fs: narrow ? 10 : 11 };
+          svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+          stage.style.height = `${H}px`;
+        }
+
+        const nodePt = i => ({ x: NODE_POS[i].fx * geom.W, y: NODE_POS[i].fy * geom.graphH });
+
+        function seg(A, B, r) {
+          const dx = B.x - A.x, dy = B.y - A.y;
+          const L = Math.hypot(dx, dy) || 1;
+          const ux = dx / L, uy = dy / L;
+          return { x1: A.x + ux * (r + 2), y1: A.y + uy * (r + 2), x2: B.x - ux * (r + 3), y2: B.y - uy * (r + 3) };
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom || !state) return;
+          const g = geom;
+          const presence = (was, is) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
+          const nodeR = g.r;
+          const off = nodeR + 8;
+
+          scene.update(({ path, text, circle }) => {
+            // ---- graph edges ----
+            for (const [a, b, w] of EDGES) {
+              const A = nodePt(a), B = nodePt(b);
+              const s = seg(A, B, nodeR);
+              const active = state.edge && ((state.edge.from === a && state.edge.to === b) || (state.edge.from === b && state.edge.to === a));
+              path(`edge-${a}-${b}`, {
+                d: `M ${s.x1} ${s.y1} L ${s.x2} ${s.y2}`,
+                stroke: active ? '#272727' : '#8a8a84',
+                'stroke-width': active ? 2.4 : 1.3,
+                fill: 'none'
+              });
+              const mid = { x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 };
+              const nrm = EDGE_LABEL_N[`${a}-${b}`];
+              const wl = String(w);
+              const wlW = textW(wl, 10) + 10;
+              const lx = mid.x + nrm[0] * off;
+              const ly = mid.y + nrm[1] * off;
+              path(`wl-box-${a}-${b}`, { d: rectPath(lx - wlW / 2, ly - 8, wlW, 15, 2), fill: '#fffdf8', stroke: active ? '#272727' : '#999', 'stroke-width': 1 });
+              text(`wl-${a}-${b}`, { x: lx, y: ly + 3.5, 'text-anchor': 'middle', 'font-size': 10, fill: active ? '#272727' : '#555', 'font-family': MONO, 'font-weight': active ? 'bold' : 'normal' }, wl);
+
+              if (active) {
+                const e = state.edge;
+                const line1 = `${e.curr} + ${e.weight} = ${e.cand}`;
+                const line2 = e.updated ? `更新 distances[${e.to}] = ${e.cand}` : `≥ distances[${e.to}]，不更新`;
+                const fs2 = g.narrow ? 9 : 9.5;
+                const cw = Math.max(textW(line1, g.fs), textW(line2, fs2)) + 14;
+                const chH = 34;
+                const cx = g.W - cw / 2 - 10;
+                const cy = 22;
+                path('cand-box', {
+                  d: rectPath(cx - cw / 2, cy, cw, chH, 3),
+                  fill: '#fffdf8',
+                  stroke: e.updated ? '#272727' : '#999',
+                  'stroke-width': 1.3,
+                  'stroke-dasharray': '4 3',
+                  opacity: t
+                });
+                text('cand-l1', { x: cx, y: cy + 13, 'text-anchor': 'middle', 'font-size': g.fs, fill: e.updated ? '#272727' : '#777', 'font-family': MONO, 'font-weight': e.updated ? 'bold' : 'normal', opacity: t }, line1);
+                text('cand-l2', { x: cx, y: cy + 27, 'text-anchor': 'middle', 'font-size': fs2, fill: e.updated ? '#272727' : '#999', 'font-family': MONO, opacity: t }, line2);
+                const ax = mid.x + nrm[0] * off * 0.4;
+                const ay = mid.y + nrm[1] * off * 0.4;
+                path('cand-link', { d: `M ${cx - cw / 2} ${cy + chH / 2} L ${ax} ${ay}`, stroke: '#555', 'stroke-width': 1, 'stroke-dasharray': '3 3', fill: 'none', opacity: t });
+              }
+            }
+
+            // ---- graph nodes ----
+            for (let i = 0; i < N; i += 1) {
+              const p = nodePt(i);
+              const cur = state.current === i;
+              const det = state.determined[i];
+              const unreachable = state.result && state.distances[i] === Infinity;
+              const stroke = unreachable ? '#999' : '#272727';
+              if (det && !cur) circle(`node-det-${i}`, { cx: p.x, cy: p.y, r: nodeR + 4, fill: 'none', stroke: '#8a8a84', 'stroke-width': 1.2 });
+              if (cur) {
+                circle('node-cur-ring', { cx: p.x, cy: p.y, r: nodeR + 6, fill: 'none', stroke: '#272727', 'stroke-width': 1.4, 'stroke-dasharray': '5 3' });
+                const tag = `确定 dist=${fmtD(state.distances[i])}`;
+                const tw = textW(tag, 9.5) + 10;
+                const tx = Math.max(p.x + nodeR + 6 + tw / 2, Math.min(g.W - tw / 2 - 2, p.x + nodeR + 14));
+                const ty = Math.max(18, p.y - nodeR - 8);
+                path('cur-tag-box', { d: rectPath(tx - tw / 2, ty - 8, tw, 16, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.2 });
+                text('cur-tag', { x: tx, y: ty + 4, 'text-anchor': 'middle', 'font-size': 9.5, fill: '#272727', 'font-family': MONO }, tag);
+              }
+              if (state.staleNode === i) {
+                circle('node-stale-ring', { cx: p.x, cy: p.y, r: nodeR + 6, fill: 'none', stroke: '#999', 'stroke-width': 1.3, 'stroke-dasharray': '5 3' });
+                const gh = state.ghost;
+                const tag = `过时条目 (${gh.d}, ${gh.n})`;
+                const tw = textW(tag, 9.5) + 10;
+                const tx = Math.max(p.x + nodeR + 6 + tw / 2, Math.min(g.W - tw / 2 - 2, p.x + nodeR + 14));
+                const ty = Math.max(18, p.y - nodeR - 8);
+                path('stale-tag-box', { d: rectPath(tx - tw / 2, ty - 8, tw, 16, 3), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
+                text('stale-tag', { x: tx, y: ty + 4, 'text-anchor': 'middle', 'font-size': 9.5, fill: '#777', 'font-family': MONO }, tag);
+              }
+              circle(`node-${i}`, { cx: p.x, cy: p.y, r: nodeR, fill: cur ? '#272727' : '#fffdf8', stroke, 'stroke-width': cur ? 2 : 1.6 });
+              text(`node-v-${i}`, { x: p.x, y: p.y + (g.narrow ? 4 : 4.5), 'text-anchor': 'middle', 'font-size': nodeR * 0.85, fill: cur ? '#fffdf8' : stroke, 'font-family': SANS }, String(i));
+              if (i === 0) text('start-tag', { x: p.x, y: p.y - nodeR - (cur ? 22 : 8), 'text-anchor': 'middle', 'font-size': 9.5, fill: '#555', 'font-family': MONO }, 'start=0');
+              const dv = state.result && state.distances[i] === Infinity ? '-1' : fmtD(state.distances ? state.distances[i] : null);
+              const dtw = textW(dv, g.narrow ? 9 : 9.5) + 6;
+              path(`node-d-bg-${i}`, { d: rectPath(p.x - dtw / 2, p.y + nodeR + 4, dtw, 12, 2), fill: '#fffdf8' });
+              text(`node-d-${i}`, {
+                x: p.x,
+                y: p.y + nodeR + 12,
+                'text-anchor': 'middle',
+                'font-size': g.narrow ? 9 : 9.5,
+                fill: det ? '#272727' : '#777',
+                'font-family': MONO,
+                'font-weight': det ? 'bold' : 'normal'
+              }, dv);
+            }
+
+            const topY = g.graphH + 10;
+
+            if (state.showTable) {
+              // ---- algorithm comparison table ----
+              const tx0 = g.pad;
+              const tw0 = g.W - g.pad * 2;
+              const col1 = g.narrow ? 96 : 150;
+              const headerH = 24;
+              const rowH = 27;
+              const rows = [
+                ['BFS', '无权图（每条边代价相同）'],
+                ['Dijkstra', '非负权 · 单源最短路  ← 本题'],
+                ['Bellman-Ford', '含负权边（还能检测负环）'],
+                ['Floyd-Warshall', '全点对最短路']
+              ];
+              let ty = topY + 4;
+              path('tbl-head', { d: rectPath(tx0, ty, tw0, headerH, 2), fill: '#eeece2', stroke: '#999', 'stroke-width': 1.1 });
+              text('tbl-h1', { x: tx0 + col1 / 2, y: ty + 16, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '算法');
+              text('tbl-h2', { x: tx0 + col1 + 10, y: ty + 16, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '适用场景');
+              rows.forEach((row, k) => {
+                const ry = ty + headerH + k * rowH;
+                const hot = row[0] === 'Dijkstra';
+                path(`tbl-r-${k}`, { d: rectPath(tx0, ry, tw0, rowH, 0), fill: hot ? '#e6e3d5' : '#fffdf8', stroke: hot ? '#272727' : '#999', 'stroke-width': hot ? 1.5 : 1 });
+                text(`tbl-a-${k}`, { x: tx0 + col1 / 2, y: ry + rowH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': hot ? 'bold' : 'normal' }, row[0]);
+                text(`tbl-s-${k}`, { x: tx0 + col1 + 10, y: ry + rowH / 2 + 3.5, 'font-size': g.fs, fill: hot ? '#272727' : '#555', 'font-family': MONO }, row[1]);
+              });
+              return;
+            }
+
+            // ---- distances panel ----
+            const distY = topY;
+            text('dist-title', { x: g.pad, y: distY + 9, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'distances');
+            const cellGap = g.narrow ? 4 : 8;
+            const cellW = Math.min(g.narrow ? 46 : 56, (g.W - g.pad * 2 - cellGap * (N - 1)) / N);
+            const cellH = 28;
+            const cellY = distY + 15;
+            const distVal = i => (state.result && state.distances[i] === Infinity ? -1 : (state.distances ? state.distances[i] : null));
+            for (let i = 0; i < N; i += 1) {
+              const x = g.pad + i * (cellW + cellGap);
+              text(`di-${i}`, { x: x + cellW / 2, y: cellY - 2, 'text-anchor': 'middle', 'font-size': 9, fill: '#777', 'font-family': MONO }, String(i));
+              const det = state.determined[i];
+              path(`d-box-${i}`, {
+                d: rectPath(x, cellY, cellW, cellH, 3),
+                fill: det ? '#eeece2' : '#fffdf8',
+                stroke: det ? '#272727' : '#999',
+                'stroke-width': det ? 1.6 : 1.1
+              });
+              const toVal = distVal(i);
+              const fromVal = from && from.distances ? (from.result && from.distances[i] === Infinity ? -1 : from.distances[i]) : null;
+              const changed = from && fmtD(fromVal) !== fmtD(toVal);
+              if (changed && from) {
+                text(`d-old-${i}`, { x: x + cellW / 2, y: cellY + cellH / 2 + 4 - (1 - t) * 5, 'text-anchor': 'middle', 'font-size': 13, fill: '#999', 'font-family': MONO, opacity: 1 - t }, fmtD(fromVal));
+                text(`d-new-${i}`, { x: x + cellW / 2, y: cellY + cellH / 2 + 4 + (1 - t) * 3, 'text-anchor': 'middle', 'font-size': 13, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold', opacity: t }, fmtD(toVal));
+              } else {
+                text(`d-val-${i}`, { x: x + cellW / 2, y: cellY + cellH / 2 + 4, 'text-anchor': 'middle', 'font-size': 13, fill: toVal === Infinity ? '#999' : (det ? '#272727' : '#555'), 'font-family': MONO, 'font-weight': det ? 'bold' : 'normal' }, fmtD(toVal));
+              }
+              if (state.current === i) {
+                path('d-cur-ring', { d: rectPath(x - 2.5, cellY - 2.5, cellW + 5, cellH + 5, 4), fill: 'none', stroke: '#272727', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
+              }
+              if (state.result && state.distances[i] === Infinity) {
+                text('d-unreach', { x: x + cellW / 2, y: cellY + cellH + 11, 'text-anchor': 'middle', 'font-size': 9, fill: '#999', 'font-family': MONO }, '不可达');
+              }
+            }
+
+            // ---- heap panel (shares the second row with the adjacency list) ----
+            const heapY = distY + g.distBlock + 10;
+            const heapX = g.pad;
+            text('heap-title', { x: heapX, y: heapY + 9, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'min_heap');
+            text('heap-hint', { x: heapX + textW('min_heap', g.fs) + 10, y: heapY + 9, 'font-size': 9, fill: '#777', 'font-family': MONO }, '(距离, 节点) · 堆顶在左');
+            const hCellH = 24;
+            const hY = heapY + 14;
+            let hx = heapX;
+            state.heap.forEach(([d, v], k) => {
+              const label = `(${d}, ${v})`;
+              const w = textW(label, g.fs) + 14;
+              const isNew = from && !from.heap.some(([d2, v2]) => d2 === d && v2 === v);
+              const op = isNew ? t : 1;
+              path(`h-box-${k}`, { d: rectPath(hx, hY, w, hCellH, 3), fill: '#fffdf8', stroke: '#777', 'stroke-width': 1.2, opacity: op });
+              text(`h-val-${k}`, { x: hx + w / 2, y: hY + hCellH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, opacity: op }, label);
+              if (state.edge && state.edge.updated && isNew) {
+                path(`h-new-${k}`, { d: rectPath(hx - 2, hY - 2, w + 4, hCellH + 4, 4), fill: 'none', stroke: '#272727', 'stroke-width': 1.2, 'stroke-dasharray': '4 3', opacity: t });
+              }
+              if (k === 0) text('h-top', { x: hx + w / 2, y: hY - 3, 'text-anchor': 'middle', 'font-size': 9, fill: '#555', 'font-family': MONO }, '堆顶');
+              hx += w + 6;
+            });
+            if (!state.heap.length) {
+              path('h-empty', { d: rectPath(heapX, hY, 44, hCellH, 3), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+              text('h-empty-t', { x: heapX + 22, y: hY + hCellH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#999', 'font-family': MONO }, '空');
+            }
+            if (from && from.heap) {
+              from.heap.forEach(([d, v], k) => {
+                const gone = !state.heap.some(([d2, v2]) => d2 === d && v2 === v);
+                if (!gone) return;
+                const label = `(${d}, ${v})`;
+                const w = textW(label, g.fs) + 14;
+                let fx = heapX;
+                for (let j = 0; j < k; j += 1) {
+                  fx += textW(`(${from.heap[j][0]}, ${from.heap[j][1]})`, g.fs) + 14 + 6;
+                }
+                path(`h-gone-box-${k}`, { d: rectPath(fx, hY, w, hCellH, 3), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '3 3', opacity: 1 - t });
+                text(`h-gone-${k}`, { x: fx + w / 2, y: hY + hCellH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#999', 'font-family': MONO, opacity: 1 - t }, label);
+              });
+            }
+            if (state.ghost) {
+              const gh = state.ghost;
+              const label = `(${gh.d}, ${gh.n})`;
+              const w = textW(label, g.fs) + 14;
+              const gyy = hY - 34;
+              path('ghost-box', { d: rectPath(heapX, gyy, w, 20, 3), fill: '#fffdf8', stroke: gh.stale ? '#999' : '#555', 'stroke-width': 1.2, 'stroke-dasharray': gh.stale ? '4 3' : 'none', opacity: t });
+              text('ghost-val', { x: heapX + w / 2, y: gyy + 14, 'text-anchor': 'middle', 'font-size': g.fs, fill: gh.stale ? '#777' : '#272727', 'font-family': MONO, opacity: t }, label);
+              text('ghost-cap', { x: heapX + w + 8, y: gyy + 14, 'font-size': 9, fill: gh.stale ? '#777' : '#555', 'font-family': MONO, opacity: t }, gh.stale ? 'curr_dist 更大：过时，跳过' : '弹出堆顶');
+            }
+
+            // ---- adjacency panel ----
+            const adjY = g.narrow ? heapY + g.heapBlock + 10 : heapY;
+            const adjX = g.narrow ? g.pad : g.W * 0.46;
+            text('adj-title', { x: adjX, y: adjY + 9, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '邻接表 graph');
+            if (!state.adjReady) {
+              text('adj-empty', { x: adjX, y: adjY + 28, 'font-size': g.fs, fill: '#999', 'font-family': MONO }, '(空) defaultdict(list)');
+            } else {
+              for (let i = 0; i < N; i += 1) {
+                const pairs = EDGES.filter(([a, b]) => a === i || b === i)
+                  .map(([a, b, w]) => `(${a === i ? b : a},${w})`)
+                  .join(' ');
+                text(`adj-l-${i}`, { x: adjX, y: adjY + 26 + i * 15, 'font-size': g.fs, fill: i === 5 ? '#999' : '#555', 'font-family': MONO }, `${i}: ${pairs || '（无邻居）'}`);
+              }
+            }
+
+            // ---- final result banner ----
+            if (state.result) {
+              const label = `return [${state.result.join(', ')}]`;
+              const w = textW(label, g.fs) + 14;
+              const bx = g.W - w - g.pad;
+              const by = g.narrow ? adjY + g.adjBlock + 2 : topY + 2;
+              path('ret-box', { d: rectPath(bx, by - 8, w, 20, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.3 });
+              text('ret-text', { x: bx + 7, y: by + 6, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, label);
+            }
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.phase;
+          invariantEl.textContent = frame.invariant;
+          mCurr.textContent = state.current !== null ? String(state.current) : (state.staleNode !== null ? `(${state.ghost.d}, ${state.ghost.n}) 跳过` : '—');
+          mCurrD.textContent = state.current !== null ? String(state.distances[state.current]) : (state.staleNode !== null ? `curr_dist=${state.ghost.d}` : '—');
+          mHeap.textContent = String(state.heap.length);
+          mSettled.textContent = `${state.determined.filter(Boolean).length} / ${N}`;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.explanation;
+          stage.setAttribute('aria-label', `最短路径 Dijkstra 演示：第 ${step + 1} / ${frames.length} 步。${frame.explanation}`);
+          layout(state);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({
+          ...s,
+          distances: s.distances ? [...s.distances] : null,
+          determined: [...s.determined],
+          heap: s.heap.map(h => [...h]),
+          edge: s.edge ? { ...s.edge } : null,
+          ghost: s.ghost ? { ...s.ghost } : null,
+          result: s.result ? [...s.result] : null
+        });
+
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 420,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        new ResizeObserver(() => { motion.cancel(); layout(trace.state); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>

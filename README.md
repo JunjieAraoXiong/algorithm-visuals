@@ -88,6 +88,11 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [K-Sum Subarrays / 和为 K 的子数组](https://junjiearaoxiong.github.io/algorithm-visuals/k-sum-subarrays/)
 - [Product Array Without Current Element / 除自身以外数组的乘积](https://junjiearaoxiong.github.io/algorithm-visuals/product-array-without-current-element/)
 
+### 11 · Graphs / 图
+
+- [Shortest Path / 最短路径](https://junjiearaoxiong.github.io/algorithm-visuals/shortest-path/)
+- [Connect the Dots / 连接所有点](https://junjiearaoxiong.github.io/algorithm-visuals/connect-the-dots/)
+
 ## Development
 
 - `npm run build` validates the registry, catalog, README inventory, and internal links, then writes the ignored `_site/` directory.

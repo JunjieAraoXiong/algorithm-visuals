@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of connecting all points on a plane with minimum cost: model points as graph nodes and Manhattan distances as edge weights, then run Kruskal's MST algorithm with a union-find that merges by size. 连接所有点：点作节点、Manhattan 距离作边权，Kruskal + 并查集求最小生成树。" />
+    <title>Connect the Dots · 连接所有点 · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 10px; margin: 12px 3px 0; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .table-cap { margin: 10px 3px 0; color: var(--quiet); font: 11px/1.4 monospace; }
+      .edge-table { width: 100%; margin: 4px 3px 0; border-collapse: collapse; font: 12px/1.35 monospace; }
+      .edge-table th, .edge-table td { padding: 3px 8px; border: 1px solid var(--rule); text-align: left; white-space: nowrap; }
+      .edge-table thead th { color: var(--quiet); font-weight: 500; background: #f8f6f0; }
+      .edge-table td.num { text-align: right; }
+      .edge-table tbody tr.current td { background: #e9e5d9; }
+      .edge-table tbody tr.rejected td { color: #8a8a85; }
+      .edge-table tbody tr.unprocessed td { color: #a9a69d; }
+      .edge-table td.st-ok { color: #272727; }
+      .edge-table td.st-no { color: #8a8a85; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .idea-grid, .edge-grid, .complexity, .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .idea-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      @media (max-width: 700px) {
+        .state-grid, .idea-grid, .edge-grid, .complexity, .example-grid { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="dots-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Connect the Dots · <span lang="zh-CN">连接所有点</span></h1><p class="subtitle">Medium · 中等 — Kruskal / 克鲁斯卡尔算法 · Union-Find / 并查集</p></div></header>
+      <p class="problem">Given a set of points on a plane, determine the minimum cost to connect all these points. The cost of connecting two points is the Manhattan distance <code>|x1 - x2| + |y1 - y2|</code>. Example: <code>points = [[1,1],[2,6],[3,2],[4,3],[7,1]]</code> → output <code>15</code>. There will be at least 2 points.<span lang="zh-CN">平面上有一组点，求把所有点连通的最小代价；连接两点的代价是 Manhattan 距离 |x1-x2|+|y1-y2|。例子：points = [[1,1],[2,6],[3,2],[4,3],[7,1]]，输出 15。点数至少为 2。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="连接所有点 Kruskal 演示 / connect the dots trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="连接所有点演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>total_cost</code></dt><dd data-m-total></dd></div>
+              <div><dt><code>edges_added</code></dt><dd data-m-added></dd></div>
+              <div><dt>连通分量</dt><dd data-m-comp></dd></div>
+              <div><dt>当前边</dt><dd data-m-edge></dd></div>
+            </dl>
+          </div>
+          <p class="table-cap" data-table-cap></p>
+          <table class="edge-table" data-edge-table aria-label="edges 排序表" hidden>
+            <thead><tr><th>#</th><th>边 (i, j)</th><th>代价</th><th>结果</th></tr></thead>
+            <tbody data-edge-rows></tbody>
+          </table>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="dots-code-title">
+          <h2 id="dots-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func-def">def connect_the_dots(points: List[List[int]]) -&gt; int:</span><span class="code-line" data-source-key="n">    n = len(points)</span><span class="code-line">    # Create and populate an array containing all possible edges.</span><span class="code-line" data-source-key="edges-init">    edges = []</span><span class="code-line" data-source-key="for-i">    for i in range(n):</span><span class="code-line" data-source-key="for-j">        for j in range(i + 1, n):</span><span class="code-line">            # Manhattan distance.</span><span class="code-line" data-source-key="cost">            cost = (abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]))</span><span class="code-line" data-source-key="append">            edges.append((cost, i, j))</span><span class="code-line">    # Sort the edges by their cost in ascending order.</span><span class="code-line" data-source-key="sort">    edges.sort()</span><span class="code-line" data-source-key="uf-init">    uf = UnionFind(n)</span><span class="code-line" data-source-key="total-init">    total_cost = 0</span><span class="code-line" data-source-key="added-init">    edges_added = 0</span><span class="code-line">    # Use Kruskal's algorithm to create the MST and identify its minimum cost.</span><span class="code-line" data-source-key="for-edge">    for cost, p1, p2 in edges:</span><span class="code-line">        # If the points are not already connected (i.e., their representatives</span><span class="code-line">        # are not the same), connect them, and add the cost to the total cost.</span><span class="code-line" data-source-key="union-if">        if uf.union(p1, p2):</span><span class="code-line" data-source-key="add-cost">            total_cost += cost</span><span class="code-line" data-source-key="add-count">            edges_added += 1</span><span class="code-line">        # If n - 1 edges have been added to the MST, the MST is complete.</span><span class="code-line" data-source-key="done-if">        if edges_added == n - 1:</span><span class="code-line" data-source-key="return">            return total_cost</span><span class="code-line"></span><span class="code-line" data-source-key="class">class UnionFind:</span><span class="code-line" data-source-key="init-def">    def __init__(self, size):</span><span class="code-line" data-source-key="parent-init">        self.parent = [i for i in range(size)]</span><span class="code-line" data-source-key="size-init">        self.size = [1] * size</span><span class="code-line"></span><span class="code-line" data-source-key="union-def">    def union(self, x, y) -&gt; bool:</span><span class="code-line" data-source-key="find-call">        rep_x, rep_y = self.find(x), self.find(y)</span><span class="code-line" data-source-key="rep-if">        if rep_x != rep_y:</span><span class="code-line" data-source-key="size-if">            if self.size[rep_x] &gt; self.size[rep_y]:</span><span class="code-line" data-source-key="attach-x">                self.parent[rep_y] = rep_x</span><span class="code-line" data-source-key="size-x">                self.size[rep_x] += self.size[rep_y]</span><span class="code-line">            else:</span><span class="code-line" data-source-key="attach-y">                self.parent[rep_x] = rep_y</span><span class="code-line" data-source-key="size-y">                self.size[rep_y] += self.size[rep_x]</span><span class="code-line">            # Return True if both groups were merged.</span><span class="code-line" data-source-key="union-true">            return True</span><span class="code-line">        # Return False if the points belong to the same group.</span><span class="code-line" data-source-key="union-false">        return False</span><span class="code-line"></span><span class="code-line" data-source-key="find-def">    def find(self, x) -&gt; int:</span><span class="code-line" data-source-key="find-if">        if x == self.parent[x]:</span><span class="code-line" data-source-key="find-return">            return x</span><span class="code-line" data-source-key="find-recurse">        self.parent[x] = self.find(self.parent[x])</span><span class="code-line" data-source-key="find-done">        return self.parent[x]</span></code></pre>
+          <p class="note">上图：散点 + 已采用的 MST 边（实线）；当前候选边（虚线）；被跳过的边短暂出现为灰色虚线并标注「成环」。下方是 <code>parent</code> / <code>size</code> 数组与 find 的挂接箭头。表格为排序后的 <code>edges</code>。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="dots-intuition">
+        <h2 id="dots-intuition">直觉：连线题就是最小生成树 / From dots to MST</h2>
+        <div class="idea-grid">
+          <article class="paper-card"><strong>建模 / Modeling</strong><p>每个点是图的一个节点；任意两点之间都可以连边，边权 = Manhattan 距离 <code>|x1-x2|+|y1-y2|</code>。n 个点构成完全图，共 <code>n(n-1)/2</code> 条候选边。目标变成：选总权值最小的一组边把所有节点连通——最小生成树（MST）。</p></article>
+          <article class="paper-card"><strong>为什么是树 / Why a tree</strong><p>连通 n 个点至少需要 <code>n-1</code> 条边；若有环，环上任取一条边删掉仍连通，总代价不增。所以最优解一定可以取成无环的 <code>n-1</code> 条边——一棵树。</p></article>
+          <article class="paper-card"><strong>Kruskal 的贪心 / Greedy order</strong><p>把所有边按代价从小到大逐个尝试：边的代价越小越该选，唯一不能选的理由是「两个端点已经连通，再连成环」。用并查集判连通，不成环就采用，直到选满 <code>n-1</code> 条。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="dots-uf">
+        <h2 id="dots-uf">并查集：判环与合并 / Union-Find</h2>
+        <p class="section-intro"><code>union(x, y)</code> 返回 <code>True</code> 表示 x、y 原本不连通，这次合并成功——该边采用；返回 <code>False</code> 表示两点已在同一组，加入必成环——跳过。合并时按 <code>size</code> 挂接（小树挂到大树的根下），让树尽量矮，find 更快；find 顺带做路径压缩，把沿途节点直接指向根。书例中 <code>(0,3)</code> 和 <code>(1,3)</code> 都因两端同组（代表都是 3）被跳过。</p>
+        <div class="example-grid">
+          <article class="paper-card"><strong>为什么按 size 挂接 / Union by size</strong><p>把大树挂到小树下面会让树变高，find 要走的层数变多。每次让较小的树挂到较大的根下，任意节点的深度不超过 <code>O(log n)</code>。</p></article>
+          <article class="paper-card"><strong>路径压缩 / Path compression</strong><p><code>find</code> 递归返回根之后，顺手把沿途每个节点的 <code>parent</code> 直接改写为根。本例链条最长只有两层，改写前后数组看起来一样；点更多时它会明显加速后续的 find。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="dots-why">
+        <h2 id="dots-why">为什么贪心正确 / Why it works</h2>
+        <p class="section-intro">切割性质：任取图的一个切割（把节点分成两组），所有跨越该切割的边中权值最小者，必属于某一棵最小生成树。Kruskal 取当前最小边 (u, v) 时，u、v 必不连通——取「u 所在组 vs 其余节点」这个切割，(u, v) 正是跨越它的最小边（代价更小的边早已被处理过，两端早已连通），所以把它选入是安全的。被跳过的边两端同组，加入只会成环、替换不掉任何更优选择。</p>
+      </section>
+
+      <section class="section" aria-labelledby="dots-edge">
+        <h2 id="dots-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>只有 2 个点</strong><p>唯一的一条边就是答案：<code>edges_added == 1 == n-1</code>，直接返回它的 Manhattan 距离。</p></article>
+          <article class="paper-card"><strong>多点共线 / 距离相等</strong><p>共线不影响距离公式；代价相等时 Python 的 <code>sort</code> 与 JS 的 <code>Array.sort</code> 都是稳定排序，同代价边保持「i 小优先、再 j 小」的生成顺序，两种实现结果一致（本页仿真已与原 Python 逐事件对拍）。</p></article>
+          <article class="paper-card"><strong>提前返回</strong><p>选满 <code>n-1</code> 条边后立即 <code>return</code>，剩余边不再处理——书例中 (3,4)、(0,1)、(0,4)、(1,4) 四条边永远不会被检查。</p></article>
+          <article class="paper-card"><strong>n 较大时</strong><p><code>n²</code> 条边全部生成再排序是瓶颈；Prim 算法配合堆可以把时间降到 <code>O(n² log n)</code> 以下（稠密图可 <code>O(n²)</code>），代价是失去「逐条边贪心」的直观。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="dots-complexity">
+        <h2 id="dots-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n² log n)</strong><p>完全图有 <code>n(n-1)/2 = O(n²)</code> 条边，排序耗 <code>O(n² log n)</code>；之后每条边至多一次 <code>union</code>（按 size 合并 + 路径压缩，摊还近乎常数），合计 <code>O(n²)</code>。总计 <code>O(n² log n)</code>。</p></article>
+          <article class="paper-card"><strong>Space · O(n²)</strong><p><code>edges</code> 数组保存全部 <code>O(n²)</code> 条边；并查集的 <code>parent</code> / <code>size</code> 只需 <code>O(n)</code>。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../largest-overlap-of-intervals/">最大区间重叠数</a><a href="../merge-overlapping-intervals/">合并重叠区间</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('dots-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mTotal = root.querySelector('[data-m-total]');
+        const mAdded = root.querySelector('[data-m-added]');
+        const mComp = root.querySelector('[data-m-comp]');
+        const mEdge = root.querySelector('[data-m-edge]');
+        const tableCap = root.querySelector('[data-table-cap]');
+        const edgeRows = root.querySelector('[data-edge-rows]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
+// ==== simulation ====
+        // Verbatim JavaScript translation of the reference Python implementation.
+        function UnionFindSim(size) {
+          this.parent = Array.from({ length: size }, (_, i) => i);
+          this.size = Array(size).fill(1);
+        }
+        UnionFindSim.prototype.find = function (x) {
+          if (x === this.parent[x]) {
+            return x;
+          }
+          this.parent[x] = this.find(this.parent[x]);
+          return this.parent[x];
+        };
+        UnionFindSim.prototype.union = function (x, y) {
+          const rep_x = this.find(x);
+          const rep_y = this.find(y);
+          if (rep_x !== rep_y) {
+            if (this.size[rep_x] > this.size[rep_y]) {
+              this.parent[rep_y] = rep_x;
+              this.size[rep_x] += this.size[rep_y];
+            } else {
+              this.parent[rep_x] = rep_y;
+              this.size[rep_y] += this.size[rep_x];
+            }
+            return true;
+          }
+          return false;
+        };
+        function simulateConnectTheDots(points) {
+          const n = points.length;
+          const edges = [];
+          for (let i = 0; i < n; i += 1) {
+            for (let j = i + 1; j < n; j += 1) {
+              const cost = Math.abs(points[i][0] - points[j][0]) + Math.abs(points[i][1] - points[j][1]);
+              edges.push({ cost, i, j });
+            }
+          }
+          const generated = edges.map(e => [e.i, e.j, e.cost]);
+          edges.sort((a, b) => a.cost - b.cost);
+          const sorted = edges.map(e => [e.i, e.j, e.cost]);
+          const uf = new UnionFindSim(n);
+          const events = [];
+          let total_cost = 0;
+          let edges_added = 0;
+          for (const { cost, i, j } of edges) {
+            const rep_x = uf.find(i);
+            const rep_y = uf.find(j);
+            const accepted = uf.union(i, j);
+            if (accepted) {
+              total_cost += cost;
+              edges_added += 1;
+            }
+            events.push({
+              edge: [i, j],
+              cost,
+              rep_x,
+              rep_y,
+              accepted,
+              parent: [...uf.parent],
+              size: [...uf.size],
+              total_cost,
+              edges_added
+            });
+            if (edges_added === n - 1) {
+              break;
+            }
+          }
+          return { n, points, generated, sorted, events, result: total_cost };
+        }
+// ==== end simulation ====
+
+        const BOOK = [[1, 1], [2, 6], [3, 2], [4, 3], [7, 1]];
+        const sim = simulateConnectTheDots(BOOK);
+
+        const st = (over = {}) => ({
+          edges: [],
+          sorted: false,
+          showTable: false,
+          showAll: false,
+          manhattan: null,
+          current: null,
+          parent: [0, 1, 2, 3, 4],
+          size: [1, 1, 1, 1, 1],
+          hl: { nodes: [], changed: null },
+          totalCost: 0,
+          edgesAdded: 0,
+          done: false,
+          ...over
+        });
+
+        const fr = (stepLabel, phase, sourceKeys, line, explanation, invariant, state) =>
+          ({ stepLabel, phase, sourceKeys, line, explanation, invariant, state });
+
+        const mkEdges = (list, statusOf) => list.map(([i, j, cost], k) => ({ i, j, cost, status: statusOf ? statusOf(k) : 'pending' }));
+
+        const FRAMES = [];
+        FRAMES.push(fr(
+          '题面：5 个散点', '题面', ['func-def', 'n'],
+          'def connect_the_dots(points)  # points = [[1,1],[2,6],[3,2],[4,3],[7,1]]',
+          '平面上 5 个点：0(1,1)、1(2,6)、2(3,2)、3(4,3)、4(7,1)。目标：选一些点对把它们全部连通，总代价（Manhattan 距离之和）最小。',
+          '任意两点之间都允许连边，代价 = |Δx| + |Δy|。',
+          st({ manhattan: null })
+        ));
+        FRAMES.push(fr(
+          '连接代价 = |Δx| + |Δy|', '题面 · 距离', ['cost'],
+          'cost = abs(x1 - x2) + abs(y1 - y2)',
+          '以点 0(1,1) 和点 3(4,3) 为例：横向差 |1-4| = 3，纵向差 |1-3| = 2，代价 = 3 + 2 = 5。虚线走的就是“先横后竖”的 Manhattan 路径。',
+          '代价与路径形状无关，只与坐标差有关；对角捷径不存在。',
+          st({ manhattan: { a: 0, b: 3 } })
+        ));
+        FRAMES.push(fr(
+          '建模：完全图，10 条候选边', '建模', ['edges-init', 'for-i', 'for-j'],
+          'edges = []  # 之后双重循环枚举所有 i < j 的点对',
+          '把每个点看作节点、每对点的 Manhattan 距离看作边权——5 个点构成完全图，共 5×4/2 = 10 条候选边（图中细灰线）。要连通所有点且总代价最小，就是求这张图的最小生成树（MST）。',
+          '连通 n 个点且无环至少需要 n-1 = 4 条边；最优解可取成一棵树。',
+          st({ showAll: true, edges: mkEdges(sim.generated) })
+        ));
+        FRAMES.push(fr(
+          '生成 edges 数组（未排序）', '生成边', ['cost', 'append'],
+          'edges.append((cost, i, j))',
+          '双重循环 i < j 枚举全部 10 个点对，计算代价后以 (cost, i, j) 追加进 edges。下表按生成顺序（i 小的在前）列出，注意此刻还未排序。',
+          '每条边只生成一次：i < j 避免了重复和自环。',
+          st({ showAll: true, showTable: true, sorted: false, edges: mkEdges(sim.generated) })
+        ));
+        FRAMES.push(fr(
+          'edges.sort()：按代价升序', '排序', ['sort'],
+          'edges.sort()  # 稳定排序：同代价保持生成顺序',
+          '按代价从小到大排序。代价相等的边保持原顺序（稳定排序）：(0,3)、(1,2)、(1,3)、(2,4)、(3,4) 同为 5，仍按 i 从小到大排列。Kruskal 接下来从小到大逐条尝试。',
+          '排序后，靠前的边永远是当前“最便宜的可选连接”。',
+          st({ showAll: true, showTable: true, sorted: true, edges: mkEdges(sim.sorted) })
+        ));
+        FRAMES.push(fr(
+          '初始化并查集与计数器', '初始化', ['uf-init', 'class', 'init-def', 'parent-init', 'size-init', 'total-init', 'added-init'],
+          'uf = UnionFind(n)；total_cost = 0；edges_added = 0',
+          '并查集初始：每个点的 parent 指向自己（各自成组），size 全为 1。total_cost 与 edges_added 从零开始。下方 parent 行第 i 格的值就是 parent[i]。',
+          '初始时每个点自成一个组；n 个点共 n 个组。',
+          st({ showTable: true, sorted: true, edges: mkEdges(sim.sorted) })
+        ));
+
+        sim.events.forEach((ev, k) => {
+          const preParent = k === 0 ? [0, 1, 2, 3, 4] : sim.events[k - 1].parent;
+          const preSize = k === 0 ? [1, 1, 1, 1, 1] : sim.events[k - 1].size;
+          const [i, j] = ev.edge;
+          const total = sim.sorted.length;
+          const findKeys = ['find-def', 'find-if', 'find-return', 'find-recurse', 'find-done'];
+          FRAMES.push(fr(
+            `边 ${k + 1}/${total}：(${i},${j}) 代价 ${ev.cost}，find 找代表`, 'Kruskal · 取边', findKeys,
+            `if uf.union(p1, p2):  # union(${i}, ${j})：find(${i}) → ${ev.rep_x}，find(${j}) → ${ev.rep_y}`,
+            `取出排序后第 ${k + 1} 条边：(${i}, ${j})，代价 ${ev.cost}（图中加粗虚线）。union 先对两端 find：find(${i}) → ${ev.rep_x}，find(${j}) → ${ev.rep_y}。下方高亮格与箭头就是这个查找过程。`,
+            'find 沿 parent 指针走到根；根就是该点所在组的代表。',
+            st({
+              showTable: true, sorted: true,
+              edges: mkEdges(sim.sorted, m => (m < k ? (sim.events[m].accepted ? 'accepted' : 'rejected') : m === k ? 'current' : 'pending')),
+              current: k, parent: preParent, size: preSize,
+              hl: { nodes: [i, j, ev.rep_x, ev.rep_y], changed: null },
+              totalCost: ev.accepted ? ev.total_cost - ev.cost : ev.total_cost,
+              edgesAdded: ev.accepted ? ev.edges_added - 1 : ev.edges_added
+            })
+          ));
+          let changed = null;
+          for (let x = 0; x < sim.n; x += 1) if (preParent[x] !== ev.parent[x]) changed = x;
+          if (ev.accepted) {
+            const attachX = preSize[ev.rep_x] > preSize[ev.rep_y];
+            const branch = attachX
+              ? `size[${ev.rep_x}] = ${preSize[ev.rep_x]} > size[${ev.rep_y}] = ${preSize[ev.rep_y]}，把 ${ev.rep_y} 挂到 ${ev.rep_x} 下：parent[${ev.rep_y}] = ${ev.rep_x}`
+              : `size[${ev.rep_x}] = ${preSize[ev.rep_x]} ≤ size[${ev.rep_y}] = ${preSize[ev.rep_y]}，把 ${ev.rep_x} 挂到 ${ev.rep_y} 下：parent[${ev.rep_x}] = ${ev.rep_y}`;
+            const isLast = ev.edges_added === sim.n - 1;
+            FRAMES.push(fr(
+              `采用 (${i},${j})：total_cost = ${ev.total_cost}`, 'Kruskal · 采用', ['for-edge', 'union-if', 'add-cost', 'add-count', 'done-if'],
+              `total_cost += cost；edges_added += 1  # total_cost = ${ev.total_cost}，edges_added = ${ev.edges_added}`,
+              `两个代表不同（${ev.rep_x} ≠ ${ev.rep_y}），合并成功（union 返回 True）：${branch}，size[${attachX ? ev.rep_x : ev.rep_y}] 更新为 ${ev.size[attachX ? ev.rep_x : ev.rep_y]}。采用这条边（实线），total_cost = ${ev.total_cost}，edges_added = ${ev.edges_added}。${isLast ? `已选满 n-1 = ${sim.n - 1} 条边，MST 完成，可以返回 total_cost。` : `还没到 n-1 = ${sim.n - 1} 条，继续下一条。`}`,
+              `已选的 ${ev.edges_added} 条边无环；已采用边的代价之和 = total_cost。`,
+              st({
+                showTable: true, sorted: true,
+                edges: mkEdges(sim.sorted, m => (m < k ? (sim.events[m].accepted ? 'accepted' : 'rejected') : m === k ? 'accepted' : 'pending')),
+                current: k, parent: ev.parent, size: ev.size,
+                hl: { nodes: [i, j, ev.rep_x, ev.rep_y], changed },
+                totalCost: ev.total_cost, edgesAdded: ev.edges_added
+              })
+            ));
+          } else {
+            FRAMES.push(fr(
+              `跳过 (${i},${j})：同组，成环`, 'Kruskal · 跳过', ['rep-if', 'union-false'],
+              `return False  # (${i},${j}) 的代表都是 ${ev.rep_x}，同组`,
+              `find(${i}) 和 find(${j}) 走到同一个根 ${ev.rep_x}——两点早已连通。加入这条边会成环（灰虚线），union 返回 False，直接跳过：total_cost 保持 ${ev.total_cost}，edges_added 保持 ${ev.edges_added}。`,
+              '同一组内的两点再加边必成环；跳过不影响连通性，也不会更优。',
+              st({
+                showTable: true, sorted: true,
+                edges: mkEdges(sim.sorted, m => (m < k ? (sim.events[m].accepted ? 'accepted' : 'rejected') : m === k ? 'rejected' : 'pending')),
+                current: k, parent: ev.parent, size: ev.size,
+                hl: { nodes: [i, j, ev.rep_x, ev.rep_y], changed: null },
+                totalCost: ev.total_cost, edgesAdded: ev.edges_added
+              })
+            ));
+          }
+        });
+        FRAMES.push(fr(
+          `edges_added == n-1，返回 ${sim.result}`, '返回', ['done-if', 'return'],
+          `return total_cost  # edges_added = ${sim.n - 1} = n - 1，返回 ${sim.result}`,
+          `edges_added = ${sim.n - 1} = n - 1，MST 完成，立即 return total_cost = ${sim.result}。函数在此结束——表中剩下 4 条边（(1,3) 之后未处理的 (3,4)、(0,1)、(0,4)、(1,4)）永远不会被检查。`,
+          'n 个点、n-1 条边且无环 ⇒ 所有点连通，这就是 MST。',
+          st({
+            showTable: true, sorted: true, done: true,
+            edges: mkEdges(sim.sorted, m => (sim.events[m] ? (sim.events[m].accepted ? 'accepted' : 'rejected') : 'unprocessed')),
+            current: null, parent: sim.events[sim.events.length - 1].parent, size: sim.events[sim.events.length - 1].size,
+            hl: { nodes: [], changed: null },
+            totalCost: sim.result, edgesAdded: sim.n - 1
+          })
+        ));
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('d-arrow', { fill: '#555', markerWidth: 6.4, markerHeight: 6.4, refX: 5.4, refY: 3.2 });
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+
+        function layout() {
+          const W = stage.clientWidth;
+          const narrow = W < 460;
+          const pad = narrow ? 8 : 16;
+          const planeTarget = narrow ? 208 : 300;
+          const s = Math.min((W - pad * 2 - 22) / 8.4, (planeTarget - 26) / 7.4);
+          const plotW = 8 * s;
+          const plotH = 7 * s;
+          const ox = pad + 20 + Math.max(0, (W - pad * 2 - 20 - plotW) / 2);
+          const oy = 8;
+          const ufLabelW = narrow ? 30 : 46;
+          const cellGap = narrow ? 5 : 10;
+          const cellW = Math.min(64, (W - pad * 2 - ufLabelW - cellGap) / 5 - cellGap);
+          const cellX = i => pad + ufLabelW + cellGap + i * (cellW + cellGap);
+          const headerH = 14;
+          const parentH = narrow ? 26 : 30;
+          const arrowZone = 18;
+          const sizeH = narrow ? 20 : 22;
+          const ufTitleH = 15;
+          const xLabelH = 15;
+          const ufTop = oy + plotH + xLabelH + 14 + ufTitleH;
+          const stageH = ufTop + headerH + parentH + arrowZone + sizeH + 12;
+          geom = {
+            W, narrow, pad, s, ox, oy, plotW, plotH,
+            mapX: v => ox + v * s,
+            mapY: v => oy + (7 - v) * s,
+            ufLabelW, cellGap, cellW, cellX,
+            headerY: ufTop, parentY: ufTop + headerH,
+            sizeY: ufTop + headerH + parentH + arrowZone,
+            fs: narrow ? 10 : 11.5, smallFs: narrow ? 8.5 : 9.5,
+            r: narrow ? 11.5 : 14
+          };
+          svg.setAttribute('viewBox', `0 0 ${W} ${stageH}`);
+          stage.style.height = `${Math.ceil(stageH)}px`;
+        }
+
+        const blend = (was, is, t) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
+
+        function draw(state, t = 1, from = null) {
+          if (!geom || !state) return;
+          const g = geom;
+          const P = state.parent;
+          const pt = i => ({ x: g.mapX(BOOK[i][0]), y: g.mapY(BOOK[i][1]) });
+
+          scene.update(({ path, text, circle }) => {
+            // coordinate plane
+            for (let v = 0; v <= 8; v += 1) {
+              const x = g.mapX(v);
+              path(`gx-${v}`, { d: `M ${x} ${g.mapY(0)} L ${x} ${g.mapY(7)}`, stroke: '#e7e3d8', 'stroke-width': 1 });
+              if (v <= 7) text(`gxlab-${v}`, { x, y: g.mapY(0) + 13, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, String(v));
+            }
+            for (let v = 0; v <= 7; v += 1) {
+              const y = g.mapY(v);
+              path(`gy-${v}`, { d: `M ${g.mapX(0)} ${y} L ${g.mapX(8)} ${y}`, stroke: '#e7e3d8', 'stroke-width': 1 });
+              text(`gylab-${v}`, { x: g.mapX(0) - 5, y: y + 3, 'text-anchor': 'end', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, String(v));
+            }
+            path('ax-x', { d: `M ${g.mapX(0)} ${g.mapY(0)} L ${g.mapX(8)} ${g.mapY(0)}`, stroke: '#555', 'stroke-width': 1.2 });
+            path('ax-y', { d: `M ${g.mapX(0)} ${g.mapY(0)} L ${g.mapX(0)} ${g.mapY(7)}`, stroke: '#555', 'stroke-width': 1.2 });
+            text('ax-x-cap', { x: g.mapX(8) + 2, y: g.mapY(0) + 3, 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, 'x');
+            text('ax-y-cap', { x: g.mapX(0) - 3, y: g.mapY(7) - 4, 'text-anchor': 'end', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, 'y');
+
+            // edges
+            const edgeLabelPos = (a, b, i, j, tt, dist) => {
+              const dx = b.x - a.x;
+              const dy = b.y - a.y;
+              const len = Math.hypot(dx, dy) || 1;
+              const nx = -dy / len;
+              const ny = dx / len;
+              const bx = a.x + dx * tt;
+              const by = a.y + dy * tt;
+              let best = null;
+              for (const side of [1, -1]) {
+                const c = { x: bx + nx * dist * side, y: by + ny * dist * side };
+                let minD = Infinity;
+                for (let q = 0; q < BOOK.length; q += 1) {
+                  if (q === i || q === j) continue;
+                  const p = pt(q);
+                  minD = Math.min(minD, Math.hypot(p.x - c.x, p.y - c.y));
+                }
+                if (!best || minD > best.minD) best = { minD, c };
+              }
+              return best.c;
+            };
+            state.edges.forEach((e, k) => {
+              const a = pt(e.i);
+              const b = pt(e.j);
+              const wasE = from ? from.edges[k] : null;
+              const was = wasE ? wasE.status : null;
+              const is = e.status;
+              if (state.showAll && is === 'pending') {
+                const L = edgeLabelPos(a, b, e.i, e.j, 0.5, 11);
+                path(`pe-${k}`, { d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, stroke: '#c9c5ba', 'stroke-width': 1.1, 'stroke-dasharray': null });
+                text(`pe-c-${k}`, { x: L.x, y: L.y + 3, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#8a8a85', 'font-family': MONO }, String(e.cost));
+                return;
+              }
+              if (is === 'accepted') {
+                const op = blend(was === 'accepted', true, t);
+                const L = edgeLabelPos(a, b, e.i, e.j, 0.5, 12);
+                path(`pe-${k}`, { d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, stroke: '#333', 'stroke-width': 1.9, 'stroke-dasharray': null, opacity: op });
+                text(`pe-c-${k}`, { x: L.x, y: L.y + 3, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#555', 'font-family': MONO, opacity: op }, String(e.cost));
+              } else if (is === 'current') {
+                const op = blend(was === 'current', true, t);
+                const L = edgeLabelPos(a, b, e.i, e.j, 0.5, 13);
+                path(`pe-${k}`, { d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, stroke: '#272727', 'stroke-width': 2.2, 'stroke-dasharray': '6 4', opacity: op });
+                text(`pe-c-${k}`, { x: L.x, y: L.y + 3, 'text-anchor': 'middle', 'font-size': g.smallFs + 0.5, fill: '#272727', 'font-family': MONO, opacity: op }, `${e.cost}`);
+              } else if (is === 'rejected') {
+                const show = state.current === k;
+                const wasShow = Boolean(from && from.current !== null && from.edges[k] && from.edges[k].status === 'rejected' && from.current === k);
+                const op = blend(wasShow, show, t);
+                if (op > 0.01) {
+                  const L = edgeLabelPos(a, b, e.i, e.j, 0.3, 12);
+                  path(`pe-${k}`, { d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, stroke: '#8a8a85', 'stroke-width': 1.3, 'stroke-dasharray': '4 4', opacity: op });
+                  text(`pe-c-${k}`, { x: L.x, y: L.y + 3, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#8a8a85', 'font-family': MONO, opacity: op }, '成环');
+                }
+              }
+            });
+
+            // manhattan demo path (frame 2)
+            if (state.manhattan) {
+              const a = pt(state.manhattan.a);
+              const b = pt(state.manhattan.b);
+              const corner = { x: b.x, y: a.y };
+              path('mh-1', { d: `M ${a.x} ${a.y} L ${corner.x} ${corner.y}`, stroke: '#555', 'stroke-width': 1.4, 'stroke-dasharray': '6 4' });
+              path('mh-2', { d: `M ${corner.x} ${corner.y} L ${b.x} ${b.y}`, stroke: '#555', 'stroke-width': 1.4, 'stroke-dasharray': '6 4' });
+              circle('mh-dot', { cx: corner.x, cy: corner.y, r: 2.4, fill: '#555' });
+              text('mh-lab-1', { x: (a.x + corner.x) / 2, y: corner.y + (a.y > b.y ? 14 : -6), 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '|Δx| = 3');
+              text('mh-lab-2', { x: corner.x + (g.narrow ? 4 : 8), y: (corner.y + b.y) / 2 + 3, 'text-anchor': 'start', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '|Δy| = 2');
+              text('mh-lab-3', { x: b.x + g.r + 6, y: b.y - 10, 'text-anchor': 'start', 'font-size': g.fs + 1, fill: '#272727', 'font-family': MONO }, '= 3 + 2 = 5');
+            }
+
+            // points
+            BOOK.forEach((p, i) => {
+              const c = pt(i);
+              circle(`pt-${i}`, { cx: c.x, cy: c.y, r: g.r, fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.6 });
+              text(`pt-v-${i}`, { x: c.x, y: c.y + (g.narrow ? 3.8 : 4.6), 'text-anchor': 'middle', 'font-size': g.narrow ? 11 : 13, fill: '#272727', 'font-family': MONO }, String(i));
+              const labels = [
+                { x: c.x - g.r - 6, y: c.y + 4, anchor: 'end' },
+                { x: c.x, y: c.y - g.r - 7, anchor: 'middle' },
+                { x: c.x, y: c.y + g.r + 13, anchor: 'middle' },
+                { x: c.x, y: c.y - g.r - 7, anchor: 'middle' },
+                { x: c.x + g.r + 6, y: c.y + 4, anchor: 'start' }
+              ];
+              const L = labels[i];
+              text(`pt-l-${i}`, { x: L.x, y: L.y, 'text-anchor': L.anchor, 'font-size': g.smallFs, fill: '#555', 'font-family': MONO }, `(${p[0]},${p[1]})`);
+            });
+
+            // Union-Find panel
+            text('uf-title', { x: g.pad, y: g.headerY + 2, 'font-size': g.smallFs + 0.5, fill: '#555', 'font-family': MONO }, g.narrow ? '' : 'Union-Find');
+            text('uf-p-label', { x: g.pad + (g.narrow ? 0 : 6), y: g.parentY + parentMid(g) + 4, 'font-size': g.smallFs + 0.5, fill: '#555', 'font-family': MONO }, 'parent');
+            text('uf-s-label', { x: g.pad + (g.narrow ? 4 : 10), y: g.sizeY + sizeMid(g) + 3, 'font-size': g.smallFs + 0.5, fill: '#555', 'font-family': MONO }, 'size');
+            for (let i = 0; i < BOOK.length; i += 1) {
+              const cx = g.cellX(i) + g.cellW / 2;
+              text(`uf-h-${i}`, { x: cx, y: g.headerY + 2, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, `点${i}`);
+              const isRoot = P[i] === i;
+              const hot = state.hl.nodes.includes(i);
+              const changed = state.hl.changed === i;
+              path(`uf-p-${i}`, {
+                d: rectD(g.cellX(i), g.parentY, g.cellW, parentH(g), 3),
+                fill: changed ? '#e9e5d9' : '#fffdf8',
+                stroke: changed ? '#272727' : isRoot ? '#272727' : '#777',
+                'stroke-width': changed ? 1.8 : isRoot ? 1.5 : 1.1,
+                'stroke-dasharray': hot && !changed ? '4 3' : null
+              });
+              text(`uf-pv-${i}`, { x: cx, y: g.parentY + parentMid(g) + 4, 'text-anchor': 'middle', 'font-size': g.fs + 1, fill: '#272727', 'font-family': MONO }, String(P[i]));
+              path(`uf-s-${i}`, { d: rectD(g.cellX(i), g.sizeY, g.cellW, sizeH(g), 3), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1 });
+              text(`uf-sv-${i}`, { x: cx, y: g.sizeY + sizeMid(g) + 3.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, String(state.size[i]));
+            }
+            // find arrows: endpoint -> parent chain
+            const drawn = new Set();
+            state.hl.nodes.forEach(node => {
+              let x = node;
+              let guard = 0;
+              while (P[x] !== x && guard < 8) {
+                const key = `${x}->${P[x]}`;
+                if (!drawn.has(key)) {
+                  drawn.add(key);
+                  const x1 = g.cellX(x) + g.cellW / 2;
+                  const x2 = g.cellX(P[x]) + g.cellW / 2;
+                  const y1 = g.parentY + parentH(g);
+                  const y2 = g.parentY + parentH(g);
+                  const my = y1 + (g.narrow ? 10 : 13);
+                  path(`uf-a-${key}`, { d: `M ${x1} ${y1 - 1} Q ${(x1 + x2) / 2} ${my} ${x2} ${y2 - 1}`, stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#d-arrow)' });
+                }
+                x = P[x];
+                guard += 1;
+              }
+            });
+          });
+        }
+
+        const parentH = g => g.narrow ? 26 : 30;
+        const sizeH = g => g.narrow ? 20 : 22;
+        const parentMid = g => parentH(g) / 2;
+        const sizeMid = g => sizeH(g) / 2;
+        function rectD(x, y, w, h, r) {
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        const STATUS_TEXT = { pending: '', current: '处理中…', accepted: '✓ 采用', rejected: '✗ 成环', unprocessed: '未处理' };
+        const edgeTable = root.querySelector('[data-edge-table]');
+        function updateTable(state) {
+          edgeTable.hidden = !state.showTable;
+          if (!state.showTable) {
+            tableCap.textContent = '';
+            edgeRows.replaceChildren();
+            return;
+          }
+          tableCap.textContent = state.sorted
+            ? 'edges（按代价升序；同代价保持生成顺序 i<j）'
+            : 'edges（生成顺序 i<j，尚未排序）';
+          edgeRows.replaceChildren(...state.edges.map((e, k) => {
+            const tr = document.createElement('tr');
+            tr.className = e.status === 'current' ? 'current' : e.status === 'rejected' ? 'rejected' : e.status === 'unprocessed' ? 'unprocessed' : e.status === 'accepted' ? 'accepted' : '';
+            const td = (cls, value) => {
+              const cell = document.createElement('td');
+              if (cls) cell.className = cls;
+              cell.textContent = value;
+              return cell;
+            };
+            tr.append(
+              td('num', String(k + 1)),
+              td('', `(${e.i}, ${e.j})`),
+              td('num', String(e.cost)),
+              td(e.status === 'accepted' ? 'st-ok' : e.status === 'rejected' ? 'st-no' : '', STATUS_TEXT[e.status])
+            );
+            return tr;
+          }));
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.phase;
+          invariantEl.textContent = frame.invariant;
+          mTotal.textContent = String(state.totalCost);
+          mAdded.textContent = `${state.edgesAdded} / ${sim.n - 1}`;
+          mComp.textContent = String(sim.n - state.edgesAdded);
+          const cur = state.current !== null ? state.edges[state.current] : null;
+          mEdge.textContent = cur ? `(${cur.i}, ${cur.j}) · ${cur.cost}` : '—';
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.explanation;
+          stage.setAttribute('aria-label', `连接所有点演示：第 ${step + 1} / ${frames.length} 步。${frame.explanation}`);
+          updateTable(state);
+          layout();
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({
+          ...s,
+          edges: s.edges.map(e => ({ ...e })),
+          parent: [...s.parent],
+          size: [...s.size],
+          hl: { nodes: [...s.hl.nodes], changed: s.hl.changed },
+          manhattan: s.manhattan ? { ...s.manhattan } : null
+        });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 380,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>
