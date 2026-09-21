@@ -1,0 +1,1813 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "K 有序数组排序小顶堆演示 / sort a k-sorted array trace"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 28"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "初始 · k 有序数组"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "复制前 k + 1 个值进堆"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "heapify · 自底向上调整"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "insert_index = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "for i = 3 · 主循环开始"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "nums[0] = pop 最小值 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "insert_index = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "push nums[3] = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "for i = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "nums[1] = pop 最小值 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "insert_index = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "push nums[4] = 7"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "for i = 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "nums[2] = pop 最小值 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "insert_index = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "push nums[5] = 10"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "for 循环结束 · i 完成使命"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "while min_heap · 非空"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "nums[3] = pop 7"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "19"
+                    ]
+                  ],
+                  "children": [
+                    "insert_index = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "20"
+                    ]
+                  ],
+                  "children": [
+                    "while min_heap · 非空"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "21"
+                    ]
+                  ],
+                  "children": [
+                    "nums[4] = pop 9"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "22"
+                    ]
+                  ],
+                  "children": [
+                    "insert_index = 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "23"
+                    ]
+                  ],
+                  "children": [
+                    "while min_heap · 非空"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "24"
+                    ]
+                  ],
+                  "children": [
+                    "nums[5] = pop 10"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "25"
+                    ]
+                  ],
+                  "children": [
+                    "insert_index = 6"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "26"
+                    ]
+                  ],
+                  "children": [
+                    "while min_heap · 空，退出"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "27"
+                    ]
+                  ],
+                  "children": [
+                    "return nums"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "初始 · k 有序数组"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "K 有序数组排序演示：第 1 / 28 步。每个元素距离它的排序位置最多 k = 2 个位置。下方灰色虚线行只是参考——算法开始时并不知道它。直接排序无视了这个条件，要 O(n log n)。"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ],
+        [
+          "style",
+          "height: 212px;"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 212"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#555"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-caption"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "8"
+                ],
+                [
+                  "y",
+                  "75"
+                ]
+              ],
+              "children": [
+                "nums"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 77 56 H 123 Q 126 56 126 59 V 83 Q 126 86 123 86 H 77 Q 74 86 74 83 V 59 Q 74 56 77 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "nums-cell-0"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-val-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "100"
+                ],
+                [
+                  "y",
+                  "75.8"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-idx-0"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "100"
+                ],
+                [
+                  "y",
+                  "99"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 139 56 H 185 Q 188 56 188 59 V 83 Q 188 86 185 86 H 139 Q 136 86 136 83 V 59 Q 136 56 139 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "nums-cell-1"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-val-1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "162"
+                ],
+                [
+                  "y",
+                  "75.8"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-idx-1"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "162"
+                ],
+                [
+                  "y",
+                  "99"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 201 56 H 247 Q 250 56 250 59 V 83 Q 250 86 247 86 H 201 Q 198 86 198 83 V 59 Q 198 56 201 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "nums-cell-2"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-val-2"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "224"
+                ],
+                [
+                  "y",
+                  "75.8"
+                ]
+              ],
+              "children": [
+                "9"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-idx-2"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "224"
+                ],
+                [
+                  "y",
+                  "99"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 263 56 H 309 Q 312 56 312 59 V 83 Q 312 86 309 86 H 263 Q 260 86 260 83 V 59 Q 260 56 263 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "nums-cell-3"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-val-3"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "286"
+                ],
+                [
+                  "y",
+                  "75.8"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-idx-3"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "286"
+                ],
+                [
+                  "y",
+                  "99"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 325 56 H 371 Q 374 56 374 59 V 83 Q 374 86 371 86 H 325 Q 322 86 322 83 V 59 Q 322 56 325 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "nums-cell-4"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-val-4"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "348"
+                ],
+                [
+                  "y",
+                  "75.8"
+                ]
+              ],
+              "children": [
+                "7"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-idx-4"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "348"
+                ],
+                [
+                  "y",
+                  "99"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 387 56 H 433 Q 436 56 436 59 V 83 Q 436 86 433 86 H 387 Q 384 86 384 83 V 59 Q 384 56 387 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "nums-cell-5"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-val-5"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "410"
+                ],
+                [
+                  "y",
+                  "75.8"
+                ]
+              ],
+              "children": [
+                "10"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-idx-5"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "410"
+                ],
+                [
+                  "y",
+                  "99"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ghost-caption"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "8"
+                ],
+                [
+                  "y",
+                  "199"
+                ]
+              ],
+              "children": [
+                "排序后·参考（未知）"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 77 156 H 123 Q 126 156 126 159 V 183 Q 126 186 123 186 H 77 Q 74 186 74 183 V 159 Q 74 156 77 156 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "ghost-cell-0"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ghost-val-0"
+                ],
+                [
+                  "fill",
+                  "#999"
+                ],
+                [
+                  "x",
+                  "100"
+                ],
+                [
+                  "y",
+                  "175"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 139 156 H 185 Q 188 156 188 159 V 183 Q 188 186 185 186 H 139 Q 136 186 136 183 V 159 Q 136 156 139 156 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "ghost-cell-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ghost-val-1"
+                ],
+                [
+                  "fill",
+                  "#999"
+                ],
+                [
+                  "x",
+                  "162"
+                ],
+                [
+                  "y",
+                  "175"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 201 156 H 247 Q 250 156 250 159 V 183 Q 250 186 247 186 H 201 Q 198 186 198 183 V 159 Q 198 156 201 156 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "ghost-cell-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ghost-val-2"
+                ],
+                [
+                  "fill",
+                  "#999"
+                ],
+                [
+                  "x",
+                  "224"
+                ],
+                [
+                  "y",
+                  "175"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 263 156 H 309 Q 312 156 312 159 V 183 Q 312 186 309 186 H 263 Q 260 186 260 183 V 159 Q 260 156 263 156 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "ghost-cell-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ghost-val-3"
+                ],
+                [
+                  "fill",
+                  "#999"
+                ],
+                [
+                  "x",
+                  "286"
+                ],
+                [
+                  "y",
+                  "175"
+                ]
+              ],
+              "children": [
+                "7"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 325 156 H 371 Q 374 156 374 159 V 183 Q 374 186 371 186 H 325 Q 322 186 322 183 V 159 Q 322 156 325 156 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "ghost-cell-4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ghost-val-4"
+                ],
+                [
+                  "fill",
+                  "#999"
+                ],
+                [
+                  "x",
+                  "348"
+                ],
+                [
+                  "y",
+                  "175"
+                ]
+              ],
+              "children": [
+                "9"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 387 156 H 433 Q 436 156 436 159 V 183 Q 436 186 433 186 H 387 Q 384 186 384 183 V 159 Q 384 156 387 156 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "ghost-cell-5"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ghost-val-5"
+                ],
+                [
+                  "fill",
+                  "#999"
+                ],
+                [
+                  "x",
+                  "410"
+                ],
+                [
+                  "y",
+                  "175"
+                ]
+              ],
+              "children": [
+                "10"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 122 88 C 181 112, 181 136, 224 153"
+                ],
+                [
+                  "data-visual-element",
+                  "ghost-move-arrow"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#ksort-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-dasharray",
+                  "5 4"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 198 152 H 250 Q 254 152 254 156 V 186 Q 254 190 250 190 H 198 Q 194 190 194 186 V 156 Q 194 152 198 152 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "ghost-target-ring"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ghost-target-idx"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "224"
+                ],
+                [
+                  "y",
+                  "197"
+                ]
+              ],
+              "children": [
+                "index 2 · 距离 2 ≤ k"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 69 54 v -5 H 255 v 5"
+                ],
+                [
+                  "data-visual-element",
+                  "window-bracket"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "window-bracket-label"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "162"
+                ],
+                [
+                  "y",
+                  "41"
+                ]
+              ],
+              "children": [
+                "index 0 的候选范围 [0, k]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 529 60 L 593 60 L 639 107 L 483 107 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "heap-trap"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#777"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "heap-name"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "561"
+                ],
+                [
+                  "y",
+                  "122"
+                ]
+              ],
+              "children": [
+                "min_heap"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 529 40 H 593 Q 595 40 595 42 V 58 Q 595 60 593 60 H 529 Q 527 60 527 58 V 42 Q 527 40 529 40 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "heap-min-chip"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "heap-min-chip-text"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "561"
+                ],
+                [
+                  "y",
+                  "53.8"
+                ]
+              ],
+              "children": [
+                "min: None"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 561 60 L 561 66"
+                ],
+                [
+                  "data-visual-element",
+                  "heap-min-link"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "不变量 / Invariant"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "k 有序：nums[i] 的最终位置落在 [i − k, i + k] 内。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "k"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "children": [
+                    "2"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "insert_index"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-insert",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "i"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-i",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "min_heap"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-heap",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "[]"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "def sort_a_k_sorted_array(nums, k) # nums = [5, 1, 9, 4, 7, 10], k = 2"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "Each value sits at most k = 2 positions away from where it belongs in the sorted array. A plain sort ignores this hint and costs O(n log n)."
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation-zh",
+              ""
+            ]
+          ],
+          "children": [
+            "每个元素距离它的排序位置最多 k = 2 个位置。下方灰色虚线行只是参考——算法开始时并不知道它。直接排序无视了这个条件，要 O(n log n)。"
+          ]
+        }
+      ]
+    }
+  ]
+}
