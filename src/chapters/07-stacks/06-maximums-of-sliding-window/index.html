@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of maximums of a sliding window with a monotonic deque. 滑动窗口最大值：用单调双端队列只保留还可能当最大值的候选。" />
+    <title>Maximums of Sliding Window · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .cand-fig { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-width: 720px; margin-top: 12px; }
+      .cand-col { min-width: 0; text-align: center; }
+      .cand-val { margin: 0 auto; width: 52px; padding: 8px 0; border: 1.4px solid var(--ink); border-radius: 3px; background: var(--paper); font: 16px/1.2 monospace; }
+      .cand-verdict { margin-top: 6px; color: var(--quiet); font-size: 12px; line-height: 1.45; }
+      .cand-verdict b { display: block; color: var(--ink); font-weight: 500; }
+      .cand-col[data-fate="drop"] .cand-val { border-style: dashed; color: var(--quiet); border-color: #777; }
+      .cand-col[data-fate="drop"] .cand-val span { display: inline-block; position: relative; }
+      .cand-col[data-fate="drop"] .cand-val span::after { content: ""; position: absolute; left: -3px; right: -3px; top: 50%; border-top: 1.2px solid #777; }
+      .rule-grid, .edge-grid, .complexity, .tip-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .mono-stat { display: block; margin: 6px 0 4px; font: 15px/1.4 monospace; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .rule-grid, .edge-grid, .complexity, .tip-grid { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+      @media (max-width: 480px) {
+        .cand-fig { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="msw-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Maximums of Sliding Window · 滑动窗口最大值</h1></div></header>
+      <p class="problem">A sliding window of size <code>k</code> slides through an integer array <code>nums</code> from left to right. Return a new array recording the largest number of each window. For example, <code>nums = [3, 2, 4, 1, 2, 1, 1]</code>, <code>k = 4</code> returns <code>[4, 4, 4, 2]</code>.<span lang="zh-CN">一个大小为 k 的滑动窗口从左向右滑过整数数组 nums，返回新数组：依次记录每个窗口里的最大值。例如 nums = [3, 2, 4, 1, 2, 1, 1]，k = 4，答案是 [4, 4, 4, 2]。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="滑动窗口最大值逐步演示 / sliding window maximum trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span><span data-pos></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="滑动窗口最大值演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>left</code></dt><dd data-m-left></dd></div>
+              <div><dt><code>right</code></dt><dd data-m-right></dd></div>
+              <div><dt><code>res</code></dt><dd data-m-res></dd></div>
+              <div><dt><code>dq</code>（front → back）</dt><dd data-m-dq></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="msw-code-title">
+          <h2 id="msw-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def maximums_of_sliding_window(nums: List[int], k: int) -&gt; List[int]:</span><span class="code-line" data-source-key="init-res">    res = []</span><span class="code-line" data-source-key="init-dq">    dq = deque()</span><span class="code-line" data-source-key="init-lr">    left = right = 0</span><span class="code-line" data-source-key="while">    while right &lt; len(nums):</span><span class="code-line">        # 1) Ensure the values of the deque maintain a monotonic decreasing</span><span class="code-line">        # order by removing candidates ≤ the current candidate.</span><span class="code-line" data-source-key="pop-while">        while dq and dq[-1][0] &lt;= nums[right]:</span><span class="code-line" data-source-key="pop">            dq.pop()</span><span class="code-line">        # 2) Add the current candidate.</span><span class="code-line" data-source-key="append">        dq.append((nums[right], right))</span><span class="code-line">        # If the window is of length 'k', record the maximum of the window.</span><span class="code-line" data-source-key="if-window">        if right - left + 1 == k:</span><span class="code-line">            # 3) Remove values whose indexes occur outside the window.</span><span class="code-line" data-source-key="outdated-if">            if dq and dq[0][1] &lt; left:</span><span class="code-line" data-source-key="popleft">                dq.popleft()</span><span class="code-line">            # The maximum value of this window is the leftmost value in</span><span class="code-line">            # the deque.</span><span class="code-line" data-source-key="record">            res.append(dq[0][0])</span><span class="code-line">            # Slide the window by advancing both 'left' and 'right'. The</span><span class="code-line">            # right pointer always gets advanced so we just need to advance</span><span class="code-line">            # 'left'.</span><span class="code-line" data-source-key="left-inc">            left += 1</span><span class="code-line" data-source-key="right-inc">        right += 1</span><span class="code-line" data-source-key="return">    return res</span></code></pre>
+          <p class="note">dq 的 front（左端）是队首 <code>dq[0]</code>，back（右端）是队尾 <code>dq[-1]</code>；两端都能 <code>O(1)</code> 增删。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="msw-intuition">
+        <h2 id="msw-intuition">直觉：只保留“候选值” / Only candidates matter</h2>
+        <p class="section-intro">暴力做法对每个窗口重新扫一遍 <code>k</code> 个元素，一共 <code>O(n·k)</code>。问题在于相邻两个窗口共享 <code>k - 1</code> 个元素，却被反复重新检查。换个思路：维护一份<strong>候选（candidates）</strong>——还有可能成为某个未来窗口最大值的值；不可能再当最大值的值直接丢弃。</p>
+        <p class="section-intro">窗口 <code>[3, 2, 4, 1]</code> 里每个数的命运如下：</p>
+        <div class="cand-fig" aria-label="候选值逐个分析：3 即将滑出忽略；2 被 4 支配丢弃；4 是当前最大值保留；1 等 4 老化后可胜出保留">
+          <div class="cand-col" data-fate="drop"><div class="cand-val"><span>3</span></div><p class="cand-verdict"><b>忽略</b>下一个窗口就滑出去了</p></div>
+          <div class="cand-col" data-fate="drop"><div class="cand-val"><span>2</span></div><p class="cand-verdict"><b>丢弃</b>右边有 4：所有未来包含 2 的窗口也包含 4，2 永远赢不了</p></div>
+          <div class="cand-col" data-fate="keep"><div class="cand-val">4</div><p class="cand-verdict"><b>保留</b>当前窗口的最大值，还会出现在未来若干窗口里</p></div>
+          <div class="cand-col" data-fate="keep"><div class="cand-val">1</div><p class="cand-verdict"><b>保留</b>比 4 小，但 4 更靠左、先老化；4 滑出后 1 有机会当最大值</p></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="msw-rules">
+        <h2 id="msw-rules">三条规则 → 单调递减 → 双端队列 / Rules to deque</h2>
+        <p class="section-intro">窗口每遇到一个值，执行三条规则：① 从<strong>右端</strong>弹出所有 ≤ 新值的候选——它们比新值小、又比新值先进入窗口，永远不可能再当最大值；② 把新值连同下标作为 <code>(值, 下标)</code> 元组压入右端；③ 窗口滑动后，从<strong>左端</strong>弹出下标 <code>&lt; left</code> 的过期候选。</p>
+        <div class="rule-grid">
+          <article class="paper-card"><strong>候选永远单调递减</strong><p>新值只从右端“清场”，所以 dq 自左向右始终单调递减（相等也弹出，实际是严格递减）。当前窗口的最大值因此永远是队首 <code>dq[0]</code>，直接读取，不用扫描。</p></article>
+          <article class="paper-card"><strong>为什么存下标</strong><p>规则③靠下标判断过期：<code>dq[0][1] &lt; left</code> 说明队首已滑出窗口。只存值的话，无法区分“值相同但位置不同”的候选。</p></article>
+          <article class="paper-card"><strong>为什么栈不够用</strong><p>单调栈只能操作一端，而过期候选积压在<strong>左端</strong>，栈顶够不着。需要一个两端都能增删的结构——双端队列 <code>deque</code>，可以理解成“双端栈”，两端都是 <code>O(1)</code>。</p></article>
+          <article class="paper-card"><strong>面试提示 / Interview tip</strong><p>不确定用什么数据结构时，先列出所需的属性与操作，再据此选型。本题的要求是“两端都能高效增删”——匹配到的就是 deque。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="msw-edge">
+        <h2 id="msw-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>k = 1</strong><p>每个窗口只有一个数。新值会把 dq 里 ≤ 它的旧候选全部弹出，dq 里始终最多 1 个元素，答案就是每个数本身。</p></article>
+          <article class="paper-card"><strong>k = n</strong><p>只有一次记录：dq 单调递减，<code>dq[0]</code> 是全局最大值；其后的过期清理永远不会触发。</p></article>
+          <article class="paper-card"><strong>相等的值</strong><p>比较用的是 <code>&lt;=</code>，相等的候选也会被弹出：靠右的新值更晚老化，严格优于靠左的旧值，重复的候选没有存在必要。</p></article>
+          <article class="paper-card"><strong>严格递减的数组</strong><p>如 <code>[5, 4, 3, 2]</code>：没有任何弹出，dq 一路涨到 <code>k</code> 个，靠规则③从左端清理——这是空间的最坏情况 <code>O(k)</code>。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="msw-complexity">
+        <h2 id="msw-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n)</strong><p>每个元素最多入队一次、出队一次（无论从哪端），每次双端操作都是 <code>O(1)</code>。虽然代码里有 while 循环，总代价仍是线性的。</p></article>
+          <article class="paper-card"><strong>Extra space · O(k)</strong><p>dq 最多保存 <code>k</code> 个候选（窗口里每个位置至多一个候选）。按书的约定，输出数组 <code>res</code> 不计入空间复杂度。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../next-largest-number-to-the-right/">右侧下一个更大数</a><a href="../evaluate-expression/">表达式求值</a><a href="../valid-parenthesis-expression/">有效的括号</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('msw-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const posEl = root.querySelector('[data-pos]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mLeft = root.querySelector('[data-m-left]');
+        const mRight = root.querySelector('[data-m-right]');
+        const mRes = root.querySelector('[data-m-res]');
+        const mDq = root.querySelector('[data-m-dq]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const NUMS = [3, 2, 4, 1, 2, 1, 1];
+        const K = 4;
+        const N = NUMS.length;
+        const SLOTS = N - K + 1;
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
+        const INV = {
+          init: 'res 与 dq 均为空；left = right = 0，窗口从下标 0 开始扩张。',
+          cond: 'right < len(nums) 时循环继续；每轮末尾 right 总是 +1。',
+          shrink: 'dq 自左向右单调递减；凡 ≤ 新值的候选都不可能再当最大值，从右端弹出。',
+          push: '压入 (值, 下标) 后 dq 仍保持单调递减；存下标是为了以后判断候选是否过期。',
+          grow: '窗口长度不足 k：只扩张窗口，不记录最大值。',
+          full: '窗口长度 = k：先清理过期候选，再把队首 dq[0] 记入 res。',
+          age: '下标 < left 的候选已滑出窗口，必须从左端移除，否则会把过期值当成最大值。',
+          slide: '记录之后 left += 1，窗口右滑一格（right 随后也 +1）。',
+          done: '每个元素最多入队、出队各一次；res 共 n - k + 1 = 4 个值。'
+        };
+
+        const frames = [];
+        const dq = [];
+        const res = Array(SLOTS).fill(null);
+        let left = 0;
+        let right = 0;
+
+        const cloneT = t => [t[0], t[1]];
+        const tup = t => `(${t[0]}, ${t[1]})`;
+        const resText = () => `[${res.map(v => (v === null ? '·' : v)).join(', ')}]`;
+
+        function add(stepLabel, phase, pos, sourceKeys, line, zh, invariant, fx, calc) {
+          frames.push({
+            stepLabel, phase, pos, sourceKeys, line, zh, invariant, calc,
+            state: {
+              left, right,
+              dq: dq.map(cloneT),
+              res: [...res],
+              calc: [...calc],
+              fx: fx ? { kind: fx.kind, cell: fx.cell ? cloneT(fx.cell) : null, slot: fx.slot === undefined ? null : fx.slot } : null
+            }
+          });
+        }
+
+        add('初始化 res、dq、left、right', '初始化', 'nums = [3, 2, 4, 1, 2, 1, 1]，k = 4',
+          ['func', 'init-res', 'init-dq', 'init-lr'],
+          'res = []；dq = deque()；left = right = 0',
+          '开始前：结果数组 res 和双端队列 dq 都是空的；left 与 right 都指向下标 0，滑动窗口尚未形成。',
+          INV.init, null,
+          ['res = []', 'dq = deque()', 'left = right = 0']);
+
+        while (true) {
+          if (right < N) {
+            add(`right = ${right} · while 条件成立`, '循环条件', `right = ${right} · nums[${right}] = ${NUMS[right]}`,
+              ['while'], `while right < len(nums)  # ${right} < ${N}，成立`,
+              `right = ${right} 小于 len(nums) = ${N}：循环继续，本轮处理 nums[${right}] = ${NUMS[right]}。`,
+              INV.cond, null,
+              ['while right < len(nums)', `# ${right} < ${N} → 进入循环`]);
+          } else {
+            add('right = 7 · 循环结束', '循环条件', `right = ${N} = len(nums)`,
+              ['while'], `while right < len(nums)  # ${right} < ${N} 不成立`,
+              `right = ${N}，已经走完整个数组，while 循环结束。`,
+              INV.done, null,
+              ['while right < len(nums)', `# ${N} < ${N} 不成立 → 退出循环`]);
+            break;
+          }
+
+          const v = NUMS[right];
+          let firstCheck = true;
+          while (true) {
+            const top = dq.length ? dq[dq.length - 1] : null;
+            if (top && top[0] <= v) {
+              add(`right = ${right} · 队尾 ${top[0]} ≤ ${v}`, '规则① 弹右端', `right = ${right} · nums[${right}] = ${v}`,
+                ['pop-while'], `while dq[-1][0] <= nums[${right}]  # ${top[0]} <= ${v}，成立`,
+                top[0] === v
+                  ? `队尾候选 (${top[0]}, ${top[1]}) 等于新值 ${v}：窗口里新值更靠右、更晚过期，相等的旧候选毫无优势，准备从右端弹出。`
+                  : `队尾候选 (${top[0]}, ${top[1]}) ≤ 新值 ${v}：它更靠左又更小，所有未来包含它的窗口也包含 ${v}，永远不可能再当最大值，准备弹出。`,
+                INV.shrink, { kind: 'mark-back', cell: top },
+                [`dq[-1][0] = ${top[0]} <= nums[${right}] = ${v}`, '→ 从右端弹出击毙']);
+              dq.pop();
+              add(`right = ${right} · 弹出 (${top[0]}, ${top[1]})`, '规则① 弹右端', `right = ${right} · nums[${right}] = ${v}`,
+                ['pop'], `dq.pop()  # 移除 (${top[0]}, ${top[1]})`,
+                `dq.pop()：(${top[0]}, ${top[1]}) 从候选队列右端离开。`,
+                INV.shrink, { kind: 'pop-right', cell: top },
+                [`dq.pop()  # dq 移除 (${top[0]}, ${top[1]})`]);
+              firstCheck = false;
+              continue;
+            }
+            add(firstCheck ? `right = ${right} · while 不执行` : `right = ${right} · 弹出结束`, '规则① 弹右端', `right = ${right} · nums[${right}] = ${v}`,
+              ['pop-while'],
+              firstCheck
+                ? (top ? `while dq[-1][0] <= nums[${right}]  # ${top[0]} > ${v}，不成立` : 'while dq and dq[-1][0] <= nums[right]  # dq 为空，不成立')
+                : (top ? `while dq[-1][0] <= nums[${right}]  # ${top[0]} > ${v}，不成立` : 'while dq and dq[-1][0] <= nums[right]  # dq 已空，不成立'),
+              firstCheck
+                ? (top ? `队尾 ${top[0]} 比新值 ${v} 大：while 一次也不执行。` : 'dq 是空的，while 一次也不执行。')
+                : (top ? `再看新队尾 ${top[0]}：它比 ${v} 大，弹出循环结束。` : 'dq 已空，弹出循环结束。'),
+              INV.shrink, null,
+              firstCheck
+                ? (top ? [`dq[-1][0] = ${top[0]} > ${v}`, '→ while 不执行'] : ['dq 为空', '→ while 不执行'])
+                : (top ? [`新队尾 ${top[0]} > ${v}`, '→ 弹出循环结束'] : ['dq 已空', '→ 弹出循环结束']));
+            break;
+          }
+
+          dq.push([v, right]);
+          add(`right = ${right} · 压入 (${v}, ${right})`, '规则② 压入', `right = ${right} · nums[${right}] = ${v}`,
+            ['append'], `dq.append((${v}, ${right}))`,
+            `把新候选 (${v}, ${right}) 压入 dq 右端。下标一起存进来，之后才能判断它有没有滑出窗口。`,
+            INV.push, { kind: 'push', cell: [v, right] },
+            [`dq.append((${v}, ${right}))`]);
+
+          const winLen = right - left + 1;
+          const isFull = winLen === K;
+          add(`right = ${right} · 窗口长度 ${winLen}`, '窗口检查', `left = ${left}，right = ${right}`,
+            ['if-window'], `if right - left + 1 == k  # ${winLen} == ${K}${isFull ? '，成立' : '，不成立'}`,
+            isFull
+              ? `窗口 [${left}, ${right}] 长度正好是 k = ${K}：要记录这个窗口的最大值。`
+              : `窗口长度 ${winLen} < k = ${K}：继续扩张，本轮不记录。`,
+            isFull ? INV.full : INV.grow, null,
+            [`right - left + 1 = ${winLen}`, isFull ? `== k = ${K} → 记录最大值` : `< k = ${K} → 只扩张`]);
+
+          if (isFull) {
+            const front = dq[0];
+            const outdated = front[1] < left;
+            add(`窗口 [${left}, ${right}] · 检查 dq[0][1]`, '规则③ 查过期', `left = ${left}，dq[0] = (${front[0]}, ${front[1]})`,
+              ['outdated-if'], `if dq[0][1] < left  # ${front[1]} < ${left}${outdated ? '，成立' : '，不成立'}`,
+              outdated
+                ? `dq[0] 的下标 ${front[1]} 已经小于 left = ${left}：(${front[0]}, ${front[1]}) 滑出了窗口，必须先从左端移除。`
+                : `dq[0] 的下标 ${front[1]} ≥ left = ${left}：队首候选仍在窗口里，不需要移除。`,
+              outdated ? INV.age : INV.full, null,
+              [`dq[0][1] = ${front[1]}，left = ${left}`, outdated ? `${front[1]} < ${left} → 已过期` : `${front[1]} >= ${left} → 仍有效`]);
+            if (outdated) {
+              dq.shift();
+              add(`dq.popleft() 移除 (${front[0]}, ${front[1]})`, '规则③ 弹左端', `left = ${left}`,
+                ['popleft'], `dq.popleft()  # 移除 (${front[0]}, ${front[1]})`,
+                `dq.popleft()：(${front[0]}, ${front[1]}) 从左端离开。它曾是最大值，但窗口已经把它甩在了身后。`,
+                INV.age, { kind: 'popleft', cell: front },
+                [`dq.popleft()  # dq 移除 (${front[0]}, ${front[1]})`]);
+            }
+            const maxV = dq[0][0];
+            res[left] = maxV;
+            add(`res 记录 dq[0][0] = ${maxV}`, '记录最大值', `窗口 [${left}, ${right}]`,
+              ['record'], `res.append(dq[0][0])  # 第 ${left + 1} 个窗口 = ${maxV}`,
+              `候选单调递减，队首 dq[0] = ${maxV} 就是窗口 [${left}, ${right}] 的最大值，记入 res（第 ${left + 1} 个窗口）。`,
+              INV.full, { kind: 'record', slot: left },
+              ['res.append(dq[0][0])', `# 当前 res = ${resText()}`]);
+            left += 1;
+            add(`left = ${left} · 窗口右滑`, '滑动窗口', `left = ${left}，right = ${right}`,
+              ['left-inc'], `left += 1  # left = ${left}`,
+              `left 前进一格（right 在每轮末尾也 +1）：窗口滑向 [${left}, ${right + 1}]。`,
+              INV.slide, null,
+              [`left += 1  # left = ${left}`, 'right += 1 随后执行']);
+          }
+          right += 1;
+          add(`right = ${right}`, '前进', `right = ${right}`,
+            ['right-inc'], `right += 1  # right = ${right}`,
+            right < N ? `right 前进到 ${right}，下一轮处理 nums[${right}] = ${NUMS[right]}。` : `right 前进到 ${N}，数组处理完毕。`,
+            INV.cond, null,
+            [`right += 1  # right = ${right}`]);
+        }
+
+        add('return res = [4, 4, 4, 2]', '返回', 'res 共 4 个值',
+          ['return'], 'return res  # [4, 4, 4, 2]',
+          '循环结束，返回 res = [4, 4, 4, 2]：窗口 [3,2,4,1]、[2,4,1,2]、[4,1,2,1]、[1,2,1,1] 的最大值。',
+          INV.done, null,
+          ['return res  # [4, 4, 4, 2]']);
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('msw-arrow', { fill: '#333', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const W = stage.clientWidth;
+          const compact = W < 560;
+          const pad = compact ? 8 : 18;
+          const gap = compact ? 5 : 8;
+          const cellW = Math.min(compact ? 38 : 48, (W - 2 * pad - (N - 1) * gap) / N);
+          const cellH = compact ? 32 : 38;
+          const posX = i => pad + cellW / 2 + i * (cellW + gap);
+          const xs = NUMS.map((_, i) => posX(i));
+          const bracketY = 22;
+          const idxY = bracketY + (compact ? 15 : 19);
+          const arrY = idxY + (compact ? 9 : 11);
+          const ptrAY = arrY + cellH + 3;
+          const ptrLY = ptrAY + (compact ? 17 : 19);
+          const dqCapY = ptrLY + (compact ? 17 : 21);
+          const dqMarkY = dqCapY + (compact ? 14 : 16);
+          const dqY = dqMarkY + (compact ? 5 : 6);
+          const dqW = cellW + (compact ? 16 : 20);
+          const dqGap = compact ? 6 : 10;
+          const opsY = dqY + cellH + (compact ? 14 : 16);
+          const resCapY = opsY + (compact ? 27 : 31);
+          const resY = resCapY + (compact ? 8 : 10);
+          const resH = compact ? 26 : 30;
+          const calcY = resY + resH + (compact ? 10 : 14);
+          const calcFont = compact ? 9.5 : 11.5;
+          const lineH = Math.round(calcFont * 1.55);
+          const maxCalc = Math.max(...frames.map(f => f.calc.length), 1);
+          const calcH = maxCalc * lineH + 12;
+          const stageH = Math.ceil(calcY + calcH + 10);
+          geom = { W, compact, pad, gap, cellW, cellH, posX, xs, bracketY, idxY, arrY, ptrAY, ptrLY, dqCapY, dqMarkY, dqY, dqW, dqGap, opsY, resCapY, resY, resH, calcY, calcFont, lineH };
+          svg.setAttribute('viewBox', `0 0 ${W} ${stageH}`);
+          stage.style.height = `${stageH}px`;
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom || !state) return;
+          const g = geom;
+          const lerp = (a, b) => a + (b - a) * t;
+          const rightC = Math.min(state.right, N - 1);
+          const leftC = Math.min(state.left, N - 1);
+          const fromR = from ? Math.min(from.right, N - 1) : rightC;
+          const fromL = from ? Math.min(from.left, N - 1) : leftC;
+          const fx = state.fx;
+          const calcOp = from && from.calc.join('|') === state.calc.join('|') ? 1 : t;
+          const dqShift = fx && fx.kind === 'popleft' ? 1 : 0;
+          const cellMid = g.dqY + g.cellH / 2;
+          const dqSlotX = j => g.pad + j * (g.dqW + g.dqGap);
+
+          scene.update(({ path, text }) => {
+            const bx1 = g.posX(lerp(fromL, leftC)) - g.cellW / 2 - 3;
+            const bx2 = g.posX(lerp(fromR, rightC)) + g.cellW / 2 + 3;
+            path('win-bracket', { d: `M ${bx1} ${g.bracketY} L ${bx2} ${g.bracketY} M ${bx1} ${g.bracketY} L ${bx1} ${g.bracketY + 6} M ${bx2} ${g.bracketY} L ${bx2} ${g.bracketY + 6}`, stroke: '#333', 'stroke-width': 1.4, fill: 'none' });
+
+            NUMS.forEach((v, i) => {
+              const x = g.xs[i];
+              const inWin = state.right < N && i >= state.left && i <= state.right;
+              const isCur = state.right < N && i === state.right;
+              path(`cell-${i}`, { d: rectPath(x - g.cellW / 2, g.arrY, g.cellW, g.cellH, 3), fill: inWin ? '#f4f1e7' : '#fffdf8', stroke: '#272727', 'stroke-width': isCur ? 2 : 1.3 });
+              text(`cell-v-${i}`, { x, y: g.arrY + g.cellH / 2 + (g.compact ? 4.5 : 5.5), 'text-anchor': 'middle', 'font-size': g.compact ? 13 : 15.5, fill: '#272727', 'font-family': MONO }, String(v));
+              text(`cell-i-${i}`, { x, y: g.idxY, 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 9.5, fill: '#555', 'font-family': MONO }, String(i));
+              if (isCur) {
+                path(`cell-cur-${i}`, { d: rectPath(x - g.cellW / 2 - 3.5, g.arrY - 3.5, g.cellW + 7, g.cellH + 7, 4), fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+              }
+            });
+
+            const sameCell = leftC === rightC;
+            if (sameCell) {
+              const cX = g.posX(lerp(fromL, leftC));
+              path('ptr-l-a', { d: `M ${cX} ${g.ptrLY - 14} L ${cX} ${g.ptrAY + 2}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#msw-arrow)' });
+              text('ptr-l-t', { x: cX, y: g.ptrLY, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: '#272727', 'font-family': MONO }, 'left');
+              text('ptr-r-t', { x: cX, y: g.ptrLY + (g.compact ? 11 : 12), 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: '#272727', 'font-family': MONO }, 'right');
+            } else {
+              const lX = g.posX(lerp(fromL, leftC));
+              const rX = g.posX(lerp(fromR, rightC));
+              path('ptr-l-a', { d: `M ${lX} ${g.ptrLY - 14} L ${lX} ${g.ptrAY + 2}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#msw-arrow)' });
+              path('ptr-r-a', { d: `M ${rX} ${g.ptrLY - 14} L ${rX} ${g.ptrAY + 2}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#msw-arrow)' });
+              text('ptr-l-t', { x: lX, y: g.ptrLY, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: '#272727', 'font-family': MONO }, 'left');
+              text('ptr-r-t', { x: rX, y: g.ptrLY, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: '#272727', 'font-family': MONO }, 'right');
+            }
+
+            text('dq-cap', { x: g.pad, y: g.dqCapY, 'text-anchor': 'start', 'font-size': g.compact ? 9 : 10.5, fill: '#555', 'font-family': MONO }, 'dq · 候选 (值, 下标)，front 在左，自左向右单调递减');
+            const dq = state.dq;
+
+            const drawDqCell = (id, c, x, op, strike) => {
+              path(`${id}-box`, { d: rectPath(x, g.dqY, g.dqW, g.cellH, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.3, opacity: op });
+              text(`${id}-t`, { x: x + g.dqW / 2, y: cellMid + (g.compact ? 3.5 : 4.5), 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 12, fill: strike ? '#777' : '#272727', 'font-family': MONO, opacity: op }, `${c[0]}, ${c[1]}`);
+              text(`${id}-par-l`, { x: x + g.dqW / 2 - (g.compact ? 17 : 20), y: cellMid + (g.compact ? 3.5 : 4.5), 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 12, fill: '#777', 'font-family': MONO, opacity: op }, '(');
+              text(`${id}-par-r`, { x: x + g.dqW / 2 + (g.compact ? 17 : 20), y: cellMid + (g.compact ? 3.5 : 4.5), 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 12, fill: '#777', 'font-family': MONO, opacity: op }, ')');
+              if (strike) {
+                path(`${id}-strike`, { d: `M ${x + 4} ${cellMid} L ${x + g.dqW - 4} ${cellMid}`, stroke: '#777', 'stroke-width': 1.3, opacity: op });
+              }
+            };
+
+            if (!dq.length && !(fx && (fx.kind === 'pop-right' || fx.kind === 'popleft'))) {
+              path('dq-empty', { d: rectPath(g.pad, g.dqY, g.dqW, g.cellH, 3), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '5 4' });
+              text('dq-empty-t', { x: g.pad + g.dqW / 2, y: cellMid + (g.compact ? 3.5 : 4.5), 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: '#999', 'font-family': MONO }, '(空)');
+            }
+
+            dq.forEach((c, j) => {
+              const x = dqShift ? lerp(dqSlotX(j + 1), dqSlotX(j)) : dqSlotX(j);
+              const op = dqShift ? Math.min(1, t + 0.3) : (fx && fx.kind === 'push' && j === dq.length - 1 ? t : 1);
+              drawDqCell(`dq-${j}`, c, x, op, false);
+            });
+
+            if (dq.length) {
+              const fX = dqShift ? lerp(dqSlotX(1), dqSlotX(0)) : dqSlotX(0);
+              const bJ = dq.length - 1;
+              const bX = dqShift ? lerp(dqSlotX(bJ + 1), dqSlotX(bJ)) : dqSlotX(bJ);
+              if (!(fx && fx.kind === 'popleft')) {
+                text('dq-front-m', { x: fX, y: g.dqMarkY, 'text-anchor': 'start', 'font-size': g.compact ? 8 : 9.5, fill: '#555', 'font-family': MONO }, dq.length > 1 ? 'dq[0] = 窗口最大值' : 'dq[0] · dq[-1]');
+              }
+              if (dq.length > 1) {
+                text('dq-back-m', { x: bX + g.dqW, y: g.dqMarkY, 'text-anchor': 'end', 'font-size': g.compact ? 8 : 9.5, fill: '#555', 'font-family': MONO }, 'dq[-1]');
+              }
+              if (fx && fx.kind === 'record') {
+                path('dq-rec-box', { d: rectPath(fX - 3.5, g.dqY - 3.5, g.dqW + 7, g.cellH + 7, 4), fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+              }
+              if (fx && fx.kind === 'mark-back') {
+                path('dq-mark-box', { d: rectPath(bX - 3.5, g.dqY - 3.5, g.dqW + 7, g.cellH + 7, 4), fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '3 3' });
+              }
+            }
+
+            if (fx && fx.kind === 'pop-right') {
+              const gx = dqSlotX(dq.length);
+              drawDqCell('dq-ghost-r', fx.cell, gx, Math.max(0, 1 - t), true);
+              text('dq-ghost-r-lbl', { x: gx + g.dqW + 5, y: cellMid + 3, 'text-anchor': 'start', 'font-size': g.compact ? 8.5 : 10, fill: '#555', 'font-family': MONO, opacity: Math.max(0, 1 - t) }, 'pop →');
+            }
+            if (fx && fx.kind === 'popleft') {
+              drawDqCell('dq-ghost-l', fx.cell, dqSlotX(0), Math.max(0, 1 - t), true);
+              text('dq-ghost-l-lbl', { x: g.pad, y: g.dqMarkY, 'text-anchor': 'start', 'font-size': g.compact ? 8 : 9.5, fill: '#555', 'font-family': MONO, opacity: Math.max(0, 1 - t) }, '← popleft');
+            }
+            if (fx && fx.kind === 'push') {
+              text('dq-push-lbl', { x: dqSlotX(dq.length - 1) + g.dqW + 5, y: cellMid + 3, 'text-anchor': 'start', 'font-size': g.compact ? 8.5 : 10, fill: '#555', 'font-family': MONO, opacity: t }, '→ append');
+            }
+
+            text('ops-a', { x: g.pad, y: g.opsY, 'text-anchor': 'start', 'font-size': g.compact ? 8.6 : 10, fill: '#555', 'font-family': MONO }, '规则 ① 从右端弹出 ≤ 新值的候选（dq.pop）');
+            text('ops-b', { x: g.pad, y: g.opsY + (g.compact ? 12 : 14), 'text-anchor': 'start', 'font-size': g.compact ? 8.6 : 10, fill: '#555', 'font-family': MONO }, '② 压入新候选 (值, 下标)　③ 从左端弹出 下标 < left 的候选（dq.popleft）');
+
+            text('res-cap', { x: g.pad, y: g.resCapY, 'text-anchor': 'start', 'font-size': g.compact ? 9 : 10.5, fill: '#555', 'font-family': MONO }, `res · 每个窗口的最大值（共 ${SLOTS} 个窗口）`);
+            for (let i = 0; i < SLOTS; i += 1) {
+              const x = g.xs[i] - g.cellW / 2;
+              const filled = state.res[i] !== null;
+              const fresh = fx && fx.kind === 'record' && fx.slot === i;
+              path(`res-cell-${i}`, { d: rectPath(x, g.resY, g.cellW, g.resH, 3), fill: fresh ? '#f4f1e7' : '#fffdf8', stroke: filled ? '#272727' : '#999', 'stroke-width': filled ? 1.4 : 1.1, 'stroke-dasharray': filled ? null : '4 3' });
+              text(`res-v-${i}`, { x: g.xs[i], y: g.resY + g.resH / 2 + (g.compact ? 3.5 : 4.5), 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 13, fill: filled ? '#272727' : '#999', 'font-family': MONO, opacity: fresh ? t : (filled ? 1 : 0.9) }, filled ? String(state.res[i]) : '·');
+              if (fresh) {
+                path(`res-cur-${i}`, { d: rectPath(x - 3.5, g.resY - 3.5, g.cellW + 7, g.resH + 7, 4), fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+              }
+            }
+
+            const longest = Math.max(...state.calc.map(l => l.length));
+            const boxW = Math.min(g.W - 2 * g.pad, longest * g.calcFont * 0.72 + 18);
+            path('calc-box', { d: rectPath(g.pad, g.calcY, boxW, state.calc.length * g.lineH + 12, 4), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '5 4', opacity: calcOp });
+            state.calc.forEach((line, k) => {
+              text(`calc-${k}`, { x: g.pad + 9, y: g.calcY + 10 + k * g.lineH + g.lineH * 0.32, 'text-anchor': 'start', 'font-size': g.calcFont, fill: '#272727', 'font-family': MONO, opacity: calcOp }, line);
+            });
+          });
+        }
+
+        function render({ frame, state, step, frames: allFrames }) {
+          phaseEl.textContent = frame.phase;
+          posEl.textContent = frame.pos;
+          invariantEl.textContent = frame.invariant;
+          mLeft.textContent = state.left;
+          mRight.textContent = state.right;
+          mRes.textContent = `[${state.res.map(v => (v === null ? '·' : v)).join(', ')}]`;
+          mDq.textContent = state.dq.length ? `[${state.dq.map(c => `(${c[0]}, ${c[1]})`).join(', ')}]` : '（空）';
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `滑动窗口最大值演示：第 ${step + 1} / ${allFrames.length} 步。${frame.zh}`);
+          layout();
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({
+          left: s.left, right: s.right,
+          dq: s.dq.map(cloneT),
+          res: [...s.res],
+          fx: s.fx ? { kind: s.fx.kind, cell: s.fx.cell ? cloneT(s.fx.cell) : null, slot: s.fx.slot } : null,
+          calc: [...s.calc]
+        });
+
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 380,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(frames);
+      })();
+    </script>
+  </body>
+</html>

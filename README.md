@@ -65,6 +65,9 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [Valid Parenthesis Expression / 有效的括号](https://junjiearaoxiong.github.io/algorithm-visuals/valid-parenthesis-expression/)
 - [Next Largest Number to the Right / 右侧下一个更大数](https://junjiearaoxiong.github.io/algorithm-visuals/next-largest-number-to-the-right/)
 - [Evaluate Expression / 表达式求值](https://junjiearaoxiong.github.io/algorithm-visuals/evaluate-expression/)
+- [Repeated Removal of Adjacent Duplicates / 反复移除相邻重复项](https://junjiearaoxiong.github.io/algorithm-visuals/repeated-removal-of-adjacent-duplicates/)
+- [Implement a Queue Using Stacks / 用栈实现队列](https://junjiearaoxiong.github.io/algorithm-visuals/implement-a-queue-using-stacks/)
+- [Maximums of Sliding Window / 滑动窗口最大值](https://junjiearaoxiong.github.io/algorithm-visuals/maximums-of-sliding-window/)
 
 ### 08 · Heaps / 堆
 
