@@ -1,0 +1,840 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "用栈实现队列双栈演示 / queue using stacks trace"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 12"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "初始化：两个空栈"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "enqueue(1)：1 压入左栈"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "enqueue(2)：2 压到 1 上面"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "dequeue()：右栈为空，准备搬运"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "搬运：2 移到 dequeue_stack"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "搬运：1 落到右栈顶，反转完成"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "dequeue() 返回 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "enqueue(3)：3 进左栈排队"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "dequeue()：右栈非空，跳过搬运"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "dequeue() 返回 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "peek()：右栈空，搬运 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "peek() 返回 3（不弹出）"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "初始化"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "用栈实现队列演示：第 1 / 12 步。Queue 建好：两个栈都是空的。enqueue_stack 负责接收每次 enqueue，dequeue_stack 负责服务每次 dequeue / peek。"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ],
+        [
+          "style",
+          "height: 232px;"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 232"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#333"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#555"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 17 8 H 110.51999999999998 Q 113.51999999999998 8 113.51999999999998 11 V 31 Q 113.51999999999998 34 110.51999999999998 34 H 17 Q 14 34 14 31 V 11 Q 14 8 17 8 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "op-box"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#777"
+                ],
+                [
+                  "stroke-dasharray",
+                  "5 4"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "op-text"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "22"
+                ],
+                [
+                  "y",
+                  "25"
+                ]
+              ],
+              "children": [
+                "操作 Queue()"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 642.8 8 H 714 Q 717 8 717 11 V 31 Q 717 34 714 34 H 642.8 Q 639.8 34 639.8 31 V 11 Q 639.8 8 642.8 8 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "out-box"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "out-text"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "647.8"
+                ],
+                [
+                  "y",
+                  "25"
+                ]
+              ],
+              "children": [
+                "输出 = []"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 164.37 100 L 164.37 214 L 230.37 214 L 230.37 100"
+                ],
+                [
+                  "data-visual-element",
+                  "u-enq"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "name-enq"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "197.37"
+                ],
+                [
+                  "y",
+                  "72"
+                ]
+              ],
+              "children": [
+                "enqueue_stack"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "role-enq"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "197.37"
+                ],
+                [
+                  "y",
+                  "89"
+                ]
+              ],
+              "children": [
+                "接收每次 enqueue"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "empty-enq"
+                ],
+                [
+                  "fill",
+                  "#999"
+                ],
+                [
+                  "x",
+                  "197.37"
+                ],
+                [
+                  "y",
+                  "125"
+                ]
+              ],
+              "children": [
+                "(空)"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 500.63 100 L 500.63 214 L 566.63 214 L 566.63 100"
+                ],
+                [
+                  "data-visual-element",
+                  "u-deq"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "name-deq"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "533.63"
+                ],
+                [
+                  "y",
+                  "72"
+                ]
+              ],
+              "children": [
+                "dequeue_stack"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "role-deq"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "533.63"
+                ],
+                [
+                  "y",
+                  "89"
+                ]
+              ],
+              "children": [
+                "服务 dequeue / peek"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "empty-deq"
+                ],
+                [
+                  "fill",
+                  "#999"
+                ],
+                [
+                  "x",
+                  "533.63"
+                ],
+                [
+                  "y",
+                  "125"
+                ]
+              ],
+              "children": [
+                "(空)"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "不变量 / Invariant"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "分工不变量：左栈只收（enqueue），右栈只发（dequeue / peek）。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "enqueue_stack"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-enq",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "底 [] 顶"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "dequeue_stack"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-deq",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "底 [] 顶"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    "队首"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-front",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "self.enqueue_stack = []；self.dequeue_stack = []"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "Queue 建好：两个栈都是空的。enqueue_stack 负责接收每次 enqueue，dequeue_stack 负责服务每次 dequeue / peek。"
+          ]
+        }
+      ]
+    }
+  ]
+}
