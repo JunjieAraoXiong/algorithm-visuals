@@ -93,6 +93,11 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [Shortest Path / 最短路径](https://junjiearaoxiong.github.io/algorithm-visuals/shortest-path/)
 - [Connect the Dots / 连接所有点](https://junjiearaoxiong.github.io/algorithm-visuals/connect-the-dots/)
 
+### 12 · Backtracking / 回溯
+
+- [Combinations of a Sum / 组合总和](https://junjiearaoxiong.github.io/algorithm-visuals/combinations-of-a-sum/)
+- [Phone Keypad Combinations / 电话号码字母组合](https://junjiearaoxiong.github.io/algorithm-visuals/phone-keypad-combinations/)
+
 ## Development
 
 - `npm run build` validates the registry, catalog, README inventory, and internal links, then writes the ignored `_site/` directory.

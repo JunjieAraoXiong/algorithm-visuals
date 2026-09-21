@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of combinations of a sum: backtracking over the state-space tree with a start_index rule that keeps combinations in input order and removes duplicates. 组合总和：回溯状态空间树，start_index 只许向后选数，从根上杜绝重复组合。" />
+    <title>Combinations of a Sum · 组合总和 · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .card-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="csum-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Combinations of a Sum · <span lang="zh-CN">组合总和</span></h1></div></header>
+      <p class="problem">Given an integer array and a target value, find all unique combinations in the array where the numbers in each combination sum to the target. Each number in the array may be used an unlimited number of times in the combination. Example: <code>nums = [1, 2, 3]</code>, <code>target = 4</code> → <code>[[1,1,1,1],[1,1,2],[1,3],[2,2]]</code>.<span lang="zh-CN">给定正整数数组 nums（元素互不相同）和目标值 target，找出所有和为 target 的组合；每个数字可以无限次使用，输出不得包含重复组合——[1,1,2] 与 [1,2,1] 视为同一个组合。书例：nums = [1, 2, 3]，target = 4，答案是 [[1,1,1,1],[1,1,2],[1,3],[2,2]]。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="组合总和回溯演示 / combinations of a sum trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="组合总和回溯演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>combination</code></dt><dd data-m-combo></dd></div>
+              <div><dt>剩余 <code>target</code></dt><dd data-m-target></dd></div>
+              <div><dt>递归深度</dt><dd data-m-depth></dd></div>
+              <div><dt><code>res</code> 个数</dt><dd data-m-res></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="csum-code-title">
+          <h2 id="csum-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def combinations_of_sum_k(nums: List[int], target: int) -&gt; List[List[int]]:</span><span class="code-line" data-source-key="res-init">    res = []</span><span class="code-line" data-source-key="call-root">    dfs([], 0, nums, target, res)</span><span class="code-line" data-source-key="ret">    return res</span><span class="code-line"></span><span class="code-line" data-source-key="dfs-def">def dfs(combination: List[int], start_index: int, nums: List[int], target: int, res: List[List[int]]) -&gt; None:</span><span class="code-line">    # Termination condition: If the target is equal to 0, we found a combination</span><span class="code-line">    # that sums to 'k'.</span><span class="code-line" data-source-key="if-zero">    if target == 0:</span><span class="code-line" data-source-key="collect">        res.append(combination[:])</span><span class="code-line" data-source-key="return-zero">        return</span><span class="code-line">    # Termination condition: If the target is less than 0, no more valid</span><span class="code-line">    # combinations can be created by adding to the current combination.</span><span class="code-line" data-source-key="if-neg">    if target &lt; 0:</span><span class="code-line" data-source-key="return-neg">        return</span><span class="code-line">    # Starting from 'start_index', explore all combinations after adding</span><span class="code-line">    # 'nums[i]'.</span><span class="code-line" data-source-key="for-loop">    for i in range(start_index, len(nums)):</span><span class="code-line">        # Add the current number to create a new combination.</span><span class="code-line" data-source-key="append">        combination.append(nums[i])</span><span class="code-line">        # Recursively explore all paths that branch from this new combination.</span><span class="code-line" data-source-key="recurse">        dfs(combination, i, nums, target - nums[i], res)</span><span class="code-line">        # Backtrack by removing the number we just added.</span><span class="code-line" data-source-key="pop">        combination.pop()</span></code></pre>
+          <p class="note">圆圈内是<strong>剩余 target</strong>，圆圈下方是当前 <code>combination</code>；连线上标的是这一步选的数。左侧面板是 <code>combination</code> 栈（向上增长），中间是 <code>nums</code> 与 <code>start_index</code> 候选区，右侧是已收集的 <code>res</code>。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="csum-intuition">
+        <h2 id="csum-intuition">直觉：把 target 当剩余额度 / Remaining budget</h2>
+        <p class="section-intro">数组全是正数，所以组合和只会单调增长：和一旦达到 target 就不可能再变小，超过就永远超过。这给出两条终止条件——剩余 target 恰好等于 0，当前组合就是一个答案；小于 0，此路超支，直接剪掉。因为正数保证单调，<strong>剪枝不会剪掉任何正确答案</strong>。</p>
+        <p class="section-intro">实现上不必维护 <code>sum</code> 变量：直接把 target 当“剩余额度”，选中 <code>nums[i]</code> 就以 <code>target - nums[i]</code> 递归，额度一路扣减；回溯时 <code>combination.pop()</code> 撤销选择，额度随递归栈自然恢复。</p>
+        <div class="card-grid">
+          <article class="paper-card"><strong>无限次使用：传 i 不传 i+1</strong><p>0-1 背包式回溯递归传 <code>i + 1</code>（每个数至多一次）；本题允许复用，所以传 <code>i</code>——同一个数下一轮仍可以被选，[1,1,1,1] 由此产生。</p></article>
+          <article class="paper-card"><strong>答案要复制 combination[:]</strong><p><code>combination</code> 是全程共享的可变列表，之后还会被 pop 修改。<code>res.append(combination)</code> 只存引用，必须 <code>combination[:]</code> 复制一份快照，否则 res 里全是空列表。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="csum-dedup">
+        <h2 id="csum-dedup">为什么 start_index 能去重 / Why no duplicates</h2>
+        <p class="section-intro">重复的来源：同一个组合有多个“生成顺序”。[1,3] 可以先选 1 再选 3，也可以先选 3 再选 1——若每个位置都允许任选数字，两者都会进 <code>res</code>。去重的关键不是事后用集合过滤，而是<strong>统一表示</strong>：规定每个组合按 nums 的顺序排列，靠 <code>start_index</code> 强制执行——当前组合以 <code>nums[i]</code> 结尾，下一轮就只能从 <code>nums[i]</code> 及之后选数，永不回头。于是 [1,2,1] 这类乱序版本根本不会被生成，[1,3] 与 [3,1] 只剩字典序最小的那一个。</p>
+      </section>
+
+      <section class="section" aria-labelledby="csum-edge">
+        <h2 id="csum-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>target 恰好用尽</strong><p>剩余 target 精确减到 0 才收答案；少一分都不行。如 [1,3]：1+3=4 收，1+3 之后再选任何正数都会变负被剪。</p></article>
+          <article class="paper-card"><strong>提前为负</strong><p>只要剩余 target &lt; 0 就立即返回，不再尝试任何候选——正数不可能把和“减回来”。这就是剪枝帧里整棵子树被标红的原因。</p></article>
+          <article class="paper-card"><strong>nums 含 1 时递归最深</strong><p>每轮至少选最小候选 m，树高至多为 <code>target / m</code>。nums 含 1 时达到最深：书例中 [1,1,1,1] 一路递归到第 4 层，这也是空间复杂度的来源。</p></article>
+          <article class="paper-card"><strong>无解</strong><p>若 target 小于 nums 中最小的数（如 nums=[2,3]，target=1），每个分枝第一步就超支，res 为空列表 []——代码无需特判。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="csum-complexity">
+        <h2 id="csum-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n<sup>target/m</sup>)</strong><p>m 为 nums 中最小的候选数。树高至多为 <code>target / m</code>（每轮至少扣掉 m），每层最多 n 个分枝，状态树结点数上界 <code>n<sup>target/m</sup></code>；每个结点只做 O(1) 的 append/pop 与常数次判断。</p></article>
+          <article class="paper-card"><strong>Space · O(target/m)</strong><p>递归栈深度至多为 <code>target / m</code>（nums 含 1 时取到），combination 最长同样这么长；不计输出 res 的话，额外空间就是 O(target/m)。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../connect-the-dots/">connect-the-dots</a><a href="../happy-number/">快乐数</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('csum-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mCombo = root.querySelector('[data-m-combo]');
+        const mTarget = root.querySelector('[data-m-target]');
+        const mDepth = root.querySelector('[data-m-depth]');
+        const mRes = root.querySelector('[data-m-res]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const SANS = 'Arial, Helvetica, sans-serif';
+        const NUMS = [1, 2, 3];
+        const TARGET = 4;
+        const RED = '#a3402f';
+
+        // ---- simulation: mirrors the Python implementation line by line ----
+        // SIM-START
+        function simulateCombinations(nums, target) {
+          const events = [];
+          const res = [];
+          const combination = [];
+          const snap = (startIndex, t) => ({
+            combination: combination.slice(),
+            start_index: startIndex,
+            target: t,
+            res: res.map(r => r.slice())
+          });
+          function dfs(startIndex, t) {
+            events.push({ type: 'enter', ...snap(startIndex, t) });
+            if (t === 0) {
+              res.push(combination.slice());
+              events.push({ type: 'collect', ...snap(startIndex, t) });
+              events.push({ type: 'return', ...snap(startIndex, t) });
+              return;
+            }
+            if (t < 0) {
+              events.push({ type: 'prune', ...snap(startIndex, t) });
+              events.push({ type: 'return', ...snap(startIndex, t) });
+              return;
+            }
+            events.push({ type: 'loop-begin', ...snap(startIndex, t) });
+            for (let i = startIndex; i < nums.length; i++) {
+              events.push({ type: 'iter', i, ...snap(startIndex, t) });
+              combination.push(nums[i]);
+              events.push({ type: 'append', i, value: nums[i], ...snap(startIndex, t) });
+              dfs(i, t - nums[i]);
+              const v = combination.pop();
+              events.push({ type: 'pop', i, value: v, ...snap(startIndex, t) });
+            }
+            events.push({ type: 'return', ...snap(startIndex, t) });
+          }
+          events.push({ type: 'init', res: [] });
+          dfs(0, target);
+          events.push({ type: 'done', res: res.map(r => r.slice()) });
+          return events;
+        }
+
+        function buildTree(nums, target) {
+          const nodes = [];
+          const rootNode = { id: 0, key: '', combo: [], choice: null, parent: null, depth: 0, target, startIndex: 0, children: [] };
+          nodes.push(rootNode);
+          let nextId = 1;
+          function expand(node) {
+            if (node.target <= 0) return;
+            for (let i = node.startIndex; i < nums.length; i++) {
+              const child = {
+                id: nextId++,
+                key: node.combo.concat(nums[i]).join(','),
+                combo: node.combo.concat(nums[i]),
+                choice: nums[i],
+                parent: node,
+                depth: node.depth + 1,
+                target: node.target - nums[i],
+                startIndex: i,
+                children: []
+              };
+              node.children.push(child);
+              nodes.push(child);
+              expand(child);
+            }
+          }
+          expand(rootNode);
+          const leaves = [];
+          (function walk(n) {
+            if (!n.children.length) leaves.push(n);
+            n.children.forEach(walk);
+          })(rootNode);
+          const maxDepth = nodes.reduce((m, n) => Math.max(m, n.depth), 0);
+          return { nodes, root: rootNode, leaves, maxDepth };
+        }
+        // SIM-END
+
+        const TREE = buildTree(NUMS, TARGET);
+        const BY_KEY = new Map(TREE.nodes.map(n => [n.key, n]));
+        const textW = (s, fs) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? fs : fs * 0.6), 0);
+        const comboStr = c => `[${c.join(', ')}]`;
+
+        const INV = {
+          problem: '每个数可无限次使用；每个组合按 nums 顺序排列，res 收集所有和为 target 的不重复组合。',
+          dup: '允许回头选数时，同一组合的不同顺序（如 [1,3] 与 [3,1]）会被重复收集。',
+          rule: 'start_index 规定只能选 nums[start_index] 及之后的数 ⇒ 组合永远保持 nums 的顺序。',
+          init: 'combination 与 res 均为空；以剩余 target = 4 从空组合开始 DFS。',
+          enter: 'combination 保持 nums 顺序；剩余 target > 0 继续选数，== 0 收答案，< 0 剪枝。',
+          loop: '从 start_index 起只能向后选；选过的数仍可再选（递归传 i 而非 i+1）。',
+          append: 'append 后以 target - nums[i] 递归：把 target 当剩余额度，选中就扣减。',
+          collect: 'target == 0 ⇒ 当前组合正好凑满，复制快照 combination[:] 记入 res。',
+          prune: 'target < 0 ⇒ 已超支；正数只会让和更大，整个分枝剪掉。',
+          pop: '子递归返回后 pop 撤销选择，combination 恢复，继续试同层下一个候选。',
+          done: 'res = [[1,1,1,1],[1,1,2],[1,3],[2,2]]，与书例输出逐字一致。'
+        };
+
+        const COLLECT_NOTES = {
+          '1,1,1,1': 'target 恰好减到 0：1+1+1+1 = 4，第 1 个组合入账 res[0]。这是最深的一条路径——nums 含 1 时递归深度达到 target/1 = 4。',
+          '1,1,2': '回溯撤销一个 1、改选 2：1+1+2 = 4，记入 res[1]。',
+          '1,3': '从 [1] 直接选 3：1+3 = 4，记入 res[2]。若没有 start_index 约束，[3,1] 也会作为“另一个组合”混进来——规则让乱序版本根本无法生成。',
+          '2,2': '从 [2] 再选一次 2：2+2 = 4，记入 res[3]。[2] 的候选区是 nums[1:]，1 不在其中，所以不会出现 [2,1,1] 这种乱序。'
+        };
+
+        function freshRunState() {
+          return {
+            mode: 'run',
+            combo: [],
+            startIndex: 0,
+            target: TARGET,
+            res: [],
+            status: new Array(TREE.nodes.length).fill(0),
+            focusI: null,
+            currentId: -1
+          };
+        }
+
+        function buildFrames() {
+          const events = simulateCombinations(NUMS, TARGET);
+          const frames = [];
+          const fr = (stepLabel, phase, sourceKeys, line, explanation, invariant, state) =>
+            frames.push({ stepLabel, phase, sourceKeys, line, explanation, invariant, state });
+
+          fr('① 题面与示例', '题面', ['func'],
+            'combinations_of_sum_k(nums=[1,2,3], target=4)',
+            '题目：nums 由互不相同的正整数组成，每个数可无限次使用，找出所有和为 target 的组合，且不得重复。书例 nums = [1, 2, 3]、target = 4，答案是 [[1,1,1,1],[1,1,2],[1,3],[2,2]]。下面先看清两个问题：重复从哪来，规则怎么根治它。',
+            INV.problem, { mode: 'intro1' });
+
+          fr('② 朴素枚举的重复问题', '重复问题', ['func', 'res-init', 'call-root'],
+            'res = []；dfs([], 0, nums, target, res)  # 若允许任意回头选数…',
+            '假如不加限制、每个位置都允许选任意数：状态树里 [1,3] 和 [3,1] 会作为两条不同路径分别到达，两者和都是 4，于是同一个组合被收集两次。输出含重复是错的，需要在源头根治，而不是事后用集合去重。',
+            INV.dup, { mode: 'intro2' });
+
+          fr('③ start_index 规则', '规则引入', ['for-loop'],
+            'for i in range(start_index, len(nums))',
+            '规则：给每个部分组合一个 start_index，只允许追加 nums[start_index] 及之后的数，永不回头。组合因此永远保持 nums 的顺序——[1,2,1] 这类乱序版本不会被生成，[1,3] 与 [3,1] 只剩一个。右图：组合 [1] 的 start_index = 1，nums[0] 被置灰。',
+            INV.rule, { mode: 'intro3' });
+
+          const status = new Array(TREE.nodes.length).fill(0);
+          const stack = [];
+          let state = freshRunState();
+          let collectCount = 0;
+          let prunedOnce = false;
+          let enteredOnce = false;
+
+          const syncFromStack = () => {
+            for (let k = 0; k < stack.length; k++) {
+              const id = stack[k];
+              status[id] = k === stack.length - 1 ? 1 : 2;
+            }
+          };
+
+          for (const ev of events) {
+            const comboKey = ev.combination ? ev.combination.join(',') : '';
+            const node = ev.combination ? BY_KEY.get(comboKey) : null;
+            switch (ev.type) {
+              case 'init':
+                fr('④ 初始化 res，发起 dfs', '初始化', ['res-init', 'call-root'],
+                  'res = []；dfs([], 0, nums, target, res)',
+                  'res 是答案列表，初始为空。然后以空组合 []、start_index = 0、剩余 target = 4 发起递归：状态树的根就是 [] / 4。',
+                  INV.init, state);
+                break;
+              case 'enter': {
+                if (stack[stack.length - 1] !== node.id) stack.push(node.id);
+                syncFromStack();
+                state = { ...state, combo: ev.combination.slice(), startIndex: ev.start_index, target: ev.target, focusI: null, currentId: node.id, status: status.slice() };
+                const cs = comboStr(ev.combination);
+                if (!node.parent) {
+                  fr(`进入 dfs ${cs} · 剩余 target=${ev.target}`, 'DFS · 进入', ['call-root'],
+                    'dfs([], 0, nums, target, res)  # target = 4',
+                    '进入递归：combination = []，start_index = 0，剩余 target = 4。先检查两条终止条件：target == 0？不是。target < 0？也不是。于是进入循环枚举候选。',
+                    INV.enter, state);
+                } else {
+                  const i = NUMS.indexOf(node.choice);
+                  const parentT = ev.target + node.choice;
+                  const firstNote = !enteredOnce;
+                  enteredOnce = true;
+                  const note = firstNote
+                    ? `递归进入新一层：combination = ${cs}，剩余 target = ${parentT} - ${node.choice} = ${ev.target}。注意传的是 i = ${i}（不是 ${i + 1}），所以同一个数下一层还能再选。`
+                    : `进入 dfs：combination = ${cs}，剩余 target = ${ev.target}。`;
+                  fr(`进入 dfs ${cs} · 剩余 target=${ev.target}`, 'DFS · 进入', ['recurse'],
+                    `dfs(combination, i=${i}, nums, ${parentT} - ${node.choice} = ${ev.target}, res)`,
+                    note, INV.enter, state);
+                }
+                break;
+              }
+              case 'loop-begin': {
+                state = { ...state, combo: ev.combination.slice(), startIndex: ev.start_index, target: ev.target, focusI: null, status: status.slice() };
+                const cs = comboStr(ev.combination);
+                fr(`枚举候选：${cs} 从 i=${ev.start_index} 起`, 'DFS · 枚举', ['for-loop'],
+                  `for i in range(${ev.start_index}, len(nums))`,
+                  `剩余 target = ${ev.target} > 0：从 start_index = ${ev.start_index} 开始枚举候选。灰色单元（下标 < ${ev.start_index}）不许回头；其余候选依次尝试。`,
+                  INV.loop, state);
+                break;
+              }
+              case 'append': {
+                stack.push(node.id);
+                status[node.id] = 2;
+                state = { ...state, combo: ev.combination.slice(), startIndex: ev.start_index, target: ev.target, focusI: ev.i, status: status.slice() };
+                const cs = comboStr(ev.combination);
+                fr(`append ${ev.value} → ${cs}`, 'DFS · 选数', ['append'],
+                  `combination.append(nums[${ev.i}])  # nums[${ev.i}] = ${ev.value} → ${cs}`,
+                  `选中 nums[${ev.i}] = ${ev.value} 压栈：combination 变为 ${cs}，树上长出新节点。下一帧会以剩余 target = ${ev.target - ev.value} 进入递归。`,
+                  INV.append, state);
+                break;
+              }
+              case 'collect': {
+                collectCount += 1;
+                status[node.id] = 5;
+                state = { ...state, res: ev.res.map(r => r.slice()), status: status.slice() };
+                const cs = comboStr(ev.combination);
+                const note = COLLECT_NOTES[comboKey] || `${cs} 和为 ${TARGET}，记入 res。`;
+                fr(`✦ 收集 ${cs} → res[${collectCount - 1}]`, '收集答案', ['if-zero', 'collect', 'return-zero'],
+                  `if target == 0: res.append(combination[:])  # ${cs} → res[${collectCount - 1}]`,
+                  note, INV.collect, state);
+                break;
+              }
+              case 'prune': {
+                status[node.id] = 4;
+                state = { ...state, target: ev.target, status: status.slice() };
+                const cs = comboStr(ev.combination);
+                const note = prunedOnce
+                  ? `${cs} 的和已超过 ${TARGET}，剩余 target = ${ev.target} < 0：正数只会让和更大，此路不可能回本，整棵子树剪掉。`
+                  : `第一次剪枝：${cs} 使剩余 target = ${ev.target} < 0。因为 nums 全是正数，继续加只会更小（更负），所以直接 return，一个候选都不试。`;
+                prunedOnce = true;
+                fr(`✗ 剪枝 ${cs} · target=${ev.target}`, '剪枝', ['if-neg', 'return-neg'],
+                  `if target &lt; 0: return  # target = ${ev.target}，剪枝`,
+                  note, INV.prune, state);
+                break;
+              }
+              case 'pop': {
+                const poppedId = stack.pop();
+                if (status[poppedId] === 1 || status[poppedId] === 2) status[poppedId] = 3;
+                syncFromStack();
+                const parentId = TREE.nodes[poppedId].parent.id;
+                state = { ...state, combo: ev.combination.slice(), startIndex: ev.start_index, target: ev.target, focusI: ev.i, currentId: parentId, status: status.slice() };
+                const cs = comboStr(ev.combination);
+                fr(`pop 撤销 ${ev.value} → ${cs}`, '回溯', ['pop'],
+                  `combination.pop()  # 撤销 ${ev.value} → ${cs}`,
+                  `子递归已全部返回：pop 撤销刚选的 ${ev.value}，combination 恢复为 ${cs}，剩余 target 恢复为 ${ev.target}。循环继续，试同层下一个候选（若有）。`,
+                  INV.pop, state);
+                break;
+              }
+              case 'done': {
+                state = { ...state, mode: 'final', currentId: -1, focusI: null, combo: [], res: ev.res.map(r => r.slice()), status: status.slice() };
+                const answer = ev.res.map(comboStr).join(', ');
+                fr('return res · 收官', '收尾', ['ret'],
+                  'return res',
+                  `递归全部结束。res = [${answer}]，与书例输出逐字一致。复盘：start_index 让组合始终有序，target 剩余额度让两条终止条件各管一段——恰好用尽收答案，提前为负整枝剪掉。`,
+                  INV.done, state);
+                break;
+              }
+              default:
+                break;
+            }
+          }
+          return frames;
+        }
+
+        const FRAMES = buildFrames();
+
+        const scene = core.createSvgScene(svg);
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout(state) {
+          const W = Math.max(stage.clientWidth, 300);
+          const narrow = W < 620;
+          const tiny = W < 400;
+          const fs = narrow ? 8.5 : 10;
+          const fsNode = narrow ? 9.5 : 11.5;
+          const pad = narrow ? 8 : 16;
+          const r = narrow ? 11 : 14;
+          const rowPitch = narrow ? 46 : 56;
+          const topY = narrow ? 28 : 34;
+          const leaves = TREE.leaves;
+          const slot = (W - pad * 2) / leaves.length;
+          leaves.forEach((n, k) => { n.x = pad + slot * (k + 0.5); n.y = topY + n.depth * rowPitch; });
+          TREE.nodes
+            .filter(n => n.children.length)
+            .sort((a, b) => b.depth - a.depth)
+            .forEach(n => {
+              n.x = (n.children[0].x + n.children[n.children.length - 1].x) / 2;
+              n.y = topY + n.depth * rowPitch;
+            });
+          const treeH = topY + TREE.maxDepth * rowPitch + r + (narrow ? 24 : 26);
+          const panelY = treeH + (narrow ? 8 : 12);
+          const panelsH = narrow ? 156 : 150;
+          const introH = { intro1: narrow ? 228 : 186, intro2: narrow ? 262 : 252, intro3: narrow ? 216 : 192 };
+          const H = introH[state.mode] || (panelY + panelsH + 6);
+          const gap = narrow ? 8 : 14;
+          const colAx = pad;
+          const colAw = narrow ? 80 : 150;
+          const colBx = colAx + colAw + gap;
+          const colBw = narrow ? 104 : 190;
+          const colCx = colBx + colBw + gap;
+          const colCw = W - pad - colCx;
+          const maxComboGlyphs = textW('[1, 1, 1, 1]', 1);
+          const fsCombo = Math.max(6.5, Math.min(narrow ? 8 : 9.5, (slot - 4) / maxComboGlyphs));
+          const tinyTree = fsCombo < 7.2;
+          geom = { W, narrow, tiny, fs, fsNode, pad, r, rowPitch, topY, treeH, panelY, panelsH, H, colAx, colAw, colBx, colBw, colCx, colCw, slot, fsCombo, tinyTree };
+          svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+          stage.style.height = `${H}px`;
+        }
+
+        function drawIntro1({ text, path }) {
+          const g = geom;
+          const cx = g.W / 2;
+          text('i1-t1', { x: cx, y: 40, 'text-anchor': 'middle', 'font-size': g.narrow ? 12 : 14, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '书例：nums = [1, 2, 3]，target = 4');
+          text('i1-t2', { x: cx, y: 62, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '每个数可无限次使用，求所有和为 4 的不重复组合');
+          const answers = ['[1, 1, 1, 1]', '[1, 1, 2]', '[1, 3]', '[2, 2]'];
+          const fsA = g.narrow ? 10.5 : 12.5;
+          const bw = Math.max(...answers.map(a => textW(a, fsA))) + 18;
+          const bh = 26;
+          text('i1-out', { x: g.pad, y: 106, 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '输出 Output →');
+          if (g.narrow) {
+            answers.forEach((a, k) => {
+              const colW = (g.W - g.pad * 2) / 2;
+              const x = g.pad + colW * (k % 2) + colW / 2;
+              const y = 118 + Math.floor(k / 2) * 38;
+              path(`i1-b${k}`, { d: rectPath(x - bw / 2, y, bw, bh, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.3 });
+              text(`i1-v${k}`, { x, y: y + bh / 2 + 4, 'text-anchor': 'middle', 'font-size': fsA, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, a);
+            });
+          } else {
+            const total = answers.length * (bw + 10) - 10;
+            let x = cx - total / 2;
+            answers.forEach((a, k) => {
+              path(`i1-b${k}`, { d: rectPath(x, 92, bw, bh, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.3 });
+              text(`i1-v${k}`, { x: x + bw / 2, y: 92 + bh / 2 + 4, 'text-anchor': 'middle', 'font-size': fsA, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, a);
+              x += bw + 10;
+            });
+          }
+          const noteY = g.narrow ? 204 : 150;
+          text('i1-note', { x: cx, y: noteY, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '[1,1,2] 与 [1,2,1] 视为同一个组合——顺序不同不算新答案');
+        }
+
+        function drawIntro2({ text, path, circle }) {
+          const g = geom;
+          const cx = g.W / 2;
+          const r = g.narrow ? 12 : 14;
+          const fs = g.fs;
+          text('i2-t1', { x: cx, y: 22, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '朴素枚举（允许回头选数）的状态树：同一个组合出现两次');
+          const P = [
+            { id: 'r', x: cx, y: 56, t: 4, c: '[]' },
+            { id: 'a', x: cx - g.W * 0.22, y: 118, t: 3, c: '[1]' },
+            { id: 'b', x: cx + g.W * 0.22, y: 118, t: 1, c: '[3]' },
+            { id: 'c', x: cx - g.W * 0.36, y: 182, t: 0, c: '[1, 3]' },
+            { id: 'd', x: cx + g.W * 0.36, y: 182, t: 0, c: '[3, 1]' }
+          ];
+          const byId = Object.fromEntries(P.map(p => [p.id, p]));
+          const edges = [['r', 'a', '1'], ['r', 'b', '3'], ['a', 'c', '3'], ['b', 'd', '1']];
+          edges.forEach(([a, b, v], k) => {
+            const A = byId[a], B = byId[b];
+            path(`i2-e${k}`, { d: `M ${A.x} ${A.y + r} L ${B.x} ${B.y - r}`, stroke: '#8a8a84', 'stroke-width': 1.3, fill: 'none' });
+            text(`i2-el${k}`, { x: (A.x + B.x) / 2 + 5, y: (A.y + B.y) / 2, 'font-size': fs - 1, fill: '#777', 'font-family': MONO }, v);
+          });
+          P.forEach(p => {
+            const leaf = p.id === 'c' || p.id === 'd';
+            circle(`i2-n${p.id}`, { cx: p.x, cy: p.y, r, fill: leaf ? '#272727' : '#fffdf8', stroke: '#272727', 'stroke-width': 1.4 });
+            text(`i2-nt${p.id}`, { x: p.x, y: p.y + 3.5, 'text-anchor': 'middle', 'font-size': fsNode2(), fill: leaf ? '#fffdf8' : '#272727', 'font-family': MONO, 'font-weight': 'bold' }, String(p.t));
+            text(`i2-nc${p.id}`, { x: p.x, y: p.y + r + 11, 'text-anchor': 'middle', 'font-size': fs, fill: '#555', 'font-family': MONO }, p.c);
+            if (leaf) text(`i2-s${p.id}`, { x: p.x, y: p.y + r + 22, 'text-anchor': 'middle', 'font-size': fs - 0.5, fill: RED, 'font-family': MONO }, 'sum = 4 ✦');
+          });
+          const y3 = 234;
+          path('i2-link', { d: `M ${byId.c.x + 14} ${byId.c.y + 8} C ${cx - 40} ${y3 - 26}, ${cx + 40} ${y3 - 26}, ${byId.d.x - 14} ${byId.d.y + 8}`, stroke: RED, 'stroke-width': 1.2, 'stroke-dasharray': '5 4', fill: 'none' });
+          text('i2-verdict', { x: cx, y: y3 - 6, 'text-anchor': 'middle', 'font-size': g.narrow ? 9.5 : 11, fill: RED, 'font-family': MONO, 'font-weight': 'bold' }, '只是顺序不同，是同一个组合 [1,3]！');
+          text('i2-fix', { x: cx, y: y3 + 14, 'text-anchor': 'middle', 'font-size': fs, fill: '#555', 'font-family': MONO }, '根治办法：组合一律按 nums 顺序生成（见下一步的 start_index 规则）');
+        }
+
+        function fsNode2() { return geom.narrow ? 9 : 10.5; }
+
+        function drawIntro3({ text, path }) {
+          const g = geom;
+          const cx = g.W / 2;
+          text('i3-t1', { x: cx, y: 24, 'text-anchor': 'middle', 'font-size': g.narrow ? 10.5 : 12, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'start_index 规则：只允许向后看，不许回头');
+          text('i3-t2', { x: cx, y: 42, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '例：当前 combination = [1]（以 nums[0] 结尾）⇒ start_index = 1');
+          const cellW = g.narrow ? 40 : 48;
+          const cellH = g.narrow ? 24 : 28;
+          const gap2 = 6;
+          const x0 = cx - (cellW * NUMS.length + gap2 * (NUMS.length - 1)) / 2;
+          const y0 = 82;
+          NUMS.forEach((v, i) => {
+            const x = x0 + i * (cellW + gap2);
+            const locked = i < 1;
+            text(`i3-idx${i}`, { x: x + cellW / 2, y: y0 - 3, 'text-anchor': 'middle', 'font-size': 8.5, fill: '#777', 'font-family': MONO }, String(i));
+            path(`i3-c${i}`, { d: rectPath(x, y0, cellW, cellH, 3), fill: locked ? '#f1efe7' : '#eeece2', stroke: locked ? '#c9c7bd' : '#272727', 'stroke-width': locked ? 1 : 1.5 });
+            text(`i3-v${i}`, { x: x + cellW / 2, y: y0 + cellH / 2 + 4.5, 'text-anchor': 'middle', 'font-size': 14, fill: locked ? '#b0aea6' : '#272727', 'font-family': MONO, 'font-weight': 'bold' }, String(v));
+          });
+          // bracket over allowed cells 1..end
+          const bx1 = x0 + (cellW + gap2) + cellW / 2;
+          const bx2 = x0 + (cellW + gap2) * (NUMS.length - 1) + cellW / 2;
+          const by = y0 - 10;
+          path('i3-brk', { d: `M ${bx1} ${by + 6} L ${bx1} ${by} L ${bx2} ${by} L ${bx2} ${by + 6}`, stroke: '#272727', 'stroke-width': 1.2, fill: 'none' });
+          text('i3-brk-t', { x: (bx1 + bx2) / 2, y: by - 4, 'text-anchor': 'middle', 'font-size': g.narrow ? 8.5 : 9.5, fill: '#272727', 'font-family': MONO }, '✓ 只能选 nums[1:] = [2, 3]');
+          const xLock = x0 + cellW / 2;
+          text('i3-lock', { x: xLock, y: y0 + cellH + 14, 'text-anchor': 'middle', 'font-size': g.narrow ? 8.5 : 9.5, fill: RED, 'font-family': MONO }, '✗ 不许回头');
+          text('i3-note', { x: cx, y: y0 + cellH + 40, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '每个组合永远按 nums 的顺序增长 ⇒ [1,2,1] 这类乱序永远不会被生成');
+        }
+
+        function drawRun(state, t, from, { text, path, circle }) {
+          const g = geom;
+          const resIdx = {};
+          state.res.forEach((e, k) => { resIdx[e.join(',')] = k; });
+          text('tree-legend', {
+            x: g.pad,
+            y: g.topY - 12,
+            'font-size': g.fs,
+            fill: '#272727',
+            'font-family': MONO,
+            'font-weight': 'bold'
+          }, g.narrow ? '状态空间树 · 圆内 = 剩余 target' : '状态空间树 · 圆内 = 剩余 target，圆下 = 当前 combination');
+
+          // edges
+          for (const n of TREE.nodes) {
+            if (!n.parent) continue;
+            const st = state.status[n.id];
+            if (!st || !state.status[n.parent.id]) continue;
+            const was = from && from.status ? from.status[n.id] : 0;
+            const op = was ? 1 : t;
+            const onPath = st === 1 || st === 2;
+            const p = n.parent;
+            path(`e-${n.id}`, {
+              d: `M ${p.x} ${p.y + g.r} L ${n.x} ${n.y - g.r}`,
+              stroke: onPath ? '#333' : '#c4c2b8',
+              'stroke-width': onPath ? 1.6 : 1.1,
+              fill: 'none',
+              opacity: op
+            });
+            // decision label inside the free corridor between parent combo and child circle
+            const top = p.y + g.r + (g.tinyTree && !(state.status[p.id] === 1 || state.status[p.id] === 2) ? 4 : 17);
+            const bot = n.y - g.r - 1;
+            const ly = (top + bot) / 2;
+            const tt = (ly - p.y) / (n.y - p.y);
+            const lx = p.x + tt * (n.x - p.x) + 4;
+            const lw = textW(String(n.choice), g.fs - 1) + 7;
+            path(`elb-${n.id}`, { d: rectPath(lx - lw / 2, ly - 6, lw, 12), fill: '#fffdf8', opacity: op });
+            text(`el-${n.id}`, {
+              x: lx,
+              y: ly + 3,
+              'text-anchor': 'middle',
+              'font-size': g.fs - 1,
+              fill: onPath ? '#555' : '#b7b7b1',
+              'font-family': MONO,
+              opacity: op
+            }, String(n.choice));
+          }
+          // nodes
+          for (const n of TREE.nodes) {
+            const st = state.status[n.id];
+            if (!st) continue;
+            const was = from && from.status ? from.status[n.id] : 0;
+            const op = was ? 1 : t;
+            const isCur = st === 1 && state.currentId === n.id;
+            const onPath = st === 1 || st === 2;
+            const fill = isCur || st === 5 ? '#272727' : '#fffdf8';
+            const stroke = isCur || st === 2 || st === 5 ? '#272727' : st === 4 ? RED : '#b7b7b1';
+            const numFill = isCur || st === 5 ? '#fffdf8' : st === 4 ? RED : st === 2 ? '#272727' : '#a3a198';
+            if (isCur) circle(`ring-${n.id}`, { cx: n.x, cy: n.y, r: g.r + 5, fill: 'none', stroke: '#272727', 'stroke-width': 1.4, 'stroke-dasharray': '5 3', opacity: op });
+            circle(`n-${n.id}`, { cx: n.x, cy: n.y, r: g.r, fill, stroke, 'stroke-width': isCur || st === 2 ? 1.8 : 1.2, opacity: op });
+            text(`nt-${n.id}`, { x: n.x, y: n.y + (g.narrow ? 3.2 : 4), 'text-anchor': 'middle', 'font-size': g.fsNode, fill: numFill, 'font-family': MONO, 'font-weight': 'bold', opacity: op }, String(n.target));
+            let tagY = n.y + g.r + 11;
+            if (!g.tinyTree || onPath) {
+              const comboLabel = g.tinyTree ? `[${n.combo.join(',')}]` : comboStr(n.combo);
+              text(`nc-${n.id}`, {
+                x: n.x,
+                y: n.y + g.r + 11,
+                'text-anchor': 'middle',
+                'font-size': g.tinyTree ? g.fs - 1 : g.fsCombo,
+                fill: st === 3 ? '#a8a69e' : st === 4 ? RED : '#555',
+                'font-family': MONO,
+                opacity: op
+              }, comboLabel);
+              tagY = n.y + g.r + 21;
+            }
+            if (st === 4) {
+              text(`np-${n.id}`, { x: n.x, y: tagY, 'text-anchor': 'middle', 'font-size': g.fs - 1, fill: RED, 'font-family': MONO, opacity: op }, g.tinyTree ? '✗' : '剪枝');
+            } else if (st === 5) {
+              const k = resIdx[n.key];
+              text(`na-${n.id}`, { x: n.x, y: tagY, 'text-anchor': 'middle', 'font-size': g.fs - 1, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold', opacity: op }, g.tinyTree ? `✓${k}` : `→ res[${k}]`);
+            }
+          }
+
+          drawPanels(state, t, from, { text, path, circle });
+        }
+
+        function drawPanels(state, t, from, { text, path }) {
+          const g = geom;
+          const pY = g.panelY;
+          // ---- column A: combination stack ----
+          text('stk-h', { x: g.colAx, y: pY + 10, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'combination 栈');
+          const cw = g.narrow ? 30 : 38;
+          const baseY = pY + g.panelsH - 40;
+          const maxCells = TREE.maxDepth;
+          const ch = Math.min(g.narrow ? 19 : 22, Math.floor((baseY - (pY + 18) - 3 * (maxCells - 1)) / maxCells));
+          const cellTop = k => baseY - (k + 1) * ch - k * 3;
+          const fromLen = from ? from.combo.length : 0;
+          state.combo.forEach((v, k) => {
+            const isNew = fromLen === k && fromLen < state.combo.length;
+            const op = isNew ? t : 1;
+            const y = cellTop(k) + (isNew ? (1 - t) * 5 : 0);
+            const isTop = k === state.combo.length - 1;
+            path(`stk-${k}`, { d: rectPath(g.colAx, y, cw, ch, 3), fill: isTop ? '#eeece2' : '#fffdf8', stroke: isTop ? '#272727' : '#999', 'stroke-width': isTop ? 1.5 : 1.1, opacity: op });
+            text(`stk-v-${k}`, { x: g.colAx + cw / 2, y: y + ch / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fsNode, fill: '#272727', 'font-family': MONO, 'font-weight': isTop ? 'bold' : 'normal', opacity: op }, String(v));
+            if (isTop) text('stk-top', { x: g.colAx + cw + 5, y: y + ch / 2 + 3, 'font-size': g.fs - 1, fill: '#555', 'font-family': MONO, opacity: op }, '← 栈顶');
+          });
+          if (!state.combo.length) {
+            path('stk-empty', { d: rectPath(g.colAx, cellTop(0), cw, ch, 3), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            text('stk-empty-t', { x: g.colAx + cw / 2, y: cellTop(0) + ch / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#999', 'font-family': MONO }, '空');
+          }
+          for (let k = state.combo.length; k < fromLen; k++) {
+            const y = cellTop(k);
+            path(`stk-g-${k}`, { d: rectPath(g.colAx, y, cw, ch, 3), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 1 - t });
+            text(`stk-gv-${k}`, { x: g.colAx + cw / 2, y: y + ch / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fsNode, fill: '#999', 'font-family': MONO, opacity: 1 - t }, String(from.combo[k]));
+          }
+          // target + depth badges
+          const tgt = `剩余 target = ${state.target}`;
+          const tw = Math.min(textW(tgt, g.fs) + 12, g.colAw);
+          path('tgt-box', { d: rectPath(g.colAx, pY + g.panelsH - 30, tw, 18, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.2 });
+          text('tgt-v', { x: g.colAx + 6, y: pY + g.panelsH - 17, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, tgt);
+          text('depth-v', { x: g.colAx, y: pY + g.panelsH - 2, 'font-size': g.fs - 1, fill: '#777', 'font-family': MONO }, `递归深度 = ${state.combo.length}`);
+
+          // ---- column B: nums + start_index ----
+          text('nums-h', { x: g.colBx, y: pY + 10, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'nums · 向后选数');
+          const nCellW = Math.min(g.narrow ? 32 : 42, (g.colBw - 10) / NUMS.length);
+          const nCellH = g.narrow ? 20 : 24;
+          const nY = pY + 30;
+          NUMS.forEach((v, i) => {
+            const x = g.colBx + i * (nCellW + 5);
+            text(`ni-${i}`, { x: x + nCellW / 2, y: nY - 3, 'text-anchor': 'middle', 'font-size': 8.5, fill: '#777', 'font-family': MONO }, String(i));
+            const locked = i < state.startIndex;
+            const focus = i === state.focusI;
+            path(`nc-${i}`, {
+              d: rectPath(x, nY, nCellW, nCellH, 3),
+              fill: locked ? '#e9e6da' : focus ? '#eeece2' : '#fffdf8',
+              stroke: focus ? '#272727' : locked ? '#b7b7b1' : '#999',
+              'stroke-width': focus ? 1.6 : 1.1
+            });
+            text(`nv-${i}`, { x: x + nCellW / 2, y: nY + nCellH / 2 + 4.5, 'text-anchor': 'middle', 'font-size': g.narrow ? 12 : 14, fill: locked ? '#9c9a92' : '#272727', 'font-family': MONO, 'font-weight': 'bold' }, String(v));
+          });
+          const siX = g.colBx + Math.min(state.startIndex, NUMS.length - 1) * (nCellW + 5);
+          text('si-lab', { x: siX, y: nY + nCellH + 13, 'font-size': g.fs - 0.5, fill: '#555', 'font-family': MONO }, `start_index = ${state.startIndex} ↓`);
+          text('si-cap', { x: siX, y: nY + nCellH + 26, 'font-size': g.fs - 1.5, fill: '#999', 'font-family': MONO }, '灰色 = 不许回头');
+
+          // ---- column C: res list ----
+          text('res-h', { x: g.colCx, y: pY + 10, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'res 答案列表');
+          const rowH = g.narrow ? 17 : 19;
+          if (!state.res.length) {
+            path('res-empty', { d: rectPath(g.colCx, pY + 24, 44, 18, 3), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            text('res-empty-t', { x: g.colCx + 22, y: pY + 24 + 13, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#999', 'font-family': MONO }, '空');
+          }
+          state.res.forEach((entry, k) => {
+            const y = pY + 30 + k * rowH;
+            const isNew = from && from.res.length === k;
+            const op = isNew ? t : 1;
+            const label = g.narrow ? `[${k}] ${comboStr(entry)}` : `res[${k}] = ${comboStr(entry)}`;
+            const lw = Math.min(textW(label, g.fs + 0.5) + 12, g.colCw);
+            path(`res-${k}`, { d: rectPath(g.colCx, y - 11, lw, 16, 3), fill: '#fffdf8', stroke: isNew ? '#272727' : '#999', 'stroke-width': isNew ? 1.5 : 1.1, opacity: op });
+            text(`res-v-${k}`, { x: g.colCx + 6, y: y + 1, 'font-size': g.fs + 0.5, fill: '#272727', 'font-family': MONO, 'font-weight': isNew ? 'bold' : 'normal', opacity: op }, label);
+          });
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom || !state) return;
+          scene.update(prims => {
+            if (state.mode === 'intro1') drawIntro1(prims);
+            else if (state.mode === 'intro2') drawIntro2(prims);
+            else if (state.mode === 'intro3') drawIntro3(prims);
+            else drawRun(state, t, from, prims);
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.phase;
+          invariantEl.textContent = frame.invariant;
+          mCombo.textContent = comboStr(state.combo || []);
+          mTarget.textContent = String(state.target ?? TARGET);
+          mDepth.textContent = String((state.combo || []).length);
+          mRes.textContent = String((state.res || []).length);
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.explanation;
+          stage.setAttribute('aria-label', `组合总和回溯演示：第 ${step + 1} / ${frames.length} 步。${frame.explanation}`);
+          layout(state);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({
+          ...s,
+          combo: s.combo ? [...s.combo] : [],
+          res: (s.res || []).map(r => [...r]),
+          status: s.status ? [...s.status] : null
+        });
+
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 380,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        new ResizeObserver(() => { motion.cancel(); layout(trace.state); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of phone keypad letter combinations via backtracking: one decision per digit, a state-space tree, keypad_map hash table, append / recurse / collect / pop. 电话号码字母组合：回溯逐位决策、状态空间树、哈希映射、append → 递归 → 收答案 → pop。" />
+    <title>Phone Keypad Combinations · 电话号码字母组合 · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem code, .paper-card code, .section-intro code, .note code, .operation code, .operation span { overflow-wrap: anywhere; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .card-grid, .edge-grid, .complexity, .tip-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid, .edge-grid, .complexity, .tip-grid { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="phone-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Phone Keypad Combinations · <span lang="zh-CN">电话号码字母组合</span></h1></div></header>
+      <p class="problem">You are given a string containing digits from 2 to 9 inclusive. Each digit maps to a set of letters on a traditional phone keypad: <code>2: abc, 3: def, 4: ghi, 5: jkl, 6: mno, 7: pqrs, 8: tuv, 9: wxyz</code>. Return all possible letter combinations the input digits could represent. Example: <code>digits = "69"</code> → <code>["mw","mx","my","mz","nw","nx","ny","nz","ow","ox","oy","oz"]</code>.<span lang="zh-CN">给定只含 2–9 的数字串，每个数位对应传统电话键盘上的一组字母，返回所有可能的字母组合。书例：digits = "69"，答案是 <code>["mw","mx","my","mz","nw","nx","ny","nz","ow","ox","oy","oz"]</code>——共 3×4 = 12 个。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="电话号码字母组合回溯演示 / phone keypad combinations trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span><span data-pos></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="电话号码字母组合回溯演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>i</code> / <code>n</code></dt><dd data-m-i></dd></div>
+              <div><dt><code>curr_combination</code></dt><dd data-m-curr></dd></div>
+              <div><dt><code>res</code> 进度</dt><dd data-m-res></dd></div>
+              <div><dt>当前节点</dt><dd data-m-node></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="pk-code-title">
+          <h2 id="pk-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def phone_keypad_combinations(digits: str) -&gt; List[str]:</span><span class="code-line" data-source-key="keypad-map">    keypad_map = {'2':'abc','3':'def','4':'ghi','5':'jkl','6':'mno','7':'pqrs','8':'tuv','9':'wxyz'}</span><span class="code-line" data-source-key="res-init">    res = []</span><span class="code-line" data-source-key="main-call">    backtrack(0, [], digits, keypad_map, res)</span><span class="code-line" data-source-key="main-return">    return res</span><span class="code-line"></span><span class="code-line" data-source-key="bt-def">def backtrack(i: int, curr_combination: List[str], digits: str, keypad_map: Dict[str, str], res: List[str]) -&gt; None:</span><span class="code-line">    # Termination condition: if all digits have been considered, add the</span><span class="code-line">    # current combination to the output list.</span><span class="code-line" data-source-key="term-check">    if len(curr_combination) == len(digits):</span><span class="code-line" data-source-key="collect">        res.append("".join(curr_combination))</span><span class="code-line" data-source-key="term-return">        return</span><span class="code-line" data-source-key="for-loop">    for letter in keypad_map[digits[i]]:</span><span class="code-line">        # Add the current letter.</span><span class="code-line" data-source-key="append-line">        curr_combination.append(letter)</span><span class="code-line">        # Recursively explore all paths that branch from this combination.</span><span class="code-line" data-source-key="recurse-line">        backtrack(i + 1, curr_combination, digits, keypad_map, res)</span><span class="code-line">        # Backtrack by removing the letter we just added.</span><span class="code-line" data-source-key="pop-line">        curr_combination.pop()</span></code></pre>
+          <p class="note"><code>curr_combination</code> 是根到当前节点的路径（左起第 0 位 = 数位 0 的选择）；树上实心节点 = 已收集进 <code>res</code> 的叶子，粗线 = 当前路径。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="pk-intuition">
+        <h2 id="pk-intuition">直觉：每个数位一个决策 / One decision per digit</h2>
+        <p class="section-intro">把 <code>"69"</code> 翻译成字母的过程，是<strong>一连串二选一……不，一连串“三/四选一”</strong>：先决定数位 0 的 <code>'6'</code> 到底代表 m、n 还是 o；每个选择之下，再决定数位 1 的 <code>'9'</code> 代表 w、x、y 还是 z。两个决定拼起来就是一个组合。于是整个搜索空间天然是一棵树：根是空串，第 i 层对应第 i 个数位的候选字母，走到 <code>i == n</code> 的叶子就得到一个完整组合。</p>
+        <p class="section-intro">这棵树很小（3×4 = 12 个叶子），但结构是通用的：数位变长、键位变多，树只是等比例放大——n 个数位、每数位最多 4 个字母时，叶子数最多 4<sup>n</sup>。回溯的任务就是有条理地把这棵树走一遍，不重不漏。</p>
+      </section>
+
+      <section class="section" aria-labelledby="pk-skeleton">
+        <h2 id="pk-skeleton">回溯骨架：与组合的总和完全同构 / Same skeleton</h2>
+        <p class="section-intro"><code>backtrack</code> 的骨架和「组合的总和」一题一模一样：① 终止条件——<code>len(curr_combination) == len(digits)</code> 时把当前组合收进 <code>res</code>；② 枚举当前数位的所有候选字母；③ <code>append</code> 做选择 → 递归处理下一个数位 → <code>pop</code> 撤销选择，让循环继续试下一个字母。下标 <code>i</code> 标明每个节点正在处理哪个数位，递归调用时 <code>i + 1</code> 把决策权交给下一位。</p>
+        <div class="card-grid">
+          <article class="paper-card"><strong>为什么恰好不重不漏</strong><p>第 i 层的每个节点都尝试 <code>keypad_map[digits[i]]</code> 的<strong>全部</strong>字母，层间用下标 i 划分决策，层内用 for 枚举全部候选——任何一条根到叶子的路径唯一对应“每个数位各选一个字母”的方案，DFS 恰好访问每个叶子一次。</p></article>
+          <article class="paper-card"><strong>本题没有剪枝</strong><p>组合的总和里 <code>sum &gt; target</code> 的分枝会被剪掉；本题任何部分组合都能补完成合法答案，所以树上的<strong>每条路径都会走到叶子</strong>——你看到的 15 次 pop 全部发生在收集之后或层间切换时，没有一次是“白走”。</p></article>
+          <article class="paper-card"><strong>变量与链接的分工</strong><p><code>curr_combination</code> 是递归栈上的“当前路径”，由 append/pop 维护；<code>res</code> 只在叶子处追加、从不删除。树边的粗细只是路径的可视化，真正的状态变化只发生在这两个列表上。</p></article>
+          <article class="paper-card"><strong>面试提示 / Interview tip</strong><p><code>keypad_map</code> 这种琐碎又耗时的映射实现，可以问面试官“能否先写占位、稍后补全”，但至少口头说明它的形式：一个 digit → letters 的哈希表，查询 O(1)。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="pk-edge">
+        <h2 id="pk-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>空串 digits = ""</strong><p>书中未约定。右侧实现<strong>原样执行</strong>会得到 <code>[""]</code>：<code>backtrack(0, [])</code> 一进入就满足 <code>0 == 0</code>，空组合被收进 res（这也是 LeetCode 的约定）。若你的面试官要求返回 <code>[]</code>，在入口处加一个 <code>if not digits: return []</code> 特判即可。</p></article>
+          <article class="paper-card"><strong>含 7 或 9：4 分枝</strong><p><code>'7' → 'pqrs'</code>、<code>'9' → 'wxyz'</code> 是仅有的两个四字母键，其余数字键都是 3 个字母。分枝因子不均匀不影响代码——for 循环读的总是 <code>keypad_map[digits[i]]</code> 的真实长度。</p></article>
+          <article class="paper-card"><strong>单个数位</strong><p><code>digits = "6"</code>：根节点一层直接终止，答案是 <code>["m","n","o"]</code>——每个候选字母自己就是一个完整组合。树的“第 1 层”同时是叶子层。</p></article>
+          <article class="paper-card"><strong>重复数位</strong><p><code>digits = "22"</code>：两个数位独立决策，<code>["aa","ab","ac","ba","bb","bc","ca","cb","cc"]</code> 共 9 个。同一键可被多个数位引用，<code>keypad_map</code> 只存一份。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="pk-complexity">
+        <h2 id="pk-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n·4ⁿ)</strong><p>状态树高 n，分枝最多 4（7 和 9 四字母），叶子（组合）数最多 4<sup>n</sup>；每个组合 <code>"".join(curr_combination)</code> 要 O(n)。更精确的写法是 O(n·Π len(keypad_map[d]))，d 取遍 digits 的每个数位。</p></article>
+          <article class="paper-card"><strong>Space · O(n)</strong><p>递归栈最深 n 层，<code>curr_combination</code> 里最多 n 个字母；<code>keypad_map</code> 是 8 项常数表。按书的约定，输出 <code>res</code>（共 4<sup>n</sup> 个串）不计入。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../combinations-of-a-sum/">组合的总和（同一回溯骨架）</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('phone-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const posEl = root.querySelector('[data-pos]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mI = root.querySelector('[data-m-i]');
+        const mCurr = root.querySelector('[data-m-curr]');
+        const mRes = root.querySelector('[data-m-res]');
+        const mNode = root.querySelector('[data-m-node]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const DIGITS = '69';
+        const N = DIGITS.length;
+        const KEYPAD = { '2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz' };
+        const L1 = KEYPAD[DIGITS[0]].split('');
+        const L2 = KEYPAD[DIGITS[1]].split('');
+        const LEAVES = [];
+        L1.forEach((a, g) => L2.forEach((b, j) => LEAVES.push({ id: a + b, a, b, g, j })));
+
+        // ---- simulation: mirrors the Python implementation line by line ----
+        // SIM-START
+        function simulatePhoneKeypad(digits) {
+          const keypadMap = { '2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz' };
+          const events = [];
+          const res = [];
+          const curr = [];
+          const snap = a => a.slice();
+          function backtrack(i) {
+            events.push({ type: 'enter', i: i, curr: snap(curr), res: snap(res) });
+            if (curr.length === digits.length) {
+              res.push(curr.join(''));
+              events.push({ type: 'collect', i: i, combo: curr.join(''), curr: snap(curr), res: snap(res) });
+              return;
+            }
+            for (const letter of keypadMap[digits[i]]) {
+              curr.push(letter);
+              events.push({ type: 'append', i: i, letter: letter, curr: snap(curr), res: snap(res) });
+              backtrack(i + 1);
+              curr.pop();
+              events.push({ type: 'pop', i: i, letter: letter, curr: snap(curr), res: snap(res) });
+            }
+          }
+          backtrack(0);
+          events.push({ type: 'done', res: snap(res) });
+          return events;
+        }
+        // SIM-END
+
+        const textW = (s, fs) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? fs : fs * 0.62), 0);
+        const fmtList = a => `[${a.map(x => `'${x}'`).join(', ')}]`;
+        const TOTAL = L1.length * L2.length;
+
+        const INV = {
+          intro: '每个数位一个决策：这个数位到底代表哪个字母？',
+          model: '第 i 层 = 第 i 个数位的决策；根到叶子的路径就是一个组合。',
+          map: 'keypad_map 把数位映射到字母串，O(1) 查询；res 只收叶子组合。',
+          call: '进入 backtrack(i, curr) 时，curr 恰好是前 i 个数位已做的选择。',
+          enter: 'curr_combination 是根到当前节点的路径：len(curr) == i，还剩 n - i 个数位待定。',
+          append: 'append 做选择：把候选字母压入 curr_combination，随后递归决定下一个数位。',
+          term: 'len(curr_combination) == len(digits)：两个数位都已选定，当前路径就是完整组合。',
+          collect: '每个叶子恰好被访问一次：3 × 4 = 12 个组合，不重不漏。',
+          pop: 'pop 撤销选择：curr 恢复原样，for 循环才能继续试同层的下一个字母——这就是回溯。',
+          done: 'DFS 走完整棵树：每个叶子收集一次，共 3 × 4 = 12 个组合。'
+        };
+
+        function buildFrames() {
+          const frames = [];
+          const push = (stepLabel, phase, pos, sourceKeys, line, explanation, invariant, state) =>
+            frames.push({ stepLabel, phase, pos, sourceKeys, line, explanation, invariant, state });
+
+          push('题面：键盘映射 digits = "69"', '题面', 'digits = "69" · 3 × 4 = 12 个组合',
+            ['func'],
+            'def phone_keypad_combinations(digits: str)  # digits = "69"',
+            '给定数字串 "69"：数位 0 的 6 对应 mno，数位 1 的 9 对应 wxyz，要返回所有可能的字母组合。上图是传统电话键盘：2-9 每个键标出对应字母，其中 7 和 9 是四字母键，其余是三个。下面用回溯把 12 个组合全部找出来。',
+            INV.intro, { view: 'keypad', i: 0, curr: [], res: [], currentId: null, candidates: null, fx: null });
+
+          push('建模：每个数位一个决策', '决策树', '状态空间树 · 高 n = 2',
+            ['bt-def'],
+            'backtrack(i, curr_combination, digits, keypad_map, res)  # i = 正在处理的数位下标',
+            '把搜索过程画成状态空间树：根是空串 ""；第 1 层是数位 0（6）的决策——3 条分枝 m/n/o；每个节点在第 2 层再分 4 枝（9 的 w/x/y/z）；走到 i == n 的叶子就是一个完整组合。整棵树共 3×4 = 12 片叶子，例如选 m 再选 w 得到 "mw"（图中加粗的路径）。',
+            INV.model, { view: 'model', i: 0, curr: [], res: [], currentId: null, candidates: null, fx: null });
+
+          push('keypad_map：数位 → 字母', '哈希表', 'keypad_map · 8 项 · 查询 O(1)',
+            ['keypad-map', 'res-init'],
+            "keypad_map = {'2':'abc', ...}; res = []",
+            "keypad_map 把每个数位映射到它的字母串：keypad_map['6'] = 'mno'、keypad_map['9'] = 'wxyz'，查询 O(1)。res 是答案列表，从空开始，只在叶子处追加。面试时这种琐碎的映射可以问面试官能否后补，但要口头说清它是 digit → letters 的哈希表。",
+            INV.map, { view: 'map', i: 0, curr: [], res: [], currentId: null, candidates: null, fx: null });
+
+          push('发起调用 backtrack(0, [])', '发起调用', 'digits = "69" · i = 0 / 2',
+            ['main-call'],
+            'backtrack(0, [], digits, keypad_map, res)  # 从空组合、数位 0 出发',
+            '主函数建好 keypad_map 和空的 res 后发起递归：i = 0 表示正在处理第 0 个数位 6，curr_combination 为空。从根节点出发，逐层做决策。',
+            INV.call, { view: 'tree', i: 0, curr: [], res: [], currentId: 'R', candidates: null, fx: null });
+
+          const events = simulatePhoneKeypad(DIGITS);
+          for (const ev of events) {
+            if (ev.type === 'enter') {
+              if (ev.curr.length === N) {
+                const combo = ev.curr.join('');
+                push(`len(curr) == ${N} == n：终止条件成立`, '终止检查', `i = ${N} / ${N} · curr = ${fmtList(ev.curr)}`,
+                  ['term-check'],
+                  `if len(curr_combination) == len(digits)  # ${N} == ${N} → 成立`,
+                  `两个数位都已选定：curr = ${fmtList(ev.curr)} 的长度等于 digits 的长度，终止条件成立——根到这片叶子的路径 "${combo}" 就是一个完整组合。`,
+                  INV.term, { view: 'tree', i: N, curr: ev.curr.slice(), res: ev.res.slice(), currentId: combo, candidates: null, fx: { kind: 'enter' } });
+              } else {
+                const digit = DIGITS[ev.i];
+                const letters = KEYPAD[digit];
+                push(`进入 backtrack(${ev.i}, ${fmtList(ev.curr)})`, `处理数位 ${ev.i}`, `i = ${ev.i} / ${N} · 数位 '${digit}'`,
+                  ['term-check', 'for-loop'],
+                  `if len(curr) == len(digits)  # ${ev.curr.length} != ${N}，不终止；for letter in keypad_map['${digit}']  # '${letters}'`,
+                  `先查终止条件：curr 里只有 ${ev.curr.length} 个字母，不到 ${N} 个，不终止。现在处理数位 ${ev.i} = '${digit}'：候选字母是 keypad_map['${digit}'] = '${letters}'，for 循环将逐个尝试，树上用虚线圈出这些候选分枝。`,
+                  INV.enter, { view: 'tree', i: ev.i, curr: ev.curr.slice(), res: ev.res.slice(), currentId: ev.curr.length ? ev.curr.join('') : 'R', candidates: letters, fx: { kind: 'enter' } });
+              }
+            } else if (ev.type === 'append') {
+              const nodeId = ev.curr.join('');
+              push(`append('${ev.letter}') → curr = ${fmtList(ev.curr)}`, 'append 做选择', `i = ${ev.i} / ${N} · 选 '${ev.letter}'`,
+                ['append-line'],
+                `curr_combination.append('${ev.letter}')  # curr = ${fmtList(ev.curr)}`,
+                `把字母 '${ev.letter}' 压入 curr_combination——数位 ${ev.i} 暂时选定它，树上路径也随之延伸到子节点。接下来递归 backtrack(${ev.i + 1}, ...)，让下一个数位做选择。`,
+                INV.append, { view: 'tree', i: ev.i, curr: ev.curr.slice(), res: ev.res.slice(), currentId: nodeId, candidates: null, fx: { kind: 'append' } });
+            } else if (ev.type === 'collect') {
+              const k = ev.res.length;
+              push(`res.append("${ev.combo}") → ${k}/${TOTAL}`, '收集答案', `第 ${k} 个叶子 · i = ${N} / ${N}`,
+                ['collect', 'term-return'],
+                `res.append("".join(curr_combination))  # res 新增 "${ev.combo}"；return`,
+                `res 收集 "${ev.combo}"（第 ${k} 个，共 ${TOTAL} 个），这片叶子在树上涂实心。随后 return 直接返回——叶子就是终点，不再往下分枝。`,
+                INV.collect, { view: 'tree', i: N, curr: ev.curr.slice(), res: ev.res.slice(), currentId: ev.combo, candidates: null, fx: { kind: 'collect' } });
+            } else if (ev.type === 'pop') {
+              const backTo = ev.curr.length ? `'${ev.curr.join('')}'` : '根 ""';
+              push(`pop() 撤销 '${ev.letter}' → curr = ${fmtList(ev.curr)}`, 'pop 回溯', `curr 回到 ${backTo}`,
+                ['pop-line'],
+                `curr_combination.pop()  # 撤销 '${ev.letter}'，curr = ${fmtList(ev.curr)}`,
+                ev.curr.length
+                  ? `子树探索完毕，pop 掉刚压入的 '${ev.letter}'：curr 恢复为 ${fmtList(ev.curr)}，for 循环继续尝试本层的下一个候选字母。撤销选择，这就是回溯。`
+                  : `数位 0 的最后一个候选也探索完毕，pop 掉 '${ev.letter}' 后 curr 回到空组合——树已遍历完一大支，回到根。`,
+                INV.pop, { view: 'tree', i: ev.i, curr: ev.curr.slice(), res: ev.res.slice(), currentId: ev.curr.length ? ev.curr.join('') : 'R', candidates: null, fx: { kind: 'pop', letter: ev.letter } });
+            } else if (ev.type === 'done') {
+              push(`return res：${TOTAL} 个组合`, '收尾', `res 共 ${TOTAL} 项`,
+                ['main-return'],
+                'return res  # ["mw", "mx", "my", "mz", "nw", "nx", "ny", "nz", "ow", "ox", "oy", "oz"]',
+                '回溯结束，res 按尝试顺序收齐 12 个组合：["mw","mx","my","mz","nw","nx","ny","nz","ow","ox","oy","oz"]，与书例输出逐字一致。复盘：每层 for 枚举全部候选，append 深入、pop 回退，12 片叶子各收一次。',
+                INV.done, { view: 'tree', i: N, curr: [], res: ev.res.slice(), currentId: 'R', candidates: null, fx: null });
+            }
+          }
+          return frames;
+        }
+
+        const FRAMES = buildFrames();
+
+        const scene = core.createSvgScene(svg);
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout(state) {
+          const W = stage.clientWidth;
+          const narrow = W < 620;
+          const pad = narrow ? 8 : 16;
+          const view = state ? state.view : 'keypad';
+          let H;
+          const tree = {};
+          if (view === 'keypad') {
+            const keyW = Math.min(104, (W - 2 * pad - 16) / 3);
+            const keyH = Math.round(keyW * 0.6);
+            H = 46 + 4 * keyH + 24 + 40 + 12;
+            geom = { W, narrow, pad, view, keyW, keyH, keyY: 46, H };
+          } else if (view === 'map') {
+            H = 44 + 8 * 26 + 30;
+            geom = { W, narrow, pad, view, H };
+          } else {
+            const leafR = narrow ? 9.5 : 11;
+            const midR = narrow ? 13 : 15;
+            const rootR = narrow ? 13 : 15;
+            const rootY = narrow ? 32 : 38;
+            const midY = narrow ? 92 : 104;
+            const leafY = narrow ? 152 : 170;
+            const slotW = (W - 2 * pad - 2 * leafR) / 11;
+            const leafX = k => pad + leafR + k * slotW;
+            const midX = g => (leafX(g * 4) + leafX(g * 4 + 3)) / 2;
+            const rootX = (leafX(0) + leafX(11)) / 2;
+            const nodePos = { R: { x: rootX, y: rootY, r: rootR } };
+            L1.forEach((a, g) => { nodePos[a] = { x: midX(g), y: midY, r: midR }; });
+            LEAVES.forEach((lf, k) => { nodePos[lf.id] = { x: leafX(k), y: leafY, r: leafR }; });
+            tree.leafR = leafR; tree.nodePos = nodePos;
+            tree.rootY = rootY; tree.midY = midY; tree.leafY = leafY;
+            if (view === 'model') {
+              H = leafY + 40 + 4 * 18 + 10;
+            } else {
+              const digitsY = leafY + (narrow ? 34 : 42);
+              const currY = digitsY + (narrow ? 46 : 54);
+              const resY = currY + (narrow ? 42 : 50);
+              const chipW = 34;
+              const perRow = Math.max(1, Math.min(TOTAL, Math.floor((W - 2 * pad) / (chipW + 6))));
+              const resRows = Math.ceil(TOTAL / perRow);
+              H = resY + resRows * 24 + 14;
+              tree.digitsY = digitsY; tree.currY = currY; tree.resY = resY; tree.perRow = perRow; tree.resRows = resRows;
+            }
+            geom = { W, narrow, pad, view, H, tree };
+          }
+          svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+          stage.style.height = `${H}px`;
+        }
+
+        function drawKeypad() {
+          const g = geom;
+          const keys = [['1', ''], ['2', 'abc'], ['3', 'def'], ['4', 'ghi'], ['5', 'jkl'], ['6', 'mno'], ['7', 'pqrs'], ['8', 'tuv'], ['9', 'wxyz'], ['*', ''], ['0', ''], ['#', '']];
+          scene.update(({ path, text }) => {
+            text('kp-title', { x: g.pad, y: 26, 'font-size': g.narrow ? 10.5 : 12, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '传统电话键盘：digit → letters');
+            keys.forEach(([d, letters], idx) => {
+              const c = idx % 3;
+              const r = Math.floor(idx / 3);
+              const x = g.pad + c * (g.keyW + 8);
+              const y = g.keyY + r * (g.keyH + 8);
+              const hot = d === '6' || d === '9';
+              const dimKey = d === '1' || d === '*' || d === '0' || d === '#';
+              if (hot) path(`kp-hl-${d}`, { d: rectPath(x - 3.5, y - 3.5, g.keyW + 7, g.keyH + 7, 8), fill: 'none', stroke: '#272727', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
+              path(`kp-key-${d}`, { d: rectPath(x, y, g.keyW, g.keyH, 6), fill: '#fffdf8', stroke: hot ? '#272727' : '#999', 'stroke-width': hot ? 1.6 : 1.1 });
+              text(`kp-d-${d}`, { x: x + g.keyW / 2, y: y + g.keyH / 2 + (letters ? -1 : 4), 'text-anchor': 'middle', 'font-size': Math.min(17, g.keyW * 0.24), fill: dimKey ? '#999' : '#272727', 'font-family': MONO, 'font-weight': letters ? 'bold' : 'normal' }, d);
+              if (letters) text(`kp-l-${d}`, { x: x + g.keyW / 2, y: y + g.keyH - 8, 'text-anchor': 'middle', 'font-size': Math.min(10, g.keyW * 0.15), fill: hot ? '#272727' : '#555', 'font-family': MONO }, letters);
+            });
+            const capY = g.keyY + 4 * g.keyH + 24 + 14;
+            text('kp-cap1', { x: g.pad, y: capY, 'font-size': g.narrow ? 9.5 : 11, fill: '#272727', 'font-family': MONO }, 'digits = "69"：数位 0 的 \'6\' → "mno"，数位 1 的 \'9\' → "wxyz"');
+            text('kp-cap2', { x: g.pad, y: capY + 17, 'font-size': g.narrow ? 9.5 : 11, fill: '#555', 'font-family': MONO }, '7 和 9 是四字母键，其余数字键三个字母——状态树每层最多 4 分枝');
+          });
+        }
+
+        function drawMap() {
+          const g = geom;
+          scene.update(({ path, text }) => {
+            text('mp-title', { x: g.pad, y: 26, 'font-size': g.narrow ? 10.5 : 12, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'keypad_map：digit → letters，查询 O(1)');
+            Object.keys(KEYPAD).forEach((digit, k) => {
+              const y = 44 + k * 26;
+              const hot = digit === '6' || digit === '9';
+              if (hot) path(`mp-hl-${digit}`, { d: rectPath(g.pad - 5, y - 2, 128, 24, 3), fill: '#f4f1e7', stroke: '#272727', 'stroke-width': 1.2 });
+              path(`mp-key-${digit}`, { d: rectPath(g.pad, y, 30, 20, 3), fill: '#fffdf8', stroke: hot ? '#272727' : '#999', 'stroke-width': hot ? 1.5 : 1.1 });
+              text(`mp-kv-${digit}`, { x: g.pad + 15, y: y + 14, 'text-anchor': 'middle', 'font-size': 11, fill: hot ? '#272727' : '#555', 'font-family': MONO, 'font-weight': hot ? 'bold' : 'normal' }, digit);
+              text(`mp-ar-${digit}`, { x: g.pad + 44, y: y + 14, 'font-size': 11, fill: '#777', 'font-family': MONO }, '→');
+              text(`mp-vv-${digit}`, { x: g.pad + 64, y: y + 14, 'font-size': 11, fill: hot ? '#272727' : '#555', 'font-family': MONO, 'font-weight': hot ? 'bold' : 'normal' }, `'${KEYPAD[digit]}'`);
+            });
+            const capY = 44 + 8 * 26 + 16;
+            text('mp-cap', { x: g.pad, y: capY, 'font-size': g.narrow ? 9.5 : 11, fill: '#272727', 'font-family': MONO }, "keypad_map['6'] = 'mno' · keypad_map['9'] = 'wxyz' —— 只存一份，多处引用");
+          });
+        }
+
+        function drawTree(state, t = 1, from = null) {
+          const g = geom;
+          const tr = g.tree;
+          const model = state.view === 'model';
+          const curr = state.curr;
+          const pathIds = ['R'];
+          for (let k = 1; k <= curr.length; k += 1) pathIds.push(curr.slice(0, k).join(''));
+          const onPath = id => pathIds.includes(id);
+          const collected = new Set(model ? [] : state.res);
+          const example = model ? ['R', L1[0], L1[0] + L2[0]] : null;
+          const fx = state.fx;
+          const currPos = state.currentId ? tr.nodePos[state.currentId] : null;
+          const fromPos = from && from.currentId && tr.nodePos[from.currentId] ? tr.nodePos[from.currentId] : null;
+          const moved = currPos && fromPos && from.currentId !== state.currentId && from.view !== 'keypad' && from.view !== 'map';
+
+          scene.update(({ path, text, circle }) => {
+            // ---- edges ----
+            const edge = (a, b) => {
+              const A = tr.nodePos[a];
+              const B = tr.nodePos[b];
+              const hot = model ? (example.includes(a) && example.includes(b) && (a === 'R' || b.indexOf(a) === 0)) : (onPath(a) && onPath(b) && (a === 'R' || b.indexOf(a) === 0));
+              path(`e-${a}-${b}`, { d: `M ${A.x} ${A.y + A.r} L ${B.x} ${B.y - B.r}`, stroke: hot ? '#272727' : '#b7b7b1', 'stroke-width': hot ? 2.2 : 1.2, fill: 'none' });
+            };
+            L1.forEach(a => { edge('R', a); LEAVES.filter(lf => lf.a === a).forEach(lf => edge(a, lf.id)); });
+
+            // ---- nodes ----
+            const drawNode = (id, label) => {
+              const p = tr.nodePos[id];
+              const cur = !model && state.currentId === id;
+              const onP = model ? example.includes(id) : onPath(id);
+              const done = collected.has(id);
+              const fill = cur ? '#272727' : done ? '#272727' : onP ? '#f4f1e7' : '#fffdf8';
+              const stroke = cur || done ? '#272727' : onP ? '#272727' : '#999';
+              circle(`n-${id}`, { cx: p.x, cy: p.y, r: p.r, fill, stroke, 'stroke-width': cur || done ? 1.8 : 1.3, opacity: fx && fx.kind === 'collect' && done && from && !from.res.includes(id) ? t : 1 });
+              text(`nv-${id}`, { x: p.x, y: p.y + (id.length > 1 ? 3 : 3.8) - (id.length > 1 ? 1.5 : 0), 'text-anchor': 'middle', 'font-size': id.length > 1 ? tr.leafR * 0.78 : tr.leafR * 0.95, fill: cur || done ? '#fffdf8' : stroke, 'font-family': MONO, 'font-weight': cur || done ? 'bold' : 'normal' }, label);
+            };
+            drawNode('R', '""');
+            L1.forEach(a => drawNode(a, a));
+            LEAVES.forEach(lf => {
+              drawNode(lf.id, lf.b);
+              const p = tr.nodePos[lf.id];
+              const done = collected.has(lf.id);
+              text(`nl-${lf.id}`, { x: p.x, y: p.y + p.r + (g.narrow ? 9 : 11), 'text-anchor': 'middle', 'font-size': g.narrow ? 7.5 : 9, fill: done ? '#272727' : '#999', 'font-family': MONO, 'font-weight': done ? 'bold' : 'normal', opacity: fx && fx.kind === 'collect' && done && from && !from.res.includes(lf.id) ? t : 1 }, lf.id);
+            });
+
+            if (model) {
+              // ---- model captions ----
+              const capX = g.pad;
+              let cy = tr.leafY + 44;
+              const lines = [
+                ['根 ""：空组合，一个数位都还没决定', '#272727'],
+                [`第 1 层：数位 0 的决策（'6' → m / n / o，3 分枝）`, '#555'],
+                [`第 2 层：数位 1 的决策（'9' → w / x / y / z，4 分枝）`, '#555'],
+                [`叶子（i == n）：一个完整组合，共 3 × 4 = 12 个`, '#272727']
+              ];
+              lines.forEach(([s, fill], k) => {
+                text(`md-cap-${k}`, { x: capX, y: cy + k * 18, 'font-size': g.narrow ? 9.5 : 11, fill, 'font-family': MONO }, s);
+              });
+              return;
+            }
+
+            // ---- current node ring (interpolated) ----
+            if (currPos) {
+              const cx = moved ? fromPos.x + (currPos.x - fromPos.x) * t : currPos.x;
+              const cy = moved ? fromPos.y + (currPos.y - fromPos.y) * t : currPos.y;
+              circle('cur-ring', { cx, cy, r: currPos.r + 4.5, fill: 'none', stroke: '#272727', 'stroke-width': 1.3, 'stroke-dasharray': '4 3', opacity: t });
+            }
+
+            // ---- candidate rings ----
+            if (state.candidates && currPos) {
+              state.candidates.split('').forEach((letter, k) => {
+                const childId = curr.length ? curr.join('') + letter : letter;
+                const p = tr.nodePos[childId];
+                if (p) circle(`cand-${letter}`, { cx: p.x, cy: p.y, r: p.r + 3.5, fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '3 3', opacity: t });
+              });
+            }
+
+            // ---- digits bar ----
+            const dy = tr.digitsY;
+            text('dg-title', { x: g.pad, y: dy + 15, 'font-size': g.narrow ? 9.5 : 10.5, fill: '#555', 'font-family': MONO }, 'digits');
+            for (let k = 0; k < N; k += 1) {
+              const x = g.pad + 52 + k * 30;
+              const processed = k < state.i;
+              const current = k === state.i && state.i < N;
+              text(`dg-i-${k}`, { x: x + 12, y: dy + 3, 'text-anchor': 'middle', 'font-size': 8, fill: '#777', 'font-family': MONO }, String(k));
+              path(`dg-c-${k}`, { d: rectPath(x, dy + 7, 24, 20, 3), fill: processed ? '#eeece2' : '#fffdf8', stroke: current ? '#272727' : processed ? '#999' : '#777', 'stroke-width': current ? 1.6 : 1.1 });
+              text(`dg-v-${k}`, { x: x + 12, y: dy + 21, 'text-anchor': 'middle', 'font-size': 11, fill: processed ? '#999' : '#272727', 'font-family': MONO, 'font-weight': current ? 'bold' : 'normal' }, DIGITS[k]);
+              if (current) path(`dg-ring-${k}`, { d: rectPath(x - 2.5, dy + 4.5, 29, 25, 4), fill: 'none', stroke: '#272727', 'stroke-width': 1.1, 'stroke-dasharray': '3 3' });
+            }
+            text('dg-prog', { x: g.W - g.pad, y: dy + 21, 'text-anchor': 'end', 'font-size': g.narrow ? 9.5 : 10.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, `i = ${state.i} / ${N}`);
+
+            // ---- curr_combination stack ----
+            const cy2 = tr.currY;
+            text('cc-title', { x: g.pad, y: cy2 + 14, 'font-size': g.narrow ? 9.5 : 10.5, fill: '#555', 'font-family': MONO }, 'curr_combination');
+            const cellX0 = g.pad + textW('curr_combination', g.narrow ? 9.5 : 10.5) + 14;
+            const cellW = 20;
+            const cellH = 20;
+            if (!curr.length) {
+              path('cc-empty', { d: rectPath(cellX0, cy2, 34, cellH, 3), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+              text('cc-empty-t', { x: cellX0 + 17, y: cy2 + 14, 'text-anchor': 'middle', 'font-size': 9.5, fill: '#999', 'font-family': MONO }, '空');
+            }
+            curr.forEach((letter, k) => {
+              const x = cellX0 + k * (cellW + 5);
+              const isNew = fx && (fx.kind === 'append') && k === curr.length - 1;
+              path(`cc-c-${k}`, { d: rectPath(x, cy2, cellW, cellH, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.3, opacity: isNew ? t : 1 });
+              text(`cc-v-${k}`, { x: x + cellW / 2, y: cy2 + 14, 'text-anchor': 'middle', 'font-size': 11, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold', opacity: isNew ? t : 1 }, letter);
+              if (isNew) path(`cc-ring-${k}`, { d: rectPath(x - 2.5, cy2 - 2.5, cellW + 5, cellH + 5, 4), fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '3 3', opacity: t });
+            });
+            if (fx && fx.kind === 'pop' && from && from.curr.length === curr.length + 1) {
+              const k = curr.length;
+              const x = cellX0 + k * (cellW + 5);
+              path('cc-ghost', { d: rectPath(x, cy2, cellW, cellH, 3), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '3 3', opacity: 1 - t });
+              text('cc-ghost-v', { x: x + cellW / 2, y: cy2 + 14, 'text-anchor': 'middle', 'font-size': 11, fill: '#999', 'font-family': MONO, opacity: 1 - t }, fx.letter);
+              path('cc-ghost-s', { d: `M ${x + 3} ${cy2 + cellH / 2} L ${x + cellW - 3} ${cy2 + cellH / 2}`, stroke: '#999', 'stroke-width': 1.1, opacity: 1 - t });
+            }
+
+            // ---- res panel ----
+            const ry = tr.resY;
+            text('res-title', { x: g.pad, y: ry + 12, 'font-size': g.narrow ? 9.5 : 10.5, fill: '#555', 'font-family': MONO }, `res · ${state.res.length} / ${TOTAL}`);
+            let rx = g.pad;
+            let ryRow = ry + 18;
+            state.res.forEach((combo, k) => {
+              const w = Math.max(26, textW(`"${combo}"`, 9) + 10);
+              if (rx + w > g.W - g.pad) { rx = g.pad; ryRow += 24; }
+              const isNew = fx && fx.kind === 'collect' && k === state.res.length - 1;
+              path(`rs-c-${k}`, { d: rectPath(rx, ryRow, w, 18, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.2, opacity: isNew ? t : 1 });
+              text(`rs-v-${k}`, { x: rx + w / 2, y: ryRow + 12.5, 'text-anchor': 'middle', 'font-size': 9, fill: '#272727', 'font-family': MONO, opacity: isNew ? t : 1 }, `"${combo}"`);
+              if (isNew) path(`rs-ring-${k}`, { d: rectPath(rx - 2, ryRow - 2, w + 4, 22, 4), fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '3 3', opacity: t });
+              rx += w + 6;
+            });
+            if (!state.res.length) {
+              text('res-empty', { x: g.pad, y: ry + 30, 'font-size': 9.5, fill: '#999', 'font-family': MONO }, '（空）收集 i == n 的叶子组合');
+            }
+          });
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom || !state) return;
+          if (state.view === 'keypad') drawKeypad();
+          else if (state.view === 'map') drawMap();
+          else drawTree(state, t, from);
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.phase;
+          posEl.textContent = frame.pos;
+          invariantEl.textContent = frame.invariant;
+          mI.textContent = state.view === 'tree' ? `${state.i} / ${N}` : '—';
+          mCurr.textContent = state.curr.length ? fmtList(state.curr) : '（空）';
+          mRes.textContent = `${state.res.length} / ${TOTAL}`;
+          mNode.textContent = state.currentId === null ? '—' : state.currentId === 'R' ? '根 ""' : `"${state.currentId}"`;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.explanation;
+          stage.setAttribute('aria-label', `电话号码字母组合回溯演示：第 ${step + 1} / ${frames.length} 步。${frame.explanation}`);
+          layout(state);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({
+          view: s.view, i: s.i,
+          curr: s.curr.slice(), res: s.res.slice(),
+          currentId: s.currentId, candidates: s.candidates,
+          fx: s.fx ? { ...s.fx } : null
+        });
+
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 360,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        new ResizeObserver(() => { motion.cancel(); layout(trace.state); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>
