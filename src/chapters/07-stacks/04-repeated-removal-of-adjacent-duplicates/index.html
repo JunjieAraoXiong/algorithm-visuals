@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of repeatedly removing adjacent duplicates from a string with a stack. 反复移除相邻重复项：用栈边构建边消去相邻重复对。" />
+    <title>Repeated Removal of Adjacent Duplicates · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .flat-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .trace-stat { display: block; margin: 6px 0 4px; font: 15px/1.4 monospace; }
+      .solve { margin-top: 12px; display: grid; gap: 9px; }
+      .solve-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px; font: 16px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .solve-row .s-tok { padding: 0 2px; }
+      .solve-row .s-group { border-bottom: 2px solid var(--ink); padding: 0 3px 1px; }
+      .solve-row .s-eq { color: var(--quiet); }
+      .solve-note { margin-left: 10px; color: var(--quiet); font-size: 11px; font-family: Arial, Helvetica, sans-serif; }
+      .solve-arrow { color: var(--quiet); font-size: 13px; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .flat-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="rrad-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Repeated Removal of Adjacent Duplicates · 反复移除相邻重复项</h1></div></header>
+      <p class="problem">Continually remove a pair of adjacent duplicates from a string until no adjacent duplicates remain, and return the final string. For example, <code>s = "aacabba"</code> returns <code>"c"</code>, and <code>s = "aaa"</code> returns <code>"a"</code>.<span lang="zh-CN">给定字符串 s，反复移除一对相邻的重复字符，直到字符串中不再含有相邻重复，返回最终剩下的字符串。例如 s = "aacabba" 返回 "c"，s = "aaa" 返回 "a"。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="反复移除相邻重复项栈演示 / adjacent duplicates removal trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span><span data-char></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="反复移除相邻重复项演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>c</code></dt><dd data-m-c></dd></div>
+              <div><dt><code>stack[-1]</code></dt><dd data-m-top></dd></div>
+              <div><dt><code>len(stack)</code></dt><dd data-m-len></dd></div>
+              <div><dt><code>stack</code>（左栈底 → 右栈顶）</dt><dd data-m-stack></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="rrad-code-title">
+          <h2 id="rrad-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def repeated_removal_of_adjacent_duplicates(s: str) -&gt; str:</span><span class="code-line" data-source-key="init-stack">    stack = []</span><span class="code-line" data-source-key="loop">    for c in s:</span><span class="code-line">        # If the current character is the same as the top character on the stack,</span><span class="code-line">        # a pair of adjacent duplicates has been formed. So, pop the top character</span><span class="code-line">        # from the stack.</span><span class="code-line" data-source-key="dup-if">        if stack and c == stack[-1]:</span><span class="code-line" data-source-key="pop">            stack.pop()</span><span class="code-line">        # Otherwise, push the current character onto the stack.</span><span class="code-line" data-source-key="else">        else:</span><span class="code-line" data-source-key="append">            stack.append(c)</span><span class="code-line">    # Return the remaining characters as a string.</span><span class="code-line" data-source-key="return">    return ''.join(stack)</span></code></pre>
+          <p class="note"><code>stack[-1]</code> 是栈顶字符，也就是「正在构建的新字符串」的最后一个字符；每来一个新字符 <code>c</code>，唯一可能形成相邻重复的位置就是栈顶，所以只需比较一次。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="rrad-intuition">
+        <h2 id="rrad-intuition">直觉：边构建、边消去 / Build and cancel</h2>
+        <p class="section-intro">把结果字符串从左到右逐个字符地构建。新字符 <code>c</code> 到来时，它只会和「新字符串的最后一个字符」相邻——因此只要把已经构建的部分放在一个<strong>栈</strong>里，栈顶 <code>stack[-1]</code> 就是那个唯一的邻居：相等说明相邻重复对形成，弹出栈顶（当前 <code>c</code> 也随之丢弃）；不等就压入栈。</p>
+        <div class="flat-grid">
+          <article class="paper-card"><strong>栈 = 正在构建的新字符串</strong><p>栈底到栈顶依次就是新字符串从左到右的字符，<code>stack[-1]</code> 是它的最后一个字符。返回时 <code>''.join(stack)</code> 按从底到顶的顺序拼回去即可。</p></article>
+          <article class="paper-card"><strong>相同 → 成对消去</strong><p><code>c == stack[-1]</code> 时，两者构成一对相邻重复：<code>stack.pop()</code> 删旧字符，当前 <code>c</code> 不入栈——两个一起消失，相当于从字符串里删掉这一对。</p></article>
+          <article class="paper-card"><strong>不同 → 压栈</strong><p><code>c != stack[-1]</code> 时压入栈。由于栈里本来就没有相邻重复，压入一个不同的字符之后仍然没有，不变量保持成立。</p></article>
+          <article class="paper-card"><strong>为什么恰好是栈</strong><p>整个过程只需要两种操作：在<strong>同一端</strong>添加字符、在<strong>同一端</strong>删除字符。栈的 <code>append</code> 和 <code>pop</code> 正好就是这两个 <code>O(1)</code> 操作。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="rrad-why">
+        <h2 id="rrad-why">为什么一次遍历就够 / Why one pass works</h2>
+        <p class="section-intro"><strong>不变量</strong>：处理完每个字符后，栈中任意相邻两项都不相同，所以栈恰好等于「当前前缀反复移除后的结果」。新字符 <code>c</code> 唯一可能与之构成重复的邻居就是栈顶；其它相邻关系在之前的步骤里已被消除，而弹出只动栈顶、不打乱其余顺序。于是每个字符只做一次比较、至多一次 push 或 pop，永不回扫，总代价 <code>O(n)</code>。</p>
+        <p class="section-intro">最容易漏掉的是「移除后才相邻」的重复对。演示中第 12–14 步（<code>s = "aacabba"</code> 的两个 <code>'b'</code> 和最后一个 <code>'a'</code>）就是关键时刻：<code>'bb'</code> 弹出后，新的栈顶自动暴露为左边那个 <code>'a'</code>，它和最后的 <code>'a'</code> 只隔着已消去的 <code>'bb'</code>——无需回头检查，栈顶天然就位。这正是 <code>"abba"</code> 这类嵌套重复也能正确处理的原因。</p>
+        <div class="solve" aria-label="aacabba 的坍缩顺序">
+          <div class="solve-row"><span class="s-group">a a</span><span class="s-tok">c</span><span class="s-tok">a</span><span class="s-tok">b</span><span class="s-tok">b</span><span class="s-tok">a</span><span class="solve-note">先形成的重复对：开头的 "aa"</span></div>
+          <div class="solve-row"><span class="solve-arrow" aria-hidden="true">↓</span><span class="s-tok">c</span><span class="s-tok">a</span><span class="s-group">b b</span><span class="s-tok">a</span><span class="solve-note">移除 "aa" 后：中间的 "bb"</span></div>
+          <div class="solve-row"><span class="solve-arrow" aria-hidden="true">↓</span><span class="s-tok">c</span><span class="s-group">a a</span><span class="solve-note">移除 "bb" 后：两个 "a" 现在相邻</span></div>
+          <div class="solve-row"><span class="solve-arrow" aria-hidden="true">↓</span><span class="s-tok">c</span><span class="s-eq">= "c"</span><span class="solve-note">移除最后一对，剩下答案</span></div>
+        </div>
+        <p class="small">顺序由左到右的扫描天然决定：每对重复都是「后一个字符到达时」才被发现的，所以一遍扫描不会漏掉任何一对。</p>
+      </section>
+
+      <section class="section" aria-labelledby="rrad-edge">
+        <h2 id="rrad-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>"aaa" → "a"</strong><p>奇数个连续相同字符最后落单一个：前两个 <code>'a'</code> 在第二个字符到来时消去，第三个 <code>'a'</code> 入栈后没有相同邻居，留在栈里。</p></article>
+          <article class="paper-card"><strong>"aaaa" → ""</strong><p>偶数个连续字符两两消尽，栈变空；继续在空栈上扫描也安全——<code>stack and ...</code> 短路，不会真的去取 <code>stack[-1]</code>。</p></article>
+          <article class="paper-card"><strong>"abba" → ""</strong><p>嵌套重复：移除 <code>"bb"</code> 暴露 <code>"aa"</code>，再消尽。最终返回空字符串 <code>""</code>（对空列表 <code>join</code> 的结果）。</p></article>
+          <article class="paper-card"><strong>"" 与 "abc"</strong><p>空字符串循环一次也不执行，直接返回 <code>""</code>；完全没有重复的字符串一路压栈，原样返回 <code>"abc"</code>。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="rrad-complexity">
+        <h2 id="rrad-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n)</strong><p>只遍历字符串一次；每个字符最多入栈一次、出栈一次，<code>append</code> 和 <code>pop</code> 都是 <code>O(1)</code>；结尾 <code>join</code> 至多拼接 <code>n</code> 个字符，也是 <code>O(n)</code>。</p></article>
+          <article class="paper-card"><strong>Space · O(n)</strong><p>栈最坏保存全部 <code>n</code> 个字符（如 <code>s = "abc"</code>）。按书中约定，返回的输出字符串所占空间不计入空间复杂度。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../valid-parenthesis-expression/">有效的括号</a><a href="../next-largest-number-to-the-right/">右侧下一个更大数</a><a href="../evaluate-expression/">表达式求值</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('rrad-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const charEl = root.querySelector('[data-char]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mC = root.querySelector('[data-m-c]');
+        const mTop = root.querySelector('[data-m-top]');
+        const mLen = root.querySelector('[data-m-len]');
+        const mStack = root.querySelector('[data-m-stack]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const S = 'aacabba';
+        const CHARS = [...S];
+        const N = CHARS.length;
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const INV = 'stack 中任意相邻两项都不相同：它就是「反复移除后」的新字符串，stack[-1] 是最后一个字符。';
+        const INV_POP = '消去一对后不变量依然成立：新栈顶自动成为下一个字符唯一的邻居，继续比较即可。';
+        const INV_DONE = '每个字符最多入栈、出栈各一次；栈底 → 栈顶就是最终字符串。';
+
+        const fr = (stepLabel, phase, charDesc, sourceKeys, line, explanation, invariant, state) =>
+          ({ stepLabel, phase, charDesc, sourceKeys, line, explanation, invariant, state: { phase, i: 0, stack: [], ghost: null, pair: false, newTop: false, strike: false, calc: [], ...state } });
+
+        const FRAMES = [
+          fr('初始化：stack = []', '初始化', '准备遍历 s = "aacabba"', ['func', 'init-stack'],
+            'stack = []',
+            '开始前栈为空。接下来从左到右逐字符扫描，每来一个新字符 c，只把它和栈顶 stack[-1] 比较一次。',
+            INV,
+            { i: -1, stack: [], calc: ['stack = []', 's = "aacabba"', '待扫描'] }),
+          fr("i = 0 · c = 'a'：栈空，条件为假", '检查', "i = 1 / 7 · c = 'a'", ['loop', 'dup-if'],
+            'if stack and c == stack[-1]  # stack 为空 → False',
+            "第一个字符 'a' 到来：栈是空的，stack and ... 短路为假，根本不会去取 stack[-1]。",
+            INV,
+            { i: 0, stack: [], calc: ["c = 'a'", 'stack = []（空）', 'stack and ... → False'] }),
+          fr("i = 0 · 入栈 'a'", '入栈', "i = 1 / 7 · c = 'a'", ['else', 'append'],
+            "stack.append(c)  # stack = ['a']",
+            "没有栈顶可配对，走 else：把 'a' 压入栈，它暂时成为新字符串的最后一个字符。",
+            INV,
+            { i: 0, stack: ['a'], calc: ["c = 'a'，无栈顶", "stack.append('a')", "stack = ['a']"] }),
+          fr("i = 1 · c = 'a'：撞上栈顶 'a'", '检查', "i = 2 / 7 · c = 'a'", ['loop', 'dup-if'],
+            "if stack and c == stack[-1]  # 'a' == 'a' → True",
+            "c = 'a'，栈顶也是 'a'——相邻重复对出现了（图中两个虚线框）。这次要弹栈，而不是压栈。",
+            INV,
+            { i: 1, stack: ['a'], pair: true, calc: ["c = 'a'", "stack[-1] = 'a'", "'a' == 'a' → True"] }),
+          fr("i = 1 · 弹出 'a'，一对消去", '出栈', "i = 2 / 7 · c = 'a'", ['pop'],
+            "stack.pop()  # 一对 'a' 一起消失",
+            "弹出栈顶的 'a'；当前 'a' 也不入栈——两个 'a' 成对消去，栈回到空。原字符串开头的两个字符就此删完。",
+            INV_POP,
+            { i: 1, stack: [], ghost: 'a', strike: true, calc: ["重复对：'a'(栈顶) + 'a'(当前)", 'stack.pop()', 'stack = []'] }),
+          fr("i = 2 · c = 'c'：栈空，条件为假", '检查', "i = 3 / 7 · c = 'c'", ['loop', 'dup-if'],
+            'if stack and c == stack[-1]  # stack 为空 → False',
+            "c = 'c' 时栈又是空的，条件直接为假，走压栈分支。",
+            INV,
+            { i: 2, stack: [], calc: ["c = 'c'", 'stack = []（空）', 'stack and ... → False'] }),
+          fr("i = 2 · 入栈 'c'", '入栈', "i = 3 / 7 · c = 'c'", ['else', 'append'],
+            "stack.append(c)  # stack = ['c']",
+            "压入 'c'。它后面即使再出现重复，也只可能和栈顶（也就是末尾）发生。",
+            INV,
+            { i: 2, stack: ['c'], calc: ["c = 'c'，无栈顶", "stack.append('c')", "stack = ['c']"] }),
+          fr("i = 3 · c = 'a'：≠ 栈顶 'c'", '检查', "i = 4 / 7 · c = 'a'", ['loop', 'dup-if'],
+            "if stack and c == stack[-1]  # 'a' == 'c' → False",
+            "c = 'a'，栈顶是 'c'，二者不同：不构成重复对。",
+            INV,
+            { i: 3, stack: ['c'], calc: ["c = 'a'", "stack[-1] = 'c'", "'a' == 'c' → False"] }),
+          fr("i = 3 · 入栈 'a'", '入栈', "i = 4 / 7 · c = 'a'", ['else', 'append'],
+            "stack.append(c)  # stack = ['c', 'a']",
+            "压入 'a'，正在构建的新字符串变长为「ca」。",
+            INV,
+            { i: 3, stack: ['c', 'a'], calc: ["c = 'a' ≠ 'c'", "stack.append('a')", "stack = ['c', 'a']"] }),
+          fr("i = 4 · c = 'b'：≠ 栈顶 'a'", '检查', "i = 5 / 7 · c = 'b'", ['loop', 'dup-if'],
+            "if stack and c == stack[-1]  # 'b' == 'a' → False",
+            "c = 'b'，栈顶是 'a'，不同：不构成重复对。",
+            INV,
+            { i: 4, stack: ['c', 'a'], calc: ["c = 'b'", "stack[-1] = 'a'", "'b' == 'a' → False"] }),
+          fr("i = 4 · 入栈 'b'", '入栈', "i = 5 / 7 · c = 'b'", ['else', 'append'],
+            "stack.append(c)  # stack = ['c', 'a', 'b']",
+            "压入 'b'。此时栈里自底向上是 c、a、b，没有任何相邻重复。",
+            INV,
+            { i: 4, stack: ['c', 'a', 'b'], calc: ["c = 'b' ≠ 'a'", "stack.append('b')", "stack = ['c', 'a', 'b']"] }),
+          fr("i = 5 · c = 'b'：撞上栈顶 'b'", '检查', "i = 6 / 7 · c = 'b'", ['loop', 'dup-if'],
+            "if stack and c == stack[-1]  # 'b' == 'b' → True",
+            "c = 'b'，栈顶正是 'b'——又一对相邻重复出现了。",
+            INV,
+            { i: 5, stack: ['c', 'a', 'b'], pair: true, calc: ["c = 'b'", "stack[-1] = 'b'", "'b' == 'b' → True"] }),
+          fr("i = 5 · 弹出 'b'，注意新栈顶", '出栈', "i = 6 / 7 · c = 'b'", ['pop'],
+            "stack.pop()  # 一对 'b' 消去，新栈顶 = 'a'",
+            "弹出 'b'，一对 'b' 消去。关键看新的栈顶：'a'——原字符串里它右边的 'bb' 已被删掉，它和最后的 'a' 现在「相邻」了。栈不用回扫，新栈顶自动就位。",
+            INV_POP,
+            { i: 5, stack: ['c', 'a'], ghost: 'b', newTop: true, strike: true, calc: ["重复对：'b' + 'b' 消去", 'stack.pop()', "stack = ['c', 'a']", "新栈顶 stack[-1] = 'a'"] }),
+          fr("i = 6 · c = 'a'：撞上暴露出的 'a'", '检查', "i = 7 / 7 · c = 'a'", ['loop', 'dup-if'],
+            "if stack and c == stack[-1]  # 'a' == 'a' → True",
+            "最后一个字符 'a' 到来，它面对的栈顶正是刚才暴露出的 'a'（中间隔着的 'bb' 已消去）——又一次相邻重复。",
+            INV_POP,
+            { i: 6, stack: ['c', 'a'], pair: true, newTop: true, calc: ["c = 'a'", "stack[-1] = 'a'（刚暴露）", "'a' == 'a' → True"] }),
+          fr("i = 6 · 弹出 'a'，一对消去", '出栈', "i = 7 / 7 · c = 'a'", ['pop'],
+            "stack.pop()  # 一对 'a' 消去",
+            "弹出 'a'，这对 'a' 也消去。字符串扫描完毕，栈里只剩 'c'。",
+            INV_POP,
+            { i: 6, stack: ['c'], ghost: 'a', strike: true, calc: ["重复对：'a' + 'a' 消去", 'stack.pop()', "stack = ['c']"] }),
+          fr("return ''.join(stack) → 'c'", '返回', '遍历结束', ['return'],
+            "return ''.join(stack)  # 'c'",
+            "遍历结束：栈中剩下的字符从栈底到栈顶依次拼接，''.join(['c']) = 'c'，就是答案。",
+            INV_DONE,
+            { i: 7, stack: ['c'], calc: ["''.join(['c'])", "= 'c'"] })
+        ];
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('rrad-arrow', { fill: '#333' });
+        scene.defineMarker('rrad-arrow-soft', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const W = stage.clientWidth;
+          const wide = W >= 620;
+          const tiny = W < 420;
+          const pad = tiny ? 8 : (wide ? 16 : 12);
+          const gap = wide ? 8 : (tiny ? 3 : 5);
+          const popPad = tiny ? 36 : (wide ? 62 : 48);
+          const stackW = tiny ? 56 : (wide ? 88 : 70);
+          const stackRight = W - pad - popPad;
+          const stackLeft = stackRight - stackW;
+          const tokenW = wide ? 36 : (tiny ? 24 : 30);
+          const tokenH = wide ? 32 : (tiny ? 24 : 28);
+          const tokensY = wide ? 92 : (tiny ? 62 : 68);
+          const xs = CHARS.map((_, i) => pad + tokenW / 2 + i * (tokenW + gap));
+          const chipY = wide ? 30 : 20;
+          const idxY = tokensY + tokenH / 2 + (wide ? 13 : 11);
+          const entryH = wide ? 26 : (tiny ? 21 : 23);
+          const uTop = wide ? 36 : 30;
+          const uBottom = uTop + 4 * entryH + 8;
+          const stackLabelY = uBottom + 15;
+          const calcX = pad;
+          const calcY = idxY + (wide ? 26 : 22);
+          const calcW = Math.max(120, stackLeft - calcX - (wide ? 18 : 12));
+          const calcFont = tiny ? 9 : (wide ? 11.5 : 10);
+          const lineH = Math.round(calcFont * 1.55);
+          geom = { W, wide, tiny, pad, gap, popPad, stackW, stackLeft, stackRight, tokenW, tokenH, tokensY, xs, chipY, idxY, entryH, uTop, uBottom, stackLabelY, calcX, calcY, calcW, calcFont, lineH };
+          const maxCalcLines = Math.max(...FRAMES.map(frame => frame.state.calc.length));
+          const calcH = maxCalcLines * lineH + 14;
+          const stageH = Math.max(calcY + calcH + 12, stackLabelY + 8);
+          svg.setAttribute('viewBox', `0 0 ${W} ${Math.ceil(stageH)}`);
+          stage.style.height = `${Math.ceil(stageH)}px`;
+        }
+
+        function chipXFor(i) {
+          const g = geom;
+          const last = g.xs[N - 1];
+          if (i < 0) return g.xs[0];
+          if (i >= N) return Math.min(last + (g.tokenW + g.gap) * 0.55, g.W - g.pad - 14);
+          return g.xs[i];
+        }
+
+        function entriesOf(state) {
+          const list = [];
+          if (state.ghost) list.push({ ch: state.ghost, ghost: true, slot: 0 });
+          for (let k = state.stack.length - 1; k >= 0; k -= 1) {
+            list.push({ ch: state.stack[k], ghost: false, slot: state.ghost ? state.stack.length - k : state.stack.length - 1 - k });
+          }
+          return list;
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom || !state) return;
+          const g = geom;
+          const lerp = (a, b) => a + (b - a) * t;
+          const cur = Math.min(Math.max(state.i, 0), N - 1);
+          const chipX = lerp(chipXFor(from ? from.i : state.i), chipXFor(state.i));
+          const cueOp = (key) => {
+            if (state[key]) return from && from[key] ? 1 : t;
+            return from && from[key] ? 1 - t : 0;
+          };
+          const pushOp = state.phase === '入栈' ? (from && from.phase === '入栈' ? 1 : t) : (from && from.phase === '入栈' ? 1 - t : 0);
+          const returnOp = state.phase === '返回' ? (from && from.phase === '返回' ? 1 : t) : (from && from.phase === '返回' ? 1 - t : 0);
+          const calcOp = from && from.calc.join('|') === state.calc.join('|') ? 1 : t;
+          const entries = entriesOf(state);
+          const fromEntries = from ? entriesOf(from) : [];
+          const entryGeom = (slot) => g.uTop + slot * g.entryH;
+          const entryOp = [];
+          const entryY = [];
+          entries.forEach((entry, idx) => {
+            let fromSlot = -1;
+            for (let k = 0; k < fromEntries.length; k += 1) {
+              if (fromEntries[k].ch === entry.ch && fromEntries[k].ghost === entry.ghost) { fromSlot = fromEntries[k].slot; break; }
+            }
+            if (entry.ghost) {
+              let op = 0.62;
+              if (from) {
+                if (from.stack.length > state.stack.length) op = 1 - 0.38 * t;
+                else op = 0.62 * t + (from.ghost ? 0.38 * (1 - t) : 0);
+              }
+              entryOp[idx] = op;
+              entryY[idx] = entryGeom(entry.slot);
+            } else if (fromSlot >= 0) {
+              entryOp[idx] = 1;
+              entryY[idx] = lerp(entryGeom(fromSlot) + g.entryH * 0.66, entryGeom(entry.slot) + g.entryH * 0.66);
+            } else {
+              entryOp[idx] = t;
+              entryY[idx] = entryGeom(entry.slot) + g.entryH * 0.66 - (1 - t) * g.entryH * 0.5;
+            }
+          });
+          const charW = g.calcFont * 0.64;
+          const longest = Math.max(...state.calc.map(line => line.length));
+          const boxW = Math.min(g.calcW, longest * charW + 20);
+          const topEntrySlot = state.ghost ? 1 : 0;
+
+          scene.update(({ path, text }) => {
+            // 输入字符串行
+            for (let i = 0; i < N; i += 1) {
+              const x = g.xs[i];
+              const isCur = state.i >= 0 && i === cur;
+              const struck = state.strike && isCur;
+              path(`tok-${i}`, { d: rectPath(x - g.tokenW / 2, g.tokensY - g.tokenH / 2, g.tokenW, g.tokenH, 3), fill: struck ? '#f1eee5' : '#fffdf8', stroke: '#272727', 'stroke-width': isCur ? 2.2 : 1.3 });
+              text(`tokt-${i}`, { x, y: g.tokensY + (g.wide ? 4.5 : 4), 'text-anchor': 'middle', 'font-size': g.wide ? 16 : 13, fill: struck ? '#888' : '#272727', 'font-family': MONO }, CHARS[i]);
+              text(`toki-${i}`, { x, y: g.idxY, 'text-anchor': 'middle', 'font-size': g.tiny ? 8 : 9, fill: '#999', 'font-family': MONO }, String(i));
+              if (struck) {
+                path(`tok-strike-${i}`, { d: `M ${x - g.tokenW / 2 + 3} ${g.tokensY} L ${x + g.tokenW / 2 - 3} ${g.tokensY}`, stroke: '#777', 'stroke-width': 1.4 });
+              }
+              if (state.pair && isCur) {
+                path('tok-pair', { d: rectPath(x - g.tokenW / 2 - 3, g.tokensY - g.tokenH / 2 - 3, g.tokenW + 6, g.tokenH + 6, 4), fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '4 3', opacity: cueOp('pair') });
+              }
+            }
+
+            // c 游标
+            path('c-arrow', { d: `M ${chipX} ${g.chipY + 10} L ${chipX} ${g.tokensY - g.tokenH / 2 - 5}`, stroke: '#333', 'stroke-width': 1.3, fill: 'none', 'marker-end': 'url(#rrad-arrow)' });
+            path('c-chip', { d: rectPath(chipX - 9, g.chipY - 9, 18, 18, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3 });
+            text('c-chip-t', { x: chipX, y: g.chipY + 3.5, 'text-anchor': 'middle', 'font-size': 11, fill: '#272727', 'font-family': MONO }, 'c');
+
+            // 栈 U 形
+            path('stack-u', { d: `M ${g.stackLeft} ${g.uTop} L ${g.stackLeft} ${g.uBottom} L ${g.stackRight} ${g.uBottom} L ${g.stackRight} ${g.uTop}`, stroke: '#333', 'stroke-width': 1.5, fill: 'none' });
+            text('stack-cap', { x: (g.stackLeft + g.stackRight) / 2, y: g.stackLabelY, 'text-anchor': 'middle', 'font-size': g.wide ? 10.5 : 9, fill: '#555', 'font-family': MONO }, 'stack');
+            for (let s = 0; s < 4; s += 1) {
+              const y = g.uTop + (s + 1) * g.entryH - 5;
+              path(`rung-${s}`, { d: `M ${g.stackLeft + 6} ${y} L ${g.stackRight - 6} ${y}`, stroke: '#e0ddd3', 'stroke-width': 1, fill: 'none' });
+            }
+
+            // 栈顶 / 新栈顶标注
+            if (state.newTop) {
+              text('top-tag', { x: g.stackLeft, y: g.uTop - 6, 'text-anchor': 'start', 'font-size': g.wide ? 10.5 : 9, fill: '#272727', 'font-family': MONO }, "新栈顶 'a'");
+            } else if (!state.ghost) {
+              text('top-tag', { x: g.stackLeft, y: g.uTop - 6, 'text-anchor': 'start', 'font-size': g.wide ? 10.5 : 9, fill: '#999', 'font-family': MONO }, '栈顶');
+            }
+
+            // 栈条目（含 pop 幽灵）
+            entries.forEach((entry, idx) => {
+              const y = entryY[idx];
+              const op = entryOp[idx];
+              const cx = (g.stackLeft + g.stackRight) / 2;
+              text(`ent-${idx}`, { x: cx, y, 'text-anchor': 'middle', 'font-size': g.wide ? 14 : 11.5, fill: entry.ghost ? '#888' : '#272727', 'font-family': MONO, opacity: op }, entry.ch);
+              if (entry.ghost) {
+                path(`ent-strike-${idx}`, { d: `M ${g.stackLeft + 8} ${y - 4} L ${g.stackRight - 8} ${y - 4}`, stroke: '#777', 'stroke-width': 1.3, opacity: op });
+                path(`pop-arrow-${idx}`, { d: `M ${g.stackRight + 3} ${y - 7} L ${g.stackRight + 14} ${y - 7}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#rrad-arrow-soft)', opacity: op });
+                text(`pop-label-${idx}`, { x: g.stackRight + 17, y: y - 3, 'text-anchor': 'start', 'font-size': g.wide ? 9.5 : 8, fill: '#555', 'font-family': MONO, opacity: op }, 'pop');
+              }
+            });
+
+            // 退出的旧幽灵（向后退或继续前进时让旧幽灵淡出）
+            if (from && from.ghost && !state.ghost) {
+              const oldY = g.uTop + g.entryH * 0.66;
+              const op = 0.62 * (1 - t);
+              text('old-ghost', { x: (g.stackLeft + g.stackRight) / 2, y: oldY, 'text-anchor': 'middle', 'font-size': g.wide ? 14 : 11.5, fill: '#888', 'font-family': MONO, opacity: op }, from.ghost);
+              path('old-ghost-strike', { d: `M ${g.stackLeft + 8} ${oldY - 4} L ${g.stackRight - 8} ${oldY - 4}`, stroke: '#777', 'stroke-width': 1.3, opacity: op });
+            }
+
+            // push 提示箭头
+            if (pushOp > 0) {
+              const cx = (g.stackLeft + g.stackRight) / 2;
+              path('push-arrow', { d: `M ${cx} ${g.uTop - 17} L ${cx} ${g.uTop - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#rrad-arrow-soft)', opacity: pushOp });
+              text('push-label', { x: cx + 6, y: g.uTop - 19, 'text-anchor': 'start', 'font-size': g.wide ? 9.5 : 8.5, fill: '#555', 'font-family': MONO, opacity: pushOp }, 'push');
+            }
+
+            // 重复对：栈顶虚线框
+            if (state.pair && state.stack.length) {
+              const slotTop = g.uTop + topEntrySlot * g.entryH;
+              path('slot-pair', { d: rectPath(g.stackLeft + 3, slotTop + 2, g.stackW - 6, g.entryH - 4, 3), fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '4 3', opacity: cueOp('pair') });
+            }
+
+            // 新栈顶 / 返回值强调框
+            if (state.newTop && state.stack.length) {
+              const slotTop = g.uTop + topEntrySlot * g.entryH;
+              path('slot-newtop', { d: rectPath(g.stackLeft, slotTop - 1, g.stackW, g.entryH + 2, 3), fill: 'none', stroke: '#272727', 'stroke-width': 1.4, 'stroke-dasharray': '5 3', opacity: cueOp('newTop') });
+            }
+            if (returnOp > 0 && state.stack.length) {
+              const slotTop = g.uTop + topEntrySlot * g.entryH;
+              path('slot-return', { d: rectPath(g.stackLeft, slotTop - 1, g.stackW, g.entryH + 2, 3), fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'stroke-dasharray': '2 3', opacity: returnOp });
+              text('return-tag', { x: (g.stackLeft + g.stackRight) / 2, y: g.uBottom + 28, 'text-anchor': 'middle', 'font-size': g.wide ? 11 : 9.5, fill: '#272727', 'font-family': MONO, opacity: returnOp }, `= "${state.stack.join('')}"`);
+            }
+
+            // 比较过程虚线框
+            path('calc-box', { d: rectPath(g.calcX, g.calcY, boxW, state.calc.length * g.lineH + 14, 4), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '5 4', opacity: calcOp });
+            state.calc.forEach((line, k) => {
+              text(`calc-${k}`, { x: g.calcX + 10, y: g.calcY + 14 + k * g.lineH, 'text-anchor': 'start', 'font-size': g.calcFont, fill: '#272727', 'font-family': MONO, opacity: calcOp }, line);
+            });
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.phase;
+          charEl.textContent = frame.charDesc;
+          invariantEl.textContent = frame.invariant;
+          mC.textContent = state.i < 0 || state.i >= N ? '—' : `'${CHARS[state.i]}'`;
+          mTop.textContent = state.stack.length ? `'${state.stack[state.stack.length - 1]}'` : '—';
+          mLen.textContent = state.stack.length;
+          mStack.textContent = `[${state.stack.map(c => `'${c}'`).join(', ')}]`;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.explanation;
+          stage.setAttribute('aria-label', `反复移除相邻重复项演示：第 ${step + 1} / ${frames.length} 步。${frame.explanation}`);
+          layout();
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({ ...s, stack: [...s.stack], calc: [...s.calc] });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 380,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>
