@@ -74,6 +74,7 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [K Most Frequent Strings / 前 K 个高频字符串](https://junjiearaoxiong.github.io/algorithm-visuals/k-most-frequent-strings/)
 - [Combine Sorted Linked Lists / 合并 K 个有序链表](https://junjiearaoxiong.github.io/algorithm-visuals/combine-sorted-linked-lists/)
 - [Median of an Integer Stream / 整数流的中位数](https://junjiearaoxiong.github.io/algorithm-visuals/median-of-an-integer-stream/)
+- [Sort a K-Sorted Array / K 有序数组排序](https://junjiearaoxiong.github.io/algorithm-visuals/sort-a-k-sorted-array/)
 
 ### 09 · Intervals / 区间
 

@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Interactive bilingual visualization of sorting a k-sorted array with a min-heap of the sliding k + 1 candidate window. K 有序数组排序：小顶堆维护滑动候选窗口。" />
+  <title>Sort a K-Sorted Array · Algorithm Visuals</title>
+  <link rel="stylesheet" href="../assets/visual.css" />
+  <link rel="stylesheet" href="../assets/guide.css" />
+  <style>
+    .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+    .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+    .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+    .step-picker { margin-left: auto; }
+    .stage { height: 360px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+    .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 10px; margin: 12px 3px; }
+    .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+    .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+    .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+    .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+    .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+    .metrics dt { color: var(--quiet); }
+    .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+    .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+    .section h2 { margin: 0 0 8px; font-size: 20px; }
+    .section-intro { max-width: 900px; color: var(--quiet); }
+    .case-grid, .edge-grid, .complexity, .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+    .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+    .paper-card p:last-child { margin-bottom: 0; }
+    .paper-card strong { font: 13px/1.4 monospace; }
+    .paper-card svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+    .rule-list { margin: 8px 0 0; padding-left: 24px; }
+    .rule-list li { margin: 6px 0; }
+    .small { color: var(--quiet); font-size: 12px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    @media (max-width: 700px) {
+      .state-grid, .case-grid, .edge-grid, .complexity, .example-grid { grid-template-columns: 1fr; }
+      .step-picker { width: 100%; margin-left: 0; }
+      .step-picker select { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main id="ksort-lab">
+    <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+    <header class="heading"><div><h1>Sort a K-Sorted Array · K 有序数组排序</h1></div></header>
+    <p class="problem">Given an integer array where each element is at most <code>k</code> positions away from its sorted position, sort it in non-decreasing order. Example: <code>nums = [5, 1, 9, 4, 7, 10], k = 2</code> → <code>[1, 4, 5, 7, 9, 10]</code>.<span lang="zh-CN">给定整数数组 nums，每个元素距离它在完全有序数组中的位置最多 k 个位置（灰色虚线行只是参考——算法开始时我们并不知道它）。请把数组按非递减顺序排序。例：nums = [5, 1, 9, 4, 7, 10]，k = 2，输出 [1, 4, 5, 7, 9, 10]。</span></p>
+
+    <div class="learning-layout" data-learning-layout>
+      <section class="animation-panel" data-animation-panel aria-label="K 有序数组排序小顶堆演示 / sort a k-sorted array trace">
+        <div class="controls">
+          <button type="button" data-action="previous">← 上一步</button>
+          <output data-count></output>
+          <button type="button" data-action="next">下一步 →</button>
+          <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+        </div>
+        <div class="step-meta"><span data-phase></span></div>
+        <div class="stage" data-stage tabindex="0" aria-label="K 有序数组排序演示">
+          <svg class="lines" data-lines aria-hidden="true"></svg>
+        </div>
+        <div class="state-grid">
+          <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+          <dl class="metrics">
+            <div><dt><code>k</code></dt><dd>2</dd></div>
+            <div><dt><code>insert_index</code></dt><dd data-m-insert></dd></div>
+            <div><dt><code>i</code></dt><dd data-m-i></dd></div>
+            <div><dt><code>min_heap</code></dt><dd data-m-heap></dd></div>
+          </dl>
+        </div>
+        <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+      </section>
+
+      <aside class="code-panel" data-code-panel aria-labelledby="ksort-code-title">
+        <h2 id="ksort-code-title">完整 Python 代码</h2>
+        <p class="code-status" data-code-status></p>
+        <pre data-code-scroll tabindex="0"><code><span class="code-line">import heapq</span><span class="code-line"> </span><span class="code-line" data-source-key="def-sort">def sort_a_k_sorted_array(nums: List[int], k: int) -&gt; List[int]:</span><span class="code-line">    # Populate a min-heap with the first k + 1 values in 'nums'.</span><span class="code-line" data-source-key="heap-slice">    min_heap = nums[:k+1]</span><span class="code-line" data-source-key="heap-heapify">    heapq.heapify(min_heap)</span><span class="code-line">    # Replace elements in the array with the minimum from the heap at each</span><span class="code-line">    # iteration.</span><span class="code-line" data-source-key="init-insert">    insert_index = 0</span><span class="code-line" data-source-key="for-i">    for i in range(k + 1, len(nums)):</span><span class="code-line" data-source-key="pop-write">        nums[insert_index] = heapq.heappop(min_heap)</span><span class="code-line" data-source-key="inc-insert">        insert_index += 1</span><span class="code-line" data-source-key="push-next">        heapq.heappush(min_heap, nums[i])</span><span class="code-line">    # Pop the remaining elements from the heap to finish sorting the array.</span><span class="code-line" data-source-key="while-drain">    while min_heap:</span><span class="code-line" data-source-key="drain-pop">        nums[insert_index] = heapq.heappop(min_heap)</span><span class="code-line" data-source-key="drain-inc">        insert_index += 1</span><span class="code-line" data-source-key="return-nums">    return nums</span></code></pre>
+        <p class="note">heapq 是小顶堆：<code>min_heap[0]</code> 永远是当前候选中的最小值，恰好就是 <code>insert_index</code> 位置上该写的数。</p>
+      </aside>
+    </div>
+
+    <section class="section" aria-labelledby="ksort-intuition">
+      <h2 id="ksort-intuition">直觉：答案总在附近 / The answer is nearby</h2>
+      <p class="section-intro">直接排序要 <code>O(n log n)</code>，它无视了「几乎有序」这个条件。换个方向想：一个数在有序数组里属于 index i，它在 k 有序数组里一定落在 <code>[i − k, i + k]</code> 内——每左移或右移一格，离正确位置的距离最多变化 1。反过来更实用：index 0 的答案只可能藏在 <code>nums[0..k]</code> 里；归位它之后，index 1 的答案只可能藏在接下来前 k+1 个值里，依此类推。每个位置要写的，只是某个「滑动窗口」里的最小值。</p>
+      <svg viewBox="0 0 640 178" role="img" aria-label="k 有序数组 [5,1,9,4,7,10] 与参考用的排序后数组 [1,4,5,7,9,10]，5 距离排序位置 index 2 为 2 步不超过 k">
+        <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+          <text x="60" y="14" font-size="11.5" fill="#272727">nums（k = 2）</text>
+          <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+            <rect x="60" y="26" width="44" height="28" rx="3"/><rect x="112" y="26" width="44" height="28" rx="3"/><rect x="164" y="26" width="44" height="28" rx="3"/><rect x="216" y="26" width="44" height="28" rx="3"/><rect x="268" y="26" width="44" height="28" rx="3"/><rect x="320" y="26" width="44" height="28" rx="3"/>
+          </g>
+          <g fill="#272727" text-anchor="middle" font-size="14">
+            <text x="82" y="44">5</text><text x="134" y="44">1</text><text x="186" y="44">9</text><text x="238" y="44">4</text><text x="290" y="44">7</text><text x="342" y="44">10</text>
+          </g>
+          <g fill="#777" text-anchor="middle" font-size="10">
+            <text x="82" y="70">0</text><text x="134" y="70">1</text><text x="186" y="70">2</text><text x="238" y="70">3</text><text x="290" y="70">4</text><text x="342" y="70">5</text>
+          </g>
+          <path d="M 56 82 v -5 H 212 v 5" fill="none" stroke="#555" stroke-width="1.2"/>
+          <text x="134" y="96" text-anchor="middle" font-size="10.5" fill="#555">index 0 的候选范围 [0, k]</text>
+          <text x="60" y="122" font-size="11.5" fill="#777">排序后</text>
+          <g fill="#fffdf8" stroke="#b7b7b1" stroke-width="1.2" stroke-dasharray="4 3">
+            <rect x="60" y="106" width="44" height="28" rx="3"/><rect x="112" y="106" width="44" height="28" rx="3"/><rect x="164" y="106" width="44" height="28" rx="3"/><rect x="216" y="106" width="44" height="28" rx="3"/><rect x="268" y="106" width="44" height="28" rx="3"/><rect x="320" y="106" width="44" height="28" rx="3"/>
+          </g>
+          <g fill="#999" text-anchor="middle" font-size="14">
+            <text x="82" y="124">1</text><text x="134" y="124">4</text><text x="186" y="124">5</text><text x="238" y="124">7</text><text x="290" y="124">9</text><text x="342" y="124">10</text>
+          </g>
+          <rect x="160" y="102" width="48" height="36" fill="none" stroke="#555" stroke-width="1.2" stroke-dasharray="5 4"/>
+          <path d="M 82 54 C 96 74, 140 88, 178 102" fill="none" stroke="#555" stroke-width="1.1" marker-end="url(#ksort-static-arrow)"/>
+          <text x="120" y="162" text-anchor="middle" font-size="10.5" fill="#555">5 的排序位置是 index 2 · 距离 2 ≤ k</text>
+          <text x="212" y="162" text-anchor="start" font-size="10.5" fill="#999">（参考行仅示意，算法开始时未知）</text>
+        </g>
+        <defs><marker id="ksort-static-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker></defs>
+      </svg>
+      <ol class="rule-list">
+        <li>index 0 在有序数组里放的是全局最小值，所以它一定是 <code>nums[0..k]</code> 的最小值。</li>
+        <li>归位 index i 后，index i+1 的候选窗口右移一格：<code>[i+1, i+1+k]</code>——已归位的左侧不再考虑。</li>
+        <li>窗口每次只挪一格：去掉一个已写出的旧候选、补上一个新候选。重复求窗口最小值成为唯一的热点，交给小顶堆。</li>
+      </ol>
+    </section>
+
+    <section class="section" aria-labelledby="ksort-heap">
+      <h2 id="ksort-heap">小顶堆：窗口最小值的快速通道 / Min-heap as the fast lane</h2>
+      <p class="section-intro">每次在一个大小不超过 <code>k+1</code> 的集合里取最小值，正是小顶堆的看家本领：堆顶 <code>O(1)</code> 读取，push / pop 各 <code>O(log k)</code>。先 <code>heapify</code> 前 <code>k+1</code> 个值，之后每写出一个最小值，就把 <code>nums[i]</code> 补进堆——窗口随 <code>i</code> 右移，堆大小在主循环里恒为 <code>k+1</code>，收尾阶段逐次减小。</p>
+      <div class="case-grid">
+        <article class="paper-card"><strong>朴素做法 · O(nk)</strong><p>每个位置都线性扫一遍 <code>[i, i+k]</code> 找最小值，最多比较 k+1 个候选。k 接近 n 时退化为 <code>O(n²)</code>——和直接排序一样差。</p></article>
+        <article class="paper-card"><strong>堆优化 · O(n log k)</strong><p><code>heapify</code> 用 <code>O(k)</code> 建堆；主循环执行 <code>n − k</code> 次，每次一次 <code>heappop</code> 加一次 <code>heappush</code>，各 <code>O(log k)</code>。k 越小，优势越大。</p></article>
+        <article class="paper-card"><strong>堆为什么恰好够用</strong><p>任意时刻，堆里装的正是「下一个待写位置的候选窗口」中尚未写出的值：一个不多、一个不少。堆顶即窗口最小值，直接就是 <code>insert_index</code> 位置的答案。</p></article>
+        <article class="paper-card"><strong>heapify 还是逐个 push</strong><p>对 k+1 个值，<code>heapq.heapify</code> 自底向上调整只要 <code>O(k)</code>；逐个 <code>heappush</code> 是 <code>O(k log k)</code>。两者代码都短，建堆选 heapify 更优——这也是书中的写法。</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="ksort-why">
+      <h2 id="ksort-why">为什么原地覆写是安全的 / Why overwriting in place is safe</h2>
+      <p class="section-intro"><code>nums[insert_index] = heapq.heappop(min_heap)</code> 直接覆盖原值：被覆盖的数会不会是后面某个位置的答案？不会——它一定早已进了堆。主循环里 <code>i = insert_index + k + 1</code> 恒成立：<code>insert_index</code> 要追到 <code>i</code> 至少还需 <code>k+1</code> 步，而任何数离它的排序位置最多 <code>k</code> 步，所以 <code>nums[i]</code> 被覆写之前必先被 <code>push</code> 进堆。更本质的不变量：<strong>堆中恰好装着下一个待写位置的全部候选</strong>。</p>
+      <div class="case-grid">
+        <article class="paper-card"><strong>不变量</strong><p>每次 <code>heappop</code> 之前，堆 = 候选窗口中未写出的值。堆顶不大于窗口内任何值，正是 <code>insert_index</code> 位置该写的数——写出后窗口右移，不变量保持。</p></article>
+        <article class="paper-card"><strong>指针关系</strong><p>每轮循环：先 <code>pop</code> 写出（<code>insert_index</code> 指向的位置），再 <code>insert_index += 1</code>，最后 <code>push nums[i]</code>。写出一个、补进一个，堆大小回到 <code>k+1</code>。</p></article>
+        <article class="paper-card"><strong>图里的有序行只是参考</strong><p>书中的插图把排好序的数组画在旁边，帮助理解每个数离目的地有多远；算法开始时我们并不知道它，整个过程也从没构造过这个有序数组。</p></article>
+        <article class="paper-card"><strong>重复值与负数</strong><p>堆只按大小比较：重复值任意先写后写都不破坏非递减顺序；负数与正数走完全相同的逻辑，无需特判。</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="ksort-edge">
+      <h2 id="ksort-edge">边界情况 / Edge cases</h2>
+      <div class="edge-grid">
+        <article class="paper-card"><strong>k = 0 · 已经有序</strong><p>堆只装 1 个元素：<code>heapify</code> 是 <code>O(1)</code>，每次 pop / push 也是 <code>O(1)</code>（log 1 = 0），全程 <code>O(n)</code> 顺手验证数组已有序。代码无需任何特判。</p></article>
+        <article class="paper-card"><strong>k ≥ n − 1 · 退化为堆排</strong><p><code>nums[:k+1]</code> 取到整个数组，主循环一次都不执行，只剩逐个 <code>heappop</code> 写回——等价于 heap sort，<code>O(n log n)</code>。</p></article>
+        <article class="paper-card"><strong>空数组 / 单元素</strong><p><code>nums[:k+1]</code> 与原数组相同，循环边界天然兼容，直接返回原列表。</p></article>
+        <article class="paper-card"><strong>k 大于数组长度</strong><p><code>nums[:k+1]</code> 自动截断到整个数组，行为和 <code>k ≥ n − 1</code> 完全一致，不会越界。</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="ksort-complexity">
+      <h2 id="ksort-complexity">复杂度 / Complexity</h2>
+      <div class="complexity">
+        <article class="paper-card"><strong>heapify · O(k)</strong><p>对 k+1 个元素自底向上调整，比较与交换次数与 k 成正比。</p></article>
+        <article class="paper-card"><strong>主循环 · O((n − k) log k)</strong><p><code>n − k</code> 次迭代，每次 <code>heappop</code> + <code>heappush</code> 各 <code>O(log k)</code>（堆大小恒为 k+1）。</p></article>
+        <article class="paper-card"><strong>收尾 · O(k log k)</strong><p>drain 阶段从堆中弹出剩余 k+1 个值依次落位，各 <code>O(log k)</code>。</p></article>
+        <article class="paper-card"><strong>总计 · O(n log k)</strong><p><code>O(k) + O((n − k) log k) + O(k log k) = O(n log k)</code>。k ≪ n 时远优于完整排序的 <code>O(n log n)</code>。</p></article>
+        <article class="paper-card"><strong>空间 · O(k)</strong><p>堆最多同时保存 k+1 个元素；排序在原数组上原地进行，不分配额外数组。</p></article>
+      </div>
+    </section>
+
+    <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../median-of-an-integer-stream/">整数流的中位数</a><a href="../combine-sorted-linked-lists/">合并 K 个有序链表</a><a href="../k-most-frequent-strings/">前 K 个高频字符串</a><a href="../">全部题目</a></nav>
+  </main>
+
+  <script src="../assets/core.js"></script>
+  <script>
+    (() => {
+      const core = window.AlgorithmVisualCore;
+      const root = document.getElementById('ksort-lab');
+      const stage = root.querySelector('[data-stage]');
+      const svg = root.querySelector('[data-lines]');
+      const phaseEl = root.querySelector('[data-phase]');
+      const invariantEl = root.querySelector('[data-invariant]');
+      const mInsert = root.querySelector('[data-m-insert]');
+      const mI = root.querySelector('[data-m-i]');
+      const mHeap = root.querySelector('[data-m-heap]');
+      const expressionEl = root.querySelector('[data-expression]');
+      const explanationEl = root.querySelector('[data-explanation]');
+      const explanationZhEl = root.querySelector('[data-explanation-zh]');
+
+      const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+      const NUMS0 = [5, 1, 9, 4, 7, 10];
+      const SORTED = [1, 4, 5, 7, 9, 10];
+      const N = NUMS0.length;
+
+      const base = () => ({ nums: [...NUMS0], heap: [], insertIndex: null, i: null, ghost: false, bracket: false });
+      const fr = (stepLabel, kind, sourceKeys, line, en, zh, invariant, state) =>
+        ({ stepLabel, kind, sourceKeys, line, en, zh, invariant, state });
+
+      const FRAMES = [
+        fr('初始 · k 有序数组', 'setup', ['def-sort'],
+          'def sort_a_k_sorted_array(nums, k)  # nums = [5, 1, 9, 4, 7, 10], k = 2',
+          'Each value sits at most k = 2 positions away from where it belongs in the sorted array. A plain sort ignores this hint and costs O(n log n).',
+          '每个元素距离它的排序位置最多 k = 2 个位置。下方灰色虚线行只是参考——算法开始时并不知道它。直接排序无视了这个条件，要 O(n log n)。',
+          'k 有序：nums[i] 的最终位置落在 [i − k, i + k] 内。',
+          { ...base(), ghost: true, bracket: true }),
+        fr('复制前 k + 1 个值进堆', 'copy', ['heap-slice'],
+          "min_heap = nums[:k+1]  # nums[:3] = [5, 1, 9]",
+          'The value that belongs at index 0 is the smallest within nums[0..k]. So the heap starts by holding the first k + 1 = 3 values, copied as-is, order untouched.',
+          'index 0 的答案一定是 nums[0..k] 里的最小值，所以先把前 k + 1 = 3 个数原样复制进堆（顺序还没调整）。',
+          '前 k + 1 个值中必含整个数组的最小值——它属于 index 0。',
+          { ...base(), heap: [5, 1, 9], bracket: true }),
+        fr('heapify · 自底向上调整', 'heapify', ['heap-heapify'],
+          'heapq.heapify(min_heap)  # [1, 5, 9]',
+          'heapify rearranges the three values in place so the smallest rises to the top: O(k) time, cheaper than pushing one by one.',
+          'heapify 在这三个数上自底向上交换，把最小的 1 顶到堆顶：O(k) 完成，比逐个 push 快。',
+          '小顶堆堆顶 = 当前候选中的最小值。',
+          { ...base(), heap: [1, 5, 9] }),
+        fr('insert_index = 0', 'prime', ['init-insert'],
+          'insert_index = 0',
+          'insert_index marks the next position to overwrite, starting at index 0 — the smallest value in the heap belongs right here.',
+          'insert_index 指向下一个要覆写的位置，从 0 开始：堆里的最小值 1 正是 index 0 的答案。',
+          'insert_index 左侧（不含它自己）是已经最终有序的前缀。',
+          { ...base(), heap: [1, 5, 9], insertIndex: 0 }),
+        fr('for i = 3 · 主循环开始', 'prime', ['for-i'],
+          'for i in range(k + 1, len(nums)):  # i = 3',
+          'i is the next input value to feed the heap, starting at k + 1 = 3 — the first k + 1 values are already in the heap.',
+          'i 指向下一个要进堆的输入值，从 k + 1 = 3 开始——前 k + 1 个值已经在堆里了。',
+          '堆始终装着 insert_index 候选窗口中尚未写出的值。',
+          { ...base(), heap: [1, 5, 9], insertIndex: 0, i: 3 }),
+        fr('nums[0] = pop 最小值 1', 'pop', ['pop-write'],
+          'nums[insert_index] = heapq.heappop(min_heap)  # nums[0] = 1',
+          'Pop the heap top 1 — the minimum of all candidates — and overwrite nums[0] with it. Index 0 is now final.',
+          '弹出堆顶 1（所有候选中的最小值），覆写到 nums[0]。index 0 就此定型。',
+          '堆顶是候选中的最小值，恰好属于 insert_index。',
+          { ...base(), nums: [1, 1, 9, 4, 7, 10], heap: [5, 9], insertIndex: 0, i: 3 }),
+        fr('insert_index = 1', 'prime', ['inc-insert'],
+          'insert_index += 1  # insert_index = 1',
+          'insert_index advances to 1. The prefix nums[0..0] is final; the value 1 now sitting there was overwritten in place.',
+          'insert_index 前进到 1：左侧前缀 nums[0..0] 已经最终有序（刚才的 1 是原地覆写进去的）。',
+          'insert_index 左侧（不含它自己）是已经最终有序的前缀。',
+          { ...base(), nums: [1, 1, 9, 4, 7, 10], heap: [5, 9], insertIndex: 1, i: 3 }),
+        fr('push nums[3] = 4', 'push', ['push-next'],
+          'heapq.heappush(min_heap, nums[i])  # push nums[3] = 4',
+          'The candidate window slides right: push nums[3] = 4 into the heap — before insert_index could ever reach index 3. Heap back to k + 1 = 3 values.',
+          '候选窗口右移一格：把 nums[3] = 4 推进堆——此时 insert_index 还远追不到 index 3。堆恢复到 k + 1 = 3 个值。',
+          'nums[i] 先于 insert_index 到达它而入堆：原地覆写永不丢失未处理的值。',
+          { ...base(), nums: [1, 1, 9, 4, 7, 10], heap: [4, 5, 9], insertIndex: 1, i: 3 }),
+        fr('for i = 4', 'prime', ['for-i'],
+          'for i in range(k + 1, len(nums)):  # i = 4',
+          'Next iteration: i moves to 4, the new value that will enter the heap after this round writes nums[1].',
+          '进入下一轮：i 移到 4——本轮写出 nums[1] 之后，它将入堆补位。',
+          '每轮 i 恒等于 insert_index + k + 1：窗口始终领先待写位置。',
+          { ...base(), nums: [1, 1, 9, 4, 7, 10], heap: [4, 5, 9], insertIndex: 1, i: 4 }),
+        fr('nums[1] = pop 最小值 4', 'pop', ['pop-write'],
+          'nums[insert_index] = heapq.heappop(min_heap)  # nums[1] = 4',
+          'Pop the heap top 4 and overwrite nums[1]. The old value 1 at nums[1] was only a leftover copy — the real 1 already sits at index 0.',
+          '弹出堆顶 4，覆写到 nums[1]。nums[1] 原来的 1 只是遗留的副本——真正的 1 早已写在 index 0。',
+          '堆顶是候选中的最小值，恰好属于 insert_index。',
+          { ...base(), nums: [1, 4, 9, 4, 7, 10], heap: [5, 9], insertIndex: 1, i: 4 }),
+        fr('insert_index = 2', 'prime', ['inc-insert'],
+          'insert_index += 1  # insert_index = 2',
+          'insert_index advances to 2; the sorted prefix grows to nums[0..1] = [1, 4].',
+          'insert_index 前进到 2；已定型前缀长成 nums[0..1] = [1, 4]。',
+          'insert_index 左侧（不含它自己）是已经最终有序的前缀。',
+          { ...base(), nums: [1, 4, 9, 4, 7, 10], heap: [5, 9], insertIndex: 2, i: 4 }),
+        fr('push nums[4] = 7', 'push', ['push-next'],
+          'heapq.heappush(min_heap, nums[i])  # push nums[4] = 7',
+          'Push nums[4] = 7 into the heap. The window now holds the candidates for index 2: {5, 9, 7}.',
+          '把 nums[4] = 7 推进堆。此时候选窗口装着 index 2 的全部候选：{5, 9, 7}。',
+          'nums[i] 先于 insert_index 到达它而入堆：原地覆写永不丢失未处理的值。',
+          { ...base(), nums: [1, 4, 9, 4, 7, 10], heap: [5, 7, 9], insertIndex: 2, i: 4 }),
+        fr('for i = 5', 'prime', ['for-i'],
+          'for i in range(k + 1, len(nums)):  # i = 5',
+          'Last iteration of the main loop: i = 5, the final input value to feed the heap.',
+          '主循环的最后一轮：i = 5，这是最后一个要入堆的输入值。',
+          '每轮 i 恒等于 insert_index + k + 1：窗口始终领先待写位置。',
+          { ...base(), nums: [1, 4, 9, 4, 7, 10], heap: [5, 7, 9], insertIndex: 2, i: 5 }),
+        fr('nums[2] = pop 最小值 5', 'pop', ['pop-write'],
+          'nums[insert_index] = heapq.heappop(min_heap)  # nums[2] = 5',
+          'Pop the heap top 5 and overwrite nums[2]. The main loop is done — no more input values to push.',
+          '弹出堆顶 5，覆写到 nums[2]。主循环到此结束——没有新的输入值要入堆了。',
+          '堆顶是候选中的最小值，恰好属于 insert_index。',
+          { ...base(), nums: [1, 4, 5, 4, 7, 10], heap: [7, 9], insertIndex: 2, i: 5 }),
+        fr('insert_index = 3', 'prime', ['inc-insert'],
+          'insert_index += 1  # insert_index = 3',
+          'insert_index advances to 3. Three positions remain, and exactly three values are left in the heap.',
+          'insert_index 前进到 3。还剩三个位置，堆里也恰好剩三个值。',
+          'insert_index 左侧（不含它自己）是已经最终有序的前缀。',
+          { ...base(), nums: [1, 4, 5, 4, 7, 10], heap: [7, 9], insertIndex: 3, i: 5 }),
+        fr('push nums[5] = 10', 'push', ['push-next'],
+          'heapq.heappush(min_heap, nums[i])  # push nums[5] = 10',
+          'Push the last input value nums[5] = 10 into the heap. i has reached the end — the for loop exits after this round.',
+          '把最后一个输入值 nums[5] = 10 推进堆。i 已走到末尾，for 循环随即结束。',
+          'nums[i] 先于 insert_index 到达它而入堆：原地覆写永不丢失未处理的值。',
+          { ...base(), nums: [1, 4, 5, 4, 7, 10], heap: [7, 9, 10], insertIndex: 3, i: 5 }),
+        fr('for 循环结束 · i 完成使命', 'check', ['for-i'],
+          'for i in range(k + 1, len(nums)):  # i 越界，循环结束',
+          'i = 6 is out of range, so the for loop ends. The heap still holds the k + 1 = 3 values that belong at indexes 3, 4, 5.',
+          'i = 6 超出范围，for 循环结束。堆里还剩 k + 1 = 3 个值，它们正属于 index 3、4、5。',
+          '输入已耗尽；堆中剩余的值按从小到大依次落位即可。',
+          { ...base(), nums: [1, 4, 5, 4, 7, 10], heap: [7, 9, 10], insertIndex: 3, i: null }),
+        fr('while min_heap · 非空', 'check', ['while-drain'],
+          'while min_heap:  # 非空，进入收尾',
+          'The heap is not empty, so enter the drain loop: pop the remaining values in ascending order.',
+          '堆非空，进入收尾循环：把剩余的值按从小到大依次弹出、写回。',
+          '输入已耗尽；堆中剩余的值按从小到大依次落位即可。',
+          { ...base(), nums: [1, 4, 5, 4, 7, 10], heap: [7, 9, 10], insertIndex: 3, i: null }),
+        fr('nums[3] = pop 7', 'drain-pop', ['drain-pop'],
+          'nums[insert_index] = heapq.heappop(min_heap)  # nums[3] = 7',
+          'Pop the heap top 7 and overwrite nums[3].',
+          '弹出堆顶 7，覆写到 nums[3]。',
+          '堆顶是候选中的最小值，恰好属于 insert_index。',
+          { ...base(), nums: [1, 4, 5, 7, 7, 10], heap: [9, 10], insertIndex: 3, i: null }),
+        fr('insert_index = 4', 'prime', ['drain-inc'],
+          'insert_index += 1  # insert_index = 4',
+          'insert_index advances to 4.',
+          'insert_index 前进到 4。',
+          'insert_index 左侧（不含它自己）是已经最终有序的前缀。',
+          { ...base(), nums: [1, 4, 5, 7, 7, 10], heap: [9, 10], insertIndex: 4, i: null }),
+        fr('while min_heap · 非空', 'check', ['while-drain'],
+          'while min_heap:  # 非空，继续收尾',
+          'The heap still holds two values; keep draining.',
+          '堆里还有两个值，继续收尾。',
+          '输入已耗尽；堆中剩余的值按从小到大依次落位即可。',
+          { ...base(), nums: [1, 4, 5, 7, 7, 10], heap: [9, 10], insertIndex: 4, i: null }),
+        fr('nums[4] = pop 9', 'drain-pop', ['drain-pop'],
+          'nums[insert_index] = heapq.heappop(min_heap)  # nums[4] = 9',
+          'Pop the heap top 9 and overwrite nums[4].',
+          '弹出堆顶 9，覆写到 nums[4]。',
+          '堆顶是候选中的最小值，恰好属于 insert_index。',
+          { ...base(), nums: [1, 4, 5, 7, 9, 10], heap: [10], insertIndex: 4, i: null }),
+        fr('insert_index = 5', 'prime', ['drain-inc'],
+          'insert_index += 1  # insert_index = 5',
+          'insert_index advances to 5 — the last position.',
+          'insert_index 前进到 5——最后一个位置。',
+          'insert_index 左侧（不含它自己）是已经最终有序的前缀。',
+          { ...base(), nums: [1, 4, 5, 7, 9, 10], heap: [10], insertIndex: 5, i: null }),
+        fr('while min_heap · 非空', 'check', ['while-drain'],
+          'while min_heap:  # 非空，继续收尾',
+          'One value left in the heap; the condition is still true.',
+          '堆还剩一个值，条件依然成立。',
+          '输入已耗尽；堆中剩余的值按从小到大依次落位即可。',
+          { ...base(), nums: [1, 4, 5, 7, 9, 10], heap: [10], insertIndex: 5, i: null }),
+        fr('nums[5] = pop 10', 'drain-pop', ['drain-pop'],
+          'nums[insert_index] = heapq.heappop(min_heap)  # nums[5] = 10',
+          'Pop the last value 10 and overwrite nums[5]. The heap is now empty.',
+          '弹出最后一个值 10，覆写到 nums[5]。堆空了。',
+          '堆顶是候选中的最小值，恰好属于 insert_index。',
+          { ...base(), nums: [1, 4, 5, 7, 9, 10], heap: [], insertIndex: 5, i: null }),
+        fr('insert_index = 6', 'prime', ['drain-inc'],
+          'insert_index += 1  # insert_index = 6',
+          'insert_index advances past the end of the array.',
+          'insert_index 越过数组末尾：所有位置都已写出。',
+          'insert_index 左侧（不含它自己）是已经最终有序的前缀。',
+          { ...base(), nums: [1, 4, 5, 7, 9, 10], heap: [], insertIndex: 6, i: null }),
+        fr('while min_heap · 空，退出', 'check', ['while-drain'],
+          'while min_heap:  # 空 → 退出循环',
+          'The heap is empty now, so the while loop exits.',
+          '堆已空，while 循环退出。',
+          '堆空 ⇔ 数组有序：每个值都已落位。',
+          { ...base(), nums: [1, 4, 5, 7, 9, 10], heap: [], insertIndex: 6, i: null }),
+        fr('return nums', 'done', ['return-nums'],
+          'return nums  # [1, 4, 5, 7, 9, 10]',
+          'Return the same nums list, now sorted in non-decreasing order: [1, 4, 5, 7, 9, 10].',
+          '返回同一个 nums 列表，已按非递减顺序排好：[1, 4, 5, 7, 9, 10]。排序全部在原数组上原地完成。',
+          '堆空 ⇔ 数组有序：每个值都已落位。',
+          { ...base(), nums: [1, 4, 5, 7, 9, 10], heap: [], insertIndex: 6, i: null })
+      ];
+
+      const scene = core.createSvgScene(svg);
+      scene.defineMarker('ksort-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+      const motion = core.createMotionController();
+      let geom = null;
+      let transitionFrom = null;
+      let currentFrame = FRAMES[0];
+
+      function rectPath(x, y, w, h, r = 0) {
+        if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+        return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+      }
+
+      function layout() {
+        const width = stage.clientWidth;
+        const compact = width < 540;
+        const cellW = compact ? 28 : 52;
+        const gap = compact ? 4 : 10;
+        const cellH = compact ? 24 : 30;
+        const numsX = compact ? 4 : 74;
+        const numsY = compact ? 50 : 56;
+        const idxY = numsY + cellH + (compact ? 11 : 13);
+        const chipH = compact ? 18 : 20;
+        const insChipW = compact ? 96 : 122;
+        const iChipW = compact ? 46 : 56;
+        const iChipY = idxY + (compact ? 21 : 19);
+        const ghostY = iChipY + chipH + (compact ? 16 : 18);
+        const arrW = N * cellW + (N - 1) * gap;
+        const heapCx = compact ? width - 60 : Math.min(width - 170, numsX + arrW + 200);
+        const rootY = compact ? 58 : 68;
+        const spread = compact ? 25 : 46;
+        const rowH = compact ? 28 : 34;
+        const heapCellW = compact ? 30 : 44;
+        const stageH = Math.max(ghostY + cellH + (compact ? 14 : 26), rootY + rowH + cellH + 54);
+        geom = {
+          width, compact, cellW, gap, cellH, numsX, numsY, idxY, chipH,
+          insChipW, iChipW, iChipY, ghostY, arrW, heapCx, rootY, spread, rowH,
+          heapCellW, stageH
+        };
+        svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
+        stage.style.height = `${Math.ceil(stageH)}px`;
+      }
+
+      const numsCellX = index => geom.numsX + index * (geom.cellW + geom.gap);
+      const numsCenter = index => ({ x: numsCellX(index) + geom.cellW / 2, y: geom.numsY + geom.cellH / 2 });
+      function heapSlot(index) {
+        const bits = (index + 1).toString(2);
+        let offset = 0;
+        for (let j = 1; j < bits.length; j += 1) {
+          offset += (bits[j] === '1' ? 1 : -1) * geom.spread / Math.pow(2, j);
+        }
+        return { x: geom.heapCx + offset, y: geom.rootY + (bits.length - 1) * geom.rowH };
+      }
+      const lerpP = (a, b, u) => ({ x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u });
+
+      function draw(state, t = 1, from = null, frame = currentFrame) {
+        if (!geom) return;
+        const g = geom;
+        const active = Boolean(from) && t < 1;
+        const ease = core.smoothstep(t);
+
+        scene.update(({ path, text }) => {
+          const fs = g.compact ? 10 : 11.5;
+          const valFs = g.compact ? 11.5 : 14;
+          const idxFs = g.compact ? 8.5 : 10;
+
+          // nums caption.
+          if (g.compact) {
+            text('nums-caption', { x: g.numsX, y: 11, 'font-size': idxFs, fill: '#555', 'font-family': MONO }, 'nums');
+          } else {
+            text('nums-caption', { x: 8, y: g.numsY + g.cellH / 2 + 4, 'font-size': fs, fill: '#272727', 'font-family': MONO }, 'nums');
+          }
+
+          // nums cells.
+          for (let idx = 0; idx < state.nums.length; idx += 1) {
+            const x = numsCellX(idx);
+            const y = g.numsY;
+            const isPrefix = state.insertIndex !== null && idx < state.insertIndex;
+            const justWritten = (frame.kind === 'pop' || frame.kind === 'drain-pop') && state.insertIndex === idx;
+            const isReadSource = frame.kind === 'push' && state.i === idx;
+            path(`nums-cell-${idx}`, {
+              d: rectPath(x, y, g.cellW, g.cellH, 3),
+              fill: isPrefix || justWritten ? '#f5f2e9' : '#fffdf8',
+              stroke: justWritten ? '#272727' : isPrefix ? '#555' : '#333',
+              'stroke-width': justWritten ? 1.8 : 1.3
+            });
+            text(`nums-val-${idx}`, {
+              x: x + g.cellW / 2, y: y + g.cellH / 2 + (g.compact ? 4 : 4.8),
+              'text-anchor': 'middle', 'font-size': valFs, fill: '#272727', 'font-family': MONO
+            }, String(state.nums[idx]));
+            text(`nums-idx-${idx}`, {
+              x: x + g.cellW / 2, y: g.idxY, 'text-anchor': 'middle', 'font-size': idxFs, fill: '#777', 'font-family': MONO
+            }, String(idx));
+            if (isReadSource) {
+              path('nums-i-ring', { d: rectPath(x - 4, y - 4, g.cellW + 8, g.cellH + 8, 4), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            }
+          }
+
+          // insert_index chip (above the array) with a thin gray reference arrow.
+          if (state.insertIndex !== null) {
+            const ci = Math.min(state.insertIndex, N - 1);
+            const targetX = numsCenter(ci).x;
+            const cx = Math.max(g.insChipW / 2 + 3, targetX);
+            const chipY = g.compact ? 16 : 20;
+            path('ins-chip', { d: rectPath(cx - g.insChipW / 2, chipY, g.insChipW, g.chipH, 2), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.2 });
+            text('ins-chip-text', {
+              x: cx, y: chipY + g.chipH / 2 + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle',
+              'font-size': g.compact ? 9 : 10.5, fill: '#272727', 'font-family': MONO
+            }, `insert_index = ${state.insertIndex}`);
+            if (state.insertIndex < N) {
+              path('ins-arrow', {
+                d: `M ${cx} ${chipY + g.chipH + 2} L ${targetX} ${g.numsY - 4}`,
+                stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#ksort-arrow)'
+              });
+            } else if (g.compact) {
+              text('ins-done-tag', {
+                x: cx - g.insChipW / 2, y: chipY + g.chipH + 10, 'text-anchor': 'start',
+                'font-size': 8.5, fill: '#555', 'font-family': MONO
+              }, '全部就位');
+            } else {
+              text('ins-done-tag', {
+                x: cx + g.insChipW / 2 + 8, y: chipY + g.chipH / 2 + 3.5, 'text-anchor': 'start',
+                'font-size': 9.5, fill: '#555', 'font-family': MONO
+              }, '全部就位');
+            }
+          }
+
+          // i chip (below the array) with a thin gray reference arrow.
+          if (state.i !== null) {
+            const targetX = numsCenter(state.i).x;
+            const cx = Math.min(Math.max(g.iChipW / 2 + 3, targetX), g.width - g.iChipW / 2 - 3);
+            const chipY = g.iChipY;
+            path('i-chip', { d: rectPath(cx - g.iChipW / 2, chipY, g.iChipW, g.chipH, 2), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.2 });
+            text('i-chip-text', {
+              x: cx, y: chipY + g.chipH / 2 + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle',
+              'font-size': g.compact ? 9 : 10.5, fill: '#272727', 'font-family': MONO
+            }, `i = ${state.i}`);
+            path('i-arrow', {
+              d: `M ${cx} ${chipY - 2} L ${targetX} ${g.numsY + g.cellH + 14}`,
+              stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#ksort-arrow)'
+            });
+          }
+
+          // Ghosted sorted reference row (initial frame only).
+          if (state.ghost) {
+            const ghostX0 = g.compact ? g.numsX + 74 : g.numsX;
+            if (g.compact) {
+              text('ghost-caption', { x: g.numsX, y: g.ghostY + g.cellH / 2 + 3.5, 'font-size': idxFs, fill: '#777', 'font-family': MONO }, '排序后·参考');
+            } else {
+              text('ghost-caption', { x: 8, y: g.ghostY + g.cellH + 13, 'font-size': idxFs, fill: '#777', 'font-family': MONO }, '排序后·参考（未知）');
+            }
+            for (let idx = 0; idx < SORTED.length; idx += 1) {
+              const x = ghostX0 + idx * (g.cellW + g.gap);
+              path(`ghost-cell-${idx}`, {
+                d: rectPath(x, g.ghostY, g.cellW, g.cellH, 3),
+                fill: 'none', stroke: '#b7b7b1', 'stroke-width': 1.1, 'stroke-dasharray': '4 3'
+              });
+              text(`ghost-val-${idx}`, {
+                x: x + g.cellW / 2, y: g.ghostY + g.cellH / 2 + (g.compact ? 3.5 : 4),
+                'text-anchor': 'middle', 'font-size': g.compact ? 10 : 12, fill: '#999', 'font-family': MONO
+              }, String(SORTED[idx]));
+            }
+            // One displacement example: 5 at index 0 belongs at index 2.
+            const a = { x: numsCenter(0).x + g.cellW / 2 - 4, y: g.numsY + g.cellH };
+            const b = { x: ghostX0 + 2 * (g.cellW + g.gap) + g.cellW / 2, y: g.ghostY };
+            const midX = (a.x + b.x) / 2 + 8;
+            path('ghost-move-arrow', {
+              d: `M ${a.x} ${a.y + 2} C ${midX} ${a.y + 26}, ${midX} ${b.y - 20}, ${b.x} ${b.y - 3}`,
+              fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '5 4', 'marker-end': 'url(#ksort-arrow)'
+            });
+            path('ghost-target-ring', {
+              d: rectPath(b.x - g.cellW / 2 - 4, g.ghostY - 4, g.cellW + 8, g.cellH + 8, 4),
+              fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3'
+            });
+            text('ghost-target-idx', {
+              x: b.x, y: g.ghostY + g.cellH + 11, 'text-anchor': 'middle',
+              'font-size': idxFs, fill: '#555', 'font-family': MONO
+            }, 'index 2 · 距离 2 ≤ k');
+          }
+
+          // Candidate bracket over nums[0..k] (setup frames).
+          if (state.bracket) {
+            const x0 = Math.max(2, numsCellX(0) - 5);
+            const x1 = numsCellX(Math.min(2, N - 1)) + g.cellW + 5;
+            const by = g.numsY - 7;
+            path('window-bracket', { d: `M ${x0} ${by + 5} v -5 H ${x1} v 5`, fill: 'none', stroke: '#555', 'stroke-width': 1.2 });
+            text('window-bracket-label', {
+              x: (x0 + x1) / 2, y: by - 8, 'text-anchor': 'middle',
+              'font-size': g.compact ? 8.5 : 10, fill: '#555', 'font-family': MONO
+            }, g.compact ? '候选范围 [0, k]' : 'index 0 的候选范围 [0, k]');
+          }
+
+          // min_heap: trapezoid outline + min chip + value tokens.
+          const heapLen = state.heap.length;
+          const rows = heapLen ? Math.ceil(Math.log2(heapLen + 1)) : 1;
+          const topY = g.rootY - 8;
+          const bottomY = g.rootY + (rows - 1) * g.rowH + g.cellH + 9;
+          const bottomHalf = Math.max(g.spread + g.heapCellW / 2 + 10, g.heapCellW / 2 + 12);
+          path('heap-trap', {
+            d: `M ${g.heapCx - (g.heapCellW / 2 + 10)} ${topY} L ${g.heapCx + (g.heapCellW / 2 + 10)} ${topY} L ${g.heapCx + bottomHalf} ${bottomY} L ${g.heapCx - bottomHalf} ${bottomY} Z`,
+            fill: 'none', stroke: '#777', 'stroke-width': 1.2
+          });
+          text('heap-name', {
+            x: g.heapCx, y: bottomY + (g.compact ? 13 : 15), 'text-anchor': 'middle',
+            'font-size': g.compact ? 9.5 : 11.5, fill: '#272727', 'font-family': MONO
+          }, 'min_heap');
+
+          // min chip above the root.
+          const minChipW = g.compact ? 56 : 68;
+          const minChipY = g.rootY - g.chipH - 8;
+          path('heap-min-chip', { d: rectPath(g.heapCx - minChipW / 2, minChipY, minChipW, g.chipH, 2), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.2 });
+          text('heap-min-chip-text', {
+            x: g.heapCx, y: minChipY + g.chipH / 2 + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle',
+            'font-size': g.compact ? 9 : 10.5, fill: '#272727', 'font-family': MONO
+          }, heapLen ? `min: ${state.heap[0]}` : 'min: None');
+          path('heap-min-link', { d: `M ${g.heapCx} ${minChipY + g.chipH} L ${g.heapCx} ${g.rootY - 2}`, stroke: '#555', 'stroke-width': 1, fill: 'none' });
+          if (frame.kind === 'pop' || frame.kind === 'drain-pop' || frame.kind === 'check') {
+            path('heap-min-ring', { d: rectPath(g.heapCx - minChipW / 2 - 4, minChipY - 4, minChipW + 8, g.chipH + 8, 3), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+          }
+
+          // Heap tokens, interpolated by value across the transition.
+          const fromPos = new Map();
+          if (from) from.heap.forEach((v, idx) => fromPos.set(v, heapSlot(idx)));
+          const pushedValue = active && frame.kind === 'push'
+            ? state.heap.find(v => !from.heap.includes(v))
+            : null;
+          for (let idx = 0; idx < heapLen; idx += 1) {
+            const v = state.heap[idx];
+            if (active && v === pushedValue) continue; // drawn as the flying chip instead
+            const to = heapSlot(idx);
+            let pos = to;
+            let opacity = 1;
+            if (active) {
+              if (fromPos.has(v)) {
+                pos = lerpP(fromPos.get(v), to, ease);
+              } else {
+                pos = to;
+                opacity = ease;
+              }
+            }
+            path(`heap-tok-${v}`, {
+              d: rectPath(pos.x - g.heapCellW / 2, pos.y, g.heapCellW, g.cellH, 3),
+              fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.4, opacity
+            });
+            text(`heap-tok-text-${v}`, {
+              x: pos.x, y: pos.y + g.cellH / 2 + (g.compact ? 3.5 : 4.2), 'text-anchor': 'middle',
+              'font-size': g.compact ? 10.5 : 12.5, fill: '#272727', 'font-family': MONO, opacity
+            }, String(v));
+          }
+
+          // Static source arrow for the copy frame.
+          if (frame.kind === 'copy') {
+            const root = heapSlot(0);
+            if (g.compact) {
+              const sx = numsCellX(Math.min(2, N - 1)) + g.cellW + 4;
+              const midX = (sx + root.x) / 2;
+              path('copy-arrow', {
+                d: `M ${sx} ${g.numsY - 5} C ${midX} ${g.numsY - 28}, ${root.x - 26} ${root.y - 20}, ${root.x - g.heapCellW / 2 - 3} ${root.y + 1}`,
+                fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 4', 'marker-end': 'url(#ksort-arrow)'
+              });
+              text('copy-arrow-label', {
+                x: midX, y: g.numsY - 32, 'text-anchor': 'middle',
+                'font-size': 8, fill: '#555', 'font-family': MONO
+              }, '复制 k+1 个值');
+            } else {
+              const sx = numsCellX(Math.min(2, N - 1)) + g.cellW;
+              const sy = g.numsY + g.cellH / 2;
+              path('copy-arrow', {
+                d: `M ${sx + 4} ${sy} C ${sx + 28} ${sy - 18}, ${root.x - 40} ${root.y - 16}, ${root.x - g.heapCellW / 2 - 3} ${root.y + 2}`,
+                fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 4', 'marker-end': 'url(#ksort-arrow)'
+              });
+              text('copy-arrow-label', {
+                x: (sx + root.x) / 2, y: Math.min(sy, root.y) - (g.compact ? 12 : 18), 'text-anchor': 'middle',
+                'font-size': 9.5, fill: '#555', 'font-family': MONO
+              }, '复制 k+1 个值');
+            }
+          }
+
+          // Flying chips: pop (heap → cell) and push (cell → heap).
+          if (active && (frame.kind === 'pop' || frame.kind === 'drain-pop') && from.heap.length) {
+            const v = from.heap[0];
+            const a = heapSlot(0);
+            const b = numsCenter(Math.min(state.insertIndex, N - 1));
+            const midX = (a.x + b.x) / 2;
+            const lift = Math.max(30, Math.abs(a.x - b.x) * 0.22);
+            const mt = 1 - ease;
+            const chipPos = {
+              x: mt * mt * a.x + 2 * mt * ease * midX + ease * ease * b.x,
+              y: mt * mt * a.y + 2 * mt * ease * (Math.min(a.y, b.y) - lift) + ease * ease * b.y
+            };
+            const chipOpacity = ease > 0.8 ? (1 - ease) / 0.2 : 1;
+            path('fly-chip', {
+              d: rectPath(chipPos.x - g.heapCellW / 2, chipPos.y - g.cellH / 2, g.heapCellW, g.cellH, 3),
+              fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.5, opacity: Math.max(0, chipOpacity)
+            });
+            text('fly-chip-text', {
+              x: chipPos.x, y: chipPos.y + (g.compact ? 3.5 : 4.2), 'text-anchor': 'middle',
+              'font-size': g.compact ? 10.5 : 12.5, fill: '#272727', 'font-family': MONO, opacity: Math.max(0, chipOpacity)
+            }, String(v));
+          }
+          if (active && frame.kind === 'push' && pushedValue !== null && pushedValue !== undefined) {
+            const a = numsCenter(from.i);
+            const b = heapSlot(state.heap.indexOf(pushedValue));
+            const midX = (a.x + b.x) / 2;
+            const lift = Math.max(30, Math.abs(a.x - b.x) * 0.22);
+            const mt = 1 - ease;
+            const chipPos = {
+              x: mt * mt * a.x + 2 * mt * ease * midX + ease * ease * b.x,
+              y: mt * mt * a.y + 2 * mt * ease * (Math.min(a.y, b.y) - lift) + ease * ease * b.y
+            };
+            const chipOpacity = ease > 0.8 ? (1 - ease) / 0.2 : 1;
+            path('fly-chip', {
+              d: rectPath(chipPos.x - g.heapCellW / 2, chipPos.y - g.cellH / 2, g.heapCellW, g.cellH, 3),
+              fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.5, opacity: Math.max(0, chipOpacity)
+            });
+            text('fly-chip-text', {
+              x: chipPos.x, y: chipPos.y + (g.compact ? 3.5 : 4.2), 'text-anchor': 'middle',
+              'font-size': g.compact ? 10.5 : 12.5, fill: '#272727', 'font-family': MONO, opacity: Math.max(0, chipOpacity)
+            }, String(pushedValue));
+          }
+
+          // Final state tag.
+          if (frame.kind === 'done') {
+            if (g.compact) {
+              text('done-tag', {
+                x: g.numsX + g.arrW / 2, y: g.iChipY + g.chipH / 2 + 4, 'text-anchor': 'middle',
+                'font-size': 9, fill: '#272727', 'font-family': MONO
+              }, '✓ 有序');
+            } else {
+              text('done-tag', {
+                x: numsCellX(N - 1) + g.cellW + 10, y: g.numsY + g.cellH / 2 + 4,
+                'text-anchor': 'start', 'font-size': 11, fill: '#272727', 'font-family': MONO
+              }, '✓ 有序');
+            }
+          }
+        });
+      }
+
+      function render({ frame, state, step, frames }) {
+        currentFrame = frame;
+        phaseEl.textContent = frame.stepLabel;
+        invariantEl.textContent = frame.invariant;
+        mInsert.textContent = state.insertIndex === null ? '—' : String(state.insertIndex);
+        mI.textContent = state.i === null ? '—' : String(state.i);
+        mHeap.textContent = `[${state.heap.join(', ')}]`;
+        expressionEl.textContent = frame.line;
+        explanationEl.textContent = frame.en;
+        explanationZhEl.textContent = frame.zh;
+        stage.setAttribute('aria-label', `K 有序数组排序演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+        draw(state, 1, null, frame);
+      }
+
+      const cloneState = s => ({ ...s, nums: [...s.nums], heap: [...s.heap] });
+      const trace = core.createTrace({
+        root,
+        cloneState,
+        motion,
+        onRender: render,
+        onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+        onTransition: ({ state, frame }) => {
+          const from = transitionFrom;
+          transitionFrom = null;
+          if (!from || motion.reduced) { draw(state, 1, null, frame); return; }
+          motion.tween({
+            duration: 460,
+            update: eased => draw(state, eased, from, frame),
+            complete: () => draw(state, 1, null, frame)
+          });
+        },
+        formatStepOption: frame => frame.stepLabel
+      });
+
+      layout();
+      new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null, trace.frame || FRAMES[0]); }).observe(stage);
+      trace.setFrames(FRAMES);
+    })();
+  </script>
+</body>
+</html>
