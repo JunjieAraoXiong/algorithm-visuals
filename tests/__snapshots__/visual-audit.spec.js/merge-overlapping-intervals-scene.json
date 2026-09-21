@@ -1,0 +1,1454 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "合并重叠区间演示 / merge overlapping intervals trace"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 21"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "初始输入 5 个区间"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "按 start 排序"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "merged = [[1, 4]]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "B = [2, 5]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "A = merged[-1] = [1, 4]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "判定 4 ≥ 2 → 重叠"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "合并 → [1, 5]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "B = [3, 4]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "A = merged[-1] = [1, 5]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "判定 5 ≥ 3 → 重叠"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "合并 → [1, 5]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "B = [6, 7]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "A = merged[-1] = [1, 5]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "判定 5 < 6 → 不重叠"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "merged.append(B) → [[1, 5], [6, 7]]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "B = [7, 8]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "A = merged[-1] = [6, 7]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "判定 7 ≥ 7 → 重叠"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "合并 → [6, 8]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "19"
+                    ]
+                  ],
+                  "children": [
+                    "所有区间处理完毕"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "20"
+                    ]
+                  ],
+                  "children": [
+                    "return [[1, 5], [6, 8]]"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "初始输入 5 个区间"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "合并重叠区间演示：第 1 / 21 步。5 个区间任意顺序给出；把重叠的逐个合并，直到任意两个区间都不重叠。"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ],
+        [
+          "style",
+          "height: 274px;"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 274"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#333"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#555"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "inlist-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "86"
+                ],
+                [
+                  "y",
+                  "33"
+                ]
+              ],
+              "children": [
+                "[3, 4]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "inlist-1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "143.5"
+                ],
+                [
+                  "y",
+                  "33"
+                ]
+              ],
+              "children": [
+                "[7, 8]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "inlist-2"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "201"
+                ],
+                [
+                  "y",
+                  "33"
+                ]
+              ],
+              "children": [
+                "[2, 5]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "inlist-3"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "258.5"
+                ],
+                [
+                  "y",
+                  "33"
+                ]
+              ],
+              "children": [
+                "[6, 7]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "inlist-4"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "316"
+                ],
+                [
+                  "y",
+                  "33"
+                ]
+              ],
+              "children": [
+                "[1, 4]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "in-label"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "16"
+                ],
+                [
+                  "y",
+                  "94.5"
+                ]
+              ],
+              "children": [
+                "intervals:"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 264 68 H 353 M 264 64.5 V 71.5 M 353 64.5 V 71.5"
+                ],
+                [
+                  "data-visual-element",
+                  "in-bar-0"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 620 68 H 709 M 620 64.5 V 71.5 M 709 64.5 V 71.5"
+                ],
+                [
+                  "data-visual-element",
+                  "in-bar-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 175 91 H 442 M 175 87.5 V 94.5 M 442 87.5 V 94.5"
+                ],
+                [
+                  "data-visual-element",
+                  "in-bar-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 531 91 H 620 M 531 87.5 V 94.5 M 620 87.5 V 94.5"
+                ],
+                [
+                  "data-visual-element",
+                  "in-bar-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 86 114 H 353 M 86 110.5 V 117.5 M 353 110.5 V 117.5"
+                ],
+                [
+                  "data-visual-element",
+                  "in-bar-4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 80 146 H 715"
+                ],
+                [
+                  "data-visual-element",
+                  "axis"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#mi-arrow)"
+                ],
+                [
+                  "marker-start",
+                  "url(#mi-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 86 142.5 V 149.5"
+                ],
+                [
+                  "data-visual-element",
+                  "tick-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tick-label-1"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "86"
+                ],
+                [
+                  "y",
+                  "161"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 175 142.5 V 149.5"
+                ],
+                [
+                  "data-visual-element",
+                  "tick-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tick-label-2"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "175"
+                ],
+                [
+                  "y",
+                  "161"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 264 142.5 V 149.5"
+                ],
+                [
+                  "data-visual-element",
+                  "tick-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tick-label-3"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "264"
+                ],
+                [
+                  "y",
+                  "161"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 353 142.5 V 149.5"
+                ],
+                [
+                  "data-visual-element",
+                  "tick-4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tick-label-4"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "353"
+                ],
+                [
+                  "y",
+                  "161"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 442 142.5 V 149.5"
+                ],
+                [
+                  "data-visual-element",
+                  "tick-5"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tick-label-5"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "442"
+                ],
+                [
+                  "y",
+                  "161"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 531 142.5 V 149.5"
+                ],
+                [
+                  "data-visual-element",
+                  "tick-6"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tick-label-6"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "531"
+                ],
+                [
+                  "y",
+                  "161"
+                ]
+              ],
+              "children": [
+                "6"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 620 142.5 V 149.5"
+                ],
+                [
+                  "data-visual-element",
+                  "tick-7"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tick-label-7"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "620"
+                ],
+                [
+                  "y",
+                  "161"
+                ]
+              ],
+              "children": [
+                "7"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 709 142.5 V 149.5"
+                ],
+                [
+                  "data-visual-element",
+                  "tick-8"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tick-label-8"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "709"
+                ],
+                [
+                  "y",
+                  "161"
+                ]
+              ],
+              "children": [
+                "8"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "m-label-1"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "16"
+                ],
+                [
+                  "y",
+                  "190"
+                ]
+              ],
+              "children": [
+                "merged:"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "m-empty"
+                ],
+                [
+                  "fill",
+                  "#8a8a84"
+                ],
+                [
+                  "x",
+                  "88"
+                ],
+                [
+                  "y",
+                  "190"
+                ]
+              ],
+              "children": [
+                "∅"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "不变量 / Invariant"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "输入至少一个区间，且每个区间满足 start ≤ end。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "A"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-a",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "B"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-b",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "merged"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-merged",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "∅"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    "A.end ≥ B.start"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-cond",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "def merge_overlapping_intervals(intervals) # 输入 5 个区间"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "Five intervals arrive in arbitrary order. The task: merge overlapping pairs until no two intervals overlap."
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation-zh",
+              ""
+            ]
+          ],
+          "children": [
+            "5 个区间任意顺序给出；把重叠的逐个合并，直到任意两个区间都不重叠。"
+          ]
+        }
+      ]
+    }
+  ]
+}

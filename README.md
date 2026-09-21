@@ -33,6 +33,12 @@ Each question has a standalone page at `<problem-slug>/index.html`. The root `in
 - [K Most Frequent Strings / 前 K 个高频字符串](k-most-frequent-strings/index.html)
 - [Combine Sorted Linked Lists / 合并 K 个有序链表](combine-sorted-linked-lists/index.html)
 - [Median of an Integer Stream / 整数流的中位数](median-of-an-integer-stream/index.html)
+- [Merge Overlapping Intervals / 合并重叠区间](merge-overlapping-intervals/index.html)
+- [Identify All Interval Overlaps / 找出所有区间重叠](identify-all-interval-overlaps/index.html)
+- [Largest Overlap of Intervals / 区间最大重叠数](largest-overlap-of-intervals/index.html)
+- [Sum Between Range / 区间求和](sum-between-range/index.html)
+- [K-Sum Subarrays / 和为 K 的子数组](k-sum-subarrays/index.html)
+- [Product Array Without Current Element / 除自身以外数组的乘积](product-array-without-current-element/index.html)
 
 ## Development
 

@@ -1,0 +1,1307 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "除自身以外数组的乘积演示 / product array trace"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 12"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "初始化 res = [1, 1, 1, 1, 1]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "左积 res[1] = 1 × 2 = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "左积 res[2] = 2 × 3 = 6"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "左积 res[3] = 6 × 1 = 6"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "左积 res[4] = 6 × 4 = 24"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "右积扫描 · right_product = 1, i = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "右积 res[4] = 24 × 1 = 24"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "右积 res[3] = 6 × 5 = 30"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "右积 res[2] = 6 × 20 = 120"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "右积 res[1] = 2 × 20 = 40"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "右积 res[0] = 1 × 60 = 60"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "return [60, 40, 120, 30, 24]"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "初始化 res = [1, 1, 1, 1, 1]"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "除自身以外数组的乘积演示：第 1 / 12 步。把输出数组先全部填成 1：1 是乘法单位元，作为累乘的起点，乘上它不会改变任何结果。"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ],
+        [
+          "style",
+          "height: 356px;"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 355.5"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#333"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "rowlab-nums"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "192.5"
+                ],
+                [
+                  "y",
+                  "78.5"
+                ]
+              ],
+              "children": [
+                "nums"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "rowlab-res"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "192.5"
+                ],
+                [
+                  "y",
+                  "166.5"
+                ]
+              ],
+              "children": [
+                "res"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "br-nl"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "207.5"
+                ],
+                [
+                  "y",
+                  "79.5"
+                ]
+              ],
+              "children": [
+                "["
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "br-nr"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "579.5"
+                ],
+                [
+                  "y",
+                  "79.5"
+                ]
+              ],
+              "children": [
+                "]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "br-rl"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "207.5"
+                ],
+                [
+                  "y",
+                  "167.5"
+                ]
+              ],
+              "children": [
+                "["
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "br-rr"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "579.5"
+                ],
+                [
+                  "y",
+                  "167.5"
+                ]
+              ],
+              "children": [
+                "]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 219.5 56 H 271.5 Q 274.5 56 274.5 59 V 89 Q 274.5 92 271.5 92 H 219.5 Q 216.5 92 216.5 89 V 59 Q 216.5 56 219.5 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "n-cell-0"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#777"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "n-val-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "245.5"
+                ],
+                [
+                  "y",
+                  "79"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 293.5 56 H 345.5 Q 348.5 56 348.5 59 V 89 Q 348.5 92 345.5 92 H 293.5 Q 290.5 92 290.5 89 V 59 Q 290.5 56 293.5 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "n-cell-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#777"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "n-val-1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "319.5"
+                ],
+                [
+                  "y",
+                  "79"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 367.5 56 H 419.5 Q 422.5 56 422.5 59 V 89 Q 422.5 92 419.5 92 H 367.5 Q 364.5 92 364.5 89 V 59 Q 364.5 56 367.5 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "n-cell-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#777"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "n-val-2"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "393.5"
+                ],
+                [
+                  "y",
+                  "79"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 441.5 56 H 493.5 Q 496.5 56 496.5 59 V 89 Q 496.5 92 493.5 92 H 441.5 Q 438.5 92 438.5 89 V 59 Q 438.5 56 441.5 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "n-cell-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#777"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "n-val-3"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "467.5"
+                ],
+                [
+                  "y",
+                  "79"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 515.5 56 H 567.5 Q 570.5 56 570.5 59 V 89 Q 570.5 92 567.5 92 H 515.5 Q 512.5 92 512.5 89 V 59 Q 512.5 56 515.5 56 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "n-cell-4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#777"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "n-val-4"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "541.5"
+                ],
+                [
+                  "y",
+                  "79"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-0"
+                ],
+                [
+                  "fill",
+                  "#a3a199"
+                ],
+                [
+                  "x",
+                  "245.5"
+                ],
+                [
+                  "y",
+                  "198"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-1"
+                ],
+                [
+                  "fill",
+                  "#a3a199"
+                ],
+                [
+                  "x",
+                  "319.5"
+                ],
+                [
+                  "y",
+                  "198"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-2"
+                ],
+                [
+                  "fill",
+                  "#a3a199"
+                ],
+                [
+                  "x",
+                  "393.5"
+                ],
+                [
+                  "y",
+                  "198"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-3"
+                ],
+                [
+                  "fill",
+                  "#a3a199"
+                ],
+                [
+                  "x",
+                  "467.5"
+                ],
+                [
+                  "y",
+                  "198"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-4"
+                ],
+                [
+                  "fill",
+                  "#a3a199"
+                ],
+                [
+                  "x",
+                  "541.5"
+                ],
+                [
+                  "y",
+                  "198"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 219.5 144 H 271.5 Q 274.5 144 274.5 147 V 177 Q 274.5 180 271.5 180 H 219.5 Q 216.5 180 216.5 177 V 147 Q 216.5 144 219.5 144 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "r-cell-0"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.8"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "r-val-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "245.5"
+                ],
+                [
+                  "y",
+                  "167"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 293.5 144 H 345.5 Q 348.5 144 348.5 147 V 177 Q 348.5 180 345.5 180 H 293.5 Q 290.5 180 290.5 177 V 147 Q 290.5 144 293.5 144 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "r-cell-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#c4c2ba"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "r-val-1"
+                ],
+                [
+                  "fill",
+                  "var(--pa-faint)"
+                ],
+                [
+                  "x",
+                  "319.5"
+                ],
+                [
+                  "y",
+                  "167"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 367.5 144 H 419.5 Q 422.5 144 422.5 147 V 177 Q 422.5 180 419.5 180 H 367.5 Q 364.5 180 364.5 177 V 147 Q 364.5 144 367.5 144 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "r-cell-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#c4c2ba"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "r-val-2"
+                ],
+                [
+                  "fill",
+                  "var(--pa-faint)"
+                ],
+                [
+                  "x",
+                  "393.5"
+                ],
+                [
+                  "y",
+                  "167"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 441.5 144 H 493.5 Q 496.5 144 496.5 147 V 177 Q 496.5 180 493.5 180 H 441.5 Q 438.5 180 438.5 177 V 147 Q 438.5 144 441.5 144 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "r-cell-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#c4c2ba"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "r-val-3"
+                ],
+                [
+                  "fill",
+                  "var(--pa-faint)"
+                ],
+                [
+                  "x",
+                  "467.5"
+                ],
+                [
+                  "y",
+                  "167"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 515.5 144 H 567.5 Q 570.5 144 570.5 147 V 177 Q 570.5 180 567.5 180 H 515.5 Q 512.5 180 512.5 177 V 147 Q 512.5 144 515.5 144 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "r-cell-4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#c4c2ba"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "r-val-4"
+                ],
+                [
+                  "fill",
+                  "var(--pa-faint)"
+                ],
+                [
+                  "x",
+                  "541.5"
+                ],
+                [
+                  "y",
+                  "167"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "不变量 / Invariant"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "res 先全部置 1（乘法单位元），等待两遍扫描逐步覆盖。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "i"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-i",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "right_product"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-rp",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "res"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-res",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "[1, 1, 1, 1, 1]"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "n = len(nums) # 5 · res = [1] * n # [1, 1, 1, 1, 1]"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "The output starts as five 1s. Seeding with 1 (not 0) keeps the running multiplication intact — 1 is the multiplicative identity."
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation-zh",
+              ""
+            ]
+          ],
+          "children": [
+            "把输出数组先全部填成 1：1 是乘法单位元，作为累乘的起点，乘上它不会改变任何结果。"
+          ]
+        }
+      ]
+    }
+  ]
+}

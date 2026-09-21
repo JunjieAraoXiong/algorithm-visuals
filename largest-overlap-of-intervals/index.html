@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of the largest overlap of intervals via a sweeping line over sorted start/end points. 区间最大重叠数：扫描线算法。" />
+    <title>Largest Overlap of Intervals · 区间最大重叠数 · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .example-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .big-stat { display: block; margin: 6px 0 4px; font: 24px/1.2 monospace; }
+      .points-figure { max-width: 520px; margin-top: 12px; }
+      .points-figure svg { display: block; width: 100%; height: auto; }
+      .eq-block { margin-top: 14px; padding: 10px 12px; border: 1px solid var(--rule); }
+      .eq-block + .eq-block { margin-top: 9px; }
+      .eq-caption { margin: 0 0 6px; font: 12px/1.4 monospace; color: var(--quiet); }
+      .eq-row { margin: 4px 0; font: 14px/1.6 monospace; display: flex; flex-wrap: wrap; align-items: center; column-gap: 10px; row-gap: 4px; }
+      .eq-flow { display: inline-flex; flex-direction: column; align-items: center; font-size: 11px; line-height: 1.25; color: var(--quiet); }
+      .eq-arrow { font-size: 17px; line-height: 1.1; color: var(--ink); }
+      .eq-bad { display: inline-block; width: 20px; height: 20px; line-height: 18px; border: 1.6px solid var(--ink); border-radius: 50%; text-align: center; }
+      .eq-note { margin: 6px 0 0; font: 12px/1.5 monospace; color: var(--quiet); }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .example-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="overlap-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Largest Overlap of Intervals · 区间最大重叠数</h1></div></header>
+      <p class="problem">Given <code>intervals = [[1, 3], [2, 6], [4, 8], [6, 7], [5, 7]]</code>, find the maximum number of intervals that overlap at any point. Each interval is half-open <code>[start, end)</code>: the start is included, the end is excluded.<span lang="zh-CN">给定区间数组 intervals，求任意时刻最多有多少个区间重叠。区间是半开的 [start, end)：包含起点，不包含终点。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="区间最大重叠数扫描线演示 / largest overlap sweep trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="区间最大重叠数算法演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>active_intervals</code></dt><dd data-m-active></dd></div>
+              <div><dt><code>max_overlaps</code></dt><dd data-m-max></dd></div>
+              <div><dt>当前点 / point</dt><dd data-m-point></dd></div>
+              <div><dt>已处理 / processed</dt><dd data-m-progress></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="overlap-code-title">
+          <h2 id="overlap-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def largest_overlap_of_intervals(intervals: List[Interval]) -&gt; int:</span><span class="code-line" data-source-key="init">    points = []</span><span class="code-line" data-source-key="build">    for interval in intervals:</span><span class="code-line" data-source-key="append-s">        points.append((interval.start, 'S'))</span><span class="code-line" data-source-key="append-e">        points.append((interval.end, 'E'))</span><span class="code-line">    # Sort in chronological order. If multiple points occur at the same</span><span class="code-line">    # time, ensure end points are prioritized before start points.</span><span class="code-line" data-source-key="sort">    points.sort(key=lambda x: (x[0], x[1]))</span><span class="code-line" data-source-key="active-init">    active_intervals = 0</span><span class="code-line" data-source-key="max-init">    max_overlaps = 0</span><span class="code-line" data-source-key="loop">    for time, point_type in points:</span><span class="code-line" data-source-key="cond">        if point_type == 'S':</span><span class="code-line" data-source-key="inc">            active_intervals += 1</span><span class="code-line">        else:</span><span class="code-line" data-source-key="dec">            active_intervals -= 1</span><span class="code-line" data-source-key="max">        max_overlaps = max(max_overlaps, active_intervals)</span><span class="code-line" data-source-key="return">    return max_overlaps</span></code></pre>
+          <p class="note">排序键 <code>(x[0], x[1])</code> 先比时间再比类型。ASCII 中 <code>'E' &lt; 'S'</code>，所以同一时刻的 'E' 自动排在 'S' 前面，无需额外判断。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="overlap-problem">
+        <h2 id="overlap-problem">问题 / Problem</h2>
+        <p class="section-intro">The answer is a single number: the largest count of intervals covering one point.<span lang="zh-CN">答案是一个数：覆盖同一个点的区间个数的最大值。</span></p>
+        <div class="example-grid">
+          <article class="paper-card"><strong>Input</strong><p><code>intervals = [[1, 3], [2, 6], [4, 8], [6, 7], [5, 7]]</code></p></article>
+          <article class="paper-card"><strong>Output</strong><span class="big-stat">3</span><p>The maximum overlap occurs on <code>[5, 6)</code>, covered by <code>[2, 6)</code>, <code>[4, 8)</code> and <code>[5, 7)</code>.<span lang="zh-CN">三个区间在 [5, 6) 上同时生效。</span></p></article>
+        </div>
+        <p class="small">图中区间左端的方形实帽表示起点（包含），右端的空心圆表示终点（排除）——这是半开区间 [start, end) 的记号。</p>
+      </section>
+
+      <section class="section" aria-labelledby="overlap-intuition">
+        <h2 id="overlap-intuition">直觉：活跃区间 / Active intervals</h2>
+        <p class="section-intro">x intervals overlap at a point ⇔ exactly x intervals are <em>active</em> there: started at or before this time, not yet ended. At time 5, <code>[2, 6)</code>, <code>[4, 8)</code>, <code>[5, 7)</code> are active — 3 overlapping intervals.<span lang="zh-CN">某点有 x 个区间重叠 ⇔ 恰有 x 个区间在此处“活跃”：已经开始、尚未结束。例如时刻 5 有 [2, 6)、[4, 8)、[5, 7) 三个活跃区间。</span></p>
+        <p class="section-intro">A start point means one more active interval (<code>+1</code>); an end point means one just finished (<code>−1</code>). Sweeping the time axis while applying these updates yields the overlap count at every event point.<span lang="zh-CN">起点 ⇒ 活跃数 +1；终点 ⇒ 活跃数 −1。沿时间轴扫过所有端点并应用这些更新，就得到每个事件点处的重叠数。</span></p>
+      </section>
+
+      <section class="section" aria-labelledby="overlap-sweep">
+        <h2 id="overlap-sweep">扫描线：端点排序 / Sweep over sorted points</h2>
+        <p class="section-intro">Combine all 2n start/end points into one array and sort it. Between two consecutive event points the set of active intervals never changes, so the maximum overlap is always attained <em>at an event point</em> — recording the largest <code>active_intervals</code> during the sweep is enough.<span lang="zh-CN">把 2n 个起终点混进一个数组排序。相邻事件点之间活跃集合不变，所以最大值一定在某个事件点处取到——扫描时记录 active_intervals 的历史最大值即可。</span></p>
+        <figure class="points-figure" aria-label="points array diagram">
+          <svg viewBox="0 0 480 132" role="img">
+            <text x="8" y="16" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#272727">intervals = [[1, 3], [2, 6], [4, 8], [6, 7], [5, 7]]</text>
+            <line x1="8" y1="47" x2="34" y2="47" stroke="#333" stroke-width="1.2" marker-end="url(#pf-arrow)" />
+            <text x="42" y="51" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#272727">points = [</text>
+            <g font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#272727">
+              <text x="148" y="51" text-anchor="middle">1</text><text x="176" y="51" text-anchor="middle">2</text>
+              <text x="204" y="51" text-anchor="middle">3</text><text x="232" y="51" text-anchor="middle">4</text>
+              <text x="260" y="51" text-anchor="middle">5</text><text x="288" y="51" text-anchor="middle">6</text>
+              <text x="316" y="51" text-anchor="middle">6</text><text x="344" y="51" text-anchor="middle">7</text>
+              <text x="372" y="51" text-anchor="middle">7</text><text x="400" y="51" text-anchor="middle">8</text>
+            </g>
+            <text x="418" y="51" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#272727">]</text>
+            <g font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#555">
+              <rect x="145" y="61" width="5.5" height="5.5" fill="#555" />
+              <text x="151" y="69" text-anchor="middle">S</text>
+              <rect x="173" y="61" width="5.5" height="5.5" fill="#555" />
+              <text x="179" y="69" text-anchor="middle">S</text>
+              <circle cx="201" cy="64" r="3" fill="#fffdf8" stroke="#555" stroke-width="1.2" />
+              <text x="207" y="69" text-anchor="middle">E</text>
+              <rect x="229" y="61" width="5.5" height="5.5" fill="#555" />
+              <text x="235" y="69" text-anchor="middle">S</text>
+              <rect x="257" y="61" width="5.5" height="5.5" fill="#555" />
+              <text x="263" y="69" text-anchor="middle">S</text>
+              <circle cx="285" cy="64" r="3" fill="#fffdf8" stroke="#555" stroke-width="1.2" />
+              <text x="291" y="69" text-anchor="middle">E</text>
+              <rect x="313" y="61" width="5.5" height="5.5" fill="#555" />
+              <text x="319" y="69" text-anchor="middle">S</text>
+              <circle cx="341" cy="64" r="3" fill="#fffdf8" stroke="#555" stroke-width="1.2" />
+              <text x="347" y="69" text-anchor="middle">E</text>
+              <circle cx="369" cy="64" r="3" fill="#fffdf8" stroke="#555" stroke-width="1.2" />
+              <text x="375" y="69" text-anchor="middle">E</text>
+              <circle cx="397" cy="64" r="3" fill="#fffdf8" stroke="#555" stroke-width="1.2" />
+              <text x="403" y="69" text-anchor="middle">E</text>
+            </g>
+            <path d="M 273 82 L 331 82 M 273 82 L 273 77 M 331 82 L 331 77 M 297 83 L 302 89 L 307 83" stroke="#555" stroke-width="1.1" fill="none" />
+            <text x="302" y="104" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11" fill="#555">end point sorted</text>
+            <text x="302" y="119" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11" fill="#555">before start point · 终点排在起点前</text>
+            <defs>
+              <marker id="pf-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0 0 L8 4 L0 8 Z" fill="#333" />
+              </marker>
+            </defs>
+          </svg>
+        </figure>
+      </section>
+
+      <section class="section" aria-labelledby="overlap-edge">
+        <h2 id="overlap-edge">边界情况：同时刻的端点 / Concurrent points</h2>
+        <p class="section-intro">Right before time 6, <code>active_intervals = 3</code>. At 6, the end of <code>[2, 6)</code> and the start of <code>[6, 7)</code> coincide. Which one is processed first?<span lang="zh-CN">刚到 6 之前 active_intervals = 3。在 6 处，[2, 6) 的终点与 [6, 7) 的起点同时出现，先处理哪个？</span></p>
+        <div class="eq-block">
+          <p class="eq-caption">先处理起点（错误）· start point first (wrong)</p>
+          <p class="eq-row"><code>active_intervals = 3</code><span class="eq-flow"><span>process<br />start point</span><span class="eq-arrow">⟶</span></span><code><span class="eq-bad">4</span></code><span class="eq-flow"><span>process<br />end point</span><span class="eq-arrow">⟶</span></span><code>= 3</code></p>
+          <p class="eq-note">↴ <strong>wrong: too high</strong> · 错误：偏高 —— 6 这一瞬从未有 4 个活跃区间，但 max_overlaps 已错误记下 4。</p>
+        </div>
+        <div class="eq-block">
+          <p class="eq-caption">先处理终点（正确）· end point first (correct)</p>
+          <p class="eq-row"><code>active_intervals = 3</code><span class="eq-flow"><span>process<br />end point</span><span class="eq-arrow">⟶</span></span><code>= 2</code><span class="eq-flow"><span>process<br />start point</span><span class="eq-arrow">⟶</span></span><code>= 3</code></p>
+        </div>
+        <p class="small">Half-open intervals never overlap at a shared boundary: <code>[2, 6)</code> and <code>[6, 7)</code> are disjoint. The sort key <code>(x[0], x[1])</code> compares the type strings in ASCII order (<code>'E' &lt; 'S'</code>), so end points are naturally prioritized before start points — no extra branch is needed.<span lang="zh-CN">半开区间在共享边界处不相交：[2, 6) 与 [6, 7) 没有公共点。排序键 (x[0], x[1]) 按 ASCII 比较类型（'E' &lt; 'S'），终点自然排在起点前，不需要额外分支。</span></p>
+      </section>
+
+      <section class="section" aria-labelledby="overlap-complexity">
+        <h2 id="overlap-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n log n)</strong><p>We build a <code>points</code> array of size <code>2n</code> and sort it (<code>O(n log n)</code>), then iterate over it once (<code>O(n)</code>).<span lang="zh-CN">排序 2n 个端点 O(n log n)，之后的线性扫描 O(n)。</span></p></article>
+          <article class="paper-card"><strong>Extra space · O(n)</strong><p>The <code>points</code> array holds <code>2n</code> entries.<span lang="zh-CN">额外空间来自 points 数组，共 2n 项。</span></p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../merge-overlapping-intervals/">合并重叠区间</a><a href="../identify-all-interval-overlaps/">找出所有区间重叠</a><a href="../cutting-wood/">砍木头</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('overlap-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mActive = root.querySelector('[data-m-active]');
+        const mMax = root.querySelector('[data-m-max]');
+        const mPoint = root.querySelector('[data-m-point]');
+        const mProgress = root.querySelector('[data-m-progress]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+        const explanationZhEl = root.querySelector('[data-explanation-zh]');
+
+        // Book example, in input order. Visual rows (top -> bottom): idx 4, 2, 1, 3, 0.
+        const INTERVALS = [[1, 3], [2, 6], [4, 8], [6, 7], [5, 7]];
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
+        // JS port of the Python algorithm: frames below are generated from this
+        // simulation, never hand-hardcoded.
+        const rawPoints = [];
+        for (const [s, e] of INTERVALS) {
+          rawPoints.push({ t: s, k: 'S' });
+          rawPoints.push({ t: e, k: 'E' });
+        }
+        // key=lambda x: (x[0], x[1]): time first, then type in ASCII order ('E' < 'S').
+        const sortedPoints = [...rawPoints].sort((a, b) => (a.t - b.t) || (a.k < b.k ? -1 : 1));
+
+        const scanTrace = [];
+        let active = 0;
+        let max = 0;
+        for (let j = 0; j < sortedPoints.length; j += 1) {
+          const p = sortedPoints[j];
+          const prevActive = active;
+          const prevMax = max;
+          active += p.k === 'S' ? 1 : -1;
+          max = Math.max(max, active);
+          const owner = INTERVALS.findIndex(([s, e]) => (p.k === 'S' ? s === p.t : e === p.t));
+          scanTrace.push({ j, t: p.t, k: p.k, prevActive, active, prevMax, max, owner });
+        }
+
+        const buildSeq = rawPoints.map(p => `(${p.t},${p.k})`).join(' ');
+
+        const fr = (stepLabel, kind, sourceKeys, line, en, zh, invariant, state) =>
+          ({ stepLabel, kind, sourceKeys, line, en, zh, invariant, state: { kind, active: 0, max: 0, idx: -1, time: null, k: null, owner: null, pair: false, region: false, points: [], ...state } });
+
+        const FRAMES = [
+          fr('points = []：建空列表', 'init', ['init'],
+            'points = []',
+            "Each interval contributes two points — its start 'S' and its end 'E' — so the sweep begins with an empty list.",
+            "每个区间贡献两个端点：起点 'S' 与终点 'E'。扫描先从一个空列表开始。",
+            'points 最终将存放 2n 个端点。',
+            { points: [] }),
+          fr('按输入顺序追加 2n 个端点', 'build', ['build', 'append-s', 'append-e'],
+            "points.append((interval.start, 'S')); points.append((interval.end, 'E'))",
+            `Append in input order: ${buildSeq}. The array is not sorted yet.`,
+            '按输入顺序追加，先起点后终点，共 10 个点。此时数组尚未排序。',
+            '按 intervals 原始顺序追加，尚未排序。',
+            { points: rawPoints }),
+          fr('排序：同时刻 E 在 S 前', 'sort', ['sort'],
+            "points.sort(key=lambda x: (x[0], x[1]))  # ASCII 'E' < 'S'",
+            "Sort by time, then by type. ASCII 'E' < 'S', so at time 6 the end point of [2, 6) is processed before the start point of [6, 7).",
+            '先按时间、再按类型排序。ASCII 中 \'E\' < \'S\'，因此 6 处的终点（[2,6) 结束）排在起点（[6,7) 开始）之前。',
+            '排序键 (time, type)：同一时刻，E 在 S 前。',
+            { points: sortedPoints }),
+          fr('active = 0，max = 0', 'counters', ['active-init', 'max-init'],
+            'active_intervals = 0; max_overlaps = 0',
+            'Two counters before the sweep: active_intervals is the current overlap count; max_overlaps records the largest value ever reached.',
+            '扫描前两个计数器清零：active_intervals 是当前重叠数，max_overlaps 记录历史最大值。',
+            '扫描不变量：active_intervals = 当前时刻的活跃区间数。',
+            { points: sortedPoints })
+        ];
+
+        for (const step of scanTrace) {
+          const [s, e] = INTERVALS[step.owner];
+          const isStart = step.k === 'S';
+          const invariant = step.t === 6 && !isStart
+            ? '6 处先处理终点：[2, 6) 结束，−1 先执行。'
+            : step.t === 6 && isStart
+              ? '6 处再处理起点：[6, 7) 开始，+1 后执行。'
+              : isStart
+                ? `起点 ⇒ +1；区间 [${s}, ${e}) 从 ${s} 起生效。`
+                : `终点 ⇒ −1；[${s}, ${e}) 不含 ${e}，重叠数在 ${e} 处下降。`;
+          FRAMES.push(fr(
+            `(${step.t}, '${step.k}') → active = ${step.active}`, 'scan',
+            ['loop', 'cond', isStart ? 'inc' : 'dec', 'max'],
+            `${isStart ? 'start point' : 'end point'} → active_intervals ${isStart ? '+= 1' : '-= 1'} → ${step.active}；max_overlaps = max(${step.prevMax}, ${step.active}) = ${step.max}`,
+            `The sweep reaches time ${step.t} — a ${isStart ? 'start' : 'end'} point. [${s}, ${e}) ${isStart ? 'becomes active' : `ends (half-open, excluded at ${step.t})`}: active_intervals ${step.prevActive} → ${step.active}, max_overlaps → ${step.max}.`,
+            `扫描到 ${step.t}：${isStart ? '起点，区间生效' : '终点，半开区间在此不再计入'}。active_intervals ${step.prevActive} → ${step.active}，max_overlaps → ${step.max}。`,
+            invariant,
+            { points: sortedPoints, idx: step.j, time: step.t, k: step.k, active: step.active, max: step.max, owner: step.owner, pair: step.t === 6 }
+          ));
+        }
+
+        FRAMES.push(fr(
+          'return 3 · 最大重叠 [5, 6)', 'done', ['return'],
+          'return max_overlaps  # 3',
+          'The largest value ever reached by active_intervals is 3, attained on [5, 6), where [2, 6), [4, 8) and [5, 7) all overlap.',
+          'active_intervals 达到过的最大值是 3，出现在 [5, 6)：[2, 6)、[4, 8)、[5, 7) 三者同时生效。',
+          '答案 = active_intervals 的历史最大值 = 3。',
+          { points: sortedPoints, idx: 10, active, max, region: true }
+        ));
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('lo-arrow', { fill: '#333', viewBox: '0 0 8 8', markerWidth: 7, markerHeight: 7, refX: 6.4, refY: 4 });
+        scene.defineMarker('lo-arrow-rev', { fill: '#333', viewBox: '0 0 8 8', markerWidth: 7, markerHeight: 7, refX: 6.4, refY: 4, orient: 'auto-start-reverse' });
+
+        const motion = core.createMotionController();
+        let geom = {};
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const compact = width < 460;
+          const ml = compact ? 20 : 34;
+          const mr = compact ? 12 : 18;
+          const unit = (width - ml - mr) / 7;
+          const xOf = t => ml + (t - 1) * unit;
+          const rowTopY = 12;
+          const rowGap = compact ? 21 : 27;
+          const rowOf = { 4: rowTopY, 2: rowTopY + rowGap, 1: rowTopY + 2 * rowGap, 3: rowTopY + 3 * rowGap, 0: rowTopY + 4 * rowGap };
+          const numY = rowTopY + 4 * rowGap + (compact ? 19 : 22);
+          const ptrBoxY = numY + (compact ? 24 : 26);
+          const ptrBoxH = compact ? 15 : 16;
+          const ptrArrowTo = ptrBoxY + ptrBoxH + (compact ? 10 : 12);
+          const stripY = ptrArrowTo + (compact ? 5 : 6);
+          const cellH = compact ? 20 : 23;
+          const seY = stripY + cellH + (compact ? 12 : 14);
+          const bracketY = seY + (compact ? 7 : 9);
+          const stageH = bracketY + (compact ? 27 : 43);
+          const gap = compact ? 3 : 6;
+          const stripMax = Math.min(width - 8, 620);
+          const cellW = (stripMax - 9 * gap) / 10;
+          const startX = (width - (10 * cellW + 9 * gap)) / 2;
+          geom = { width, compact, unit, xOf, ptrBoxY, ptrBoxH, ptrArrowTo, rowOf, rowTopY, numY, stripY, cellH, seY, bracketY, cellW, gap, startX, stageH };
+          svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
+          stage.style.height = `${Math.ceil(stageH)}px`;
+        }
+
+        const cellX = j => geom.startX + j * (geom.cellW + geom.gap);
+        const cellCx = j => cellX(j) + geom.cellW / 2;
+
+        function draw(state, t = 1, from = null) {
+          if (!geom.width || !state) return;
+          const g = geom;
+          const lerp = (a, b) => a + (b - a) * t;
+          const presence = (was, is) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
+          const scanned = state.kind === 'scan' || state.kind === 'done';
+          scene.update(({ path, text, circle }) => {
+            // Number line with arrowheads on both ends.
+            path('num-line', { d: `M ${g.xOf(1)} ${g.numY} L ${g.xOf(8)} ${g.numY}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none', 'marker-start': 'url(#lo-arrow-rev)', 'marker-end': 'url(#lo-arrow)' });
+            for (let v = 1; v <= 8; v += 1) {
+              path(`num-tick-${v}`, { d: `M ${g.xOf(v)} ${g.numY} L ${g.xOf(v)} ${g.numY + 5}`, stroke: '#555', 'stroke-width': 1, fill: 'none' });
+              text(`num-label-${v}`, { x: g.xOf(v), y: g.numY + (g.compact ? 14 : 16), 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: '#555', 'font-family': MONO }, String(v));
+            }
+
+            // Interval bars: square start cap (included), open-circle end (excluded).
+            INTERVALS.forEach(([s, e], idx) => {
+              const cy = g.rowOf[idx];
+              const xs = g.xOf(s);
+              const xe = g.xOf(e);
+              const hot = state.owner === idx && state.kind === 'scan';
+              path(`bar-line-${idx}`, { d: `M ${xs} ${cy} L ${xe} ${cy}`, stroke: hot ? '#272727' : '#8f8f88', 'stroke-width': hot ? 2.4 : 1.3, fill: 'none' });
+              path(`bar-sq-${idx}`, { d: rectPath(xs - 3.6, cy - 3.6, 7.2, 7.2), fill: hot ? '#272727' : '#555', stroke: 'none' });
+              circle(`bar-circ-${idx}`, { cx: xe, cy, r: g.compact ? 3.5 : 4.4, fill: '#fffdf8', stroke: hot ? '#272727' : '#555', 'stroke-width': hot ? 1.9 : 1.3 });
+            });
+
+            // Max-overlap region [5, 6) on the final frame.
+            if (state.region) {
+              path('region', { d: rectPath(g.xOf(5), g.rowTopY - 8, g.xOf(6) - g.xOf(5), g.numY - g.rowTopY + 11), fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 4' });
+              text('region-label', { x: (g.xOf(5) + g.xOf(6)) / 2, y: g.numY + (g.compact ? 32 : 36), 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 10.5, fill: '#272727', 'font-family': MONO }, g.compact ? '3 in [5, 6)' : 'max overlap = 3 in [5, 6)');
+            }
+
+            // Dashed sweep marker at the current time.
+            const sweepOn = state.kind === 'scan' && state.time !== null;
+            const sweepWas = Boolean(from && from.kind === 'scan' && from.time !== null);
+            const sweepOp = presence(sweepWas, sweepOn);
+            if (sweepOp) {
+              const toX = g.xOf(state.time);
+              const fromX = sweepWas ? g.xOf(from.time) : null;
+              const x = fromX === null ? toX : lerp(fromX, toX);
+              path('sweep', { d: `M ${x} ${g.rowTopY - 9} L ${x} ${g.numY + 4}`, stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 4', fill: 'none', opacity: sweepOp });
+            }
+
+            // Coincident end/start at time 6: dashed strip around the two caps.
+            if (state.pair) {
+              path('pair-strip', { d: rectPath(g.xOf(6) - 9, g.rowOf[1] - 11, 18, g.rowOf[3] - g.rowOf[1] + 22), fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            }
+
+            // Points array strip.
+            state.points.forEach((p, j) => {
+              const x = cellX(j);
+              let stroke = '#999';
+              let fill = '#fffdf8';
+              let col = '#555';
+              let markCol = '#555';
+              let fw = 1.2;
+              if (scanned) {
+                if (state.kind === 'done' || j < state.idx) { stroke = '#999'; fill = '#f5f2e9'; col = '#777'; markCol = '#999'; }
+                else if (j === state.idx) { stroke = '#272727'; fill = '#fffdf8'; col = '#272727'; markCol = '#272727'; fw = 2; }
+                else { stroke = '#b7b7b1'; fill = '#fffdf8'; col = '#999'; markCol = '#b7b7b1'; }
+              }
+              const cur = scanned && state.kind === 'scan' && j === state.idx;
+              path(`cell-${j}`, { d: rectPath(x, g.stripY, g.cellW, g.cellH, 3), fill, stroke, 'stroke-width': fw });
+              text(`cell-num-${j}`, { x: cellCx(j), y: g.stripY + g.cellH / 2 + (g.compact ? 3.4 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 12, fill: cur ? '#272727' : col, 'font-family': MONO }, String(p.t));
+              if (p.k === 'S') {
+                path(`cell-mark-${j}`, { d: rectPath(cellCx(j) - 9, g.seY - 2.8, 5.2, 5.2), fill: markCol, stroke: 'none' });
+              } else {
+                circle(`cell-mark-${j}`, { cx: cellCx(j) - 6.4, cy: g.seY - 0.2, r: 2.7, fill: '#fffdf8', stroke: markCol, 'stroke-width': 1.2 });
+              }
+              text(`cell-type-${j}`, { x: cellCx(j) + 3, y: g.seY + 3.6, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: markCol, 'font-family': MONO }, p.k);
+            });
+
+            // Under-bracket marking "end point sorted before start point" (sort frame).
+            if (state.kind === 'sort') {
+              const bx1 = cellX(5) + 3;
+              const bx2 = cellX(6) + g.cellW - 3;
+              const by = g.bracketY + 6;
+              const mid = (bx1 + bx2) / 2;
+              path('sort-bracket', { d: `M ${bx1} ${by} L ${bx2} ${by} M ${bx1} ${by} L ${bx1} ${by - 5} M ${bx2} ${by} L ${bx2} ${by - 5} M ${mid - 5} ${by + 1} L ${mid} ${by + 7} L ${mid + 5} ${by + 1}`, stroke: '#555', 'stroke-width': 1.1, fill: 'none' });
+              if (g.compact) {
+                text('sort-bracket-label', { x: mid, y: by + 18, 'text-anchor': 'middle', 'font-size': 8.5, fill: '#555', 'font-family': MONO }, '终点排在起点前 · E before S');
+              } else {
+                text('sort-bracket-label-1', { x: mid, y: by + 19, 'text-anchor': 'middle', 'font-size': 10, fill: '#555', 'font-family': MONO }, 'end point sorted before start point');
+                text('sort-bracket-label-2', { x: mid, y: by + 32, 'text-anchor': 'middle', 'font-size': 10, fill: '#555', 'font-family': MONO }, '终点 E 排在起点 S 前');
+              }
+            }
+
+            // Boxed pointer i with a solid arrow onto the current point.
+            const ptrOn = state.kind === 'scan' && state.idx >= 0 && state.idx < 10;
+            const ptrWas = Boolean(from && from.kind === 'scan' && from.idx >= 0 && from.idx < 10);
+            const ptrOp = presence(ptrWas, ptrOn);
+            if (ptrOp) {
+              const toX = cellCx(state.idx);
+              const fromX = ptrWas && from.idx !== state.idx ? cellCx(from.idx) : null;
+              const x = fromX === null ? toX : lerp(fromX, toX);
+              path('ptr-box', { d: rectPath(x - 8, g.ptrBoxY, 16, g.ptrBoxH, 2), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2, opacity: ptrOp });
+              text('ptr-label', { x, y: g.ptrBoxY + g.ptrBoxH / 2 + (g.compact ? 3.4 : 3.8), 'text-anchor': 'middle', 'font-size': 10.5, fill: '#272727', 'font-family': MONO, opacity: ptrOp }, 'i');
+              path('ptr-arrow', { d: `M ${x} ${g.ptrBoxY + g.ptrBoxH} L ${x} ${g.ptrArrowTo}`, stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#lo-arrow)', opacity: ptrOp });
+            }
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.stepLabel;
+          invariantEl.textContent = frame.invariant;
+          mActive.textContent = state.active;
+          mMax.textContent = state.max;
+          mPoint.textContent = state.time === null ? '—' : `(${state.time}, '${state.k}')`;
+          mProgress.textContent = state.kind === 'scan' || state.kind === 'done' ? `${Math.min(state.idx + 1, 10)} / 10` : '—';
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.en;
+          explanationZhEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `区间最大重叠数演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({ ...s, points: s.points.map(p => ({ ...p })) });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 380,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of Sum Between Range: build a prefix_sum array once in O(n), then answer every sum_range(i, j) query in O(1). 区间求和：前缀和预处理与 O(1) 区间查询。" />
+    <title>Sum Between Range · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { height: 252px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .example-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .io { margin: 10px 0 0; padding: 9px 11px; border: 1px solid var(--rule); background: #f5f2e9; font: 12px/1.6 monospace; overflow-x: auto; white-space: pre; }
+      .formula { margin: 10px 0 0; padding: 9px 12px; border: 1px solid var(--rule); border-left: 5px solid #999; background: #f5f2e9; font: 13px/1.7 monospace; overflow-x: auto; white-space: pre; }
+      .mini-row { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin: 11px 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .mini-call { font-size: 12px; }
+      .mini-array { display: inline-flex; gap: 3px; align-items: flex-end; }
+      .ma-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+      .ma-val { width: 27px; height: 25px; display: flex; align-items: center; justify-content: center; border: 1px solid #999; background: #fffdf8; font-size: 12px; }
+      .ma-val.on { background: #e3e1d8; border-color: #777; }
+      .ma-idx { font-size: 9px; color: var(--quiet); }
+      .mini-sum { font-size: 12px; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .example-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="sum-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Sum Between Range · 区间求和</h1></div></header>
+      <p class="problem">Given an integer array, write a function which returns the sum of values between two indexes. Build the object from <code>nums</code> once, then answer each <code>sum_range(i, j)</code> in constant time.<span lang="zh-CN">给定整数数组，编写函数返回两个下标 i 与 j 之间所有元素的和。先用 nums 做一次预处理，之后每次 sum_range(i, j) 查询都在 O(1) 内完成。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="区间求和演示 / sum between range trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="区间求和算法演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>i</code></dt><dd data-m-i></dd></div>
+              <div><dt><code>j</code></dt><dd data-m-j></dd></div>
+              <div><dt><code>result</code></dt><dd data-m-result></dd></div>
+              <div><dt><code>output</code></dt><dd data-m-output></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="sum-code-title">
+          <h2 id="sum-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="class">class SumBetweenRange:</span><span class="code-line" data-source-key="init-def">    def __init__(self, nums: List[int]):</span><span class="code-line" data-source-key="init-first">        self.prefix_sum = [nums[0]]</span><span class="code-line" data-source-key="init-loop">        for i in range(1, len(nums)):</span><span class="code-line" data-source-key="init-append">            self.prefix_sum.append(self.prefix_sum[-1] + nums[i])</span><span class="code-line"> </span><span class="code-line" data-source-key="range-def">    def sum_range(self, i: int, j: int) -&gt; int:</span><span class="code-line" data-source-key="cond">        if i == 0:</span><span class="code-line" data-source-key="return-first">            return self.prefix_sum[j]</span><span class="code-line" data-source-key="return-sub">        return self.prefix_sum[j] - self.prefix_sum[i - 1]</span></code></pre>
+          <p class="note">构造函数只在开始时运行一次；每个 sum_range 查询只读 prefix_sum 的 1–2 个元素，不再遍历 nums。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="sum-example">
+        <h2 id="sum-example">示例 / Example</h2>
+        <p class="section-intro">Three queries on the same array; the gray cells are the range summed each time. 三次查询落在同一个数组上，灰色格子是每次被求和的区间。</p>
+        <div class="example-grid">
+          <article class="paper-card">
+            <strong>sum_range(0, 3) / (2, 4) / (2, 2)</strong>
+            <div class="mini-row">
+              <code class="mini-call">sum_range(0, 3)</code>
+              <span class="mini-array" aria-hidden="true">
+                <span class="ma-col"><span class="ma-val on">3</span><span class="ma-idx">0</span></span>
+                <span class="ma-col"><span class="ma-val on">-7</span><span class="ma-idx">1</span></span>
+                <span class="ma-col"><span class="ma-val on">6</span><span class="ma-idx">2</span></span>
+                <span class="ma-col"><span class="ma-val on">0</span><span class="ma-idx">3</span></span>
+                <span class="ma-col"><span class="ma-val">-2</span><span class="ma-idx">4</span></span>
+                <span class="ma-col"><span class="ma-val">5</span><span class="ma-idx">5</span></span>
+              </span>
+              <code class="mini-sum">sum = 2</code>
+            </div>
+            <div class="mini-row">
+              <code class="mini-call">sum_range(2, 4)</code>
+              <span class="mini-array" aria-hidden="true">
+                <span class="ma-col"><span class="ma-val">3</span><span class="ma-idx">0</span></span>
+                <span class="ma-col"><span class="ma-val">-7</span><span class="ma-idx">1</span></span>
+                <span class="ma-col"><span class="ma-val on">6</span><span class="ma-idx">2</span></span>
+                <span class="ma-col"><span class="ma-val on">0</span><span class="ma-idx">3</span></span>
+                <span class="ma-col"><span class="ma-val on">-2</span><span class="ma-idx">4</span></span>
+                <span class="ma-col"><span class="ma-val">5</span><span class="ma-idx">5</span></span>
+              </span>
+              <code class="mini-sum">sum = 4</code>
+            </div>
+            <div class="mini-row">
+              <code class="mini-call">sum_range(2, 2)</code>
+              <span class="mini-array" aria-hidden="true">
+                <span class="ma-col"><span class="ma-val">3</span><span class="ma-idx">0</span></span>
+                <span class="ma-col"><span class="ma-val">-7</span><span class="ma-idx">1</span></span>
+                <span class="ma-col"><span class="ma-val on">6</span><span class="ma-idx">2</span></span>
+                <span class="ma-col"><span class="ma-val">0</span><span class="ma-idx">3</span></span>
+                <span class="ma-col"><span class="ma-val">-2</span><span class="ma-idx">4</span></span>
+                <span class="ma-col"><span class="ma-val">5</span><span class="ma-idx">5</span></span>
+              </span>
+              <code class="mini-sum">sum = 6</code>
+            </div>
+          </article>
+          <article class="paper-card">
+            <strong>Input / Output</strong>
+            <pre class="io">Input: nums = [3, -7, 6, 0, -2, 5],
+       [sum_range(0, 3), sum_range(2, 4),
+        sum_range(2, 2)]
+Output: [2, 4, 6]</pre>
+            <p class="small">Constraints: nums contains at least one element; each sum_range queries a valid range. nums 至少有一个元素；每次查询的区间都合法。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="sum-intuition">
+        <h2 id="sum-intuition">直觉：先预处理 / Intuition: preprocess</h2>
+        <p class="section-intro">朴素做法每次调用都把 nums[i..j] 逐个相加，单次 O(n)，q 次查询共 O(nq)。但数组在查询前就已知，所以可以提前把「从 0 开始的累加和」存成一张表。<span lang="zh-CN">The naive approach sums nums[i..j] on every call — O(n) each, O(nq) in total. Since the array is known beforehand, store the running sums from index 0 ahead of time.</span></p>
+        <pre class="formula">prefix_sum[k] = nums[0] + nums[1] + … + nums[k]
+nums       = [ 3  -7  6  0  -2  5 ]
+prefix_sum = [ 3  -4  2  2   0  5 ]</pre>
+        <p class="small">对本题数据，prefix_sum[3] = 3 + (-7) + 6 + 0 = 2，恰好覆盖区间 [0, 3]——从 0 开始的查询已经会了。prefix_sum[3] already answers sum_range(0, 3).</p>
+      </section>
+
+      <section class="section" aria-labelledby="sum-why">
+        <h2 id="sum-why">为什么可行 / Why it works</h2>
+        <p class="section-intro">前缀和数组里的每一项都是「从 0 开始」的区间和，而查询区间 [i, j] 一般不从 0 开始：把它向前补到 0，再减去多算的那一段即可。<span lang="zh-CN">Every prefix entry sums a range that starts at 0. Stretch the query range back to 0, then subtract the extra part.</span></p>
+        <pre class="formula">sum_range(0, j) = prefix_sum[j]                          # i == 0，直接读取</pre>
+        <pre class="formula">sum_range(i, j) = prefix_sum[j] - prefix_sum[i - 1]      # i &gt; 0，减去补上的前缀</pre>
+        <p class="small">减去的部分 sum[0 : i-1] 就是 prefix_sum[i-1]（斜线区域），剩下的灰色部分正好是 nums[i..j]。The hatched part sum[0 : i-1] is prefix_sum[i-1]; what remains is exactly nums[i..j].</p>
+      </section>
+
+      <section class="section" aria-labelledby="sum-edge">
+        <h2 id="sum-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>i = 0 · 起点为 0</strong><p><code>i - 1</code> 会越界，不能套用减法公式，所以代码用 <code>if i == 0</code> 单独返回 <code>prefix_sum[j]</code>。</p></article>
+          <article class="paper-card"><strong>i = j · 单元素区间</strong><p>区间只剩 <code>nums[i]</code>： <code>prefix_sum[i] - prefix_sum[i-1] = nums[i]</code>，公式依然成立（见查询 3）。</p></article>
+          <article class="paper-card"><strong>负数元素</strong><p>前缀和不一定递增（本例中 2 之后是 0），但减法恒等式与正负无关，任意整数数组都精确成立。</p></article>
+          <article class="paper-card"><strong>查询次数 q 很大</strong><p>朴素法 O(nq)；前缀和是 O(n) 预处理 + 每次 O(1)，总计 O(n + q)，查询越多越划算。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="sum-complexity">
+        <h2 id="sum-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · 构造 O(n)，查询 O(1)</strong><p>构造函数填满长度为 n 的 prefix_sum 数组，耗时 O(n)；sum_range 只读 1–2 个元素，耗时 O(1)。</p></article>
+          <article class="paper-card"><strong>Space · O(n)</strong><p>额外空间就是 <code>prefix_sum</code> 数组本身。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../k-sum-subarrays/">和为 K 的子数组</a><a href="../product-array-without-current-element/">除自身以外数组的乘积</a><a href="../cutting-wood/">砍木头</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('sum-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mI = root.querySelector('[data-m-i]');
+        const mJ = root.querySelector('[data-m-j]');
+        const mResult = root.querySelector('[data-m-result]');
+        const mOutput = root.querySelector('[data-m-output]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+        const explanationZhEl = root.querySelector('[data-explanation-zh]');
+
+        const NUMS = [3, -7, 6, 0, -2, 5];
+        const N = NUMS.length;
+        const QUERIES = [[0, 3], [2, 4], [2, 2]];
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
+        const prefixSum = [NUMS[0]];
+        const buildSteps = [];
+        for (let i = 1; i < N; i++) {
+          const prev = prefixSum[prefixSum.length - 1];
+          buildSteps.push({ i, prev, add: NUMS[i], value: prev + NUMS[i] });
+          prefixSum.push(prev + NUMS[i]);
+        }
+        function sumRange(i, j) {
+          if (i === 0) return { branch: 'first', value: prefixSum[j] };
+          return { branch: 'sub', value: prefixSum[j] - prefixSum[i - 1] };
+        }
+        const answers = QUERIES.map(([i, j]) => sumRange(i, j));
+
+        const paren = v => (v < 0 ? `(${v})` : `${v}`);
+        const prefixPartial = k => [
+          ...prefixSum.slice(0, k + 1),
+          ...Array.from({ length: N - k - 1 }, () => null)
+        ];
+        const base = () => ({
+          prefix: prefixPartial(0),
+          mi: null,
+          mj: null,
+          focusNums: null,
+          readPrefix: null,
+          focusPrefix: null,
+          shade: null,
+          hatchNums: null,
+          bracket: null,
+          subBrackets: [],
+          circlePrefix: null,
+          hatchPrefix: null,
+          downArrow: null,
+          queryNum: 0,
+          output: [],
+          result: null,
+          done: false
+        });
+        const INV_BUILD = '构造中：prefix_sum[k] = nums[0] + … + nums[k]，逐项累加。';
+        const INV_SUB = 'sum_range(i, j) = prefix_sum[j] - prefix_sum[i - 1]（i > 0）。';
+
+        const FRAMES = [
+          {
+            stepLabel: '初始化 · prefix_sum = [3]',
+            sourceKeys: ['class', 'init-def', 'init-first'],
+            line: `self.prefix_sum = [nums[0]]  # prefix_sum = [${NUMS[0]}]`,
+            en: 'The constructor seeds prefix_sum with nums[0] = 3; every later entry extends this running total by one more element.',
+            zh: '构造函数先把 prefix_sum 初始化为 [3]，也就是 nums[0]；后面的每一项都在这个累加和上再多加一格。',
+            invariant: INV_BUILD,
+            state: { ...base(), mi: 0, focusNums: 0, focusPrefix: 0 }
+          },
+          ...buildSteps.map((s, k) => ({
+            stepLabel: `i = ${s.i} · prefix_sum[${s.i}] = ${s.value}`,
+            sourceKeys: ['init-loop', 'init-append'],
+            line: `self.prefix_sum.append(self.prefix_sum[-1] + nums[i])  # prefix_sum[${s.i - 1}] + nums[${s.i}] = ${s.prev} + ${paren(s.add)} = ${s.value}`,
+            en: `i = ${s.i}: append prefix_sum[-1] + nums[${s.i}] = ${s.prev} + ${paren(s.add)} = ${s.value}, extending the running total by one cell.${s.add < 0 ? ' Negative values are allowed, so the total may shrink.' : ''}`,
+            zh: `i = ${s.i}：追加 prefix_sum[-1] + nums[${s.i}] = ${s.prev} + ${paren(s.add)} = ${s.value}。${s.add < 0 ? '数组里有负数，累加和可能变小。' : ''}`,
+            invariant: INV_BUILD,
+            state: { ...base(), mi: s.i, prefix: prefixPartial(s.i), focusNums: s.i, readPrefix: s.i - 1, focusPrefix: s.i }
+          })),
+          {
+            stepLabel: '构造完成 · 预处理 O(n)',
+            sourceKeys: ['init-loop'],
+            line: `for i in range(1, len(nums)):  # i = ${N}，循环结束`,
+            en: `i = ${N} reaches len(nums), the loop ends. The prefix row [${prefixSum.join(', ')}] is built once and never changes afterwards.`,
+            zh: `i = ${N} 等于 len(nums)，循环结束。前缀和数组 [${prefixSum.join(', ')}] 一次建好，之后不再修改。`,
+            invariant: 'prefix_sum 已就绪，sum_range 只读取它，不再修改。',
+            state: { ...base(), mi: N, prefix: [...prefixSum] }
+          },
+          {
+            stepLabel: '查询 1 · sum_range(0, 3)',
+            sourceKeys: ['range-def', 'cond'],
+            line: 'if i == 0:  # i = 0 → True',
+            en: 'First query sum_range(0, 3): the range starts at index 0, so its sum is exactly one entry of the prefix row.',
+            zh: '第一次查询 sum_range(0, 3)：区间从下标 0 开始，它的和恰好就是前缀和数组中的一项。',
+            invariant: '区间从 0 开始时，答案就是前缀和本身。',
+            state: { ...base(), mi: 0, mj: 3, prefix: [...prefixSum], shade: [0, 3], bracket: { a: 0, b: 3, label: 'sum_range(0, 3)' }, queryNum: 1 }
+          },
+          {
+            stepLabel: `返回 prefix_sum[3] = ${answers[0].value}`,
+            sourceKeys: ['return-first'],
+            line: `return self.prefix_sum[j]  # prefix_sum[3] = ${answers[0].value}`,
+            en: 'sum_range(0, j) = prefix_sum[j]: read index j = 3 of the prefix row — the circled value — and return it.',
+            zh: 'sum_range(0, j) = prefix_sum[j]：直接读前缀和第 j = 3 项（圈出的值）并返回。',
+            invariant: '区间从 0 开始时，答案就是前缀和本身。',
+            state: { ...base(), mi: 0, mj: 3, prefix: [...prefixSum], shade: [0, 3], bracket: { a: 0, b: 3, label: `sum = ${answers[0].value}` }, downArrow: 3, circlePrefix: 3, queryNum: 1, output: [answers[0].value], result: answers[0].value }
+          },
+          {
+            stepLabel: '查询 2 · sum_range(2, 4)',
+            sourceKeys: ['range-def', 'cond'],
+            line: 'if i == 0:  # i = 2 → False',
+            en: 'Second query sum_range(2, 4): i = 2 ≠ 0, so no single prefix entry equals the sum of this range.',
+            zh: '第二次查询 sum_range(2, 4)：i = 2 ≠ 0，前缀和数组里没有任何一项直接等于这段区间的和。',
+            invariant: INV_SUB,
+            state: { ...base(), mi: 2, mj: 4, prefix: [...prefixSum], shade: [2, 4], bracket: { a: 2, b: 4, label: 'sum_range(2, 4)' }, queryNum: 2 }
+          },
+          {
+            stepLabel: '减去前缀 · prefix_sum[4] - prefix_sum[1]',
+            sourceKeys: ['return-sub'],
+            line: 'return self.prefix_sum[j] - self.prefix_sum[i - 1]  # prefix_sum[4] - prefix_sum[1]',
+            en: 'Stretch the range back to index 0: the whole bracket is sum[0 : 4] = prefix_sum[4]; the hatched part sum[0 : 1] = prefix_sum[1] must be subtracted, leaving the shaded sum[2 : 4].',
+            zh: '把区间向前补到 0：整个括号是 sum[0 : 4] = prefix_sum[4]；斜线部分 sum[0 : 1] = prefix_sum[1] 是要减去的部分，剩下的灰色区域 sum[2 : 4] 就是答案。',
+            invariant: INV_SUB,
+            state: { ...base(), mi: 2, mj: 4, prefix: [...prefixSum], hatchNums: [0, 1], shade: [2, 4], bracket: { a: 0, b: 4, label: 'sum[0 : 4]' }, subBrackets: [{ a: 0, b: 1, label: 'sum[0 : 1]' }, { a: 2, b: 4, label: 'sum[2 : 4]' }], hatchPrefix: 1, circlePrefix: 4, queryNum: 2 }
+          },
+          {
+            stepLabel: `${prefixSum[4]} - (${prefixSum[1]}) = ${answers[1].value}`,
+            sourceKeys: ['return-sub'],
+            line: `return self.prefix_sum[j] - self.prefix_sum[i - 1]  # = ${prefixSum[4]} - (${prefixSum[1]}) = ${answers[1].value}`,
+            en: `Both operands are ready-made prefix entries: ${prefixSum[4]} - (${prefixSum[1]}) = ${answers[1].value}. Return ${answers[1].value}; the output so far is [2, 4].`,
+            zh: `两个操作数都是现成的前缀和：${prefixSum[4]} - (${prefixSum[1]}) = ${answers[1].value}，返回 ${answers[1].value}；目前输出为 [2, 4]。`,
+            invariant: INV_SUB,
+            state: { ...base(), mi: 2, mj: 4, prefix: [...prefixSum], hatchNums: [0, 1], shade: [2, 4], bracket: { a: 0, b: 4, label: 'sum[0 : 4]' }, subBrackets: [{ a: 0, b: 1, label: 'sum[0 : 1]' }, { a: 2, b: 4, label: `sum[2 : 4] = ${answers[1].value}` }], hatchPrefix: 1, circlePrefix: 4, queryNum: 2, output: [2, 4], result: answers[1].value }
+          },
+          {
+            stepLabel: '查询 3 · sum_range(2, 2)',
+            sourceKeys: ['range-def', 'cond'],
+            line: 'if i == 0:  # i = 2 → False',
+            en: 'Third query sum_range(2, 2): a single element. i = 2 ≠ 0, so the subtraction branch handles it too.',
+            zh: '第三次查询 sum_range(2, 2)：区间只剩一个元素。i = 2 ≠ 0，仍走减法分支。',
+            invariant: INV_SUB,
+            state: { ...base(), mi: 2, mj: 2, prefix: [...prefixSum], shade: [2, 2], bracket: { a: 2, b: 2, label: 'sum_range(2, 2)' }, queryNum: 3 }
+          },
+          {
+            stepLabel: `${prefixSum[2]} - (${prefixSum[1]}) = ${answers[2].value}`,
+            sourceKeys: ['return-sub'],
+            line: `return self.prefix_sum[j] - self.prefix_sum[i - 1]  # prefix_sum[2] - prefix_sum[1] = ${prefixSum[2]} - (${prefixSum[1]}) = ${answers[2].value}`,
+            en: `sum[0 : 2] - sum[0 : 1] leaves exactly the cell at index 2: ${prefixSum[2]} - (${prefixSum[1]}) = ${answers[2].value}. Return ${answers[2].value}; output is [2, 4, 6].`,
+            zh: `sum[0 : 2] 减去 sum[0 : 1]，剩下的正好是下标 2 这一格：${prefixSum[2]} - (${prefixSum[1]}) = ${answers[2].value}，返回 ${answers[2].value}；输出 [2, 4, 6]。`,
+            invariant: INV_SUB,
+            state: { ...base(), mi: 2, mj: 2, prefix: [...prefixSum], hatchNums: [0, 1], shade: [2, 2], bracket: { a: 0, b: 2, label: 'sum[0 : 2]' }, subBrackets: [{ a: 0, b: 1, label: 'sum[0 : 1]' }, { a: 2, b: 2, label: `sum[2 : 2] = ${answers[2].value}` }], hatchPrefix: 1, circlePrefix: 2, queryNum: 3, output: [2, 4, 6], result: answers[2].value }
+          },
+          {
+            stepLabel: `输出 [${answers.map(a => a.value).join(', ')}]`,
+            sourceKeys: ['return-first', 'return-sub'],
+            line: `output = [${answers.map(a => a.value).join(', ')}]  # 一次 O(n) 预处理，三次 O(1) 查询`,
+            en: 'One O(n) preprocessing pass plus three O(1) lookups answer every query: output = [2, 4, 6].',
+            zh: '一次 O(n) 预处理加三次 O(1) 查询，得到全部答案：output = [2, 4, 6]。',
+            invariant: 'O(n) 预处理一次，之后每个查询 O(1)。',
+            state: { ...base(), prefix: [...prefixSum], output: answers.map(a => a.value), result: answers[2].value, done: true }
+          }
+        ];
+
+        const scene = core.createSvgScene(svg);
+        const hatchDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        hatchDefs.innerHTML = '<pattern id="sum-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M 0 7 L 7 0" stroke="#8f8f88" stroke-width="1.1"/></pattern>';
+        svg.prepend(hatchDefs);
+        scene.defineMarker('sum-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+
+        const motion = core.createMotionController();
+        let geom = {};
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const compact = width < 520;
+          const padL = compact ? 4 : 8;
+          const labelW = compact ? 78 : 104;
+          const glyphW = compact ? 10 : 14;
+          const cellGap = compact ? 4 : 7;
+          const cellH = compact ? 30 : 34;
+          const cellsX = padL + labelW + glyphW + 4;
+          const cellsW = width - cellsX - glyphW - (compact ? 8 : 14);
+          const cellW = (cellsW - (N - 1) * cellGap) / N;
+          const bracketLabelY = compact ? 15 : 19;
+          const bracketY = compact ? 29 : 34;
+          const numsY = compact ? 39 : 48;
+          const idxY = numsY + cellH + (compact ? 13 : 16);
+          const subY = idxY + (compact ? 16 : 19);
+          const subLabelY = subY + (compact ? 14 : 16);
+          const prefixY = subLabelY + (compact ? 12 : 14);
+          const pIdxY = prefixY + cellH + (compact ? 13 : 16);
+          const bottomY = pIdxY + (compact ? 20 : 25);
+          const stageH = bottomY + (compact ? 15 : 19);
+          const cells = Array.from({ length: N }, (_, i) => {
+            const x = cellsX + i * (cellW + cellGap);
+            return { x, cx: x + cellW / 2, right: x + cellW };
+          });
+          geom = {
+            width, compact, labelEndX: cellsX - glyphW - 4, cellsX, cellW, cellH,
+            bracketLabelY, bracketY, numsY, idxY, subY, subLabelY, prefixY, pIdxY, bottomY, stageH, cells
+          };
+          svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
+          stage.style.height = `${Math.ceil(stageH)}px`;
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom.cells || !state) return;
+          const g = geom;
+          const lerp = (a, b) => a + (b - a) * t;
+          const presence = (was, is) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
+          const F = g.compact
+            ? { val: 12.5, idx: 9, lab: 10, lbl: 10 }
+            : { val: 15, idx: 10.5, lab: 11.5, lbl: 12 };
+          const valDy = g.compact ? 4.2 : 5;
+
+          scene.update(({ path, text, circle }) => {
+            text('row-label-nums', { x: g.labelEndX, y: g.numsY + g.cellH / 2 + 4, 'text-anchor': 'end', 'font-size': F.lbl, fill: '#272727', 'font-family': MONO }, 'nums =');
+            text('row-label-prefix', { x: g.labelEndX, y: g.prefixY + g.cellH / 2 + 4, 'text-anchor': 'end', 'font-size': F.lbl, fill: '#272727', 'font-family': MONO }, 'prefix_sum =');
+            text('glyph-open-nums', { x: g.cells[0].x - 8, y: g.numsY + g.cellH - 7, 'text-anchor': 'middle', 'font-size': g.cellH * 0.8, fill: '#272727' }, '[');
+            text('glyph-close-nums', { x: g.cells[N - 1].right + 9, y: g.numsY + g.cellH - 7, 'text-anchor': 'middle', 'font-size': g.cellH * 0.8, fill: '#272727' }, ']');
+            text('glyph-open-prefix', { x: g.cells[0].x - 8, y: g.prefixY + g.cellH - 7, 'text-anchor': 'middle', 'font-size': g.cellH * 0.8, fill: '#272727' }, '[');
+            text('glyph-close-prefix', { x: g.cells[N - 1].right + 9, y: g.prefixY + g.cellH - 7, 'text-anchor': 'middle', 'font-size': g.cellH * 0.8, fill: '#272727' }, ']');
+
+            for (let i = 0; i < N; i++) {
+              const c = g.cells[i];
+              path(`ncell-${i}`, { d: rectPath(c.x, g.numsY, g.cellW, g.cellH), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3 });
+            }
+
+            const spanRect = (id, to, was, fill, baseOp) => {
+              if (!to && !was) return;
+              const op = presence(Boolean(was), Boolean(to));
+              const a = to ? to[0] : was[0];
+              const b = to ? to[1] : was[1];
+              const af = was ? was[0] : a;
+              const bf = was ? was[1] : b;
+              const x1 = lerp(g.cells[af].x, g.cells[a].x) - 3;
+              const x2 = lerp(g.cells[bf].right, g.cells[b].right) + 3;
+              path(id, { d: rectPath(x1, g.numsY - 3, x2 - x1, g.idxY + 4 - (g.numsY - 3)), fill, opacity: baseOp * op, stroke: 'none' });
+            };
+            spanRect('shade-nums', state.shade, from ? from.shade : null, '#8f8f88', 0.3);
+            spanRect('hatch-nums', state.hatchNums, from ? from.hatchNums : null, 'url(#sum-hatch)', 0.6);
+
+            const idxBox = (id, toIdx, wasIdx, y, attrs) => {
+              const hasTo = toIdx !== null && toIdx !== undefined;
+              const hasWas = wasIdx !== null && wasIdx !== undefined;
+              if (!hasTo && !hasWas) return;
+              const baseOp = attrs.baseOpacity ?? 1;
+              const op = presence(hasWas, hasTo) * baseOp;
+              const cTo = hasTo ? g.cells[toIdx] : g.cells[wasIdx];
+              const cWas = hasWas ? g.cells[wasIdx] : cTo;
+              const x = lerp(cWas.cx, cTo.cx);
+              const { baseOpacity, ...rest } = attrs;
+              path(id, { d: rectPath(x - g.cellW / 2 - 4, y - 4, g.cellW + 8, g.cellH + 8, 3), opacity: op, stroke: 'none', ...rest });
+            };
+            idxBox('focus-nums', state.focusNums, from ? from.focusNums : null, g.numsY, { fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
+
+            for (let i = 0; i < N; i++) {
+              const c = g.cells[i];
+              text(`nval-${i}`, { x: c.cx, y: g.numsY + g.cellH / 2 + valDy, 'text-anchor': 'middle', 'font-size': F.val, fill: '#272727', 'font-family': MONO }, String(NUMS[i]));
+              text(`nidx-${i}`, { x: c.cx, y: g.idxY, 'text-anchor': 'middle', 'font-size': F.idx, fill: '#555', 'font-family': MONO }, String(i));
+            }
+
+            const bracket = (id, toB, wasB, y, dir, size) => {
+              const hasTo = Boolean(toB);
+              const hasWas = Boolean(wasB);
+              if (!hasTo && !hasWas) return;
+              const op = presence(hasWas, hasTo);
+              const a = hasTo ? toB.a : wasB.a;
+              const b = hasTo ? toB.b : wasB.b;
+              const af = hasWas ? wasB.a : a;
+              const bf = hasWas ? wasB.b : b;
+              const x1 = lerp(g.cells[af].cx, g.cells[a].cx);
+              const x2 = lerp(g.cells[bf].cx, g.cells[b].cx);
+              const mid = (x1 + x2) / 2;
+              path(`${id}-line`, { d: `M ${x1} ${y} L ${x2} ${y}`, stroke: '#333', 'stroke-width': 1.1, fill: 'none', opacity: op });
+              path(`${id}-tick-l`, { d: `M ${x1} ${y} L ${x1} ${y + dir * 5}`, stroke: '#333', 'stroke-width': 1.1, fill: 'none', opacity: op });
+              path(`${id}-tick-r`, { d: `M ${x2} ${y} L ${x2} ${y + dir * 5}`, stroke: '#333', 'stroke-width': 1.1, fill: 'none', opacity: op });
+              path(`${id}-caret`, { d: dir > 0 ? `M ${mid - 3} ${y} L ${mid + 3} ${y} L ${mid} ${y + 5} Z` : `M ${mid - 3} ${y} L ${mid + 3} ${y} L ${mid} ${y - 5} Z`, fill: '#333', opacity: op });
+              const label = hasTo ? toB.label : wasB.label;
+              text(`${id}-label`, { x: mid, y: dir > 0 ? y - 6 : y + 14, 'text-anchor': 'middle', 'font-size': size, fill: '#272727', 'font-family': MONO, opacity: op }, label);
+            };
+            bracket('mbracket', state.bracket, from ? from.bracket : null, g.bracketY, 1, F.lab);
+            const subLen = Math.max(state.subBrackets.length, from ? from.subBrackets.length : 0);
+            for (let k = 0; k < subLen; k++) {
+              bracket(`sbracket-${k}`, state.subBrackets[k] || null, from && from.subBrackets[k] ? from.subBrackets[k] : null, g.subY, -1, F.lab - 0.5);
+            }
+
+            const hasArrow = state.downArrow !== null;
+            const hadArrow = Boolean(from) && from.downArrow !== null && from.downArrow !== undefined;
+            if (hasArrow || hadArrow) {
+              const op = presence(hadArrow, hasArrow);
+              const toI = hasArrow ? state.downArrow : from.downArrow;
+              const fromI = hadArrow ? from.downArrow : toI;
+              const x = lerp(g.cells[fromI].cx, g.cells[toI].cx);
+              path('down-arrow', { d: `M ${x} ${g.idxY + 6} L ${x} ${g.prefixY - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#sum-arrow)', opacity: op });
+            }
+
+            for (let i = 0; i < N; i++) {
+              const c = g.cells[i];
+              const built = state.prefix[i] !== null && state.prefix[i] !== undefined;
+              const wasBuilt = from ? (from.prefix[i] !== null && from.prefix[i] !== undefined) : built;
+              path(`pcell-${i}`, { d: rectPath(c.x, g.prefixY, g.cellW, g.cellH), fill: '#fffdf8', stroke: built ? '#333' : '#999', 'stroke-width': built ? 1.3 : 1, 'stroke-dasharray': built ? null : '4 3' });
+            }
+            idxBox('read-p', state.readPrefix, from ? from.readPrefix : null, g.prefixY, { fill: '#f0eee6' });
+            idxBox('hatch-p', state.hatchPrefix, from ? from.hatchPrefix : null, g.prefixY, { fill: 'url(#sum-hatch)', baseOpacity: 0.55 });
+
+            const circTo = state.circlePrefix !== null ? g.cells[state.circlePrefix] : null;
+            const circWas = from && from.circlePrefix !== null && from.circlePrefix !== undefined ? g.cells[from.circlePrefix] : null;
+            if (circTo || circWas) {
+              const op = presence(Boolean(circWas), Boolean(circTo));
+              const cx = lerp(circWas ? circWas.cx : circTo.cx, circTo ? circTo.cx : circWas.cx);
+              circle('circle-p', { cx, cy: g.prefixY + g.cellH / 2, r: g.cellH / 2 - 1, fill: '#efede4', stroke: '#555', 'stroke-width': 1.1, opacity: op });
+            }
+            idxBox('focus-p', state.focusPrefix, from ? from.focusPrefix : null, g.prefixY, { fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
+
+            for (let i = 0; i < N; i++) {
+              const c = g.cells[i];
+              const built = state.prefix[i] !== null && state.prefix[i] !== undefined;
+              const wasBuilt = from ? (from.prefix[i] !== null && from.prefix[i] !== undefined) : built;
+              if (built || wasBuilt) {
+                const v = built ? state.prefix[i] : from.prefix[i];
+                const emphasized = state.circlePrefix === i || state.hatchPrefix === i;
+                text(`pval-${i}`, { x: c.cx, y: g.prefixY + g.cellH / 2 + valDy, 'text-anchor': 'middle', 'font-size': F.val, 'font-weight': emphasized ? 700 : 400, fill: '#272727', 'font-family': MONO, opacity: presence(wasBuilt, built) }, String(v));
+              }
+              text(`pidx-${i}`, { x: c.cx, y: g.pIdxY, 'text-anchor': 'middle', 'font-size': F.idx, fill: '#555', 'font-family': MONO }, String(i));
+            }
+
+            if (state.queryNum && !state.done) {
+              text('qtag', { x: g.width - 6, y: g.bottomY, 'text-anchor': 'end', 'font-size': F.idx + 0.5, fill: '#555', 'font-family': MONO }, `查询 ${state.queryNum} / ${QUERIES.length}`);
+            }
+            const wasDone = Boolean(from) && from.done;
+            if (state.done || wasDone) {
+              const op = presence(wasDone, state.done);
+              const out = state.output.length ? state.output : (from ? from.output : []);
+              text('output-tag', { x: g.width / 2, y: g.bottomY, 'text-anchor': 'middle', 'font-size': F.lab, fill: '#272727', 'font-family': MONO, opacity: op }, `output = [ ${out.join(', ')} ]`);
+            }
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.stepLabel;
+          invariantEl.textContent = frame.invariant;
+          mI.textContent = state.mi === null ? '—' : String(state.mi);
+          mJ.textContent = state.mj === null ? '—' : String(state.mj);
+          mResult.textContent = state.result === null ? '—' : String(state.result);
+          mOutput.textContent = state.output.length ? `[${state.output.join(', ')}]` : '—';
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.en;
+          explanationZhEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `区间求和演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => JSON.parse(JSON.stringify(s));
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 400,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>

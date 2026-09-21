@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of identifying all overlaps between two sorted interval arrays with two pointers. 双指针找出两个有序区间数组的所有重叠区间。" />
+    <title>Identify All Interval Overlaps · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .step-picker select { max-width: 100%; }
+      .stage { height: 246px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .example-grid, .case-grid, .edge-grid, .complexity, .mini-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .io-line { display: block; margin: 5px 0 0; font: 12px/1.6 monospace; overflow-wrap: anywhere; }
+      .mini-card { min-width: 0; padding: 10px; border: 1px solid var(--rule); }
+      .mini-fig { display: block; width: 100%; height: auto; }
+      .mini-cap { margin: 7px 0 0; color: var(--quiet); font-size: 12px; }
+      .process-list { margin: 10px 0 0; padding-left: 24px; }
+      .process-list li { margin: 6px 0; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .example-grid, .case-grid, .edge-grid, .complexity, .mini-grid { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="overlap-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Identify All Interval Overlaps · 找出所有区间重叠</h1><p class="subtitle">第 9 章 · 区间 / Chapter 9 · Intervals · 双指针</p></div></header>
+      <p class="problem">Return an array of all overlaps between two arrays of intervals, <code>intervals1</code> and <code>intervals2</code>. Each individual interval array is sorted by start value, and contains no overlapping intervals within itself.<span lang="zh-CN">返回 intervals1 与 intervals2 之间所有重叠的区间。两个数组各自按起点升序，且内部没有重叠区间。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="找出所有区间重叠双指针演示 / interval overlaps two-pointer trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="区间重叠演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>i</code></dt><dd data-m-i></dd></div>
+              <div><dt><code>j</code></dt><dd data-m-j></dd></div>
+              <div><dt><code>A</code></dt><dd data-m-a></dd></div>
+              <div><dt><code>B</code></dt><dd data-m-b></dd></div>
+              <div><dt><code>overlaps</code></dt><dd data-m-overlaps></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="overlap-code-title">
+          <h2 id="overlap-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def identify_all_interval_overlaps(</span><span class="code-line" data-source-key="func-args">    intervals1: List[Interval], intervals2: List[Interval]</span><span class="code-line" data-source-key="func-ret">) -&gt; List[Interval]:</span><span class="code-line" data-source-key="init">    overlaps = []</span><span class="code-line" data-source-key="init-ij">    i = j = 0</span><span class="code-line" data-source-key="loop">    while i &lt; len(intervals1) and j &lt; len(intervals2):</span><span class="code-line">        # Set A to the interval that starts first and B to the other</span><span class="code-line">        # interval.</span><span class="code-line" data-source-key="cmp-start">        if intervals1[i].start &lt;= intervals2[j].start:</span><span class="code-line" data-source-key="ab-if">            A, B = intervals1[i], intervals2[j]</span><span class="code-line" data-source-key="else-ab">        else:</span><span class="code-line" data-source-key="ab-else">            A, B = intervals2[j], intervals1[i]</span><span class="code-line">        # If there's an overlap, add the overlap.</span><span class="code-line" data-source-key="cmp-overlap">        if A.end &gt;= B.start:</span><span class="code-line" data-source-key="append">            overlaps.append(Interval(B.start, min(A.end, B.end)))</span><span class="code-line">        # Advance the pointer associated with the interval that ends</span><span class="code-line">        # first.</span><span class="code-line" data-source-key="cmp-advance">        if intervals1[i].end &lt; intervals2[j].end:</span><span class="code-line" data-source-key="adv-i">            i += 1</span><span class="code-line" data-source-key="else-adv">        else:</span><span class="code-line" data-source-key="adv-j">            j += 1</span><span class="code-line" data-source-key="final">    return overlaps</span></code></pre>
+          <p class="note">书中印刷的 <code>len(intervalvals2)</code> 是笔误，正确写法为 <code>len(intervals2)</code>，本页按正确版本实现。终点完全相同时走 <code>else</code> 移动 <code>j</code>。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="overlap-problem">
+        <h2 id="overlap-problem">问题与示例 / Problem &amp; example</h2>
+        <p class="section-intro">两个数组各自有序、内部互不重叠，所以任何重叠必然发生在一个来自 <code>intervals1</code>、一个来自 <code>intervals2</code> 的区间之间。约束：每个区间满足 <code>start &lt; end</code>。</p>
+        <div class="example-grid">
+          <article class="paper-card"><strong>Example · 示例</strong><span class="io-line">Input: intervals1 = [[1, 4], [5, 6], [9, 10]]</span><span class="io-line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;intervals2 = [[2, 7], [8, 9]]</span><span class="io-line">Output: [[2, 4], [5, 6], [9, 9]]</span></article>
+          <article class="paper-card"><strong>如何读图 · Reading the diagram</strong><p>灰色细杆是输入区间；粗黑杆是当前的一对 <code>A</code>、<code>B</code>；数轴下方「intersections:」一行的粗黑杆是已记录的重叠，<code>[9, 9]</code> 退化为一个粗刻度。<span lang="zh-CN">带方框的 <code>i</code>、<code>j</code> 是指针，虚线弧线表示指针移动。</span></p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="overlap-intuition">
+        <h2 id="overlap-intuition">直觉：先会求两个区间的重叠 / One overlap, two intervals</h2>
+        <p class="section-intro">设 <code>A</code> 先开始。两区间重叠 ⟺ <code>A.end ≥ B.start</code>；重叠段从较晚的起点 <code>B.start</code> 开始，到较早的终点 <code>min(A.end, B.end)</code> 结束。</p>
+        <div class="mini-grid">
+          <article class="mini-card">
+            <svg class="mini-fig" viewBox="0 0 300 130" role="img" aria-label="A = [1,4], B = [2,7], overlap = [2,4]">
+              <defs><marker id="mfig-a" viewBox="0 0 7 7" refX="6" refY="3.5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L7 3.5 L0 7 Z" fill="#333" /></marker></defs>
+              <text x="30" y="18" style="font: 10.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#555">A = [1, 4] · B = [2, 7]</text>
+              <line x1="30" y1="40" x2="150" y2="40" stroke="#272727" stroke-width="4" />
+              <line x1="30" y1="34" x2="30" y2="46" stroke="#272727" stroke-width="2.2" />
+              <line x1="150" y1="34" x2="150" y2="46" stroke="#272727" stroke-width="2.2" />
+              <text x="90" y="30" text-anchor="middle" style="font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#272727">A</text>
+              <text x="150" y="30" text-anchor="middle" style="font: 9.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#555">A.end</text>
+              <line x1="70" y1="58" x2="270" y2="58" stroke="#272727" stroke-width="4" />
+              <line x1="70" y1="52" x2="70" y2="64" stroke="#272727" stroke-width="2.2" />
+              <line x1="270" y1="52" x2="270" y2="64" stroke="#272727" stroke-width="2.2" />
+              <text x="190" y="48" text-anchor="middle" style="font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#272727">B</text>
+              <line x1="26" y1="78" x2="284" y2="78" stroke="#333" stroke-width="1.2" marker-start="url(#mfig-a)" marker-end="url(#mfig-a)" />
+              <g style="font: 9px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#555">
+                <line x1="30" y1="78" x2="30" y2="83" stroke="#555" /><text x="30" y="93" text-anchor="middle">1</text>
+                <line x1="70" y1="78" x2="70" y2="83" stroke="#555" /><text x="70" y="93" text-anchor="middle">2</text>
+                <line x1="110" y1="78" x2="110" y2="83" stroke="#555" /><text x="110" y="93" text-anchor="middle">3</text>
+                <line x1="150" y1="78" x2="150" y2="83" stroke="#555" /><text x="150" y="93" text-anchor="middle">4</text>
+                <line x1="190" y1="78" x2="190" y2="83" stroke="#555" /><text x="190" y="93" text-anchor="middle">5</text>
+                <line x1="230" y1="78" x2="230" y2="83" stroke="#555" /><text x="230" y="93" text-anchor="middle">6</text>
+                <line x1="270" y1="78" x2="270" y2="83" stroke="#555" /><text x="270" y="93" text-anchor="middle">7</text>
+              </g>
+              <rect x="70" y="100" width="80" height="7" fill="#272727" />
+              <line x1="70" y1="98" x2="70" y2="109" stroke="#272727" stroke-width="2" />
+              <line x1="150" y1="98" x2="150" y2="109" stroke="#272727" stroke-width="2" />
+              <text x="65" y="123" text-anchor="end" style="font: 9.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#272727">B.start</text>
+              <text x="75" y="115" text-anchor="start" style="font: 9.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#272727">min(A.end, B.end)</text>
+              <text x="75" y="126" text-anchor="start" style="font: 9.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#272727">= A.end</text>
+            </svg>
+            <p class="mini-cap">B 超出 A 的右端：重叠到 <code>A.end</code> 为止 → <code>[B.start, A.end]</code>。</p>
+          </article>
+          <article class="mini-card">
+            <svg class="mini-fig" viewBox="0 0 300 130" role="img" aria-label="A = [1,4], B = [2,3], overlap = [2,3]">
+              <defs><marker id="mfig-b" viewBox="0 0 7 7" refX="6" refY="3.5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L7 3.5 L0 7 Z" fill="#333" /></marker></defs>
+              <text x="30" y="18" style="font: 10.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#555">A = [1, 4] · B = [2, 3]</text>
+              <line x1="30" y1="40" x2="150" y2="40" stroke="#272727" stroke-width="4" />
+              <line x1="30" y1="34" x2="30" y2="46" stroke="#272727" stroke-width="2.2" />
+              <line x1="150" y1="34" x2="150" y2="46" stroke="#272727" stroke-width="2.2" />
+              <text x="90" y="30" text-anchor="middle" style="font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#272727">A</text>
+              <text x="150" y="30" text-anchor="middle" style="font: 9.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#555">A.end</text>
+              <line x1="70" y1="58" x2="110" y2="58" stroke="#272727" stroke-width="4" />
+              <line x1="70" y1="52" x2="70" y2="64" stroke="#272727" stroke-width="2.2" />
+              <line x1="110" y1="52" x2="110" y2="64" stroke="#272727" stroke-width="2.2" />
+              <text x="90" y="48" text-anchor="middle" style="font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#272727">B</text>
+              <line x1="26" y1="78" x2="284" y2="78" stroke="#333" stroke-width="1.2" marker-start="url(#mfig-b)" marker-end="url(#mfig-b)" />
+              <g style="font: 9px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#555">
+                <line x1="30" y1="78" x2="30" y2="83" stroke="#555" /><text x="30" y="93" text-anchor="middle">1</text>
+                <line x1="70" y1="78" x2="70" y2="83" stroke="#555" /><text x="70" y="93" text-anchor="middle">2</text>
+                <line x1="110" y1="78" x2="110" y2="83" stroke="#555" /><text x="110" y="93" text-anchor="middle">3</text>
+                <line x1="150" y1="78" x2="150" y2="83" stroke="#555" /><text x="150" y="93" text-anchor="middle">4</text>
+                <line x1="190" y1="78" x2="190" y2="83" stroke="#555" /><text x="190" y="93" text-anchor="middle">5</text>
+                <line x1="230" y1="78" x2="230" y2="83" stroke="#555" /><text x="230" y="93" text-anchor="middle">6</text>
+                <line x1="270" y1="78" x2="270" y2="83" stroke="#555" /><text x="270" y="93" text-anchor="middle">7</text>
+              </g>
+              <rect x="70" y="100" width="40" height="7" fill="#272727" />
+              <line x1="70" y1="98" x2="70" y2="109" stroke="#272727" stroke-width="2" />
+              <line x1="110" y1="98" x2="110" y2="109" stroke="#272727" stroke-width="2" />
+              <text x="65" y="123" text-anchor="end" style="font: 9.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#272727">B.start</text>
+              <text x="75" y="115" text-anchor="start" style="font: 9.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#272727">min(A.end, B.end)</text>
+              <text x="75" y="126" text-anchor="start" style="font: 9.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#272727">= B.end</text>
+            </svg>
+            <p class="mini-cap">B 完全落在 A 内部：重叠到 <code>B.end</code> 为止 → <code>[B.start, B.end]</code>。</p>
+          </article>
+        </div>
+        <ol class="process-list">
+          <li>设 <code>A</code> 为起点较早的区间，<code>B</code> 为另一个区间。<span lang="zh-CN">每轮先比较两个当前区间的起点。</span></li>
+          <li>若 <code>A.end ≥ B.start</code>，记录重叠 <code>[B.start, min(A.end, B.end)]</code>。<span lang="zh-CN">否则什么都不记录。</span></li>
+          <li>移动结束较早的区间对应的指针，直到某个指针越过数组末尾。<span lang="zh-CN">之后不会再有新的重叠。</span></li>
+        </ol>
+      </section>
+
+      <section class="section" aria-labelledby="overlap-why">
+        <h2 id="overlap-why">为什么正确 / Why it works</h2>
+        <p class="section-intro">两个数组都按起点升序。若 <code>intervals1[i].end &lt; intervals2[j].end</code>，则 <code>intervals1[i]</code> 不可能再和 <code>intervals2</code> 中 <code>j</code> 之后的任何区间重叠——后面的区间起点更晚，而 <code>intervals1[i]</code> 早已结束。所以移动 <code>i</code> 不会丢解；对称地，移动 <code>j</code> 也不会。每次记录的都是两区间交集 <code>[B.start, min(A.end, B.end)]</code>，不漏不重。</p>
+        <p class="small">判断谁先结束时用的是 <code>intervals1[i]</code> 和 <code>intervals2[j]</code>，而不是 <code>A</code>、<code>B</code>——因为无法事先知道 A、B 各属于哪个数组。</p>
+      </section>
+
+      <section class="section" aria-labelledby="overlap-edge">
+        <h2 id="overlap-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>端点相接 · Touching endpoints</strong><p><code>[8, 9]</code> 与 <code>[9, 10]</code> 在 9 处相接：<code>A.end ≥ B.start</code> 取等号仍算重叠，记录零宽度区间 <code>[9, 9]</code>。<span lang="zh-CN">数轴上它退化为一个粗刻度。</span></p></article>
+          <article class="paper-card"><strong>完全不重叠 · Disjoint pair</strong><p><code>[2, 7]</code> 与 <code>[9, 10]</code> 之间有空隙：不记录，照样移动结束较早一方的指针。</p></article>
+          <article class="paper-card"><strong>终点相同 · Equal ends</strong><p><code>intervals1[i].end == intervals2[j].end</code> 时条件 <code>&lt;</code> 不成立，走 <code>else</code> 移动 <code>j</code>；每轮必有一个指针前进，不会死循环。</p></article>
+          <article class="paper-card"><strong>空数组 · Empty input</strong><p>任一数组为空时循环一次也不执行，直接返回 <code>[]</code>。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="overlap-complexity">
+        <h2 id="overlap-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n + m)</strong><p><code>n</code>、<code>m</code> 分别是 <code>intervals1</code>、<code>intervals2</code> 的长度；两个数组各被遍历一次，每个区间只被指针访问一遍。</p></article>
+          <article class="paper-card"><strong>Extra space · O(1)</strong><p>只使用 <code>i</code>、<code>j</code>、<code>A</code>、<code>B</code> 几个变量；输出数组 <code>overlaps</code> 不计入额外空间。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../merge-overlapping-intervals/">合并重叠区间</a><a href="../largest-overlap-of-intervals/">区间最大重叠数</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('overlap-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mI = root.querySelector('[data-m-i]');
+        const mJ = root.querySelector('[data-m-j]');
+        const mA = root.querySelector('[data-m-a]');
+        const mB = root.querySelector('[data-m-b]');
+        const mOv = root.querySelector('[data-m-overlaps]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+        const explanationZhEl = root.querySelector('[data-explanation-zh]');
+
+        const I1 = [[1, 4], [5, 6], [9, 10]];
+        const I2 = [[2, 7], [8, 9]];
+        const LO1 = I1.length;
+        const LO2 = I2.length;
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const fmt = iv => `[${iv[0]}, ${iv[1]}]`;
+        const fmtList = list => `[${list.map(fmt).join(', ')}]`;
+
+        const INV = {
+          init: '每个数组内部无重叠且按 start 升序，所以重叠只可能出现在两个数组之间。',
+          loop: 'i、j 都在界内；尚未比较的区间对中仍可能有重叠。',
+          assign: 'A 是先开始的区间；重叠若存在，其起点必为 B.start。',
+          check: 'A 先开始时，A.end ≥ B.start ⟺ 两个区间重叠。',
+          record: '重叠段 = [B.start, min(A.end, B.end)]。',
+          advance: 'end 较小的区间不会再与另一数组中更靠后的区间重叠，移动它不会丢解。',
+          exit: '一旦某个指针越界，剩余区间不会再产生重叠。',
+          done: '每个重叠在两个数组各自无内部重叠的前提下被恰好记录一次。'
+        };
+
+        function simulate() {
+          const frames = [];
+          const overlaps = [];
+          let i = 0;
+          let j = 0;
+          let round = 0;
+          const emit = (meta, st) => {
+            frames.push({
+              stepLabel: meta.stepLabel,
+              sourceKeys: meta.sourceKeys,
+              line: meta.line,
+              en: meta.en,
+              zh: meta.zh,
+              invariant: meta.invariant,
+              state: {
+                i: st.i,
+                j: st.j,
+                a: st.a || null,
+                b: st.b || null,
+                overlaps: st.overlaps.map(o => [o[0], o[1]]),
+                justRecorded: st.justRecorded === undefined ? -1 : st.justRecorded,
+                noOverlap: Boolean(st.noOverlap),
+                move: st.move ? { ...st.move } : null,
+                done: Boolean(st.done)
+              }
+            });
+          };
+
+          emit(
+            {
+              stepLabel: '初始化：i = 0，j = 0',
+              sourceKeys: ['init', 'init-ij'],
+              line: 'overlaps = []; i = j = 0',
+              en: 'Two pointers start at the first interval of each array; the overlap list is empty.',
+              zh: '两个指针分别指向两个数组的第一个区间，重叠列表为空。',
+              invariant: INV.init
+            },
+            { i, j, overlaps }
+          );
+
+          while (i < LO1 && j < LO2) {
+            round += 1;
+            const one = I1[i];
+            const two = I2[j];
+            emit(
+              {
+                stepLabel: `第 ${round} 轮 · 进入循环`,
+                sourceKeys: ['loop'],
+                line: `while ${i} < ${LO1} and ${j} < ${LO2}:  # True`,
+                en: `Both pointers are in range, so compare intervals1[${i}] = ${fmt(one)} with intervals2[${j}] = ${fmt(two)}.`,
+                zh: `i = ${i}、j = ${j} 都在界内，取出 intervals1[${i}] = ${fmt(one)} 与 intervals2[${j}] = ${fmt(two)}。`,
+                invariant: INV.loop
+              },
+              { i, j, overlaps }
+            );
+
+            const first1 = one[0] <= two[0];
+            const A = first1 ? one : two;
+            const B = first1 ? two : one;
+            const aRef = first1 ? { row: 1, idx: i } : { row: 2, idx: j };
+            const bRef = first1 ? { row: 2, idx: j } : { row: 1, idx: i };
+            emit(
+              {
+                stepLabel: `第 ${round} 轮 · 指定 A、B`,
+                sourceKeys: first1 ? ['cmp-start', 'ab-if'] : ['cmp-start', 'else-ab', 'ab-else'],
+                line: first1
+                  ? `intervals1[${i}].start = ${one[0]} <= intervals2[${j}].start = ${two[0]}  →  A, B = intervals1[${i}], intervals2[${j}]`
+                  : `intervals1[${i}].start = ${one[0]} > intervals2[${j}].start = ${two[0]}  →  else: A, B = intervals2[${j}], intervals1[${i}]`,
+                en: `A = ${fmt(A)} starts first and B = ${fmt(B)} is the other; any overlap begins at B.start = ${B[0]}.`,
+                zh: `A = ${fmt(A)} 起点更早，B = ${fmt(B)} 是另一个；重叠若存在，必从 B.start = ${B[0]} 开始。`,
+                invariant: INV.assign
+              },
+              { i, j, overlaps, a: aRef, b: bRef }
+            );
+
+            const hasOv = A[1] >= B[0];
+            emit(
+              {
+                stepLabel: `第 ${round} 轮 · 判定 A.end ≥ B.start`,
+                sourceKeys: ['cmp-overlap'],
+                line: `if ${A[1]} >= ${B[0]}:  # A.end >= B.start → ${hasOv}`,
+                en: hasOv
+                  ? `A.end = ${A[1]} ≥ B.start = ${B[0]}, so A and B overlap.`
+                  : `A.end = ${A[1]} < B.start = ${B[0]}: this pair does not overlap.`,
+                zh: hasOv
+                  ? `A.end = ${A[1]} ≥ B.start = ${B[0]}，两区间重叠。`
+                  : `A.end = ${A[1]} < B.start = ${B[0]}，这一对区间不重叠。`,
+                invariant: INV.check
+              },
+              { i, j, overlaps, a: aRef, b: bRef, noOverlap: !hasOv }
+            );
+
+            if (hasOv) {
+              const me = Math.min(A[1], B[1]);
+              overlaps.push([B[0], me]);
+              emit(
+                {
+                  stepLabel: `第 ${round} 轮 · 记录 [${B[0]}, ${me}]`,
+                  sourceKeys: ['append'],
+                  line: `overlaps.append(Interval(${B[0]}, min(${A[1]}, ${B[1]})))  # 记录 [${B[0]}, ${me}]`,
+                  en: `Overlap = [B.start, min(A.end, B.end)] = [${B[0]}, min(${A[1]}, ${B[1]})] = [${B[0]}, ${me}]; append it.`,
+                  zh: `重叠 = [B.start, min(A.end, B.end)] = [${B[0]}, min(${A[1]}, ${B[1]})] = [${B[0]}, ${me}]，追加到 overlaps。`,
+                  invariant: INV.record
+                },
+                { i, j, overlaps, a: aRef, b: bRef, justRecorded: overlaps.length - 1 }
+              );
+            }
+
+            const oi = i;
+            const oj = j;
+            const advI = one[1] < two[1];
+            const fromIdx = advI ? oi : oj;
+            if (advI) i += 1; else j += 1;
+            emit(
+              {
+                stepLabel: `第 ${round} 轮 · ${advI ? `i → ${i}` : `j → ${j}`}`,
+                sourceKeys: advI ? ['cmp-advance', 'adv-i'] : ['cmp-advance', 'else-adv', 'adv-j'],
+                line: advI
+                  ? `intervals1[${oi}].end = ${one[1]} < intervals2[${oj}].end = ${two[1]}  →  i += 1`
+                  : `intervals1[${oi}].end = ${one[1]} >= intervals2[${oj}].end = ${two[1]}  →  else: j += 1`,
+                en: advI
+                  ? `intervals1[${oi}] ends first (${one[1]} < ${two[1]}), so it can no longer overlap any later interval of intervals2; move i to ${i}.`
+                  : `intervals2[${oj}] ends no later than intervals1[${oi}] (${two[1]} ≤ ${one[1]}; a tie also moves j); move j to ${j}.`,
+                zh: advI
+                  ? `intervals1[${oi}] 结束得更早（${one[1]} < ${two[1]}），不可能再和 intervals2 后面的区间重叠，移动 i 到 ${i}。`
+                  : `intervals2[${oj}] 结束得更早（${two[1]} ≤ ${one[1]}，终点相同也移动 j），移动 j 到 ${j}。`,
+                invariant: INV.advance
+              },
+              { i, j, overlaps, a: aRef, b: bRef, move: { ptr: advI ? 'i' : 'j', from: fromIdx, to: advI ? i : j } }
+            );
+          }
+
+          const exitIsI = i >= LO1;
+          const exitPtr = exitIsI ? 'i' : 'j';
+          const exitVal = exitIsI ? i : j;
+          emit(
+            {
+              stepLabel: '循环结束：指针越界',
+              sourceKeys: ['loop'],
+              line: `while ${i} < ${LO1} and ${j} < ${LO2}:  # False（${exitPtr} 越界）`,
+              en: `${exitPtr} = ${exitVal} has reached the end of its array; once either pointer leaves its array, no more overlaps can appear.`,
+              zh: `${exitPtr} = ${exitVal} 已越过数组末尾；任一指针越界后，就不会再产生新的重叠。`,
+              invariant: INV.exit
+            },
+            { i, j, overlaps }
+          );
+          emit(
+            {
+              stepLabel: '返回 overlaps',
+              sourceKeys: ['final'],
+              line: `return overlaps  # ${fmtList(overlaps)}`,
+              en: `Done — the recorded overlaps are exactly ${fmtList(overlaps)}.`,
+              zh: `结束，记录下的重叠恰好是 ${fmtList(overlaps)}。`,
+              invariant: INV.done
+            },
+            { i, j, overlaps, done: true }
+          );
+          return frames;
+        }
+
+        const FRAMES = simulate();
+
+        const scene = core.createSvgScene(svg);
+        const hatchDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        hatchDefs.innerHTML = '<pattern id="ov-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M 0 7 L 7 0" stroke="#8f8f88" stroke-width="1"/></pattern>';
+        svg.prepend(hatchDefs);
+        scene.defineMarker('ov-arrow', { fill: '#333', markerWidth: 7, markerHeight: 7, refX: 6, refY: 3.5, orient: 'auto-start-reverse' });
+
+        const motion = core.createMotionController();
+        let geom = {};
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const compact = width < 560;
+          const labelW = compact ? 82 : 96;
+          const axisLeft = labelW + (compact ? 6 : 12);
+          const axisRight = width - (compact ? 8 : 20);
+          const unit = (axisRight - axisLeft) / 9;
+          geom = {
+            width,
+            compact,
+            unit,
+            fs: compact ? 9 : 11,
+            annFs: compact ? 9 : 10,
+            tickFs: compact ? 9 : 10,
+            axisLeft,
+            axisRight,
+            x: v => axisLeft + (v - 1) * unit,
+            yI1: 74,
+            yI2: 122,
+            yAxis: 154,
+            yTick: 171,
+            yX: 192,
+            iBoxY: 34,
+            jBoxY: 90
+          };
+          const stageH = 246;
+          svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
+          stage.style.height = `${stageH}px`;
+        }
+
+        const refIv = r => (r.row === 1 ? I1[r.idx] : I2[r.idx]);
+        const barCenter = iv => (geom.x(iv[0]) + geom.x(iv[1])) / 2;
+        const ptrCx = (idx, ptr) => {
+          const arr = ptr === 'i' ? I1 : I2;
+          const len = ptr === 'i' ? LO1 : LO2;
+          return idx >= len ? geom.axisRight - 26 : barCenter(arr[idx]);
+        };
+        const ptrCxIn = (s, ptr) => (s.move && s.move.ptr === ptr ? ptrCx(s.move.to, ptr) : ptrCx(s[ptr], ptr));
+
+        function draw(state, t = 1, from = null) {
+          if (!state || !geom.x) return;
+          const g = geom;
+          const lerp = (a, b) => a + (b - a) * t;
+          const presence = (was, is) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
+          const aIv = state.a ? refIv(state.a) : null;
+          const bIv = state.b ? refIv(state.b) : null;
+
+          scene.update(({ path, text }) => {
+            text('lab-1', { x: 2, y: g.yI1 + 3.5, 'font-size': g.fs, 'font-family': MONO, fill: '#555' }, 'intervals1:');
+            text('lab-2', { x: 2, y: g.yI2 + 3.5, 'font-size': g.fs, 'font-family': MONO, fill: '#555' }, 'intervals2:');
+            text('lab-x', { x: 2, y: g.yX + 5, 'font-size': g.fs, 'font-family': MONO, fill: '#555' }, 'intersections:');
+
+            path('axis', { d: `M ${g.axisLeft - 3} ${g.yAxis} L ${g.axisRight} ${g.yAxis}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none', 'marker-start': 'url(#ov-arrow)', 'marker-end': 'url(#ov-arrow)' });
+            for (let v = 1; v <= 10; v += 1) {
+              path(`tick-${v}`, { d: `M ${g.x(v)} ${g.yAxis} L ${g.x(v)} ${g.yAxis + 5}`, stroke: '#555', 'stroke-width': 1, fill: 'none' });
+              text(`ticklab-${v}`, { x: g.x(v), y: g.yTick, 'text-anchor': 'middle', 'font-size': g.tickFs, 'font-family': MONO, fill: '#555' }, String(v));
+            }
+
+            const roleOf = (row, idx) => {
+              if (state.a && state.a.row === row && state.a.idx === idx) return 'A';
+              if (state.b && state.b.row === row && state.b.idx === idx) return 'B';
+              return null;
+            };
+            const drawBar = (row, idx, iv, y) => {
+              const role = roleOf(row, idx);
+              const col = role ? '#272727' : '#999';
+              const wdt = role ? 4 : 2;
+              const cap = role ? 6 : 4;
+              const x0 = g.x(iv[0]);
+              const x1 = g.x(iv[1]);
+              path(`bar-${row}-${idx}`, { d: `M ${x0} ${y} L ${x1} ${y}`, stroke: col, 'stroke-width': wdt, fill: 'none' });
+              path(`cap-${row}-${idx}-s`, { d: `M ${x0} ${y - cap} L ${x0} ${y + cap}`, stroke: col, 'stroke-width': role ? 2.2 : 1.4, fill: 'none' });
+              path(`cap-${row}-${idx}-e`, { d: `M ${x1} ${y - cap} L ${x1} ${y + cap}`, stroke: col, 'stroke-width': role ? 2.2 : 1.4, fill: 'none' });
+              if (role) {
+                const lx = Math.min(x1 + 6, g.width - 14);
+                text(`role-${role}`, { x: lx, y: y - 5, 'text-anchor': 'start', 'font-size': 12, 'font-family': MONO, 'font-weight': 600, fill: '#272727' }, role);
+              }
+            };
+            I1.forEach((iv, idx) => drawBar(1, idx, iv, g.yI1));
+            I2.forEach((iv, idx) => drawBar(2, idx, iv, g.yI2));
+
+            state.overlaps.forEach((ov, k) => {
+              const x0 = g.x(ov[0]);
+              const x1 = g.x(ov[1]);
+              if (ov[0] === ov[1]) {
+                path(`ovk-${k}`, { d: `M ${x0 - 1.5} ${g.yX} h 3 v 11 h -3 Z`, fill: '#272727', stroke: 'none' });
+              } else {
+                path(`ovk-${k}`, { d: `M ${x0} ${g.yX} h ${x1 - x0} v 7 h ${-(x1 - x0)} Z`, fill: '#272727', stroke: 'none' });
+                path(`ovk-${k}-s`, { d: `M ${x0} ${g.yX - 2} L ${x0} ${g.yX + 9}`, stroke: '#272727', 'stroke-width': 2, fill: 'none' });
+                path(`ovk-${k}-e`, { d: `M ${x1} ${g.yX - 2} L ${x1} ${g.yX + 9}`, stroke: '#272727', 'stroke-width': 2, fill: 'none' });
+              }
+              if (state.justRecorded === k) {
+                const w = ov[0] === ov[1] ? 8 : x1 - x0 + 10;
+                const hx = ov[0] === ov[1] ? x0 - 4 : x0 - 5;
+                path('ovk-hl', { d: rectPath(hx, g.yX - 5, w, 19, 2), fill: 'none', stroke: '#777', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
+              }
+            });
+
+            if (state.justRecorded >= 0 && bIv) {
+              const ov = state.overlaps[state.justRecorded];
+              const op = presence(from ? from.justRecorded >= 0 : false, true);
+              const aIsMin = aIv[1] <= bIv[1];
+              const minTxt = aIsMin ? '= A.end' : '= B.end';
+              const bRowY = state.b.row === 1 ? g.yI1 : g.yI2;
+              const minRowY = (aIsMin ? state.a.row : state.b.row) === 1 ? g.yI1 : g.yI2;
+              path('conn-s', { d: `M ${g.x(ov[0])} ${bRowY + 8} L ${g.x(ov[0])} ${g.yX - 2}`, stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none', opacity: op });
+              if (ov[1] > ov[0]) {
+                path('conn-e', { d: `M ${g.x(ov[1])} ${minRowY + 8} L ${g.x(ov[1])} ${g.yX - 2}`, stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none', opacity: op });
+              }
+              const zeroW = ov[1] === ov[0];
+              const annAnchorEnd = g.x(ov[0]) - 8 >= 130;
+              const annX = annAnchorEnd ? g.x(ov[0]) - 8 : g.x(ov[0]) + 8;
+              const annAnchor = annAnchorEnd ? 'end' : 'start';
+              text('ann-bs', { x: zeroW ? annX : g.x(ov[0]), y: g.yX + 17, 'text-anchor': zeroW ? annAnchor : 'middle', 'font-size': g.annFs, 'font-family': MONO, fill: '#272727', opacity: op }, 'B.start');
+              if (zeroW) {
+                text('ann-min1', { x: annX, y: g.yX + 29, 'text-anchor': annAnchor, 'font-size': g.annFs, 'font-family': MONO, fill: '#272727', opacity: op }, 'min(A.end, B.end)');
+                text('ann-min2', { x: annX, y: g.yX + 41, 'text-anchor': annAnchor, 'font-size': g.annFs, 'font-family': MONO, fill: '#272727', opacity: op }, minTxt);
+              } else if (g.x(ov[1]) - g.x(ov[0]) >= 120) {
+                text('ann-min', { x: g.x(ov[1]), y: g.yX + 17, 'text-anchor': 'middle', 'font-size': g.annFs, 'font-family': MONO, fill: '#272727', opacity: op }, `min(A.end, B.end) ${minTxt}`);
+              } else {
+                text('ann-min1', { x: g.x(ov[1]), y: g.yX + 29, 'text-anchor': 'middle', 'font-size': g.annFs, 'font-family': MONO, fill: '#272727', opacity: op }, 'min(A.end, B.end)');
+                text('ann-min2', { x: g.x(ov[1]), y: g.yX + 41, 'text-anchor': 'middle', 'font-size': g.annFs, 'font-family': MONO, fill: '#272727', opacity: op }, minTxt);
+              }
+            }
+
+            if (state.noOverlap && aIv && bIv) {
+              const x0 = g.x(aIv[1]);
+              const x1 = g.x(bIv[0]);
+              const op = presence(from ? from.noOverlap : false, true);
+              const aRowY = state.a.row === 1 ? g.yI1 : g.yI2;
+              const bRowY = state.b.row === 1 ? g.yI1 : g.yI2;
+              path('gap-hatch', { d: `M ${x0} ${g.yAxis - 13} h ${x1 - x0} v 10 h ${-(x1 - x0)} Z`, fill: 'url(#ov-hatch)', stroke: 'none', opacity: op });
+              path('gap-ca', { d: `M ${x0} ${aRowY + 8} L ${x0} ${g.yAxis - 2}`, stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none', opacity: op });
+              path('gap-cb', { d: `M ${x1} ${bRowY + 8} L ${x1} ${g.yAxis - 2}`, stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none', opacity: op });
+              text('gap-lab', { x: (x0 + x1) / 2, y: g.yAxis - 18, 'text-anchor': 'middle', 'font-size': g.annFs, 'font-family': MONO, fill: '#555', opacity: op }, 'A.end < B.start');
+            }
+
+            for (const ptr of ['i', 'j']) {
+              const rowY = ptr === 'i' ? g.iBoxY : g.jBoxY;
+              const idx = state[ptr];
+              const past = ptr === 'i' ? idx >= LO1 : idx >= LO2;
+              const finalCx = ptrCx(idx, ptr);
+              const startCx = from ? ptrCxIn(from, ptr) : finalCx;
+              const cx = lerp(startCx, finalCx);
+              path(`ptrbox-${ptr}`, { d: rectPath(cx - 9, rowY, 18, 18, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.4, 'stroke-dasharray': past ? '3 2' : null });
+              text(`ptrlab-${ptr}`, { x: cx, y: rowY + 13, 'text-anchor': 'middle', 'font-size': 12, 'font-family': MONO, 'font-weight': 600, fill: '#272727' }, ptr);
+              const arrowEndY = past ? g.yAxis - 2 : (ptr === 'i' ? g.yI1 : g.yI2) - 9;
+              path(`ptrarr-${ptr}`, { d: `M ${cx} ${rowY + 18} L ${cx} ${arrowEndY}`, stroke: '#333', 'stroke-width': 1.3, fill: 'none', 'stroke-dasharray': past ? '3 2' : null, 'marker-end': 'url(#ov-arrow)' });
+              if (past) {
+                text(`ptrpast-${ptr}`, { x: cx - 13, y: g.yAxis - 20, 'text-anchor': 'end', 'font-size': 8.5, 'font-family': MONO, fill: '#555' }, '越界');
+              }
+            }
+
+            if (state.move) {
+              const op = presence(from ? from.move : false, true);
+              const { ptr, from: mf, to: mt } = state.move;
+              const rowY = ptr === 'i' ? g.iBoxY : g.jBoxY;
+              const x0 = ptrCx(mf, ptr);
+              const x1 = ptrCx(mt, ptr);
+              const bulge = ptr === 'i' ? 18 : 10;
+              path('move-arc', { d: `M ${x0} ${rowY + 4} Q ${(x0 + x1) / 2} ${rowY - bulge} ${x1} ${rowY + 4}`, stroke: '#555', 'stroke-width': 1.3, 'stroke-dasharray': '5 4', fill: 'none', 'marker-end': 'url(#ov-arrow)', opacity: op });
+            }
+
+            if (state.done) {
+              const first = state.overlaps[0];
+              const last = state.overlaps[state.overlaps.length - 1];
+              path('done-hl', { d: rectPath(g.x(first[0]) - 6, g.yX - 5, g.x(last[1]) - g.x(first[0]) + 12, 19, 2), fill: 'none', stroke: '#777', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
+              text('done-tag', { x: g.axisRight, y: g.yX + 28, 'text-anchor': 'end', 'font-size': g.compact ? 9 : 10.5, 'font-family': MONO, fill: '#272727' }, `overlaps = ${fmtList(state.overlaps)}`);
+            }
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.stepLabel;
+          invariantEl.textContent = frame.invariant;
+          mI.textContent = state.i;
+          mJ.textContent = state.j;
+          mA.textContent = state.a ? fmt(refIv(state.a)) : '—';
+          mB.textContent = state.b ? fmt(refIv(state.b)) : '—';
+          mOv.textContent = fmtList(state.overlaps);
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.en;
+          explanationZhEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `区间重叠演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({
+          ...s,
+          a: s.a ? { ...s.a } : null,
+          b: s.b ? { ...s.b } : null,
+          overlaps: s.overlaps.map(o => [o[0], o[1]]),
+          move: s.move ? { ...s.move } : null
+        });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 400,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); if (trace.state) draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>

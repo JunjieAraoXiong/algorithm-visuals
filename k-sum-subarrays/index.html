@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of counting subarrays that sum to k with a prefix-sum hash map. 和为 K 的子数组：前缀和 + 哈希表 O(n) 解法。" />
+    <title>K-Sum Subarrays · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      :root {
+        --ks-wash: #f5f2e9;
+        --ks-soft: #e5e3dc;
+      }
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .card-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .teach-pre { margin: 10px 0 0; padding: 12px; overflow: auto; border: 1px solid var(--rule); background: #f8f6f0; font: 12px/1.55 monospace; }
+      .book-box { margin: 10px 0 0; padding: 8px 12px; border-left: 4px solid #999; background: var(--ks-wash); }
+      .ex-row { display: flex; flex-wrap: wrap; gap: 12px 22px; margin: 12px 0 4px; }
+      .ex-arr { min-width: 0; }
+      .ex-tag { margin-bottom: 4px; color: var(--quiet); font: 11px/1.2 monospace; }
+      .ex-cells { display: flex; }
+      .ex-cell { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid #555; border-left-width: 0; font: 14px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .ex-cell:first-child { border-left-width: 1px; }
+      .ex-cell.on { background: var(--ks-soft); }
+      .ex-idx { display: flex; }
+      .ex-idx span { width: 34px; padding-top: 3px; color: var(--quiet); text-align: center; font: 10px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .io-line { margin: 8px 0 0; font: 13px/1.6 monospace; }
+      .trace-table { margin: 10px 0 0; border-collapse: collapse; font: 12px/1.5 monospace; }
+      .trace-table th, .trace-table td { padding: 3px 13px; border: 1px solid var(--rule); text-align: center; }
+      .trace-table th { background: var(--ks-wash); font-weight: 500; }
+      .trace-table td.hit { background: var(--ks-soft); }
+      .small { color: var(--quiet); font-size: 12px; }
+      .reason-list { margin: 8px 0 0; padding-left: 24px; }
+      .reason-list li { margin: 6px 0; }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+        .trace-table th, .trace-table td { padding: 3px 7px; font-size: 11px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="ksum-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>K-Sum Subarrays · 和为 K 的子数组</h1></div></header>
+      <p class="problem">Find the number of subarrays in an integer array that sum to <code>k</code>.<span lang="zh-CN">给定整数数组，统计其中元素和恰好等于 k 的连续子数组的个数。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="和为 K 的子数组哈希表演示 / k-sum subarrays hash-map trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="和为 K 的子数组算法演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>curr_prefix_sum</code></dt><dd data-m-curr></dd></div>
+              <div><dt><code>count</code></dt><dd data-m-count></dd></div>
+              <div><dt><code>k</code></dt><dd>3</dd></div>
+              <div><dt>轮次 i</dt><dd data-m-i></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="ksum-code-title">
+          <h2 id="ksum-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def k_sum_subarrays_optimized(nums: List[int], k: int) -&gt; int:</span><span class="code-line" data-source-key="count-init">    count = 0</span><span class="code-line">    # Initialize the map with 0 to handle subarrays that sum to 'k'</span><span class="code-line">    # from the start of the array.</span><span class="code-line" data-source-key="map-init">    prefix_sum_map = {0: 1}</span><span class="code-line" data-source-key="curr-init">    curr_prefix_sum = 0</span><span class="code-line" data-source-key="loop">    for num in nums:</span><span class="code-line">        # Update the running prefix sum by adding the current number.</span><span class="code-line" data-source-key="add">        curr_prefix_sum += num</span><span class="code-line">        # If a subarray with sum 'k' exists, increment 'count' by the</span><span class="code-line">        # number of times it has been found.</span><span class="code-line" data-source-key="check">        if curr_prefix_sum - k in prefix_sum_map:</span><span class="code-line" data-source-key="count-add">            count += prefix_sum_map[curr_prefix_sum - k]</span><span class="code-line">        # Update the frequency of 'curr_prefix_sum' in the hash map.</span><span class="code-line" data-source-key="freq-get">        freq = prefix_sum_map.get(curr_prefix_sum, 0)</span><span class="code-line" data-source-key="freq-set">        prefix_sum_map[curr_prefix_sum] = freq + 1</span><span class="code-line" data-source-key="return">    return count</span></code></pre>
+          <p class="note">哈希表只存前缀和的出现次数，不再需要单独的 prefix_sum 数组；查询与更新都是 O(1)。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="ksum-problem">
+        <h2 id="ksum-problem">问题与示例 / Problem &amp; example</h2>
+        <p class="section-intro">以下三个子数组的和都等于 3：灰色为被选中的子数组。<span lang="zh-CN"> nums = [1, 2, -1, 1, 2]，k = 3。</span></p>
+        <div class="ex-row" aria-hidden="true">
+          <div class="ex-arr">
+            <div class="ex-tag">sum = 3</div>
+            <div class="ex-cells"><span class="ex-cell on">1</span><span class="ex-cell on">2</span><span class="ex-cell">-1</span><span class="ex-cell">1</span><span class="ex-cell">2</span></div>
+            <div class="ex-idx"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
+          </div>
+          <div class="ex-arr">
+            <div class="ex-tag">sum = 3</div>
+            <div class="ex-cells"><span class="ex-cell on">1</span><span class="ex-cell on">2</span><span class="ex-cell on">-1</span><span class="ex-cell on">1</span><span class="ex-cell">2</span></div>
+            <div class="ex-idx"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
+          </div>
+          <div class="ex-arr">
+            <div class="ex-tag">sum = 3</div>
+            <div class="ex-cells"><span class="ex-cell">1</span><span class="ex-cell">2</span><span class="ex-cell">-1</span><span class="ex-cell on">1</span><span class="ex-cell on">2</span></div>
+            <div class="ex-idx"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
+          </div>
+        </div>
+        <p class="io-line">Input: nums = [1, 2, -1, 1, 2], k = 3<br />Output: 3&nbsp;&nbsp;<span style="color:#555"># subarrays [0, 1], [0, 3], [3, 4]</span></p>
+      </section>
+
+      <section class="section" aria-labelledby="ksum-prefix">
+        <h2 id="ksum-prefix">从暴力到前缀和 / Brute force to prefix sums</h2>
+        <p class="section-intro">暴力解法枚举每个子数组再求和：枚举 O(n²)、每次求和 O(n)，合计 O(n³)。子数组的和可以写成两个前缀和之差：<code>sum[i : j] = prefix_sum[j] − prefix_sum[i − 1]</code>（i = 0 时就是 <code>prefix_sum[j]</code>）。于是目标变成：找出所有满足 <code>prefix_sum[j] − prefix_sum[i − 1] == k</code> 的配对。为避免 i = 0 时 i − 1 越界，把 <code>[0]</code> 补到前缀和数组开头，统一两种情况。</p>
+        <pre class="teach-pre">def k_sum_subarrays(nums: List[int], k: int) -&gt; int:
+    n = len(nums)
+    count = 0
+    # Populate the prefix sum array, setting its first element to 0.
+    prefix_sum = [0]
+    for i in range(0, n):
+        prefix_sum.append(prefix_sum[-1] + nums[i])
+    # Loop through all valid pairs of prefix sum values to find all
+    # subarrays that sum to 'k'.
+    for j in range(1, n + 1):
+        for i in range(1, j + 1):
+            if prefix_sum[j] - prefix_sum[i - 1] == k:
+                count += 1
+    return count</pre>
+        <p class="small">前缀和数组为 [0, 1, 3, 2, 3, 5]（下标 0–5）；遍历从 j = 1 开始，因为下标 0 是我们补的 0。时间降到 O(n²)，还能继续优化吗？</p>
+      </section>
+
+      <section class="section" aria-labelledby="ksum-map">
+        <h2 id="ksum-map">哈希表优化 / Optimization — hash map</h2>
+        <p class="section-intro">公式里不必同时知道两端：已知 <code>prefix_sum[j]</code>，另一端的值就被确定为 <code>prefix_sum[i − 1] = prefix_sum[j] − k</code>。这和解 Pair Sum 时的思路相同——把见过的前缀和存进哈希表，就能 O(1) 查询“某个值之前出现过没有”。</p>
+        <div class="book-box">Therefore, for each prefix sum (<code>curr_prefix_sum</code>), we need to find the number of times <code>curr_prefix_sum − k</code> previously appeared as a prefix sum before.</div>
+        <p class="section-intro" style="margin-top:10px">同一个前缀和可能出现多次，所以哈希表要记录<strong>频次</strong>（sum → freq）。初始化 <code>prefix_sum_map = {0: 1}</code>，与 O(n²) 解法在开头补 0 的理由相同：空前缀的和为 0，出现过 1 次，这样从数组下标 0 开始的子数组也能被统计到。</p>
+      </section>
+
+      <section class="section" aria-labelledby="ksum-why">
+        <h2 id="ksum-why">为什么这样计数是对的 / Why the count is right</h2>
+        <p class="section-intro">处理到 <code>nums[i]</code> 时，<code>curr_prefix_sum</code> 是 nums[0..i] 的和。若某个更早的前缀和等于 <code>curr_prefix_sum − k</code>，那么两者相减剩下的那段恰好和为 k，并且右端点就是 i。每个更早的前缀和对应一个不同的子数组，所以命中时把它的频次整个加进 count。完整例子的推演：</p>
+        <table class="trace-table">
+          <thead><tr><th>i</th><th>num</th><th>curr_prefix_sum</th><th>curr − k</th><th>in map?</th><th>count</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td>1</td><td>1</td><td>−2</td><td>✗</td><td>0</td></tr>
+            <tr><td>1</td><td>2</td><td>3</td><td>0</td><td class="hit">✓ +1</td><td>1</td></tr>
+            <tr><td>2</td><td>−1</td><td>2</td><td>−1</td><td>✗</td><td>1</td></tr>
+            <tr><td>3</td><td>1</td><td>3</td><td>0</td><td class="hit">✓ +1</td><td>2</td></tr>
+            <tr><td>4</td><td>2</td><td>5</td><td>2</td><td class="hit">✓ +1</td><td>3</td></tr>
+          </tbody>
+        </table>
+        <p class="small">哈希表状态依次是 {0:1} → {0:1, 1:1} → {0:1, 1:1, 3:1} → {0:1, 1:1, 3:1, 2:1} → …… 每个和为 k 的子数组恰好在它右端点那一轮被统计一次，不会重复、不会遗漏。</p>
+      </section>
+
+      <section class="section" aria-labelledby="ksum-edge">
+        <h2 id="ksum-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>为什么预设 {0: 1}</strong><p>i = 1 时 curr = 3，3 − k = 0 命中预设的 0，对应从 0 开始的子数组 [0, 1]。没有它，以 0 开头的子数组会被漏掉。</p></article>
+          <article class="paper-card"><strong>先查后存</strong><p>i = 3 时 curr 又是 3。查询发生在写入之前，所以不会和自己配对；若先存 freq(3)，同一个位置会被重复计数。</p></article>
+          <article class="paper-card"><strong>前缀和会重复</strong><p>数组含负数或 0 时同一前缀和出现多次，频次必须累加。例中前缀和 3 出现两次，第二次命中 0 时仍只贡献 freq(0) = 1。</p></article>
+          <article class="paper-card"><strong>k = 0</strong><p>查询变成“curr 是否在表中”：统计有多少个更早的前缀和与当前相等，即和为 0 的子数组个数。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="ksum-complexity">
+        <h2 id="ksum-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n)</strong><p><code>k_sum_subarrays_optimized</code> 只遍历 nums 一遍，每轮做一次 O(1) 的哈希表查询与更新。<span lang="zh-CN">时间复杂度 O(n)。</span></p></article>
+          <article class="paper-card"><strong>Space · O(n)</strong><p>哈希表最多保存 n + 1 个不同的前缀和及其频次。<span lang="zh-CN">空间复杂度 O(n)。</span></p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../sum-between-range/">区间求和</a><a href="../product-array-without-current-element/">除自身以外数组的乘积</a><a href="../substring-anagrams/">字母异位子串</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('ksum-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mCurr = root.querySelector('[data-m-curr]');
+        const mCount = root.querySelector('[data-m-count]');
+        const mI = root.querySelector('[data-m-i]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+        const explanationZhEl = root.querySelector('[data-explanation-zh]');
+
+        const NUMS = [1, 2, -1, 1, 2];
+        const K = 3;
+        const N = NUMS.length;
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const FOUND = (() => {
+          const out = [];
+          for (let a = 0; a < N; a += 1) {
+            let s = 0;
+            for (let b = a; b < N; b += 1) {
+              s += NUMS[b];
+              if (s === K) out.push([a, b]);
+            }
+          }
+          return out;
+        })();
+
+        // Simulate the real algorithm; every frame state is recorded from this
+        // run, never hand-written.
+        function buildFrames() {
+          const frames = [];
+          const freqs = { 0: 1 };
+          const order = [0];
+          let curr = 0;
+          let count = 0;
+          const snap = extra => ({
+            curr, count, index: -1,
+            freqs: { ...freqs }, order: [...order],
+            matchedKey: null, anno: [], writeRow: false, done: false,
+            ...extra
+          });
+          const add = (stepLabel, sourceKeys, line, en, zh, invariant, state) =>
+            frames.push({ stepLabel, sourceKeys, line, en, zh, invariant, state });
+
+          add('初始化 · count = 0', ['func', 'count-init'], 'count = 0',
+            'No subarrays have been found yet.',
+            '已找到的子数组个数从 0 开始。',
+            'count 记录已找到的和为 k 的子数组个数。',
+            snap({}));
+          add('初始化 · prefix_sum_map = {0:1}', ['map-init', 'curr-init'], 'prefix_sum_map = {0: 1}; curr_prefix_sum = 0',
+            'The map starts with one zero — an empty prefix sums to 0, seen once — the same reason we prepended [0] in the O(n^2) solution.',
+            '哈希表先放入一个 0：空前缀的和为 0、出现 1 次——与 O(n²) 解法开头补 0 的理由相同。',
+            'map 的键是出现过的前缀和，值是出现次数；0 预先出现 1 次。',
+            snap({}));
+
+          NUMS.forEach((num, i) => {
+            add(`第 ${i + 1} 轮 · num = ${num}`, ['loop'], `for num in nums:  # num = nums[${i}] = ${num}`,
+              `Round ${i + 1}: take num = nums[${i}] = ${num}.`,
+              `第 ${i + 1} 轮：取出 num = nums[${i}] = ${num}。`,
+              '按顺序处理每个 num，curr_prefix_sum 保存 nums[0..i] 的元素和。',
+              snap({ index: i }));
+
+            const prev = curr;
+            curr += num;
+            add(`curr_prefix_sum = ${curr}`, ['add'], `curr_prefix_sum += num  # ${prev} + (${num}) = ${curr}`,
+              `curr_prefix_sum grows to ${prev} + (${num}) = ${curr}, the sum of nums[0..${i}].`,
+              `curr_prefix_sum 更新为 ${prev} + (${num}) = ${curr}，即 nums[0..${i}] 的元素和。`,
+              'curr_prefix_sum == sum(nums[0..i])。',
+              snap({ index: i }));
+
+            const comp = curr - K;
+            const hit = Object.prototype.hasOwnProperty.call(freqs, comp);
+            const anno = hit
+              ? [`curr_prefix_sum - k = ${comp}`, '(in hash map)', `→ count += prefix_sum_map[${comp}]`, `+= ${freqs[comp]}`]
+              : [`curr_prefix_sum - k = ${comp}`, '(not in hash map)', '→ continue'];
+            add(`查找 ${comp} · ${hit ? '命中' : '未命中'}`, ['check'], `if curr_prefix_sum - k in prefix_sum_map:  # ${curr} - ${K} = ${comp}，${hit ? '在表中' : '不在表中'}`,
+              hit
+                ? `${comp} IS in the map with frequency ${freqs[comp]}: that many earlier prefix sums pair with the current one to give sum k.`
+                : `${comp} is not in the map, so no subarray ending at index ${i} sums to k. Continue.`,
+              hit
+                ? `${comp} 在哈希表中，频次为 ${freqs[comp]}：有 ${freqs[comp]} 个更早的前缀和能与当前值配出和为 k 的子数组。`
+                : `${comp} 不在哈希表中，说明以 ${i} 结尾的子数组没有和为 k 的，继续。`,
+              'curr_prefix_sum −（某个旧前缀和）== k ⇔ 该旧前缀和 == curr_prefix_sum − k。',
+              snap({ index: i, matchedKey: hit ? comp : null, anno }));
+
+            if (hit) {
+              const old = count;
+              const freq = freqs[comp];
+              count += freq;
+              add(`count += ${freq} → ${count}`, ['count-add'], `count += prefix_sum_map[${comp}]  # ${old} + ${freq} = ${count}`,
+                `count += prefix_sum_map[${comp}]: ${old} + ${freq} = ${count}.`,
+                `count += prefix_sum_map[${comp}]：${old} + ${freq} = ${count}。`,
+                '每命中一次，count 就加上该前缀和出现的次数。',
+                snap({ index: i, matchedKey: comp, anno }));
+            }
+
+            const f = freqs[curr] || 0;
+            freqs[curr] = f + 1;
+            if (f === 0) order.unshift(curr);
+            add(`更新哈希表 · ${curr}:${f + 1}`, ['freq-get', 'freq-set'], `prefix_sum_map[${curr}] = ${f} + 1  # 写入 (${curr}, ${f + 1})`,
+              f === 0
+                ? `Store (${curr}, 1): this prefix sum has been seen once so far.`
+                : `Raise the frequency of ${curr} to ${f + 1}; the same prefix sum can pair with later values again.`,
+              f === 0
+                ? `写入 (${curr}, 1)：这个前缀和目前出现过 1 次。`
+                : `把 ${curr} 的频次提高到 ${f + 1}；同一个前缀和之后还可能再次配对。`,
+              '先查询、后写入：当前前缀和不能和自己配对。',
+              snap({ index: i, anno, writeRow: true }));
+          });
+
+          add('返回 count = 3', ['return'], 'return count  # 3',
+            `All values processed — return count = ${count}. The matching subarrays are ${FOUND.map(f => `[${f[0]}, ${f[1]}]`).join(', ')}.`,
+            `处理完全部元素，返回 count = ${count}。对应的子数组是 ${FOUND.map(f => `[${f[0]}, ${f[1]}]`).join('、')}。`,
+            '每个和为 k 的子数组恰好被它右端点那一轮统计一次。',
+            snap({ index: N - 1, done: true }));
+          return frames;
+        }
+        const FRAMES = buildFrames();
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('ks-arrow', { fill: '#333' });
+        const motion = core.createMotionController();
+        let geom = {};
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const W = stage.clientWidth;
+          const compact = W < 660;
+          const g = { W, compact };
+          if (!compact) {
+            g.cellW = 42; g.gap = 8;
+            g.x0 = 28; g.cellY = 92; g.cellH = 44;
+            g.kX = 28; g.kY = 26; g.currX = 28; g.currY = 50;
+            g.arrowTop = 58;
+            g.idxY = g.cellY + g.cellH + 15;
+            g.brkStart = g.idxY + 11; g.brkStep = 15;
+            g.mapW = 116; g.colW = 58; g.rowH = 26;
+            const arrayRight = g.x0 + N * g.cellW + (N - 1) * g.gap;
+            g.mapX = arrayRight + 46;
+            g.mapTitleY = 36; g.mapY = 46;
+            g.annoX = g.mapX + g.mapW + 20;
+            g.annoW = Math.max(150, W - 14 - g.annoX);
+            g.annoY = 46; g.annoH = 104;
+            g.formulaX = 28; g.formulaY = 224;
+            g.H = 258;
+          } else {
+            g.cellW = Math.min(42, (W - 32 - 24) / N); g.gap = 6;
+            const arrW = N * g.cellW + (N - 1) * g.gap;
+            g.x0 = (W - arrW) / 2; g.cellY = 64; g.cellH = 38;
+            g.kX = 16; g.kY = 22; g.currX = W / 2; g.currY = 44;
+            g.arrowTop = 50;
+            g.idxY = g.cellY + g.cellH + 14;
+            g.brkStart = g.idxY + 10; g.brkStep = 13;
+            g.mapW = 116; g.colW = 58; g.rowH = 22;
+            g.mapX = (W - g.mapW) / 2;
+            g.mapTitleY = 184; g.mapY = 192;
+            g.annoX = 16; g.annoW = W - 32;
+            g.annoY = 340; g.annoH = 74;
+            g.formulaX = (W - 268) / 2; g.formulaY = 428;
+            g.H = 458;
+          }
+          geom = g;
+          svg.setAttribute('viewBox', `0 0 ${W} ${g.H}`);
+          stage.style.height = `${g.H}px`;
+        }
+
+        const cellCx = i => geom.x0 + i * (geom.cellW + geom.gap) + geom.cellW / 2;
+
+        function draw(state, t = 1, from = null) {
+          if (!geom.W || !state) return;
+          const g = geom;
+          const lerp = (a, b) => a + (b - a) * t;
+          scene.update(({ path, text }) => {
+            text('k-label', { x: g.kX, y: g.kY, 'text-anchor': g.compact ? 'start' : 'start', 'font-size': g.compact ? 12 : 13, fill: '#272727', 'font-family': MONO }, `k = ${K}`);
+            text('curr-label', { x: g.currX, y: g.currY, 'text-anchor': g.compact ? 'middle' : 'start', 'font-size': g.compact ? 12 : 13, fill: '#272727', 'font-family': MONO }, `curr_prefix_sum = ${state.curr}`);
+
+            if (state.index >= 0) {
+              const toX = cellCx(state.index);
+              const fromX = from && from.index >= 0 && from.index !== state.index ? cellCx(from.index) : null;
+              const ax = fromX === null ? toX : lerp(fromX, toX);
+              path('curr-arrow', { d: `M ${ax} ${g.arrowTop} L ${ax} ${g.cellY - 4}`, stroke: '#333', 'stroke-width': 1.4, fill: 'none', 'marker-end': 'url(#ks-arrow)' });
+            }
+
+            // array cells with thin [ ] brackets
+            const arrLeft = g.x0 - 10;
+            const arrRight = g.x0 + N * g.cellW + (N - 1) * g.gap + 10;
+            path('arr-bracket-l', { d: `M ${arrLeft} ${g.cellY + 4} V ${g.cellY + g.cellH - 4} M ${arrLeft} ${g.cellY + 4} H ${arrLeft + 4} M ${arrLeft} ${g.cellY + g.cellH - 4} H ${arrLeft + 4}`, stroke: '#272727', 'stroke-width': 1.3, fill: 'none' });
+            path('arr-bracket-r', { d: `M ${arrRight} ${g.cellY + 4} V ${g.cellY + g.cellH - 4} M ${arrRight} ${g.cellY + 4} H ${arrRight - 4} M ${arrRight} ${g.cellY + g.cellH - 4} H ${arrRight - 4}`, stroke: '#272727', 'stroke-width': 1.3, fill: 'none' });
+            NUMS.forEach((v, i) => {
+              const x = g.x0 + i * (g.cellW + g.gap);
+              const isCur = i === state.index;
+              path(`cell-${i}`, { d: rectPath(x, g.cellY, g.cellW, g.cellH), fill: isCur ? '#f5f2e9' : '#fffdf8', stroke: '#272727', 'stroke-width': isCur ? 2.2 : 1.3 });
+              text(`cell-v-${i}`, { x: x + g.cellW / 2, y: g.cellY + g.cellH / 2 + 5.5, 'text-anchor': 'middle', 'font-size': g.compact ? 15 : 16, 'font-weight': isCur ? 700 : 400, fill: '#272727', 'font-family': MONO }, String(v));
+              text(`cell-i-${i}`, { x: x + g.cellW / 2, y: g.idxY, 'text-anchor': 'middle', 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, String(i));
+            });
+
+            // found subarray brackets (final frame)
+            if (state.done) {
+              FOUND.forEach((range, r) => {
+                const y = g.brkStart + r * g.brkStep;
+                const xa = cellCx(range[0]);
+                const xb = cellCx(range[1]);
+                path(`brk-${r}`, { d: `M ${xa} ${y} v 3 H ${xb} v -3`, stroke: '#555', 'stroke-width': 1.2, fill: 'none' });
+                text(`brk-label-${r}`, { x: Math.min(xb + 6, g.W - 46), y: y + 3.5, 'text-anchor': 'start', 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, `[${range[0]}, ${range[1]}]`);
+              });
+              text('brk-caption', { x: g.compact ? g.W / 2 : g.x0, y: g.brkStart + FOUND.length * g.brkStep + 4, 'text-anchor': g.compact ? 'middle' : 'start', 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, 'subarrays with sum k · 和为 k 的子数组');
+            }
+
+            // prefix_sum_map table (book layout: title above, sum/freq headers below)
+            text('map-title', { x: g.mapX + g.mapW / 2, y: g.mapTitleY, 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12, 'font-weight': 700, fill: '#272727', 'font-family': MONO }, 'prefix_sum_map');
+            const rows = state.order.length;
+            path('map-box', { d: rectPath(g.mapX, g.mapY, g.mapW, rows * g.rowH, 7), fill: 'none', stroke: '#555', 'stroke-width': 1.3 });
+            state.order.forEach((key, r) => {
+              const y = g.mapY + r * g.rowH;
+              if (state.matchedKey !== null && Number(key) === state.matchedKey) {
+                path(`map-shade-${r}`, { d: rectPath(g.mapX + 3, y + 2, g.mapW - 6, g.rowH - 4, 3), fill: '#e5e3dc', stroke: 'none' });
+              }
+              if (state.writeRow && r === 0) {
+                path('map-write', { d: rectPath(g.mapX + 3, y + 2, g.mapW - 6, g.rowH - 4, 3), fill: 'none', stroke: '#777', 'stroke-width': 1, 'stroke-dasharray': '3 2' });
+              }
+              text(`map-sum-${r}`, { x: g.mapX + g.colW / 2, y: y + g.rowH / 2 + 4.5, 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12, fill: '#272727', 'font-family': MONO }, String(key));
+              text(`map-freq-${r}`, { x: g.mapX + g.colW * 1.5, y: y + g.rowH / 2 + 4.5, 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12, fill: '#272727', 'font-family': MONO }, String(state.freqs[key]));
+            });
+            const headY = g.mapY + rows * g.rowH + 14;
+            text('map-h1', { x: g.mapX + g.colW / 2, y: headY, 'text-anchor': 'middle', 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, 'sum');
+            text('map-h2', { x: g.mapX + g.colW * 1.5, y: headY, 'text-anchor': 'middle', 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, 'freq');
+
+            // dashed decision annotation box (hidden on init frames, matching the book)
+            if (state.anno.length) {
+              path('anno-box', { d: rectPath(g.annoX, g.annoY, g.annoW, g.annoH, 6), fill: 'none', stroke: '#999', 'stroke-width': 1.2, 'stroke-dasharray': '5 4' });
+              state.anno.forEach((ln, i) => {
+                text(`anno-${i}`, { x: g.annoX + 10, y: g.annoY + 20 + i * (g.compact ? 14 : 16), 'text-anchor': 'start', 'font-size': g.compact ? 10 : 10.5, fill: '#272727', 'font-family': MONO }, ln);
+              });
+            }
+
+            // formula strip
+            path('formula-box', { d: rectPath(g.formulaX, g.formulaY, 268, 24, 3), fill: 'none', stroke: '#999', 'stroke-width': 1 });
+            text('formula', { x: g.formulaX + 10, y: g.formulaY + 16, 'text-anchor': 'start', 'font-size': 10.5, fill: '#272727', 'font-family': MONO }, 'prefix_sum[j] - prefix_sum[i - 1] == k');
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.stepLabel;
+          invariantEl.textContent = frame.invariant;
+          mCurr.textContent = state.curr;
+          mCount.textContent = state.count;
+          mI.textContent = state.index < 0 ? '—' : state.index;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.en;
+          explanationZhEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `和为 K 的子数组演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => JSON.parse(JSON.stringify(s));
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 400,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>
