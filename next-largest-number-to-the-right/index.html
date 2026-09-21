@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of the next largest number to the right with a monotonic decreasing stack scanned right to left. 右侧下一个更大数：从右往左维护严格递减的单调栈。" />
+    <title>Next Largest Number to the Right · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { height: 360px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .case-grid, .edge-grid, .complexity, .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .example-stage { position: relative; width: 100%; height: 240px; margin-top: 10px; overflow: hidden; border: 1px solid var(--rule); }
+      .example-stage svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+      .mono-stat { display: block; margin: 6px 0 4px; font: 16px/1.4 monospace; }
+      .reason-list { margin: 8px 0 0; padding-left: 24px; }
+      .reason-list li { margin: 6px 0; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .case-grid, .edge-grid, .complexity, .example-grid { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="nlnr-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Next Largest Number to the Right · 右侧下一个更大数</h1></div></header>
+      <p class="problem">Given an integer array <code>nums</code>, return an array <code>res</code> where <code>res[i]</code> is the first number to the right of <code>nums[i]</code> that is larger than <code>nums[i]</code>. If no larger number exists to the right, set <code>res[i]</code> to -1.<span lang="zh-CN">给定整数数组 nums，返回 res：res[i] 是 nums[i] 右侧第一个比它大的数；右边没有更大的数时 res[i] = -1。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="右侧下一个更大数单调栈演示 / next largest number monotonic stack trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="右侧下一个更大数演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>i</code></dt><dd data-m-i></dd></div>
+              <div><dt><code>nums[i]</code></dt><dd data-m-num></dd></div>
+              <div><dt><code>stack[-1]</code></dt><dd data-m-top></dd></div>
+              <div><dt><code>len(stack)</code></dt><dd data-m-len></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="nlnr-code-title">
+          <h2 id="nlnr-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def next_largest_number_to_the_right(nums: List[int]) -&gt; List[int]:</span><span class="code-line" data-source-key="init-res">    res = [0] * len(nums)</span><span class="code-line" data-source-key="init-stack">    stack = []</span><span class="code-line">    # Find the next largest number of each element, starting with the</span><span class="code-line">    # rightmost element.</span><span class="code-line" data-source-key="loop">    for i in range(len(nums) - 1, -1, -1):</span><span class="code-line">        # Pop values from the top of the stack until the current</span><span class="code-line">        # value's next largest number is at the top.</span><span class="code-line" data-source-key="while">        while stack and stack[-1] &lt;= nums[i]:</span><span class="code-line" data-source-key="pop">            stack.pop()</span><span class="code-line">        # Record the current value's next largest number, which is at</span><span class="code-line">        # the top of the stack. If the stack is empty, record -1.</span><span class="code-line" data-source-key="record">        res[i] = stack[-1] if stack else -1</span><span class="code-line" data-source-key="push">        stack.append(nums[i])</span><span class="code-line" data-source-key="return">    return res</span></code></pre>
+          <p class="note">栈底在左、栈顶在右；<code>stack[-1]</code> 是最近加入的候选。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="nlnr-example">
+        <h2 id="nlnr-example">例子与暴力做法 / Example and brute force</h2>
+        <p class="section-intro">暴力做法：每个 <code>nums[i]</code> 都向右线性扫一遍，找第一个更大的数，最坏 <code>O(n²)</code>。虚线箭头表示“右侧第一个更大的数”：<code>5 → 6</code>、<code>2 → 4</code>、<code>4 → 6</code>，而 <code>6</code> 和 <code>1</code> 右边没有更大的数，记 <code>-1</code>。</p>
+        <div class="example-stage" data-example-stage>
+          <svg data-example-lines aria-hidden="true"></svg>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="nlnr-intuition">
+        <h2 id="nlnr-intuition">换个视角：谁是它的“客户” / Invert the question</h2>
+        <p class="section-intro">不要问“每个数右边第一个更大的是谁”，改问：<strong>这个数会成为它左边哪些数的答案？</strong>看上面的例子：<code>6</code> 正是 <code>5</code> 和 <code>4</code> 的答案。于是把数组<strong>从右往左</strong>扫描——处理一个数时，它右边的数都已经见过了，其中“还可能当上答案”的数称为<strong>候选（candidates）</strong>。越靠右的候选离当前数越近，所以最新的候选（最右边那个）优先：它就是答案，除非有更小或相等的候选挡在中间需要剔除。</p>
+      </section>
+
+      <section class="section" aria-labelledby="nlnr-mono">
+        <h2 id="nlnr-mono">关键观察：候选严格递减 / Monotonic stack</h2>
+        <p class="section-intro">新数 <code>x</code> 到来时，候选里所有 <code>≤ x</code> 的数都可以删除：以图中的 <code>2</code> 为例，<code>3</code> 比它大、又比它更靠左——任何将来“以 2 为答案”的数，离它更近、更大的 <code>3</code> 总是更优。删除只会发生在候选列表末尾，压入也只发生在末尾：这正是栈。删除后压入 <code>x</code>，栈里的值自栈底向栈顶<strong>严格递减</strong>，栈顶永远是最近的候选。</p>
+        <div class="case-grid">
+          <article class="paper-card"><strong>第 1 步 · 弹出不行的候选</strong><p><code>while stack and stack[-1] &lt;= nums[i]</code>：栈顶小于或等于当前值就 <code>stack.pop()</code>，这些候选再也不可能成为答案。</p></article>
+          <article class="paper-card"><strong>第 2 步 · 栈顶即答案</strong><p>剩下的栈顶是最近的、比当前值大的候选：<code>res[i] = stack[-1]</code>；若栈空，右边没有更大的数，记 <code>-1</code>。</p></article>
+          <article class="paper-card"><strong>第 3 步 · 当前值入栈</strong><p><code>stack.append(nums[i])</code>：当前值自己也可能成为左边某些数的答案，压入栈顶成为新候选。</p></article>
+          <article class="paper-card"><strong>为什么栈顶是“最近”的</strong><p>栈底到栈顶严格递减，且靠右的数先入栈——栈顶就是离当前值最近的候选；答案要求“第一个”（最近），所以只需看栈顶。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="nlnr-edge">
+        <h2 id="nlnr-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>相等的值</strong><p>条件用 <code>&lt;=</code>，相等的候选也会被弹出：答案必须<strong>严格</strong>更大。<code>nums = [3, 3]</code> 时第二个 3 入栈后，第一个 3 的候选里只剩…栈顶是 3，<code>3 &lt;= 3</code> 成立被弹空，<code>res = [-1, -1]</code>。</p></article>
+          <article class="paper-card"><strong>严格递减数组</strong><p><code>[4, 3, 2, 1]</code>：没有任何候选会被弹出，栈一路长到 <code>n</code>，<code>res</code> 全是 <code>-1</code>——最坏情况，空间 <code>O(n)</code>。</p></article>
+          <article class="paper-card"><strong>递增数组</strong><p><code>[1, 2, 3, 4]</code>：每个新值都弹空栈，<code>res = [2, 3, 4, -1]</code>，栈里始终只留一个最大值。</p></article>
+          <article class="paper-card"><strong>只有一个元素</strong><p>循环只跑一趟：栈空，<code>res = [-1]</code>。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="nlnr-complexity">
+        <h2 id="nlnr-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n)</strong><p>每个值最多 <code>append</code> 一次、<code>pop</code> 一次；所有弹出的总数不超过 <code>n</code>。虽然里面有 while 循环，总代价仍是 <code>O(n)</code>。</p></article>
+          <article class="paper-card"><strong>Extra space · O(n)</strong><p>栈最坏存下所有值（严格递减输入时），即 <code>O(n)</code>。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../valid-parenthesis-expression/">有效的括号</a><a href="../evaluate-expression/">表达式求值</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('nlnr-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mI = root.querySelector('[data-m-i]');
+        const mNum = root.querySelector('[data-m-num]');
+        const mTop = root.querySelector('[data-m-top]');
+        const mLen = root.querySelector('[data-m-len]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const NUMS = [1, 1, 2, 3, 2, 3, 2, 4];
+        const N = NUMS.length;
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const INV = {
+          scan: '栈底 → 栈顶始终严格递减；栈顶是离当前值最近的候选。',
+          pop: '新值更大（或相等）时，更靠右的小候选永远不可能再成为答案。',
+          record: '栈顶就是 nums[i] 右侧第一个更大的数；栈空则说明右边没有更大的数。',
+          push: '当前值入栈成为新候选，栈仍保持严格递减。',
+          init: 'res 先占位，栈为空；从右往左扫描，右边的值先成为候选。',
+          done: '每个值最多入栈一次、出栈一次，整体 O(n)。'
+        };
+
+        // 每一步的模拟：把算法跑一遍并记录帧
+        const frames = [];
+        let res = Array(N).fill(null);
+        let stack = [];
+        const add = (stepLabel, sourceKeys, line, zh, invariant, i, phase, done = false) => {
+          frames.push({
+            stepLabel, sourceKeys, line, zh, invariant,
+            state: { i, phase, stack: [...stack], res: [...res], done }
+          });
+        };
+
+        add('初始化 res 与 stack', ['init-res', 'init-stack'],
+          'res = [0] * len(nums); stack = []',
+          'res 先占位 8 个 0，栈为空。接下来从最右边的 nums[7] = 4 开始，从右往左扫描。',
+          INV.init, null, 'init');
+
+        for (let i = N - 1; i >= 0; i -= 1) {
+          const v = NUMS[i];
+          let firstCheck = true;
+          while (true) {
+            const top = stack.length ? stack[stack.length - 1] : null;
+            const firstKeys = firstCheck ? ['loop', 'while'] : ['while'];
+            if (top !== null && top <= v) {
+              add(`i = ${i} · 检查栈顶 ${top} ≤ ${v}`, firstKeys,
+                `while stack[-1] <= nums[${i}]  # ${top} <= ${v} 成立`,
+                top === v
+                  ? `${top} 等于 ${v}：答案必须严格更大，相等的候选同样没用，准备弹出。`
+                  : `栈顶 ${top} 在 ${v} 右边却又更小，任何左边的数若以它为答案，离得更近、更大的 ${v} 更优——准备弹出。`,
+                INV.pop, i, 'check');
+              const popped = stack.pop();
+              add(`i = ${i} · 弹出 ${popped}`, ['pop'],
+                `stack.pop()  # 弹出 ${popped}`,
+                `栈顶 ${popped} 出栈：它的右边出现了更大（或相等）的数，它再也不可能成为答案。`,
+                INV.pop, i, 'pop');
+              firstCheck = false;
+              continue;
+            }
+            const label = firstCheck ? `i = ${i} · 检查 while 条件` : `i = ${i} · 再看新栈顶`;
+            if (top === null) {
+              add(label, firstKeys,
+                `while stack and stack[-1] <= nums[${i}]  # 栈为空，条件为假`,
+                firstCheck && i === N - 1
+                  ? '4 是最右边的元素，右边什么都没有：栈为空，while 不执行。'
+                  : '栈已空：右边没有候选，while 条件为假。',
+                INV.scan, i, 'check');
+            } else {
+              add(label, firstKeys,
+                `while stack[-1] <= nums[${i}]  # ${top} > ${v}，条件为假`,
+                `退出 while：栈顶 ${top} 比 ${v} 大，它正是 ${v} 右侧第一个更大的数。`,
+                INV.scan, i, 'check');
+            }
+            break;
+          }
+          const ans = stack.length ? stack[stack.length - 1] : -1;
+          res[i] = ans;
+          add(`i = ${i} · res[${i}] = ${ans}`, ['record'],
+            `res[${i}] = stack[-1] if stack else -1  # res[${i}] = ${ans}`,
+            ans === -1
+              ? `栈空：nums[${i}] = ${v} 右边没有更大的数，res[${i}] = -1。`
+              : `栈顶 ${ans} 是 nums[${i}] = ${v} 右侧第一个更大的数，记入 res[${i}]。`,
+            INV.record, i, 'record');
+          stack.push(v);
+          add(`i = ${i} · 入栈 ${v}`, ['push'],
+            `stack.append(nums[${i}])  # 入栈 ${v}`,
+            `${v} 自己也可能成为左边某些数的答案，压入栈顶成为新候选。`,
+            INV.push, i, 'push');
+        }
+        add('return res', ['return'],
+          'return res  # [2, 2, 3, 4, 3, 4, 4, -1]',
+          '扫描结束，返回 res。每个值最多入栈、出栈各一次，总时间 O(n)。',
+          INV.done, null, 'return', true);
+
+        // res[j] 对应的答案柱子下标（res[j] 右侧第一个等于该值的柱子）
+        const targets = res.map((value, j) => {
+          if (value === -1) return null;
+          for (let k = j + 1; k < N; k += 1) if (NUMS[k] === value) return k;
+          return null;
+        });
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('nlnr-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const motion = core.createMotionController();
+        let geom = {};
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x + r} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const compact = width < 560;
+          const maxV = Math.max(...NUMS);
+          const padL = compact ? 6 : 14;
+          const padR = compact ? 6 : 12;
+          const labelW = compact ? 38 : 40;
+          const baseline = compact ? 176 : 210;
+          const topPad = compact ? 46 : 54;
+          const unit = (baseline - topPad) / maxV;
+          const area = width - padL - padR - labelW;
+          const gap = Math.max(6, Math.min(16, area * 0.02));
+          const barW = Math.min(compact ? 34 : 44, (area - (N - 1) * gap) / N);
+          const totalW = N * barW + (N - 1) * gap;
+          const startX = padL + labelW + (area - totalW) / 2;
+          const bars = NUMS.map((v, i) => {
+            const x = startX + i * (barW + gap);
+            return { x, cx: x + barW / 2, v, top: baseline - v * unit };
+          });
+          const resY = baseline + (compact ? 24 : 28);
+          const cellH = compact ? 24 : 28;
+          const stackY = resY + cellH + (compact ? 30 : 34);
+          const stackCellW = compact ? 30 : 34;
+          const stackGap = compact ? 5 : 7;
+          const stageH = stackY + cellH + (compact ? 26 : 30);
+          geom = { width, compact, padL, padR, labelW, baseline, unit, bars, barW, gap, startX, resY, cellH, stackY, stackCellW, stackGap, stageH };
+          svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
+          stage.style.height = `${Math.ceil(stageH)}px`;
+        }
+
+        function arrowPoints(from, to) {
+          const hy = Math.max(14, to.top - 10);
+          return [
+            [from.cx - from.w * 0.22, from.top - 2],
+            [from.cx - from.w * 0.22, hy],
+            [to.cx, hy],
+            [to.cx, to.top + 7]
+          ];
+        }
+
+        function partialPolyline(points, t) {
+          if (t >= 1) {
+            return `M ${points.map(p => p.join(' ')).join(' L ')}`;
+          }
+          let total = 0;
+          const lengths = [];
+          for (let k = 1; k < points.length; k += 1) {
+            const len = Math.hypot(points[k][0] - points[k - 1][0], points[k][1] - points[k - 1][1]);
+            lengths.push(len);
+            total += len;
+          }
+          const target = total * Math.max(0, t);
+          let acc = 0;
+          let d = `M ${points[0][0]} ${points[0][1]}`;
+          for (let k = 1; k < points.length; k += 1) {
+            if (acc + lengths[k - 1] >= target) {
+              const f = (target - acc) / lengths[k - 1];
+              const x = points[k - 1][0] + (points[k][0] - points[k - 1][0]) * f;
+              const y = points[k - 1][1] + (points[k][1] - points[k - 1][1]) * f;
+              return `${d} L ${x} ${y}`;
+            }
+            d += ` L ${points[k][0]} ${points[k][1]}`;
+            acc += lengths[k - 1];
+          }
+          return d;
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom.bars || !state) return;
+          const g = geom;
+          const lerp = (a, b) => a + (b - a) * t;
+          const fillIn = from && from.res ? state.res.map((v, i) => (v !== null && from.res[i] === null ? t : 1)) : state.res.map(() => 1);
+          const fillOut = from && from.res ? from.res.map((v, i) => (v !== null && state.res[i] === null ? 1 - t : 0)) : state.res.map(() => 0);
+          const popped = from && from.stack ? from.stack.slice(state.stack.length) : [];
+          const poppedOp = from ? Math.max(0, 1 - t) : 0;
+          const pushedFrom = from ? from.stack.length : state.stack.length;
+          const freshRes = state.res.map((v, i) => from && from.res && v !== null && from.res[i] === null ? i : -1).filter(i => i >= 0);
+          const cursorX = (() => {
+            if (state.i === null || state.i === undefined) return null;
+            if (from && from.i !== null && from.i !== undefined && from.i !== state.i) return lerp(g.bars[from.i].cx, g.bars[state.i].cx);
+            return g.bars[state.i].cx;
+          })();
+
+          scene.update(({ path, text }) => {
+            // 柱状图
+            path('baseline', { d: `M ${g.padL} ${g.baseline} L ${g.width - g.padR} ${g.baseline}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none' });
+            g.bars.forEach((b, i) => {
+              path(`bar-${i}`, { d: rectPath(b.x, b.top, g.barW, g.baseline - b.top), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.5 });
+              text(`bar-v-${i}`, { x: b.cx, y: b.top - 5, 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 12, fill: '#272727', 'font-family': MONO }, String(b.v));
+              text(`bar-i-${i}`, { x: b.cx, y: g.baseline + 12, 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 9.5, fill: '#555', 'font-family': MONO }, String(i));
+            });
+
+            // 当前柱子的虚线框与扫描游标
+            if (state.i !== null && state.i !== undefined) {
+              const b = g.bars[state.i];
+              path('cursor-box', { d: rectPath(b.x - 4, b.top - 4, g.barW + 8, g.baseline - b.top + 8, 2), fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+              if (cursorX !== null) {
+                text('cursor-token', { x: cursorX, y: 15, 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 11, fill: '#272727', 'font-family': MONO }, `i = ${state.i}`);
+                path('cursor-arrow', { d: `M ${cursorX} 21 L ${cursorX} ${b.top - 8}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#nlnr-arrow)' });
+              }
+            }
+
+            // 答案虚线箭头
+            state.res.forEach((value, j) => {
+              const target = targets[j];
+              if (value === null || value === -1 || target === null) return;
+              const fresh = freshRes.includes(j);
+              const pts = arrowPoints({ cx: g.bars[j].cx, top: g.bars[j].top, w: g.barW }, g.bars[target]);
+              path(`arrow-${j}`, {
+                d: partialPolyline(pts, fresh ? t : 1),
+                fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '6 4',
+                'marker-end': 'url(#nlnr-arrow)', opacity: 0.9
+              });
+              if (fresh) {
+                const tb = g.bars[target];
+                path(`arrow-target-${j}`, { d: rectPath(tb.x - 4, tb.top - 4, g.barW + 8, tb.v * g.unit + 8, 2), fill: 'none', stroke: '#555', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: t });
+              }
+            });
+
+            // res 行
+            text('res-label', { x: g.padL + 2, y: g.resY + g.cellH / 2 + 4, 'font-size': g.compact ? 10 : 11, fill: '#555', 'font-family': MONO }, 'res');
+            state.res.forEach((value, i) => {
+              const b = g.bars[i];
+              const opIn = fillIn[i];
+              const opOut = fillOut[i];
+              const filled = value !== null;
+              path(`res-cell-${i}`, { d: rectPath(b.x, g.resY, g.barW, g.cellH, 2), fill: '#fffdf8', stroke: filled ? '#272727' : '#999', 'stroke-width': filled ? 1.5 : 1.1, opacity: Math.max(opIn, opOut, filled ? 1 : 0.85) });
+              const label = value === null ? '·' : String(value);
+              text(`res-v-${i}`, { x: b.cx, y: g.resY + g.cellH / 2 + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 11.5, fill: filled ? '#272727' : '#999', 'font-family': MONO, opacity: Math.max(opIn, opOut) }, label);
+              if (state.i === i && state.phase !== 'return' && state.phase !== 'init') {
+                path(`res-cur-${i}`, { d: rectPath(b.x - 3, g.resY - 3, g.barW + 6, g.cellH + 6, 2), fill: 'none', stroke: '#777', 'stroke-width': 1, 'stroke-dasharray': '3 3' });
+              }
+            });
+
+            // stack 行
+            const sx = g.padL + g.labelW;
+            text('stack-label', { x: g.padL + 2, y: g.stackY + g.cellH / 2 + 4, 'font-size': g.compact ? 10 : 11, fill: '#555', 'font-family': MONO }, 'stack');
+            const drawStackCell = (k, value, opacity, strike) => {
+              const x = sx + k * (g.stackCellW + g.stackGap);
+              path(`stack-cell-${k}`, { d: rectPath(x, g.stackY, g.stackCellW, g.cellH, 2), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2, opacity });
+              text(`stack-v-${k}`, { x: x + g.stackCellW / 2, y: g.stackY + g.cellH / 2 + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10.5 : 12, fill: strike ? '#777' : '#272727', 'font-family': MONO, opacity }, String(value));
+              if (strike) {
+                path(`stack-strike-${k}`, { d: `M ${x + 3} ${g.stackY + g.cellH / 2} L ${x + g.stackCellW - 3} ${g.stackY + g.cellH / 2}`, stroke: '#777', 'stroke-width': 1.4, opacity });
+              }
+              return x;
+            };
+            state.stack.forEach((value, k) => {
+              const isNew = from && from.stack && k >= pushedFrom && t < 1;
+              const op = isNew ? t : 1;
+              const x = drawStackCell(k, value, op, false);
+              if (k === state.stack.length - 1) {
+                path('stack-top-box', { d: rectPath(x - 3, g.stackY - 3, g.stackCellW + 6, g.cellH + 6, 2), fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+                if (state.stack.length >= 2) {
+                  text('stack-top-label', { x: x + g.stackCellW / 2, y: g.stackY - 7, 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 9.5, fill: '#555', 'font-family': MONO }, 'stack[-1]');
+                }
+              }
+            });
+            popped.forEach((value, idx) => {
+              const k = state.stack.length + idx;
+              drawStackCell(k, value, poppedOp, true);
+            });
+            if (state.stack.length) {
+              const x0 = sx - 3;
+              const x1 = sx + (state.stack.length - 1) * (g.stackCellW + g.stackGap) + g.stackCellW + 3;
+              const by = g.stackY + g.cellH + 8;
+              path('stack-brace', { d: `M ${x0} ${by} L ${x1} ${by} M ${x0} ${by} L ${x0} ${by - 4} M ${x1} ${by} L ${x1} ${by - 4}`, stroke: '#777', 'stroke-width': 1, fill: 'none' });
+              text('stack-brace-label', { x: (x0 + x1) / 2, y: by + 11, 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 9.5, fill: '#555', 'font-family': MONO }, '← 严格递减 · decreasing →');
+            }
+
+            if (state.done) {
+              const b0 = g.bars[0];
+              const bN = g.bars[N - 1];
+              text('done-tag', { x: (b0.cx + bN.cx) / 2, y: 16, 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 11, fill: '#272727', 'font-family': MONO }, 'res = [2, 2, 3, 4, 3, 4, 4, -1]');
+            }
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.stepLabel;
+          invariantEl.textContent = frame.invariant;
+          mI.textContent = state.i === null || state.i === undefined ? '—' : state.i;
+          mNum.textContent = state.i === null || state.i === undefined ? '—' : NUMS[state.i];
+          mTop.textContent = state.stack.length ? state.stack[state.stack.length - 1] : '—';
+          mLen.textContent = state.stack.length;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `右侧下一个更大数演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({ i: s.i, phase: s.phase, done: s.done, stack: [...s.stack], res: [...s.res] });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 420,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(frames);
+
+        // 静态例子：nums = [5, 2, 4, 6, 1] → res = [6, 4, 6, -1, -1]
+        const exStage = root.querySelector('[data-example-stage]');
+        const exSvg = root.querySelector('[data-example-lines]');
+        const exScene = core.createSvgScene(exSvg);
+        exScene.defineMarker('nlnr-ex-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const EX_NUMS = [5, 2, 4, 6, 1];
+        const EX_RES = [6, 4, 6, -1, -1];
+        const EX_TARGETS = [3, 2, 3, null, null];
+        let exGeom = {};
+
+        function layoutExample() {
+          const width = exStage.clientWidth;
+          const compact = width < 480;
+          const maxV = 6;
+          const padL = compact ? 10 : 20;
+          const padR = compact ? 10 : 20;
+          const baseline = compact ? 150 : 170;
+          const topPad = 26;
+          const unit = (baseline - topPad) / maxV;
+          const area = width - padL - padR;
+          const gap = Math.max(10, Math.min(26, area * 0.04));
+          const barW = Math.min(compact ? 44 : 56, (area - (EX_NUMS.length - 1) * gap) / EX_NUMS.length);
+          const totalW = EX_NUMS.length * barW + (EX_NUMS.length - 1) * gap;
+          const startX = padL + (area - totalW) / 2;
+          const bars = EX_NUMS.map((v, i) => {
+            const x = startX + i * (barW + gap);
+            return { x, cx: x + barW / 2, v, top: baseline - v * unit };
+          });
+          const resY = baseline + (compact ? 26 : 30);
+          const cellH = compact ? 24 : 28;
+          exGeom = { width, compact, padL, baseline, unit, bars, barW, resY, cellH };
+          exSvg.setAttribute('viewBox', `0 0 ${width} ${resY + cellH + 12}`);
+          exStage.style.height = `${resY + cellH + 12}px`;
+        }
+
+        function drawExample() {
+          if (!exGeom.bars) return;
+          const g = exGeom;
+          exScene.update(({ path, text }) => {
+            path('ex-baseline', { d: `M ${g.padL} ${g.baseline} L ${g.width - g.padL} ${g.baseline}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none' });
+            g.bars.forEach((b, i) => {
+              path(`ex-bar-${i}`, { d: rectPath(b.x, b.top, g.barW, g.baseline - b.top), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.5 });
+              text(`ex-bar-v-${i}`, { x: b.cx, y: b.top - 5, 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 12, fill: '#272727', 'font-family': MONO }, String(b.v));
+              text(`ex-bar-i-${i}`, { x: b.cx, y: g.baseline + 13, 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 9.5, fill: '#555', 'font-family': MONO }, `nums[${i}]`);
+            });
+            EX_RES.forEach((value, j) => {
+              const target = EX_TARGETS[j];
+              if (target === null) return;
+              const pts = arrowPoints({ cx: g.bars[j].cx, top: g.bars[j].top, w: g.barW }, g.bars[target]);
+              path(`ex-arrow-${j}`, { d: partialPolyline(pts, 1), fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '6 4', 'marker-end': 'url(#nlnr-ex-arrow)', opacity: 0.9 });
+            });
+            EX_RES.forEach((value, i) => {
+              const b = g.bars[i];
+              path(`ex-res-${i}`, { d: rectPath(b.x, g.resY, g.barW, g.cellH, 2), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.3 });
+              text(`ex-res-v-${i}`, { x: b.cx, y: g.resY + g.cellH / 2 + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 11.5, fill: '#272727', 'font-family': MONO }, String(value));
+            });
+            text('ex-res-label', { x: g.padL, y: g.resY + g.cellH / 2 + 4, 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, 'res');
+          });
+        }
+
+        layoutExample();
+        drawExample();
+        new ResizeObserver(() => { layoutExample(); drawExample(); }).observe(exStage);
+      })();
+    </script>
+  </body>
+</html>
