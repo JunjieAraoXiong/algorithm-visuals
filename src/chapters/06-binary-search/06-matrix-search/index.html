@@ -31,7 +31,7 @@
     #matrix-lab .target-tag { position: absolute; z-index: 4; top: 6px; right: 6px; color: var(--quiet); font: 11px/1.2 monospace; }
     #matrix-lab .mchip { position: absolute; z-index: 4; padding: 2px 7px; border: 1px solid #555; border-radius: 2px; background: var(--paper); font: 10.5px/1.4 monospace; transform: translateX(-50%); white-space: nowrap; transition: left .34s ease; }
     #matrix-lab .mchip::after { content: ""; position: absolute; top: 100%; left: 50%; height: 6px; border-left: 1px solid #666; }
-    #matrix-lab .space-bracket { position: absolute; z-index: 1; height: 7px; border-right: 1px solid #555; border-bottom: 1px solid #555; border-left: 1px solid #555; transition: left .34s ease, width .34s ease; }
+    #matrix-lab .space-bracket { position: absolute; z-index: 1; height: 7px; border-right: 1px solid #555; border-bottom: 1px solid #555; border-left: 1px solid #555; }
     #matrix-lab .space-bracket span { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); color: var(--quiet); font: 9px/1 monospace; white-space: nowrap; }
     #matrix-lab .mapchip { position: absolute; z-index: 4; padding: 6px 9px; border: 1px dashed #777; background: var(--paper); font: 11px/1.55 monospace; white-space: nowrap; transition: left .34s ease, top .34s ease, opacity .25s; }
     #matrix-lab .mapchip span { display: block; }
@@ -480,12 +480,13 @@ mid = 9  → cell (2, 1) = 21 == 21 → return True</div>
       function placeChips(state) {
         const g = geom;
         const W = g.width;
+        const margin = el => el.offsetWidth / 2 + 2;
         const clampI = i => Math.max(0, Math.min(CELLS - 1, i));
         const entries = [];
         if (state.left !== null) entries.push({ el: chipL, x: tickX(clampI(state.left)) });
         if (state.mid !== null) entries.push({ el: chipM, x: tickX(state.mid) });
         if (state.right !== null) entries.push({ el: chipR, x: tickX(clampI(state.right)) });
-        const minGap = 40;
+        const minGap = 44;
         const sorted = [...entries].sort((a, b) => a.x - b.x);
         for (let i = 1; i < sorted.length; i += 1) {
           if (sorted[i].x < sorted[i - 1].x + minGap) sorted[i].x = sorted[i - 1].x + minGap;
@@ -495,11 +496,11 @@ mid = 9  → cell (2, 1) = 21 == 21 → return True</div>
         let shift = rawMean - newMean;
         const lo = sorted[0].x + shift;
         const hi = sorted[sorted.length - 1].x + shift;
-        if (lo < 22) shift += 22 - lo;
-        if (hi > W - 22) shift -= hi - (W - 22);
+        if (lo < margin(sorted[0].el)) shift += margin(sorted[0].el) - lo;
+        if (hi > W - margin(sorted[sorted.length - 1].el)) shift -= hi - (W - margin(sorted[sorted.length - 1].el));
         midChipX = null;
         for (const e of entries) {
-          const x = Math.max(22, Math.min(W - 22, e.x + shift));
+          const x = Math.max(margin(e.el), Math.min(W - margin(e.el), e.x + shift));
           e.el.style.left = `${x}px`;
           if (e.el === chipM) midChipX = x;
         }
@@ -530,10 +531,10 @@ mid = 9  → cell (2, 1) = 21 == 21 → return True</div>
         }
         targetTag.textContent = `target = ${state.target}`;
 
-        placeChips(state);
         chipL.hidden = state.left === null;
         chipM.hidden = state.mid === null;
         chipR.hidden = state.right === null;
+        placeChips(state);
 
         if (state.left !== null && state.right !== null && state.right >= state.left) {
           bracket.hidden = false;
