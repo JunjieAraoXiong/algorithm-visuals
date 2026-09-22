@@ -1,0 +1,2103 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "二叉树垂序遍历 BFS 演示 / binary tree columns trace"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 46"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "① 题面与示例树"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "② 列编号规则"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "③ 为什么用 BFS"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "④ 初始化：map、边界、队列"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (5, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "column_map[0] ← 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "边界 → [0, 0]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "入队 (9, -1)、(3, 1)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (9, -1)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "column_map[-1] ← 9"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "边界 → [-1, 0]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "入队 (2, -2)、(1, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (3, 1)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "column_map[1] ← 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "边界 → [-1, 1]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "入队 (4, 0)、(7, 2)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (2, -2)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "column_map[-2] ← 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "边界 → [-2, 1]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "19"
+                    ]
+                  ],
+                  "children": [
+                    "入队 (null, -3)、(null, -1)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "20"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (1, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "21"
+                    ]
+                  ],
+                  "children": [
+                    "column_map[0] ← 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "22"
+                    ]
+                  ],
+                  "children": [
+                    "边界 → [-2, 1]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "23"
+                    ]
+                  ],
+                  "children": [
+                    "入队 (null, -1)、(null, 1)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "24"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (4, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "25"
+                    ]
+                  ],
+                  "children": [
+                    "column_map[0] ← 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "26"
+                    ]
+                  ],
+                  "children": [
+                    "边界 → [-2, 1]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "27"
+                    ]
+                  ],
+                  "children": [
+                    "入队 (null, -1)、(null, 1)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "28"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (7, 2)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "29"
+                    ]
+                  ],
+                  "children": [
+                    "column_map[2] ← 7"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "30"
+                    ]
+                  ],
+                  "children": [
+                    "边界 → [-2, 2]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "31"
+                    ]
+                  ],
+                  "children": [
+                    "入队 (null, 1)、(null, 3)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "32"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (null, -3)：跳过"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "33"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (null, -1)：跳过"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "34"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (null, -1)：跳过"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "35"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (null, 1)：跳过"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "36"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (null, -1)：跳过"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "37"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (null, 1)：跳过"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "38"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (null, 1)：跳过"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "39"
+                    ]
+                  ],
+                  "children": [
+                    "出队 (null, 3)：跳过"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "40"
+                    ]
+                  ],
+                  "children": [
+                    "队列空，循环结束"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "41"
+                    ]
+                  ],
+                  "children": [
+                    "收集列 -2 → [2]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "42"
+                    ]
+                  ],
+                  "children": [
+                    "收集列 -1 → [9]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "43"
+                    ]
+                  ],
+                  "children": [
+                    "收集列 0 → [5, 1, 4]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "44"
+                    ]
+                  ],
+                  "children": [
+                    "收集列 1 → [3]"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "45"
+                    ]
+                  ],
+                  "children": [
+                    "收集列 2 → [7]"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "题面"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "二叉树垂序遍历演示：第 1 / 46 步。题目：把二叉树按竖直列输出——同列自上而下，同行同列从左到右。书例的答案是 [[2],[9],[5,1,4],[3],[7]]：五个列号 −2…+2 各成一列，其中 5、1、4 同处第 0 列。下面三步先看规则，再逐帧跑 BFS。"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ],
+        [
+          "style",
+          "height: 255px;"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 255"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 134.3 12 H 212.70000000000002 Q 216.70000000000002 12 216.70000000000002 16 V 189 Q 216.70000000000002 193 212.70000000000002 193 H 134.3 Q 130.3 193 130.3 189 V 16 Q 130.3 12 134.3 12 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "band--2"
+                ],
+                [
+                  "fill",
+                  "#f7f5ee"
+                ],
+                [
+                  "stroke",
+                  "#ddd9cb"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "band-h--2"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "173.5"
+                ],
+                [
+                  "y",
+                  "23"
+                ]
+              ],
+              "children": [
+                "-2"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 230.3 12 H 308.70000000000005 Q 312.70000000000005 12 312.70000000000005 16 V 189 Q 312.70000000000005 193 308.70000000000005 193 H 230.3 Q 226.3 193 226.3 189 V 16 Q 226.3 12 230.3 12 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "band--1"
+                ],
+                [
+                  "fill",
+                  "#f7f5ee"
+                ],
+                [
+                  "stroke",
+                  "#ddd9cb"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "band-h--1"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "269.5"
+                ],
+                [
+                  "y",
+                  "23"
+                ]
+              ],
+              "children": [
+                "-1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 326.3 12 H 404.70000000000005 Q 408.70000000000005 12 408.70000000000005 16 V 189 Q 408.70000000000005 193 404.70000000000005 193 H 326.3 Q 322.3 193 322.3 189 V 16 Q 322.3 12 326.3 12 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "band-0"
+                ],
+                [
+                  "fill",
+                  "#f7f5ee"
+                ],
+                [
+                  "stroke",
+                  "#ddd9cb"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "band-h-0"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "23"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 422.3 12 H 500.70000000000005 Q 504.70000000000005 12 504.70000000000005 16 V 189 Q 504.70000000000005 193 500.70000000000005 193 H 422.3 Q 418.3 193 418.3 189 V 16 Q 418.3 12 422.3 12 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "band-1"
+                ],
+                [
+                  "fill",
+                  "#f7f5ee"
+                ],
+                [
+                  "stroke",
+                  "#ddd9cb"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "band-h-1"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "461.5"
+                ],
+                [
+                  "y",
+                  "23"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 518.3 12 H 596.6999999999999 Q 600.6999999999999 12 600.6999999999999 16 V 189 Q 600.6999999999999 193 596.6999999999999 193 H 518.3 Q 514.3 193 514.3 189 V 16 Q 514.3 12 518.3 12 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "band-2"
+                ],
+                [
+                  "fill",
+                  "#f7f5ee"
+                ],
+                [
+                  "stroke",
+                  "#ddd9cb"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "band-h-2"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "557.5"
+                ],
+                [
+                  "y",
+                  "23"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 365.5 68 L 269.5 92"
+                ],
+                [
+                  "data-visual-element",
+                  "e-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 269.5 122 L 173.5 146"
+                ],
+                [
+                  "data-visual-element",
+                  "e-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 269.5 122 L 336.7 146"
+                ],
+                [
+                  "data-visual-element",
+                  "e-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 365.5 68 L 461.5 92"
+                ],
+                [
+                  "data-visual-element",
+                  "e-4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 461.5 122 L 394.3 146"
+                ],
+                [
+                  "data-visual-element",
+                  "e-5"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 461.5 122 L 557.5 146"
+                ],
+                [
+                  "data-visual-element",
+                  "e-6"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "365.5"
+                ],
+                [
+                  "cy",
+                  "53"
+                ],
+                [
+                  "data-visual-element",
+                  "n-0"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "15"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nv-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "57.2"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "269.5"
+                ],
+                [
+                  "cy",
+                  "107"
+                ],
+                [
+                  "data-visual-element",
+                  "n-1"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "15"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nv-1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "269.5"
+                ],
+                [
+                  "y",
+                  "111.2"
+                ]
+              ],
+              "children": [
+                "9"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "173.5"
+                ],
+                [
+                  "cy",
+                  "161"
+                ],
+                [
+                  "data-visual-element",
+                  "n-2"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "15"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nv-2"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "173.5"
+                ],
+                [
+                  "y",
+                  "165.2"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "336.7"
+                ],
+                [
+                  "cy",
+                  "161"
+                ],
+                [
+                  "data-visual-element",
+                  "n-3"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "15"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nv-3"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "336.7"
+                ],
+                [
+                  "y",
+                  "165.2"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "461.5"
+                ],
+                [
+                  "cy",
+                  "107"
+                ],
+                [
+                  "data-visual-element",
+                  "n-4"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "15"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nv-4"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "461.5"
+                ],
+                [
+                  "y",
+                  "111.2"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "394.3"
+                ],
+                [
+                  "cy",
+                  "161"
+                ],
+                [
+                  "data-visual-element",
+                  "n-5"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "15"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nv-5"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "394.3"
+                ],
+                [
+                  "y",
+                  "165.2"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "557.5"
+                ],
+                [
+                  "cy",
+                  "161"
+                ],
+                [
+                  "data-visual-element",
+                  "n-6"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "15"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.5"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nv-6"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "557.5"
+                ],
+                [
+                  "y",
+                  "165.2"
+                ]
+              ],
+              "children": [
+                "7"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i1-root-tag"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "30"
+                ]
+              ],
+              "children": [
+                "root"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i1-out-lab"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "208"
+                ]
+              ],
+              "children": [
+                "书例输出 Output →"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 160.665 215 H 186.33499999999998 Q 189.33499999999998 215 189.33499999999998 218 V 234 Q 189.33499999999998 237 186.33499999999998 237 H 160.665 Q 157.665 237 157.665 234 V 218 Q 157.665 215 160.665 215 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "i1-b-0"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i1-bv-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "173.5"
+                ],
+                [
+                  "y",
+                  "229.5"
+                ]
+              ],
+              "children": [
+                "[2]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 256.66499999999996 215 H 282.335 Q 285.335 215 285.335 218 V 234 Q 285.335 237 282.335 237 H 256.66499999999996 Q 253.665 237 253.665 234 V 218 Q 253.665 215 256.66499999999996 215 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "i1-b-1"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i1-bv-1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "269.5"
+                ],
+                [
+                  "y",
+                  "229.5"
+                ]
+              ],
+              "children": [
+                "[9]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 334.995 215 H 396.005 Q 399.005 215 399.005 218 V 234 Q 399.005 237 396.005 237 H 334.995 Q 331.995 237 331.995 234 V 218 Q 331.995 215 334.995 215 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "i1-b-2"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i1-bv-2"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "229.5"
+                ]
+              ],
+              "children": [
+                "[5, 1, 4]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 448.665 215 H 474.33500000000004 Q 477.33500000000004 215 477.33500000000004 218 V 234 Q 477.33500000000004 237 474.33500000000004 237 H 448.665 Q 445.665 237 445.665 234 V 218 Q 445.665 215 448.665 215 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "i1-b-3"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i1-bv-3"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "461.5"
+                ],
+                [
+                  "y",
+                  "229.5"
+                ]
+              ],
+              "children": [
+                "[3]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 544.665 215 H 570.3349999999999 Q 573.3349999999999 215 573.3349999999999 218 V 234 Q 573.3349999999999 237 570.3349999999999 237 H 544.665 Q 541.665 237 541.665 234 V 218 Q 541.665 215 544.665 215 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "i1-b-4"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i1-bv-4"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "557.5"
+                ],
+                [
+                  "y",
+                  "229.5"
+                ]
+              ],
+              "children": [
+                "[7]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i1-note"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "250"
+                ]
+              ],
+              "children": [
+                "五列对齐五条色带 · 同列自上而下 · 同行同列从左到右"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "不变量 / Invariant"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "竖直列：同列自上而下，同行同列从左到右。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    "当前出队"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-curr",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "queue"
+                      ]
+                    },
+                    "长度"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-queue",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "0"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "column_map"
+                      ]
+                    },
+                    "键数"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-map",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "0"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "leftmost"
+                      ]
+                    },
+                    "/",
+                    {
+                      "tag": "code",
+                      "children": [
+                        "rightmost"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-bounds",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "0 / 0"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "def binary_tree_columns(root) # 书例：5 / 9 3 / 2 1 4 7"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "题目：把二叉树按竖直列输出——同列自上而下，同行同列从左到右。书例的答案是 [[2],[9],[5,1,4],[3],[7]]：五个列号 −2…+2 各成一列，其中 5、1、4 同处第 0 列。下面三步先看规则，再逐帧跑 BFS。"
+          ]
+        }
+      ]
+    }
+  ]
+}

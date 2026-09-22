@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of serializing and deserializing a binary tree: preorder traversal writes each value plus '#' null markers into a string, and the same preorder consumes the list to rebuild the tree node by node. 二叉树的序列化与反序列化：前序遍历写入值与 '#' 空标记，反序列化按同序消费列表逐节点重建。" />
+    <title>Serialize and Deserialize a Binary Tree · 二叉树的序列化与反序列化 · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .card-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="serlab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Serialize and Deserialize a Binary Tree · <span lang="zh-CN">二叉树的序列化与反序列化</span></h1></div></header>
+      <p class="problem">Write a function to serialize a binary tree into a string, and another function to deserialize that string back into the original binary tree structure. Example: root <code>5</code>, left child <code>3</code> (with <code>1</code>, <code>4</code>), right child <code>9</code> (with left child <code>6</code>) → <code>"5,3,1,#,#,4,#,#,9,6,#,#,#"</code>.<span lang="zh-CN">题目：把一个二叉树 serialize（序列化）成一个字符串，再 deserialize（反序列化）还原出原来的树。书例：根 5，左孩子 3（子节点 1、4），右孩子 9（左孩子 6）；用前序遍历 + '#' 空标记写出的串是 "5,3,1,#,#,4,#,#,9,6,#,#,#"。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="二叉树序列化与反序列化演示 / serialize and deserialize trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="二叉树序列化与反序列化演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt data-m-label>当前访问</dt><dd data-m-focus></dd></div>
+              <div><dt>递归深度</dt><dd data-m-depth></dd></div>
+              <div><dt data-m-prog>serialized_list</dt><dd data-m-prog-v></dd></div>
+              <div><dt data-m-nodes>已访问节点</dt><dd data-m-nodes-v></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="ser-code-title">
+          <h2 id="ser-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="s-func">def serialize(root: TreeNode) -&gt; str:</span><span class="code-line">    # Perform a preorder traversal to add node values to a list, then convert the</span><span class="code-line">    # list to a string.</span><span class="code-line" data-source-key="s-list">    serialized_list = []</span><span class="code-line" data-source-key="s-call">    preorder_serialize(root, serialized_list)</span><span class="code-line">    # Convert the list to a string and separate each value using a comma</span><span class="code-line">    # delimiter.</span><span class="code-line" data-source-key="s-join">    return ','.join(serialized_list)</span><span class="code-line"></span><span class="code-line"># Helper function to perform serialization through preorder traversal.</span><span class="code-line" data-source-key="s-helper">def preorder_serialize(node, serialized_list) -&gt; None:</span><span class="code-line">    # Base case: mark null nodes as '#'.</span><span class="code-line" data-source-key="s-null-if">    if node is None:</span><span class="code-line" data-source-key="s-null-append">        serialized_list.append('#')</span><span class="code-line" data-source-key="s-null-return">        return</span><span class="code-line">    # Preorder traversal processes the current node first, then the left and</span><span class="code-line">    # right children.</span><span class="code-line" data-source-key="s-append">    serialized_list.append(str(node.val))</span><span class="code-line" data-source-key="s-left">    preorder_serialize(node.left, serialized_list)</span><span class="code-line" data-source-key="s-right">    preorder_serialize(node.right, serialized_list)</span><span class="code-line"></span><span class="code-line" data-source-key="d-func">def deserialize(data: str) -&gt; TreeNode:</span><span class="code-line">    # Obtain the node values by splitting the string using the comma delimiter.</span><span class="code-line" data-source-key="d-split">    node_values = iter(data.split(','))</span><span class="code-line" data-source-key="d-call">    return build_tree(node_values)</span><span class="code-line"></span><span class="code-line"># Helper function to construct the tree using preorder traversal.</span><span class="code-line" data-source-key="d-helper">def build_tree(values: List[str]) -&gt; TreeNode:</span><span class="code-line" data-source-key="d-next">    val = next(values)</span><span class="code-line">    # Base case: '#' indicates a null node.</span><span class="code-line" data-source-key="d-hash-if">    if val == '#':</span><span class="code-line" data-source-key="d-none">        return None</span><span class="code-line">    # Use preorder traversal processes the current node first, then the left and</span><span class="code-line">    # right children.</span><span class="code-line" data-source-key="d-node">    node = TreeNode(int(val))</span><span class="code-line" data-source-key="d-left">    node.left = build_tree(values)</span><span class="code-line" data-source-key="d-right">    node.right = build_tree(values)</span><span class="code-line" data-source-key="d-ret">    return node</span></code></pre>
+          <p class="note">树固定为上方示例树。序列化帧高亮 serialize 一侧的代码，反序列化帧高亮 <code>build_tree</code> 一侧；下方字符串面板里，节点值用实线格、'#' 用灰色虚线格。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="ser-intuition">
+        <h2 id="ser-intuition">直觉：前序写、前序读 / Preorder write, preorder read</h2>
+        <p class="section-intro">序列化方式决定 deserialize 能否唯一重建。选前序：写出的第一个 token 就是根，读回时同样先拿到根——写入与读取天然同步。只存节点值却不够（书 p.102 的歧义）：根 5 之后出现 9 时，串里看不出它是左孩子还是右孩子，同一个串可对应多棵树。</p>
+        <p class="section-intro">补上空孩子标记后歧义消失：每个空位置用 '#' 占位，每个节点恰好贡献「值，左，右」三段，<strong>串与树一一对应</strong>。反序列化只需一个游标按前序消费列表：取到 '#' 返回 None，否则建节点、递归建左右。</p>
+        <div class="card-grid">
+          <article class="paper-card"><strong>前序：首尾都是根 / First token is the root</strong><p>serialize 从根出发先写自己；deserialize 的第一个值也必须是根。顺序一致让重建不需要任何回溯查找，一次线性扫描即可完成。</p></article>
+          <article class="paper-card"><strong>'#' 的代价：2n+1 个 token / Null markers</strong><p>n 个节点的二叉树恰好有 n+1 个空孩子指针（对子树归纳可证），所以串长 2n+1。'#' 就是把这些空位置显式记下来——用长度换唯一性。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="ser-orders">
+        <h2 id="ser-orders">Follow-up：四种遍历都行吗 / Which traversals work</h2>
+        <div class="card-grid">
+          <article class="paper-card"><strong>前序 Preorder · 可行（本页）</strong><p>首值即根，先建根再递归左右。写入与读取完全同序，最直观。</p></article>
+          <article class="paper-card"><strong>后序 Postorder · 可行</strong><p>根在串尾：倒着读串，先建右子树、再建左子树，最后建根。顺序与本页镜像。</p></article>
+          <article class="paper-card"><strong>中序 Inorder · 困难</strong><p>根的位置无法从串里推出：拿到 "1,5,9" 时分不清 5 的左右边界在哪，左右子树切不开，需要额外信息才能重建。</p></article>
+          <article class="paper-card"><strong>BFS 层序 · 可行</strong><p>按层写入、按层重建：第一个是根，之后每两个值依次是下一层节点的左右孩子（'#' 同样占位）。队列驱动，与本页的前序递归互为印证。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="ser-edge">
+        <h2 id="ser-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>空树 → "#"</strong><p>serialize(None) 直接追加 '#'；deserialize 第一个值就是 '#'，build_tree 立刻返回 None。无需特判。</p></article>
+          <article class="paper-card"><strong>单节点 → "5,#,#"</strong><p>值后跟两个空标记，恰好三段；读回时根的两个递归各遇到一个 '#'，左右都挂空。</p></article>
+          <article class="paper-card"><strong>链树（只有左孩子）</strong><p>如 3→2→1 全左链：串是 "3,2,1,#,#,#"。前序正确记录每个节点先左后右；此时递归深度 = n，是空间复杂度的最坏情况。</p></article>
+          <article class="paper-card"><strong>斜链与满树之间</strong><p>任意形状的树都只需要「值 + 空标记」两类 token：形状信息全部编码在 '#' 的位置里，不需要括号等额外分隔符。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="ser-complexity">
+        <h2 id="ser-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n)</strong><p>serialize 中每个节点被访问常数次，共 2n+1 次 append；join 把 2n+1 个短串连起来，累计也是 O(n)。deserialize 每个值只消费一次、建一个节点，O(n)。</p></article>
+          <article class="paper-card"><strong>Space · O(n)</strong><p>serialized_list 存 2n+1 个 token，O(n)；递归栈深度 O(h)（链树时 h = n 取到最坏）。输出串本身占 O(n) 是否计入，可与面试官讨论。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../flatten-multilevel-linked-list/">flatten-multilevel-linked-list</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('serlab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mLabel = root.querySelector('[data-m-label]');
+        const mFocus = root.querySelector('[data-m-focus]');
+        const mDepth = root.querySelector('[data-m-depth]');
+        const mProg = root.querySelector('[data-m-prog]');
+        const mProgV = root.querySelector('[data-m-prog-v]');
+        const mNodes = root.querySelector('[data-m-nodes]');
+        const mNodesV = root.querySelector('[data-m-nodes-v]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const RED = '#a3402f';
+
+        // ---- simulation: mirrors the Python implementation line by line ----
+        // SIM-START
+        const ROOT = {
+          val: 5,
+          left: { val: 3, left: { val: 1, left: null, right: null }, right: { val: 4, left: null, right: null } },
+          right: { val: 9, left: { val: 6, left: null, right: null }, right: null }
+        };
+        const EXPECTED_STRING = '5,3,1,#,#,4,#,#,9,6,#,#,#';
+
+        function serializeTree(rootNode) {
+          const events = [];
+          const serializedList = [];
+          function preorderSerialize(node) {
+            events.push({ type: 's-enter', node: node ? node.val : null });
+            if (node === null) {
+              serializedList.push('#');
+              events.push({ type: 's-null', list: serializedList.slice() });
+              return;
+            }
+            serializedList.push(String(node.val));
+            events.push({ type: 's-visit', val: node.val, list: serializedList.slice() });
+            preorderSerialize(node.left);
+            preorderSerialize(node.right);
+            events.push({ type: 's-return', node: node.val });
+          }
+          preorderSerialize(rootNode);
+          const result = serializedList.join(',');
+          events.push({ type: 's-done', result });
+          return { events, result };
+        }
+
+        function deserializeTree(data) {
+          const events = [];
+          const values = data.split(',');
+          events.push({ type: 'd-split', values: values.slice() });
+          let cursor = 0;
+          function buildTree() {
+            const val = values[cursor];
+            cursor += 1;
+            if (val === '#') {
+              events.push({ type: 'd-null', consumed: cursor - 1 });
+              return null;
+            }
+            const node = { val: Number(val), left: null, right: null };
+            events.push({ type: 'd-node', val: node.val, consumed: cursor - 1 });
+            node.left = buildTree();
+            node.right = buildTree();
+            events.push({ type: 'd-return', val: node.val });
+            return node;
+          }
+          const rootNode = buildTree();
+          events.push({ type: 'd-done' });
+          return { events, root: rootNode };
+        }
+
+        function treeShape(node) {
+          if (node === null) return null;
+          return [node.val, treeShape(node.left), treeShape(node.right)];
+        }
+        // SIM-END
+
+        const SER = serializeTree(ROOT);
+        const DES = deserializeTree(SER.result);
+        const PARENT = { 3: 5, 9: 5, 1: 3, 4: 3, 6: 9 };
+        const EDGES = [[5, 3], [5, 9], [3, 1], [3, 4], [9, 6]];
+        const textW = (s, fs) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? fs : fs * 0.62), 0);
+
+        const INV = {
+          intro: 'serialize 前序遍历写串、deserialize 同序消费重建；目标是让串与树一一对应。',
+          ambig: '只记值的串不携带结构信息：同一个串可对应多棵不同的树。',
+          hashfix: "'#' 让每个孩子位置都有记录：节点值 + 空标记的序列唯一决定树形。",
+          ser: "前序顺序：自己 → 左子树 → 右子树；serialized_list 按访问先后增长，'#' 与值同等占位。",
+          des: "build_tree 每帧取一个值：'#' ⇒ 返回 None；否则建节点，再按前序先左后右递归。"
+        };
+
+        const VISIT_KEYS = { 5: ['s-helper', 's-append'], 3: ['s-append', 's-left'], 1: ['s-append', 's-left'], 4: ['s-append', 's-right'], 9: ['s-append', 's-right'], 6: ['s-append', 's-left'] };
+        const VISIT_NOTES = {
+          5: "从根 5 开始：前序遍历先访问当前节点本身，把 '5' 追加进 serialized_list，随后 preorder_serialize(node.left, ...) 下沉左子树。",
+          3: 'preorder_serialize(node.left) 发起新一层递归，落在 5 的左孩子 3：仍然先访问自己，再处理它的左右。',
+          1: '继续向左到 1。1 是叶子：接下来对它的左右孩子各会访问到一个 None。',
+          4: "1 的子树记完，回到 3 的右递归 preorder_serialize(node.right, ...)：访问右孩子 4。",
+          9: '3 的子树全部完成，返回根 5 的右递归：访问右子树的根 9。',
+          6: '9 先递归左孩子：访问 6。6 也是叶子，接下来轮到它的两个空孩子。'
+        };
+
+        function buildFrames() {
+          const frames = [];
+          const fr = (stepLabel, phase, sourceKeys, line, explanation, invariant, state) =>
+            frames.push({ stepLabel, phase, sourceKeys, line, explanation, invariant, state });
+
+          fr('① 题面与示例树', '题面', ['s-func'],
+            'def serialize(root) / def deserialize(data)',
+            '题目：把一棵二叉树 serialize 成一个字符串，再 deserialize 回原来的树。书例：根 5，左孩子 3（带 1、4），右孩子 9（带 6）。下面的目标是串 "5,3,1,#,#,4,#,#,9,6,#,#,#" 与原树一一对应。',
+            INV.intro, { mode: 'intro', list: [], values: [], consumed: 0, visited: {}, built: [], focus: null, path: [], depth: 0 });
+
+          fr('② 只存值不够：一个串两棵树', '歧义', ['s-append'],
+            "serialized_list = ['5', '9']  # 只记值",
+            "假如 serialize 只 append 节点值：串 '5,9' 既可读成 9 是 5 的左孩子，也可读成右孩子——deserialize 无法判断该挂哪边。值本身不携带结构信息，光有值不够。",
+            INV.ambig, { mode: 'ambig', list: [], values: [], consumed: 0, visited: {}, built: [], focus: null, path: [], depth: 0 });
+
+          fr("③ 引入 '#' 空节点标记", '# 标记', ['s-null-if', 's-null-append', 's-null-return'],
+            "if node is None: serialized_list.append('#')",
+            "办法：空孩子也要占一个位置，用 '#' 标记。树 A（9 在左）给出 5,9,#,#,#；树 B（9 在右）给出 5,#,9,#,#——两个串不同了，串与树重新一一对应。",
+            INV.hashfix, { mode: 'hashfix', list: [], values: [], consumed: 0, visited: {}, built: [], focus: null, path: [], depth: 0 });
+
+          // ---------- serialize ----------
+          let s = { mode: 'ser', list: [], values: [], consumed: 0, visited: {}, built: [], focus: null, path: [], depth: 0 };
+          const serStack = [];
+          let serDepth = 0;
+          let visitNo = 0;
+
+          fr('④ serialized_list 初始化', '序列化', ['s-list', 's-call'],
+            'serialized_list = []; preorder_serialize(root, serialized_list)',
+            'serialize 先建空列表 serialized_list，再从入口 preorder_serialize(root, serialized_list) 开始递归。下面逐帧看每个值（含 #）怎样按访问顺序追加。',
+            INV.ser, s);
+
+          let pendingNode = null;
+          let pendingNull = null;
+          for (const ev of SER.events) {
+            if (ev.type === 's-enter') {
+              serDepth += 1;
+              if (ev.node !== null) {
+                const top = serStack[serStack.length - 1];
+                let side = 'root';
+                if (top) { side = top.filled === 0 ? 'left' : 'right'; top.filled += 1; }
+                serStack.push({ val: ev.node, filled: 0 });
+                pendingNode = { val: ev.node, side, parent: top ? top.val : null };
+              } else {
+                const top = serStack[serStack.length - 1];
+                const side = top.filled === 0 ? 'left' : 'right';
+                top.filled += 1;
+                pendingNull = { side, parent: top.val };
+              }
+            } else if (ev.type === 's-visit') {
+              visitNo += 1;
+              const pn = pendingNode;
+              s = {
+                ...s, depth: serDepth, list: ev.list.slice(), visited: { ...s.visited, [ev.val]: visitNo },
+                focus: { kind: 'node', val: ev.val, side: pn.side, parent: pn.parent, order: visitNo },
+                path: serStack.map(n => n.val)
+              };
+              const rel = pn.side === 'root' ? '（根）' : `（${pn.parent} 的${pn.side === 'left' ? '左' : '右'}孩子）`;
+              fr(`访问 ${ev.val}${rel} · 第 ${visitNo} 个值`, '序列化', VISIT_KEYS[ev.val],
+                `serialized_list.append(str(node.val))  # '${ev.val}'`,
+                VISIT_NOTES[ev.val], INV.ser, s);
+            } else if (ev.type === 's-null') {
+              const pn = pendingNull;
+              s = {
+                ...s, depth: serDepth, list: ev.list.slice(),
+                focus: { kind: 'null', val: null, side: pn.side, parent: pn.parent },
+                path: serStack.map(n => n.val)
+              };
+              const sideZh = pn.side === 'left' ? '左' : '右';
+              const note = pn.parent === 1 && pn.side === 'left'
+                ? "访问到 None：1 没有左孩子。空孩子不能跳过——向 serialized_list 追加 '#' 占位；少了它，反序列化时分不清 1 的子树在哪里结束。"
+                : pn.parent === 9
+                  ? "9 的右孩子也是空：内部节点的空孩子同样要记 '#'。任何一个空位置都必须留下标记。"
+                  : `${pn.parent} 的${sideZh}孩子是空：追加 '#' 占位。'#' 与节点值一样，按前序顺序进串。`;
+              fr(`${pn.parent} 的${sideZh}孩子空 → '#'`, '序列化', ['s-null-if', 's-null-append'],
+                "if node is None: serialized_list.append('#')",
+                note, INV.ser, s);
+            } else if (ev.type === 's-return') {
+              serDepth -= 1;
+              serStack.pop();
+            } else if (ev.type === 's-done') {
+              s = { ...s, mode: 'ser-final', focus: null, path: [], list: ev.result.split(',') };
+              fr('⑤ 完整串：join', '序列化 · 结果', ['s-join'],
+                "return ','.join(serialized_list)",
+                `遍历结束：serialized_list 共 13 个 token。用逗号 join 成最终字符串 "${ev.result}"——与书例逐字一致。接下来 deserialize 把它变回树。`,
+                'join 只是把 13 个 token 用逗号连起来，也是 O(n)。', s);
+            }
+          }
+
+          // ---------- deserialize ----------
+          const splitEvent = DES.events[0];
+          s = { mode: 'des-values', list: [], values: splitEvent.values.slice(), consumed: 0, visited: {}, built: [], focus: null, path: [], depth: 0 };
+          fr('⑥ split 成列表 node_values', '反序列化', ['d-func', 'd-split', 'd-call'],
+            "node_values = iter(data.split(',')); return build_tree(node_values)",
+            "deserialize 第一步：按逗号 split 还原出 13 个值的列表，iter 包一层让它可以逐个 next；随后 return build_tree(node_values) 发起递归。游标指向下一个将被消费的位置。",
+            INV.des, s);
+
+          const dStack = [];
+          for (const ev of DES.events.slice(1)) {
+            if (ev.type === 'd-node') {
+              const top = dStack[dStack.length - 1];
+              let side = 'root';
+              if (top) { side = top.filled === 0 ? 'left' : 'right'; top.filled += 1; }
+              dStack.push({ val: ev.val, filled: 0 });
+              const pathNow = dStack.map(n => n.val);
+              s = {
+                ...s, mode: 'des-build', consumed: ev.consumed + 1,
+                built: s.built.concat([{ val: ev.val, parent: top ? top.val : null, side }]),
+                visited: { ...s.visited, [ev.val]: s.built.length + 1 },
+                focus: { kind: 'node', val: ev.val, side, parent: top ? top.val : null },
+                path: pathNow, depth: pathNow.length
+              };
+              const keys = side === 'root' ? ['d-helper', 'd-next', 'd-hash-if', 'd-node']
+                : side === 'left' ? ['d-next', 'd-hash-if', 'd-node', 'd-left']
+                : ['d-next', 'd-hash-if', 'd-node', 'd-right'];
+              const line = side === 'root'
+                ? `val = next(values)  # '${ev.val}'（第一个值 = 根）`
+                : side === 'left'
+                  ? `node.left = build_tree(values)  # 取到 '${ev.val}'`
+                  : `node.right = build_tree(values)  # 取到 '${ev.val}'`;
+              const rel = side === 'root' ? '（根）' : `（${top.val} 的${side === 'left' ? '左' : '右'}孩子）`;
+              const note = side === 'root'
+                ? `第一个值 '${ev.val}' 非 '#'，它就是根：创建 TreeNode(${ev.val})，随后两次递归先建左、再建右——与 serialize 的写入顺序严格互逆。`
+                : side === 'left'
+                  ? `上一层刚创建的 ${top.val} 现在递归左孩子：取到 '${ev.val}'，创建节点挂到 ${top.val}.left，继续向下。`
+                  : `左子树返回后，${top.val} 递归右孩子：取到 '${ev.val}'，创建节点挂到 ${top.val}.right。`;
+              fr(`建节点 ${ev.val}${rel}`, '反序列化', keys, line, note, INV.des, s);
+            } else if (ev.type === 'd-null') {
+              const top = dStack[dStack.length - 1];
+              const side = top.filled === 0 ? 'left' : 'right';
+              top.filled += 1;
+              s = {
+                ...s, mode: 'des-build', consumed: ev.consumed + 1,
+                focus: { kind: 'null', val: null, side, parent: top.val },
+                path: dStack.map(n => n.val), depth: dStack.length + 1
+              };
+              fr(`'#' → 返回 None（${top.val} 的${side === 'left' ? '左' : '右'}孩子）`, '反序列化', ['d-next', 'd-hash-if', 'd-none'],
+                "if val == '#': return None",
+                `${top.val} 的${side === 'left' ? '左' : '右'}孩子是空：build_tree 立刻返回 None，树上对应位置挂空——与 serialize 当时写入 '#' 的位置一一对应。`, INV.des, s);
+            } else if (ev.type === 'd-return') {
+              dStack.pop();
+            } else if (ev.type === 'd-done') {
+              s = { ...s, mode: 'des-final', focus: null, path: [] };
+              fr('⑦ 重建完成：return node', '反序列化 · 完成', ['d-ret'],
+                'return node  # 根 5 返回',
+                `最后一个 return 把根 5 交回 deserialize：6 个节点全部按前序长回，位置与原来完全一致。可以验证：serialize(重建的树) 仍得到 "${EXPECTED_STRING}"。`,
+                '消费完 13 个值，树重建完成；前序写、前序读，顺序天然互逆。', s);
+              s = { ...s, mode: 'compare' };
+              fr('⑧ 原树 ⇔ 重建树对比', '对比', ['d-ret'],
+                'serialize(deserialize(s)) == s',
+                '左：原树；右：deserialize 重建的树。两棵树逐节点同构（根 5；左子 3 带 1、4；右子 9 带 6），①–⑥ 是两边相同的前序访问顺序——串与树一一对应，这就是本题的要点。',
+                '结构一致：serialize(deserialize(s)) 与 s 逐字相等。', s);
+            }
+          }
+          return frames;
+        }
+
+        const FRAMES = buildFrames();
+
+        const scene = core.createSvgScene(svg);
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function fullTreeGeom(g, topY, rp) {
+          const SW = (g.W - g.pad * 2) / 7;
+          const sx = k => g.pad + SW * (k + 0.5);
+          const r = Math.min(g.narrow ? 12 : 15, SW * 0.36);
+          const x1 = (sx(0) + sx(1)) / 2, x4 = (sx(2) + sx(3)) / 2, x6 = (sx(4) + sx(5)) / 2;
+          const x9 = (x6 + sx(6)) / 2, x3 = (x1 + x4) / 2, x5 = (x3 + x9) / 2;
+          return {
+            SW, r,
+            nodeXY: {
+              5: { x: x5, y: topY }, 3: { x: x3, y: topY + rp }, 9: { x: x9, y: topY + rp },
+              1: { x: x1, y: topY + 2 * rp }, 4: { x: x4, y: topY + 2 * rp }, 6: { x: x6, y: topY + 2 * rp }
+            },
+            ghostXY: {
+              '1L': { x: sx(0), y: topY + 3 * rp }, '1R': { x: sx(1), y: topY + 3 * rp },
+              '4L': { x: sx(2), y: topY + 3 * rp }, '4R': { x: sx(3), y: topY + 3 * rp },
+              '6L': { x: sx(4), y: topY + 3 * rp }, '6R': { x: sx(5), y: topY + 3 * rp },
+              '9R': { x: sx(6), y: topY + 2 * rp }
+            }
+          };
+        }
+
+        const FRACTIONS = { 5: [0.5, 0], 3: [0.3, 1], 9: [0.7, 1], 1: [0.13, 2], 4: [0.41, 2], 6: [0.63, 2] };
+
+        function layout(state) {
+          const W = Math.max(stage.clientWidth, 300);
+          const narrow = W < 620;
+          const tiny = W < 400;
+          const pad = narrow ? 8 : 14;
+          const fs = narrow ? 9 : 10.5;
+          const g = { W, narrow, tiny, pad, fs };
+          const m = state.mode;
+
+          if (m === 'intro') {
+            const topY = narrow ? 40 : 46;
+            const rp = narrow ? 38 : 50;
+            const r = narrow ? 13 : 16;
+            const iw = W - pad * 2;
+            const nodeXY = {};
+            for (const v of Object.keys(FRACTIONS)) nodeXY[v] = { x: pad + FRACTIONS[v][0] * iw, y: topY + FRACTIONS[v][1] * rp };
+            const treeBottom = topY + 2 * rp + r;
+            g.extra = { topY, rp, r, nodeXY, titleY: 18, captionY: treeBottom + 24, flowY: treeBottom + 46, H: treeBottom + (narrow ? 96 : 66) };
+          } else if (m === 'ambig') {
+            g.extra = {
+              H: narrow ? 238 : 246,
+              titleY: 20, strY: 48, rootY: narrow ? 94 : 98, childY: narrow ? 148 : 154,
+              r: narrow ? 12 : 13, verdictY: narrow ? 200 : 208, captionY: narrow ? 222 : 230,
+              cxL: W * 0.28, cxR: W * 0.72
+            };
+          } else if (m === 'hashfix') {
+            g.extra = {
+              H: narrow ? 240 : 248,
+              titleY: 20, rootY: 62, childY: narrow ? 108 : 112, r: narrow ? 11 : 12,
+              tokY: narrow ? 138 : 144, tokH: 20, labelY: narrow ? 176 : 182, verdictY: narrow ? 212 : 220,
+              cxL: W * 0.27, cxR: W * 0.73, tokW: Math.min(30, (W * 0.34) / 5)
+            };
+          } else if (m === 'compare') {
+            const topY = 40;
+            const rp = narrow ? 38 : 46;
+            const r = narrow ? 11 : 14;
+            const half = W / 2 - pad * 2;
+            const mk = ox => {
+              const nodeXY = {};
+              for (const v of Object.keys(FRACTIONS)) nodeXY[v] = { x: ox + FRACTIONS[v][0] * half, y: topY + FRACTIONS[v][1] * rp };
+              return nodeXY;
+            };
+            g.extra = { topY, rp, r, leftXY: mk(pad), rightXY: mk(W / 2 + pad), eqY: topY + rp + 5, labelY: 18, captionY: topY + 2 * rp + r + 24, H: topY + 2 * rp + r + 40 };
+          } else if (m === 'ser' || m === 'ser-final') {
+            const topY = narrow ? 32 : 36;
+            const rp = narrow ? 36 : 44;
+            const f = fullTreeGeom(g, topY, rp);
+            const treeBottom = topY + 3 * rp + f.r + 8;
+            const stripLabelY = treeBottom + 14;
+            const cellsY = treeBottom + 24;
+            const cellH = narrow ? 19 : 22;
+            const cellW = Math.min(narrow ? 24 : 28, (W - 2 * pad - 44) / 13);
+            const gap = 3;
+            const stripX = (W - (13 * cellW + 12 * gap)) / 2;
+            const joinY = cellsY + cellH + 12;
+            Object.assign(g, f, { topY, rp, treeBottom, stripLabelY, cellsY, cellH, cellW, gap, stripX, joinY, H: m === 'ser-final' ? joinY + 48 : cellsY + cellH + 24 });
+          } else {
+            // des-values / des-build / des-final
+            const cellW = Math.min(narrow ? 24 : 28, (W - 2 * pad - 36) / 13);
+            const gap = 3;
+            const stripX = (W - (13 * cellW + 12 * gap)) / 2;
+            const vLabelY = 14;
+            const vIdxY = 25;
+            const vCellsY = 29;
+            const vCellH = narrow ? 18 : 20;
+            const caretY = vCellsY + vCellH + 14;
+            const topY = caretY + (narrow ? 30 : 34);
+            const rp = narrow ? 34 : 42;
+            const f = fullTreeGeom(g, topY, rp);
+            const treeBottom = topY + 3 * rp + f.r + 6;
+            Object.assign(g, f, { cellW, gap, stripX, vLabelY, vIdxY, vCellsY, vCellH, caretY, topY, rp, treeBottom, H: treeBottom + (m === 'des-final' ? 34 : 16) });
+          }
+          geom = g;
+          svg.setAttribute('viewBox', `0 0 ${W} ${g.extra ? g.extra.H : g.H}`);
+          stage.style.height = `${g.extra ? g.extra.H : g.H}px`;
+        }
+
+        function drawNode(prims, key, x, y, r, val, { fill, stroke, sw = 1.4, dash, op = 1, numFill }) {
+          prims.circle(key, { cx: x, cy: y, r, fill, stroke, 'stroke-width': sw, ...(dash ? { 'stroke-dasharray': dash } : {}), opacity: op });
+          prims.text(`${key}-t`, { x, y: y + r * 0.32, 'text-anchor': 'middle', 'font-size': r * 0.95, fill: numFill, 'font-family': MONO, 'font-weight': 'bold', opacity: op }, String(val));
+        }
+
+        function drawEdgeLine(prims, key, a, b, r, { stroke = '#b7b7b1', sw = 1.2, dash, op = 1 }) {
+          const dx = b.x - a.x, dy = b.y - a.y;
+          const L = Math.hypot(dx, dy) || 1;
+          const ux = dx / L, uy = dy / L;
+          prims.path(key, {
+            d: `M ${a.x + ux * (r + 1)} ${a.y + uy * (r + 1)} L ${b.x - ux * (r + 3)} ${b.y - uy * (r + 3)}`,
+            stroke, 'stroke-width': sw, fill: 'none', ...(dash ? { 'stroke-dasharray': dash } : {}), opacity: op
+          });
+        }
+
+        function drawIntro(prims, state, t) {
+          const g = geom, e = g.extra;
+          const cx = g.W / 2;
+          prims.text('i-title', { x: cx, y: e.titleY, 'text-anchor': 'middle', 'font-size': g.narrow ? 11.5 : 13, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '书例二叉树：根 5，共 6 个节点');
+          for (const [a, b] of EDGES) drawEdgeLine(prims, `i-e-${a}-${b}`, e.nodeXY[a], e.nodeXY[b], e.r, { stroke: '#8a8a84', sw: 1.4 });
+          for (const v of [5, 3, 9, 1, 4, 6]) {
+            const p = e.nodeXY[v];
+            drawNode(prims, `i-n-${v}`, p.x, p.y, e.r, v, { fill: v === 5 ? '#272727' : '#fffdf8', stroke: '#272727', numFill: v === 5 ? '#fffdf8' : '#272727' });
+          }
+          const flow1 = 'serialize(root)  →  "5,3,1,#,#,4,#,#,9,6,#,#,#"';
+          const flow2 = '→  deserialize  →  原树';
+          if (g.narrow) {
+            prims.text('i-cap1', { x: cx, y: e.captionY, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '目标：serialize 把树拍平成一个字符串，');
+            prims.text('i-cap2', { x: cx, y: e.captionY + 14, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, 'deserialize 再把它唯一地还原成原树。');
+            prims.text('i-flow1', { x: cx, y: e.flowY + 12, 'text-anchor': 'middle', 'font-size': g.narrow ? 8.5 : 10.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, flow1);
+            prims.text('i-flow2', { x: cx, y: e.flowY + 28, 'text-anchor': 'middle', 'font-size': g.narrow ? 8.5 : 10.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, flow2);
+          } else {
+            prims.text('i-flow1', { x: cx, y: e.flowY, 'text-anchor': 'middle', 'font-size': 10.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, `${flow1}  ${flow2}`);
+            prims.text('i-cap1', { x: cx, y: e.captionY, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '目标：serialize 把树拍平成一个字符串，deserialize 再把它唯一地还原成原树。');
+          }
+        }
+
+        function drawAmbig(prims, state, t) {
+          const g = geom, e = g.extra;
+          const cx = g.W / 2;
+          prims.text('a-title', { x: cx, y: e.titleY, 'text-anchor': 'middle', 'font-size': g.narrow ? 11 : 12.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, "只记录节点值：串 '5,9' 对应两棵不同的树");
+          const str = "'5,9'";
+          const bw = textW(str, g.narrow ? 12 : 14) + 20;
+          prims.path('a-str-box', { d: rectPath(cx - bw / 2, e.strY - 11, bw, 22, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.3 });
+          prims.text('a-str', { x: cx, y: e.strY + 4.5, 'text-anchor': 'middle', 'font-size': g.narrow ? 12 : 14, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, str);
+          prims.text('a-str-cap', { x: cx, y: e.strY + 24, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, 'serialize 只 append 值，得到');
+          const r = e.r;
+          const trees = [
+            { cx: e.cxL, dir: -1, label: '9 是左孩子' },
+            { cx: e.cxR, dir: 1, label: '9 是右孩子' }
+          ];
+          trees.forEach((tr, k) => {
+            const rootP = { x: tr.cx, y: e.rootY };
+            const childP = { x: tr.cx + tr.dir * 26, y: e.childY };
+            drawEdgeLine(prims, `a-e-${k}`, rootP, childP, r, { stroke: '#8a8a84', sw: 1.4 });
+            drawNode(prims, `a-nr-${k}`, rootP.x, rootP.y, r, 5, { fill: '#fffdf8', stroke: '#272727' });
+            drawNode(prims, `a-nc-${k}`, childP.x, childP.y, r, 9, { fill: '#272727', stroke: '#272727', numFill: '#fffdf8' });
+            prims.text(`a-lab-${k}`, { x: childP.x, y: e.childY + r + 13, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, tr.label);
+          });
+          const yMid = e.childY + r + 26;
+          prims.path('a-link', { d: `M ${e.cxL - 26} ${e.childY + 8} C ${e.cxL - 10} ${yMid - 8}, ${e.cxR + 10} ${yMid - 8}, ${e.cxR + 26} ${e.childY + 8}`, stroke: RED, 'stroke-width': 1.2, 'stroke-dasharray': '5 4', fill: 'none' });
+          prims.text('a-verdict', { x: cx, y: yMid + 3, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 11.5, fill: RED, 'font-family': MONO, 'font-weight': 'bold' }, '同一个串，两棵不同的树 ⇒ 无法唯一还原');
+          prims.text('a-cap', { x: cx, y: e.captionY, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '根因：串里没有记录 9 挂在 5 的左边还是右边——值不携带结构。');
+        }
+
+        function drawHashfix(prims, state, t) {
+          const g = geom, e = g.extra;
+          const cx = g.W / 2;
+          prims.text('h-title', { x: cx, y: e.titleY, 'text-anchor': 'middle', 'font-size': g.narrow ? 11 : 12.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, "办法：空孩子也记下来，用 '#' 标记");
+          const r = e.r;
+          const cols = [
+            { cx: e.cxL, dir: -1, toks: ['5', '9', '#', '#', '#'], label: '树 A（9 在左）的串' },
+            { cx: e.cxR, dir: 1, toks: ['5', '#', '9', '#', '#'], label: '树 B（9 在右）的串' }
+          ];
+          cols.forEach((c, k) => {
+            const rootP = { x: c.cx, y: e.rootY };
+            const childP = { x: c.cx + c.dir * 22, y: e.childY };
+            drawEdgeLine(prims, `h-e-${k}`, rootP, childP, r, { stroke: '#8a8a84', sw: 1.4 });
+            drawNode(prims, `h-nr-${k}`, rootP.x, rootP.y, r, 5, { fill: '#fffdf8', stroke: '#272727' });
+            drawNode(prims, `h-nc-${k}`, childP.x, childP.y, r, 9, { fill: '#272727', stroke: '#272727', numFill: '#fffdf8' });
+            const total = 5 * e.tokW + 4 * 3;
+            const x0 = c.cx - total / 2;
+            c.toks.forEach((tk, i) => {
+              const x = x0 + i * (e.tokW + 3);
+              const isNull = tk === '#';
+              prims.path(`h-tok-${k}-${i}`, { d: rectPath(x, e.tokY, e.tokW, e.tokH, 3), fill: '#fffdf8', stroke: isNull ? '#999' : '#272727', 'stroke-width': isNull ? 1 : 1.3, ...(isNull ? { 'stroke-dasharray': '4 3' } : {}) });
+              prims.text(`h-tokt-${k}-${i}`, { x: x + e.tokW / 2, y: e.tokY + e.tokH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 11.5, fill: isNull ? '#999' : '#272727', 'font-family': MONO, 'font-weight': 'bold' }, tk);
+            });
+            prims.text(`h-lab-${k}`, { x: c.cx, y: e.labelY, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, c.label);
+          });
+          prims.text('h-verdict', { x: cx, y: e.verdictY, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 11.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '两个串不同了 ⇒ 一个串唯一对应一棵树');
+        }
+
+        function drawCompare(prims, state, t) {
+          const g = geom, e = g.extra;
+          const cx = g.W / 2;
+          prims.text('c-lab-l', { x: cx - g.W * 0.25, y: e.labelY, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 11.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '原树');
+          prims.text('c-lab-r', { x: cx + g.W * 0.25, y: e.labelY, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 11.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'deserialize 重建树');
+          prims.text('c-eq', { x: cx, y: e.eqY, 'text-anchor': 'middle', 'font-size': g.narrow ? 16 : 20, fill: '#555', 'font-family': MONO }, '⇔');
+          const orders = { 5: 1, 3: 2, 1: 3, 4: 4, 9: 5, 6: 6 };
+          [['l', e.leftXY], ['r', e.rightXY]].forEach(([tag, XY]) => {
+            for (const [a, b] of EDGES) drawEdgeLine(prims, `c-e-${tag}-${a}-${b}`, XY[a], XY[b], e.r, { stroke: '#8a8a84', sw: 1.4 });
+            for (const v of [5, 3, 9, 1, 4, 6]) {
+              const p = XY[v];
+              drawNode(prims, `c-n-${tag}-${v}`, p.x, p.y, e.r, v, { fill: '#272727', stroke: '#272727', numFill: '#fffdf8' });
+              prims.text(`c-o-${tag}-${v}`, { x: p.x, y: p.y + e.r + 11, 'text-anchor': 'middle', 'font-size': g.fs - 0.5, fill: '#555', 'font-family': MONO }, `(${orders[v]})`);
+            }
+          });
+          prims.text('c-cap', { x: cx, y: e.captionY, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO },
+            g.narrow ? '前序序号一致 ⇒ serialize(deserialize(s)) == s' : '括号内是前序访问序号：两边完全一致 ⇒ serialize(deserialize(s)) == s，结构同构。');
+        }
+
+        function ghostKey(focus) {
+          return focus && focus.kind === 'null' ? `${focus.parent}${focus.side === 'left' ? 'L' : 'R'}` : null;
+        }
+
+        function drawSer(prims, state, t, from) {
+          const g = geom;
+          const sameMode = from && from.mode === state.mode;
+          const opNew = sameMode ? t : 1;
+          const { nodeXY, ghostXY, r } = g;
+          // breadcrumb
+          const bc = state.path.length ? `preorder_serialize 调用路径：${state.path.join(' → ')}${state.focus && state.focus.kind === 'null' ? ' → None' : ''}` : '';
+          if (bc) prims.text('bc', { x: g.pad, y: g.topY - 11, 'font-size': g.fs - 0.5, fill: '#777', 'font-family': MONO }, bc);
+          // focus ancestor chain for edge emphasis
+          const chain = [];
+          if (state.focus) {
+            let v = state.focus.kind === 'null' ? state.focus.parent : state.focus.val;
+            while (v) { chain.push(v); v = PARENT[v]; }
+          }
+          for (const [a, b] of EDGES) {
+            const hot = chain.includes(a) && chain.includes(b);
+            const bothVisited = state.visited[a] && state.visited[b];
+            drawEdgeLine(prims, `se-${a}-${b}`, nodeXY[a], nodeXY[b], r, { stroke: hot ? '#333' : bothVisited ? '#8a8a84' : '#c9c7bd', sw: hot ? 1.8 : 1.2 });
+          }
+          for (const v of [5, 3, 9, 1, 4, 6]) {
+            const p = nodeXY[v];
+            const visited = state.visited[v];
+            const isFocus = state.focus && state.focus.kind === 'node' && state.focus.val === v;
+            drawNode(prims, `sn-${v}`, p.x, p.y, r, v, {
+              fill: visited ? '#272727' : '#fffdf8',
+              stroke: visited ? '#272727' : '#999',
+              sw: visited ? 1.5 : 1.1,
+              numFill: visited ? '#fffdf8' : '#8a8a84'
+            });
+            if (isFocus) prims.circle(`sf-${v}`, { cx: p.x, cy: p.y, r: r + 5, fill: 'none', stroke: '#272727', 'stroke-width': 1.3, 'stroke-dasharray': '5 3' });
+            if (visited) prims.text(`so-${v}`, { x: p.x, y: p.y + r + 11.5, 'text-anchor': 'middle', 'font-size': g.fs - 1, fill: '#555', 'font-family': MONO }, `(${visited})`);
+          }
+          const gk = ghostKey(state.focus);
+          if (gk) {
+            const gp = ghostXY[gk];
+            const parentP = nodeXY[state.focus.parent];
+            drawEdgeLine(prims, 'sg-edge', parentP, gp, r, { stroke: '#999', sw: 1.1, dash: '4 3', op: opNew });
+            prims.circle('sg', { cx: gp.x, cy: gp.y, r: r * 0.72, fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.2, 'stroke-dasharray': '4 3', opacity: opNew });
+            prims.text('sg-t', { x: gp.x, y: gp.y + 3.5, 'text-anchor': 'middle', 'font-size': r * 0.8, fill: '#999', 'font-family': MONO, 'font-weight': 'bold', opacity: opNew }, '#');
+          }
+          // serialized_list strip
+          prims.text('sl-label', { x: g.stripX, y: g.stripLabelY, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, `serialized_list（${state.list.length} / 13）`);
+          for (let k = 0; k < state.list.length; k++) {
+            const tk = state.list[k];
+            const isNull = tk === '#';
+            const isNew = sameMode ? k >= (from.list ? from.list.length : 0) : false;
+            const op = isNew ? t : 1;
+            const x = g.stripX + k * (g.cellW + g.gap);
+            const isLast = k === state.list.length - 1;
+            prims.path(`sl-${k}`, {
+              d: rectPath(x, g.cellsY, g.cellW, g.cellH, 3),
+              fill: isLast ? '#eeece2' : '#fffdf8',
+              stroke: isNull ? '#999' : isLast ? '#272727' : '#555',
+              'stroke-width': isLast ? 1.6 : 1.2,
+              ...(isNull && !isLast ? { 'stroke-dasharray': '4 3' } : {}),
+              opacity: op
+            });
+            prims.text(`slt-${k}`, { x: x + g.cellW / 2, y: g.cellsY + g.cellH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 11.5, fill: isNull ? '#999' : '#272727', 'font-family': MONO, 'font-weight': isLast ? 'bold' : 'normal', opacity: op }, tk);
+          }
+          // note under the newest token
+          if (state.focus && state.list.length && state.mode === 'ser') {
+            const tk = state.list[state.list.length - 1];
+            const tx = Math.max(42, Math.min(g.W - 42, g.stripX + (state.list.length - 1) * (g.cellW + g.gap) + g.cellW / 2));
+            prims.text('s-add', { x: tx, y: g.cellsY + g.cellH + 12, 'text-anchor': 'middle', 'font-size': g.fs - 1, fill: '#777', 'font-family': MONO, opacity: opNew }, `↑ 追加 '${tk}'`);
+          }
+          if (state.mode === 'ser-final') {
+            const str = `"${state.list.join(',')}"`;
+            const bw = g.W - g.pad * 2;
+            prims.path('join-box', { d: rectPath(g.stripX, g.joinY, bw, 24, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
+            prims.text('join-t', { x: g.stripX + bw / 2, y: g.joinY + 16, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 12, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, str);
+            prims.text('join-cap', { x: g.stripX, y: g.joinY + 40, 'font-size': g.fs - 0.5, fill: '#555', 'font-family': MONO }, "← return ','.join(serialized_list)：连接 13 个 token，与书例一致");
+          }
+        }
+
+        function drawDes(prims, state, t, from) {
+          const g = geom;
+          const sameMode = from && from.mode === state.mode;
+          const opNew = sameMode ? t : 1;
+          const { nodeXY, ghostXY, r } = g;
+          // values strip
+          prims.text('dv-label', { x: g.stripX, y: g.vLabelY, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'node_values = data.split(\',\')');
+          for (let k = 0; k < state.values.length; k++) {
+            const v = state.values[k];
+            const isNull = v === '#';
+            const consumed = k < state.consumed;
+            const isNext = k === state.consumed;
+            const justConsumed = k === state.consumed - 1;
+            const x = g.stripX + k * (g.cellW + g.gap);
+            prims.text(`dvi-${k}`, { x: x + g.cellW / 2, y: g.vIdxY, 'text-anchor': 'middle', 'font-size': g.narrow ? 7 : 8, fill: '#777', 'font-family': MONO }, String(k));
+            prims.path(`dv-${k}`, {
+              d: rectPath(x, g.vCellsY, g.cellW, g.vCellH, 3),
+              fill: consumed ? '#efece2' : '#fffdf8',
+              stroke: justConsumed ? '#272727' : isNext ? '#555' : isNull ? '#999' : '#777',
+              'stroke-width': justConsumed ? 1.6 : 1.1,
+              ...(isNull && !consumed ? { 'stroke-dasharray': '4 3' } : {})
+            });
+            prims.text(`dvt-${k}`, { x: x + g.cellW / 2, y: g.vCellsY + g.vCellH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 11, fill: consumed ? '#a8a69e' : isNull ? '#999' : '#272727', 'font-family': MONO, 'font-weight': justConsumed ? 'bold' : 'normal' }, v);
+            if (isNext && state.consumed < state.values.length) {
+              const cxk = x + g.cellW / 2;
+              prims.path(`dv-caret-${k}`, { d: `M ${cxk - 4} ${g.caretY - 6} L ${cxk + 4} ${g.caretY - 6} L ${cxk} ${g.caretY} Z`, fill: '#555' });
+            }
+          }
+          if (state.consumed < state.values.length) {
+            prims.text('dv-legend', { x: g.pad, y: g.caretY + 3, 'font-size': g.fs - 1, fill: '#555', 'font-family': MONO }, '▼ = 下一个 val = next(values)');
+          }
+          if (state.mode === 'des-values') {
+            if (g.narrow) {
+              prims.text('dv-empty1', { x: g.W / 2, y: g.topY + g.rp * 1.3, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#999', 'font-family': MONO }, '树还是空的：build_tree 从 values[0] 开始');
+              prims.text('dv-empty2', { x: g.W / 2, y: g.topY + g.rp * 1.3 + 14, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#999', 'font-family': MONO }, '每帧消费一个值，把节点逐个长回来');
+            } else {
+              prims.text('dv-empty1', { x: g.W / 2, y: g.topY + g.rp * 1.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#999', 'font-family': MONO }, '树还是空的：build_tree 从 values[0] 开始，每帧消费一个值，把节点逐个长回来');
+            }
+            return;
+          }
+          // breadcrumb
+          const bc = state.path.length ? `build_tree 调用路径：${state.path.join(' → ')}${state.focus && state.focus.kind === 'null' ? " → '#'" : ''}` : '';
+          if (bc) prims.text('dbc', { x: g.pad, y: g.topY - 11, 'font-size': g.fs - 0.5, fill: '#777', 'font-family': MONO }, bc);
+          const builtSet = {};
+          state.built.forEach(b => { builtSet[b.val] = b; });
+          const chain = [];
+          if (state.focus) {
+            let v = state.focus.kind === 'null' ? state.focus.parent : state.focus.val;
+            while (v) { chain.push(v); v = PARENT[v]; }
+          }
+          for (const [a, b] of EDGES) {
+            if (!builtSet[a] || !builtSet[b]) continue;
+            const hot = chain.includes(a) && chain.includes(b);
+            const isNew = sameMode ? !(from.built || []).some(x => x.val === b) : false;
+            drawEdgeLine(prims, `de-${a}-${b}`, nodeXY[a], nodeXY[b], r, { stroke: hot ? '#333' : '#8a8a84', sw: hot ? 1.8 : 1.3, op: isNew ? t : 1 });
+          }
+          for (const v of [5, 3, 9, 1, 4, 6]) {
+            if (!builtSet[v]) continue;
+            const p = nodeXY[v];
+            const isNew = sameMode ? !(from.built || []).some(x => x.val === v) : false;
+            const op = isNew ? t : 1;
+            const isFocus = state.focus && state.focus.kind === 'node' && state.focus.val === v;
+            drawNode(prims, `dn-${v}`, p.x, p.y, r, v, { fill: '#272727', stroke: '#272727', numFill: '#fffdf8', op });
+            if (isFocus) prims.circle(`df-${v}`, { cx: p.x, cy: p.y, r: r + 5, fill: 'none', stroke: '#272727', 'stroke-width': 1.3, 'stroke-dasharray': '5 3' });
+            const order = state.visited[v];
+            if (order) prims.text(`do-${v}`, { x: p.x, y: p.y + r + 11.5, 'text-anchor': 'middle', 'font-size': g.fs - 1, fill: '#777', 'font-family': MONO, opacity: op }, `(${order})`);
+          }
+          const gk = ghostKey(state.focus);
+          if (gk) {
+            const gp = ghostXY[gk];
+            const parentP = nodeXY[state.focus.parent];
+            drawEdgeLine(prims, 'dg-edge', parentP, gp, r, { stroke: '#999', sw: 1.1, dash: '4 3', op: opNew });
+            prims.circle('dg', { cx: gp.x, cy: gp.y, r: r * 0.72, fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.2, 'stroke-dasharray': '4 3', opacity: opNew });
+            prims.text('dg-t', { x: gp.x, y: gp.y + 3.5, 'text-anchor': 'middle', 'font-size': r * 0.8, fill: '#999', 'font-family': MONO, 'font-weight': 'bold', opacity: opNew }, '#');
+          }
+          if (state.mode === 'des-final') {
+            const msg = '根 5 返回 ⇒ 重建完成：serialize(重建树) == 原串';
+            const bw = Math.min(textW(msg, g.fs) + 16, g.W - g.pad * 2);
+            prims.path('d-banner', { d: rectPath(g.pad, g.treeBottom + 12, bw, 20, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
+            prims.text('d-banner-t', { x: g.pad + 8, y: g.treeBottom + 26, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, msg);
+          }
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom || !state) return;
+          scene.update(prims => {
+            if (state.mode === 'intro') drawIntro(prims, state, t);
+            else if (state.mode === 'ambig') drawAmbig(prims, state, t);
+            else if (state.mode === 'hashfix') drawHashfix(prims, state, t);
+            else if (state.mode === 'compare') drawCompare(prims, state, t);
+            else if (state.mode === 'ser' || state.mode === 'ser-final') drawSer(prims, state, t, from);
+            else drawDes(prims, state, t, from);
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.phase;
+          invariantEl.textContent = frame.invariant;
+          const des = state.mode.startsWith('des');
+          mLabel.textContent = des ? '当前取值' : '当前访问';
+          mProg.textContent = des ? 'values 已消费' : 'serialized_list';
+          mNodes.textContent = des ? '已建节点' : '已访问节点';
+          if (state.focus && state.focus.kind === 'node') {
+            mFocus.textContent = des ? `取值 '${state.focus.val}'` : `访问 ${state.focus.val} · 第 ${state.focus.order} 个`;
+          } else if (state.focus && state.focus.kind === 'null') {
+            mFocus.textContent = `'#'（${state.focus.parent} 的${state.focus.side === 'left' ? '左' : '右'}孩子空）`;
+          } else {
+            mFocus.textContent = '—';
+          }
+          mDepth.textContent = state.depth ? String(state.depth) : '—';
+          mProgV.textContent = des ? `${state.consumed} / 13` : `${state.list.length} / 13`;
+          mNodesV.textContent = des ? `${state.built.length} / 6` : `${Object.keys(state.visited).length} / 6`;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.explanation;
+          stage.setAttribute('aria-label', `二叉树序列化与反序列化演示：第 ${step + 1} / ${frames.length} 步。${frame.explanation}`);
+          layout(state);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({
+          ...s,
+          list: s.list ? [...s.list] : [],
+          values: s.values ? [...s.values] : [],
+          visited: s.visited ? { ...s.visited } : {},
+          built: s.built ? s.built.map(b => ({ ...b })) : [],
+          path: s.path ? [...s.path] : [],
+          focus: s.focus ? { ...s.focus } : null
+        });
+
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 380,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        new ResizeObserver(() => { motion.cancel(); layout(trace.state); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>

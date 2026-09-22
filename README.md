@@ -102,6 +102,13 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [Combinations of a Sum / 组合总和](https://junjiearaoxiong.github.io/algorithm-visuals/combinations-of-a-sum/)
 - [Phone Keypad Combinations / 电话号码字母组合](https://junjiearaoxiong.github.io/algorithm-visuals/phone-keypad-combinations/)
 
+### 13 · Trees / 树
+
+- [Binary Tree Symmetry / 二叉树对称性](https://junjiearaoxiong.github.io/algorithm-visuals/binary-tree-symmetry/)
+- [Binary Tree Columns / 二叉树的垂序遍历](https://junjiearaoxiong.github.io/algorithm-visuals/binary-tree-columns/)
+- [Kth Smallest Number in a Binary Search Tree / 二叉搜索树中第 K 小的数](https://junjiearaoxiong.github.io/algorithm-visuals/kth-smallest-number-in-a-binary-search-tree/)
+- [Serialize and Deserialize a Binary Tree / 二叉树的序列化与反序列化](https://junjiearaoxiong.github.io/algorithm-visuals/serialize-and-deserialize-a-binary-tree/)
+
 ## Development
 
 - `npm run build` validates the registry, catalog, README inventory, and internal links, then writes the ignored `_site/` directory.

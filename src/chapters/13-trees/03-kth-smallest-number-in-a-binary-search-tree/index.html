@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of the kth smallest number in a binary search tree: inorder traversal yields sorted order, the recursive baseline collects the full sorted list, and the iterative stack version stops after k pops. 二叉搜索树中第 K 小的数：中序遍历天然有序，递归版收集完整升序列表，迭代版用栈提前退出只访问前 k 个节点。" />
+    <title>Kth Smallest Number in a Binary Search Tree · 二叉搜索树中第 K 小的数 · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .card-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="kth-bst-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Kth Smallest Number in a Binary Search Tree · <span lang="zh-CN">二叉搜索树中第 K 小的数</span></h1></div></header>
+      <p class="problem">Given the <code>root</code> of a binary search tree (BST) and an integer <code>k</code>, find the kth smallest node value. Constraints: <code>n ≥ 1</code>, <code>1 ≤ k ≤ n</code>. Example: the tree below with <code>k = 5</code> → output <code>6</code>.<span lang="zh-CN">给定二叉搜索树（BST）的根节点 root 和整数 k，返回第 k 小的节点值。约束：n ≥ 1，1 ≤ k ≤ n。书例：下图的树，k = 5，答案是 6——中序遍历 [2,3,4,5,6,8,9] 的第 5 个。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="二叉搜索树中第 K 小的数演示 / kth smallest in a BST trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="二叉搜索树中第 K 小的数演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>k</code></dt><dd data-m-k></dd></div>
+              <div><dt>当前 <code>node</code></dt><dd data-m-node></dd></div>
+              <div><dt data-m-struct-label>结构长度</dt><dd data-m-struct></dd></div>
+              <div><dt>已访问节点</dt><dd data-m-visited></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="kth-code-title">
+          <h2 id="kth-code-title">完整 Python 代码（两个版本）</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="rec-func">def kth_smallest_number_in_BST_recursive(root: TreeNode, k: int) -&gt; int:</span><span class="code-line" data-source-key="rec-sorted">    sorted_list = inorder(root)</span><span class="code-line" data-source-key="rec-return">    return sorted_list[k - 1]</span><span class="code-line"></span><span class="code-line"># Inorder traversal function to attain a sorted list of nodes from the BST.</span><span class="code-line" data-source-key="rec-inorder-def">def inorder(node: TreeNode) -&gt; List[int]:</span><span class="code-line" data-source-key="rec-if">    if not node:</span><span class="code-line" data-source-key="rec-base">        return []</span><span class="code-line" data-source-key="rec-concat">    return inorder(node.left) + [node.val] + inorder(node.right)</span><span class="code-line"></span><span class="code-line"># ----- 迭代版 iterative：显式栈 + 提前退出，只需前 k 个 -----</span><span class="code-line" data-source-key="iter-func">def kth_smallest_number_in_BST_iterative(root: TreeNode, k: int) -&gt; int:</span><span class="code-line" data-source-key="iter-stack-init">    stack = []</span><span class="code-line" data-source-key="iter-node-init">    node = root</span><span class="code-line" data-source-key="iter-while">    while stack or node:</span><span class="code-line">        # Move to the leftmost node and add nodes to the stack as we go so they</span><span class="code-line">        # can be processed in future iterations.</span><span class="code-line" data-source-key="iter-inner-while">        while node:</span><span class="code-line" data-source-key="iter-push">            stack.append(node)</span><span class="code-line" data-source-key="iter-left">            node = node.left</span><span class="code-line">        # Pop the top node from the stack to process it, and decrement 'k'.</span><span class="code-line" data-source-key="iter-pop">        node = stack.pop()</span><span class="code-line" data-source-key="iter-decr">        k -= 1</span><span class="code-line">        # If we have processed 'k' nodes, return the value of the 'k'th smallest</span><span class="code-line">        # node.</span><span class="code-line" data-source-key="iter-if">        if k == 0:</span><span class="code-line" data-source-key="iter-return">            return node.val</span><span class="code-line">        # Move to the right subtree.</span><span class="code-line" data-source-key="iter-right">        node = node.right</span></code></pre>
+          <p class="note">节点旁的小数字是中序访问序号。<code>sorted_list</code> 面板（递归版）与 <code>stack</code> 面板（迭代版）随帧逐个填充；高亮只落在当前版本对应的代码块内。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="kth-intuition">
+        <h2 id="kth-intuition">直觉：中序遍历天然有序 / Inorder is sorted</h2>
+        <p class="section-intro">朴素做法无视 BST 的性质：遍历所有节点值存进数组、排序，再取下标 <code>k-1</code>——O(n log n)。BST 的定义本身就是排序规则：左子树全部 &lt; 根 &lt; 右子树全部，所以「左 → 根 → 右」的中序遍历不费任何额外比较就输出升序数组，取 <code>sorted_list[k-1]</code> 即得答案，时间 O(n)。</p>
+        <p class="section-intro">但答案只依赖前 k 个元素，递归版却不得不访问完全部 n 个节点才返回。迭代版用显式栈复刻递归的调用栈：一路向左压栈模仿下探，弹栈顶 = 取出当前最小未访问节点，同时 <code>k -= 1</code>；一旦 <code>k == 0</code> 立即返回，剩下的节点根本不访问。</p>
+      </section>
+
+      <section class="section" aria-labelledby="kth-why">
+        <h2 id="kth-why">为什么中序遍历结果是升序 / Why it works</h2>
+        <p class="section-intro">归纳地看：对任意子树，中序先完整输出左子树，再输出根，最后输出右子树。由 BST 性质，左子树的每个值都小于根、右子树的每个值都大于根，所以根恰好排在左、右两段之间；而左、右子树自身也是中序遍历，内部同样有序。层层归并，整棵树的中序输出就是全局升序。<strong>弹栈顶的迭代版同理</strong>：栈顶始终是"还有未处理左祖先链上最靠左的节点"，也就是当前最小未访问节点，所以第 k 次弹出的节点就是第 k 小。</p>
+      </section>
+
+      <section class="section" aria-labelledby="kth-edge">
+        <h2 id="kth-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>k = 1：最小值</strong><p>一路向左压栈到头的那个节点（本例的 2）。迭代版第一轮 pop 即返回；递归版同样最先访问它。</p></article>
+          <article class="paper-card"><strong>k = n：最大值</strong><p>中序的最后一个节点（本例的 9）。迭代版无法提前退出，两版都访问全部 n 个节点。</p></article>
+          <article class="paper-card"><strong>链树退化</strong><p>BST 退化成单边链时树高 h = n，迭代版栈空间涨到 O(n)，时间 O(k + h)；但"只访问前 k 个"的优势不变——这是它相对"排序后取第 k 个"的真正卖点。</p></article>
+          <article class="paper-card"><strong>k 保证合法</strong><p>约束 1 ≤ k ≤ n，答案必存在，代码无需特判空树或 k 越界；n ≥ 1 保证 root 非空。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="kth-complexity">
+        <h2 id="kth-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>递归版 · Time O(n) · Space O(n)</strong><p>中序必须访问全部 n 个节点；sorted_list 存 n 个值，递归调用栈最深 O(h)（最坏 O(n)），合计 O(n)。</p></article>
+          <article class="paper-card"><strong>迭代版 · Time O(k + h) · Space O(h)</strong><p>一路向左最多压 h 个节点，之后每轮弹一个、最多弹 k 次就返回，时间 O(k + h)；栈里最多 h 个节点（最坏 O(n)），没有 sorted_list 的 O(n) 额外数组。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../binary-tree-symmetry/">binary-tree-symmetry</a><a href="../binary-tree-columns/">binary-tree-columns</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('kth-bst-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mK = root.querySelector('[data-m-k]');
+        const mNode = root.querySelector('[data-m-node]');
+        const mStructLabel = root.querySelector('[data-m-struct-label]');
+        const mStruct = root.querySelector('[data-m-struct]');
+        const mVisited = root.querySelector('[data-m-visited]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const K = 5;
+        const N_COUNT = 7;
+        const LEAF_VALS = [2, 4, 6, 9];
+
+        // ---- simulation: mirrors the Python implementations line by line ----
+        // SIM-START
+        function buildExampleTree() {
+          return {
+            val: 5,
+            left: {
+              val: 3,
+              left: { val: 2, left: null, right: null },
+              right: { val: 4, left: null, right: null }
+            },
+            right: {
+              val: 8,
+              left: { val: 6, left: null, right: null },
+              right: { val: 9, left: null, right: null }
+            }
+          };
+        }
+
+        function simulateInorderRecursive(rootNode, k) {
+          const events = [];
+          const path = [];
+          const sortedList = [];
+          function inorder(node) {
+            if (!node) return [];
+            path.push(node.val);
+            events.push({ type: 'enter', node: node.val, path: path.slice() });
+            const left = inorder(node.left);
+            sortedList.push(node.val);
+            events.push({ type: 'visit', node: node.val, order: sortedList.length, sorted_list: sortedList.slice() });
+            const right = inorder(node.right);
+            path.pop();
+            return left.concat([node.val], right);
+          }
+          const sorted = inorder(rootNode);
+          events.push({ type: 'result', value: sorted[k - 1], sorted_list: sorted.slice() });
+          return events;
+        }
+
+        function simulateKthIterative(rootNode, k) {
+          const events = [];
+          const stack = [];
+          let node = rootNode;
+          let order = 0;
+          events.push({ type: 'init', stack: [], node: rootNode ? rootNode.val : null, k });
+          while (stack.length || node) {
+            while (node) {
+              stack.push(node);
+              events.push({ type: 'push', node: node.val, stack: stack.map(n => n.val), node_after: node.left ? node.left.val : null, k });
+              node = node.left;
+            }
+            node = stack.pop();
+            k -= 1;
+            order += 1;
+            const returned = k === 0 ? node.val : null;
+            events.push({ type: 'pop', node: node.val, stack_after: stack.map(n => n.val), k_after: k, order, returned });
+            if (k === 0) return events;
+            node = node.right;
+          }
+          return events;
+        }
+
+        if (typeof module !== 'undefined' && module.exports) {
+          module.exports = { buildExampleTree, simulateInorderRecursive, simulateKthIterative };
+        }
+        // SIM-END
+
+        const TREE = buildExampleTree();
+        const NODES = {};
+        (function walk(n, parent) {
+          if (!n) return;
+          n.parent = parent;
+          NODES[n.val] = n;
+          walk(n.left, n);
+          walk(n.right, n);
+        })(TREE, null);
+
+        const textW = (s, fs) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? fs : fs * 0.62), 0);
+        const fmtList = a => `[${a.join(', ')}]`;
+
+        const INV = {
+          problem: 'BST：左子树全部 < 根 < 右子树全部；中序遍历结果为升序。',
+          inorder: '中序 = inorder(左) + [根] + inorder(右)，天然按升序输出。',
+          recEnter: '递归调用栈保存祖先链：栈顶是当前节点；左子树未访问完，根不会出数。',
+          recVisit: 'sorted_list 依中序逐个收录，任何时刻都是升序前缀。',
+          recResult: 'sorted_list 共 7 个元素，第 k=5 小 = sorted_list[5-1] = sorted_list[4]。',
+          iterInit: '显式 stack 复刻递归调用栈；stack 非空或 node 非空就继续。',
+          iterPush: '内层 while：模仿递归下探，一路向左把途经节点压栈，留待将来处理。',
+          iterPop: '弹栈顶 = 当前最小未访问节点；每弹一个 k 减 1。',
+          iterReturn: 'k == 0 ⇒ 刚弹出的节点就是第 k 小，立即返回，其余节点不再访问。',
+          compare: '两版都依赖中序有序；差别只在是否提前退出与额外空间。'
+        };
+
+        function buildFrames() {
+          const recEvents = simulateInorderRecursive(TREE, K);
+          const iterEvents = simulateKthIterative(TREE, K);
+          const frames = [];
+          const fr = (stepLabel, phase, sourceKeys, line, explanation, invariant, state) =>
+            frames.push({ stepLabel, phase, sourceKeys, line, explanation, invariant, state });
+
+          fr('① 题面与示例 BST', '题面', ['rec-func'],
+            'kth_smallest_number_in_BST_recursive(root, k=5)',
+            '题目：给定 BST 的根 root 与 k = 5，找第 5 小的节点值。示例树共 7 个节点，中序为 [2,3,4,5,6,8,9]，所以答案是 6。下面先看清"中序 = 升序"这个事实，再演示两种实现：递归基线版，与能提前退出的迭代版。',
+            INV.problem, { mode: 'intro1' });
+
+          fr('② 有序性：中序 = 升序', '直觉', ['rec-inorder-def', 'rec-if', 'rec-base', 'rec-concat'],
+            'return inorder(node.left) + [node.val] + inorder(node.right)  # 左 + 根 + 右',
+            'BST 的定义就是排序规则：每个节点的左子树全部小于它、右子树全部大于它。于是「左 → 根 → 右」的中序遍历天然从小到大输出——节点旁的数字就是访问顺序 1..7，底部是完整中序输出。把中序结果存进 sorted_list，取下标 k-1 即得答案。',
+            INV.inorder, { mode: 'intro2' });
+
+          fr('③ 发起 inorder(root)', '递归版', ['rec-sorted'],
+            'sorted_list = inorder(root)',
+            '递归版分两步：先对整棵树做中序得到完整升序列表，再取 sorted_list[k-1]。递归的调用栈自动记住"左子树访问完要回根、再进右子树"的顺序——下面的逐帧能清楚看到这条链。',
+            INV.recEnter, { mode: 'rec', path: [], visited: {}, sorted: [], current: null, done: false });
+
+          const rv = {};
+          let sortedSoFar = [];
+          let lastPath = [];
+          for (const ev of recEvents) {
+            if (ev.type === 'enter') {
+              const depth = ev.path.length - 1;
+              lastPath = ev.path;
+              fr(`进入 inorder(${ev.node})`, '递归版 · 下探', ['rec-inorder-def', 'rec-if'],
+                `def inorder(node)  # node = ${ev.node}，压入递归栈（深度 ${depth}）`,
+                depth === 0
+                  ? `进入 inorder(${ev.node})：递归从根开始，沿左子树一路下探；在轮到 ${ev.node} 本身之前，必须先把它的左子树全部访问完。`
+                  : `沿左链继续下探到 ${ev.node}：此刻递归栈里是 [${ev.path.join(' ← ')}]（右端为栈顶）。空左子树会让 inorder 立刻返回——这就是 if not node: return [] 的作用。`,
+                INV.recEnter, { mode: 'rec', path: ev.path.slice(), visited: { ...rv }, sorted: sortedSoFar.slice(), current: ev.node, done: false });
+            } else if (ev.type === 'visit') {
+              rv[ev.node] = ev.order;
+              sortedSoFar = ev.sorted_list;
+              const isKth = ev.order === K;
+              fr(`访问 ${ev.node} → 序号 ${ev.order}`, '递归版 · 访问', ['rec-concat'],
+                `return inorder(node.left) + [node.val] + ...  # 访问 ${ev.node}，sorted_list = ${fmtList(ev.sorted_list)}`,
+                isKth
+                  ? `访问 ${ev.node}：写入 sorted_list 第 ${ev.order} 格——它就是第 k=5 小的数！但递归版不会就此停下：inorder 的返回值要层层拼接，仍会把 8、9 访问完才回到 return sorted_list[k-1]。`
+                  : ev.node === 2
+                    ? '访问 2：左子树为空直接返回 []，按「左-根-右」轮到根 2，写入 sorted_list 第 1 格。节点旁小数字 = 中序访问序号。'
+                    : ev.node === 5
+                      ? '访问 5：3 的左右子树都处理完才轮到根 5——左子树 [2,3,4] 全部小于 5，有序性一目了然。sorted_list 已收 4 个。'
+                      : ev.node === 8
+                        ? '访问 8：右子树的值全部大于 5，所以排在 5 之后。此刻答案（第 5 个）其实已经收到，剩下的访问都是"为了收尾"。'
+                        : `访问 ${ev.node}：写入 sorted_list 第 ${ev.order} 格，列表保持升序：${fmtList(ev.sorted_list)}。`,
+                INV.recVisit, { mode: 'rec', path: lastPath.slice(), visited: { ...rv }, sorted: ev.sorted_list.slice(), current: ev.node, done: false });
+            } else if (ev.type === 'result') {
+              fr('return sorted_list[4] = 6 ✓', '递归版 · 收尾', ['rec-return'],
+                'return sorted_list[k - 1]  # sorted_list[5-1] = sorted_list[4] = 6',
+                '中序完成，sorted_list = [2,3,4,5,6,8,9]。取 sorted_list[k-1] = sorted_list[4] = 6，与书例输出一致。代价是访问了全部 7 个节点、还存下整个列表——若 k 很小（比如 k=1），这很浪费，引出下面的迭代版。',
+                INV.recResult, { mode: 'rec', path: [], visited: { ...rv }, sorted: ev.sorted_list.slice(), current: null, done: true });
+            }
+          }
+
+          fr('④ 迭代版 · 初始化', '迭代版', ['iter-stack-init', 'iter-node-init', 'iter-while'],
+            'stack = []; node = root  # node = 5，k = 5',
+            '迭代版用一个显式 stack 复刻递归的调用栈：node 从 root = 5 出发，stack 为空。循环条件 while stack or node——只要还有节点没处理就继续。它只关心前 k 个，数够就立即返回。',
+            INV.iterInit, { mode: 'iter', stack: [], k: K, node: 5, visited: {}, current: null, dead: [] });
+
+          const iv = {};
+          for (const ev of iterEvents) {
+            if (ev.type === 'init') continue;
+            if (ev.type === 'push') {
+              const afterTxt = ev.node_after === null ? 'None' : String(ev.node_after);
+              const stackTxt = fmtList(ev.stack);
+              fr(`push ${ev.node} · 一路向左`, '迭代版 · 压栈', ['iter-inner-while', 'iter-push', 'iter-left'],
+                `while node: stack.append(node); node = node.left  # push ${ev.node}，node → ${afterTxt}`,
+                ev.node_after === null
+                  ? `push ${ev.node} 后 node = None：一路向左到底，${ev.node} 是全树最小。栈 = ${stackTxt}（栈顶在左），这些节点的左子树都已下探完，等待将来弹出。`
+                  : `模仿递归"先下探左子树"：把 ${ev.node} 压栈，node 移到左孩子 ${ev.node_after}。栈 = ${stackTxt}，栈顶是最靠左、也就是当前最小的候选。`,
+                INV.iterPush, { mode: 'iter', stack: ev.stack.slice(), k: ev.k, node: ev.node_after, visited: { ...iv }, current: null, dead: [] });
+            } else if (ev.type === 'pop') {
+              iv[ev.node] = ev.order;
+              const kBefore = ev.k_after + 1;
+              const done = ev.returned !== null;
+              fr(done ? `✦ pop ${ev.node} · k = 0` : `pop ${ev.node} · k ${kBefore}→${ev.k_after}`,
+                done ? '迭代版 · 提前返回' : '迭代版 · 弹栈',
+                done ? ['iter-pop', 'iter-decr', 'iter-if', 'iter-return'] : ['iter-pop', 'iter-decr', 'iter-if'],
+                done
+                  ? `node = stack.pop(); k -= 1  # 弹出 ${ev.node}，k = 0 → return node.val = 6`
+                  : `node = stack.pop(); k -= 1  # 弹出 ${ev.node}，k = ${kBefore} → ${ev.k_after}`,
+                done
+                  ? `弹出 ${ev.node}，k 减到 0：if k == 0 成立，立即 return 6！数一数：只访问了 2、3、4、5、6 共 5 个节点——8 还留在栈里没被弹出处理，9 压根没进过栈，两者永远不会被访问。这就是迭代版的核心卖点：提前退出。`
+                  : ev.node === 2
+                    ? '内层 while 结束（node = None）：弹出栈顶 2，k 5→4，访问序号 1——全树最小，正确。2 没有右子树，下一轮直接继续弹栈顶。'
+                    : ev.node === 3
+                      ? '弹出 3，k 4→3，序号 2。随后 node = node.right = 4：内层 while 会把 4 压栈，右子树不会被漏掉。'
+                      : ev.node === 5
+                        ? '弹出 5，k 2→1，序号 4。5 的左子树已全部弹出处理完，node = node.right = 8，进入右子树——右子树的值都大于 5，排序位置自然在 5 之后。'
+                        : `弹出 ${ev.node}，k ${kBefore}→${ev.k_after}，序号 ${ev.order}。它还不在第 k 个，继续。`,
+                done ? INV.iterReturn : INV.iterPop,
+                { mode: 'iter', stack: ev.stack_after.slice(), k: ev.k_after, node: ev.node, visited: { ...iv }, current: ev.node, dead: done ? [8, 9] : [] });
+            }
+          }
+
+          fr('⑤ 两版对比', '对比', ['iter-func'],
+            'def kth_smallest_number_in_BST_iterative(root, k)  # 与递归版对照',
+            '递归版写法最短，但总是访问全部 n 个节点并保存整个 sorted_list；迭代版只访问前 k 个、栈高最多 h。本例 k=5：递归访问 7 个节点，迭代只访问 5 个。k 越小、树越高，迭代版优势越大；k = n 时两版等价。',
+            INV.compare, { mode: 'compare' });
+
+          return frames;
+        }
+
+        const FRAMES = buildFrames();
+
+        const scene = core.createSvgScene(svg);
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout(state) {
+          const W = Math.max(stage.clientWidth, 300);
+          const narrow = W < 620;
+          const tiny = W < 400;
+          const fs = narrow ? 8.5 : 10;
+          const fsNode = narrow ? 10 : 12.5;
+          const pad = narrow ? 8 : 14;
+          const r = narrow ? 13 : 16;
+          const rowPitch = narrow ? 46 : 58;
+          const topY = narrow ? 34 : 40;
+          const slot = (W - pad * 2) / LEAF_VALS.length;
+          LEAF_VALS.forEach((v, k) => { NODES[v].x = pad + slot * (k + 0.5); NODES[v].y = topY + 2 * rowPitch; });
+          [3, 8, 5].forEach(v => {
+            const n = NODES[v];
+            n.y = topY + (v === 5 ? 0 : 1) * rowPitch;
+            n.x = (n.left.x + n.right.x) / 2;
+          });
+          const treeH = topY + 2 * rowPitch + r + 26;
+          const panelY = treeH + 12;
+          const mode = state ? state.mode : 'intro1';
+          let H;
+          if (mode === 'intro1') H = treeH + 44;
+          else if (mode === 'intro2') H = treeH + 66;
+          else if (mode === 'rec') H = panelY + 92;
+          else if (mode === 'iter') H = panelY + 132;
+          else H = 252;
+          geom = { W, narrow, tiny, fs, fsNode, pad, r, rowPitch, topY, treeH, panelY, H };
+          svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+          stage.style.height = `${H}px`;
+        }
+
+        // node style: returns {fill, stroke, sw, textFill}
+        function nodeStyle(state, val) {
+          const g = geom;
+          if (state.current === val) return { fill: '#272727', stroke: '#272727', sw: 1.8, textFill: '#fffdf8', ring: true };
+          if (state.dead && state.dead.includes(val)) return { fill: '#f1efe7', stroke: '#c9c7bd', sw: 1.1, textFill: '#b0aea6' };
+          if (state.visited && state.visited[val]) return { fill: '#eceadf', stroke: '#999', sw: 1.2, textFill: '#272727' };
+          if (state.stack && state.stack.includes(val)) return { fill: '#eeece2', stroke: '#272727', sw: 1.5, textFill: '#272727' };
+          if (state.path && state.path.includes(val)) return { fill: '#fffdf8', stroke: '#272727', sw: 1.5, textFill: '#272727' };
+          return { fill: '#fffdf8', stroke: '#b7b7b1', sw: 1.2, textFill: '#555' };
+        }
+
+        function drawTree(state, { text, path, circle }) {
+          const g = geom;
+          const orderOf = val => (state.visited && state.visited[val]) || (state.mode === 'intro2' ? INORDER_ORDER[val] : 0);
+          const onPathEdge = val => (state.path && state.path.includes(val)) || (state.stack && state.stack.includes(val));
+          // edges (parent first so nodes paint over)
+          [3, 8, 2, 4, 6, 9].forEach(v => {
+            const n = NODES[v];
+            const hot = onPathEdge(v) && !(state.dead && state.dead.includes(v));
+            path(`e-${v}`, {
+              d: `M ${n.parent.x} ${n.parent.y + g.r} L ${n.x} ${n.y - g.r}`,
+              stroke: hot ? '#333' : '#c4c2b8',
+              'stroke-width': hot ? 1.6 : 1.1,
+              fill: 'none'
+            });
+          });
+          Object.keys(NODES).map(Number).forEach(v => {
+            const n = NODES[v];
+            const st = nodeStyle(state, v);
+            if (st.ring) circle(`ring-${v}`, { cx: n.x, cy: n.y, r: g.r + 5, fill: 'none', stroke: '#272727', 'stroke-width': 1.4, 'stroke-dasharray': '5 3' });
+            circle(`n-${v}`, { cx: n.x, cy: n.y, r: g.r, fill: st.fill, stroke: st.stroke, 'stroke-width': st.sw });
+            text(`nt-${v}`, { x: n.x, y: n.y + (g.narrow ? 3.4 : 4.2), 'text-anchor': 'middle', 'font-size': g.fsNode, fill: st.textFill, 'font-family': MONO, 'font-weight': 'bold' }, String(v));
+            const ord = orderOf(v);
+            if (ord) {
+              text(`no-${v}`, { x: n.x - g.r - 6, y: n.y + 3, 'text-anchor': 'end', 'font-size': g.fs, fill: '#777', 'font-family': MONO }, String(ord));
+            }
+            if (state.dead && state.dead.includes(v)) {
+              text(`nd-${v}`, { x: n.x, y: n.y + g.r + 12, 'text-anchor': 'middle', 'font-size': g.fs - 0.5, fill: '#a8a69e', 'font-family': MONO }, '未访问');
+            }
+          });
+        }
+
+        const INORDER_ORDER = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 8: 6, 9: 7 };
+
+        function drawIntro1({ text, path, circle }) {
+          const g = geom;
+          drawTree({ mode: 'intro1' }, { text, path, circle });
+          text('i1-cap', { x: g.W / 2, y: g.treeH + 18, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 11.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '给定 k = 5，第 5 小的节点值 = ?');
+          text('i1-sub', { x: g.W / 2, y: g.treeH + 36, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, 'n = 7 个节点 · 约束 1 ≤ k ≤ n');
+          text('i1-root', { x: NODES[5].x, y: NODES[5].y - g.r - 7, 'text-anchor': 'middle', 'font-size': g.fs - 0.5, fill: '#777', 'font-family': MONO }, 'root');
+        }
+
+        function drawIntro2({ text, path, circle }) {
+          const g = geom;
+          drawTree({ mode: 'intro2', visited: {} }, { text, path, circle });
+          text('i2-cap', { x: g.W / 2, y: g.topY - 16, 'text-anchor': 'middle', 'font-size': g.narrow ? 9.5 : 11, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '左子树 < 根 < 右子树  ⇒  中序（左→根→右）= 升序');
+          const seq = [2, 3, 4, 5, 6, 8, 9];
+          const label = `中序输出 = ${fmtList(seq)}`;
+          const y = g.treeH + 22;
+          const bw = Math.min(textW(label, g.fs + 1) + 18, g.W - g.pad * 2);
+          path('i2-strip', { d: rectPath(g.W / 2 - bw / 2, y - 12, bw, 22, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.2 });
+          text('i2-seq', { x: g.W / 2, y: y + 3, 'text-anchor': 'middle', 'font-size': g.fs + 1, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, label);
+          text('i2-note', { x: g.W / 2, y: y + 22, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '第 k 小 = 中序第 k 个 = sorted_list[k-1]');
+        }
+
+        function drawRec(state, t, from, { text, path, circle }) {
+          const g = geom;
+          drawTree(state, { text, path, circle });
+          const pY = g.panelY;
+          text('sl-title', { x: g.pad, y: pY + 11, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'sorted_list · 中序逐个填充');
+          text('sl-k', { x: g.W - g.pad, y: pY + 11, 'text-anchor': 'end', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, `k = ${K} · 最终取下标 k-1`);
+          const gap = 5;
+          const cw = Math.min(44, (g.W - g.pad * 2 - gap * (N_COUNT - 1)) / N_COUNT);
+          const ch = 24;
+          const y0 = pY + 20;
+          const fromLen = from && from.sorted ? from.sorted.length : 0;
+          for (let i = 0; i < N_COUNT; i++) {
+            const x = g.pad + i * (cw + gap);
+            const filled = i < state.sorted.length;
+            const isNew = filled && fromLen === i && fromLen < state.sorted.length;
+            const op = isNew ? t : 1;
+            if (filled) {
+              path(`sl-${i}`, { d: rectPath(x, y0, cw, ch, 3), fill: '#eeece2', stroke: '#272727', 'stroke-width': isNew ? 1.7 : 1.2, opacity: op });
+              text(`slv-${i}`, { x: x + cw / 2, y: y0 + ch / 2 + 4, 'text-anchor': 'middle', 'font-size': g.fsNode, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold', opacity: op }, String(state.sorted[i]));
+            } else {
+              path(`sl-${i}`, { d: rectPath(x, y0, cw, ch, 3), fill: 'none', stroke: '#c9c7bd', 'stroke-width': 1, 'stroke-dasharray': '4 3' });
+            }
+            const isTarget = state.done && i === K - 1;
+            text(`sli-${i}`, { x: x + cw / 2, y: y0 + ch + 12, 'text-anchor': 'middle', 'font-size': g.fs - 0.5, fill: isTarget ? '#272727' : '#777', 'font-family': MONO, 'font-weight': isTarget ? 'bold' : 'normal' }, String(i));
+          }
+          const tx = g.pad + (K - 1) * (cw + gap) + cw / 2;
+          if (state.done) {
+            text('sl-arrow', { x: tx, y: y0 + ch + 27, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, `↑ k-1 = 4`);
+            const msg = `return sorted_list[k-1] = sorted_list[4] = 6 ✓`;
+            text('sl-result', { x: g.W / 2, y: y0 + ch + 44, 'text-anchor': 'middle', 'font-size': g.narrow ? 9.5 : 11, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, msg);
+          }
+        }
+
+        function drawIter(state, t, from, { text, path, circle }) {
+          const g = geom;
+          drawTree(state, { text, path, circle });
+          const pY = g.panelY;
+          text('stk-title', { x: g.pad, y: pY + 11, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'stack · 栈顶在上');
+          const cw = 44;
+          const ch = 22;
+          const gap = 5;
+          const y0 = pY + 20;
+          const n = state.stack.length;
+          const fromN = from && from.stack ? from.stack.length : n;
+          for (let j = 0; j < n; j++) {
+            const v = state.stack[n - 1 - j];
+            const isNew = j === 0 && fromN === n - 1;
+            const op = isNew ? t : 1;
+            const dead = state.dead && state.dead.includes(v);
+            path(`st-${j}`, { d: rectPath(g.pad, y0 + j * (ch + gap), cw, ch, 3), fill: dead ? '#f1efe7' : j === 0 ? '#eeece2' : '#fffdf8', stroke: dead ? '#c9c7bd' : j === 0 ? '#272727' : '#999', 'stroke-width': j === 0 ? 1.6 : 1.1, opacity: op });
+            text(`stv-${j}`, { x: g.pad + cw / 2, y: y0 + j * (ch + gap) + ch / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fsNode, fill: dead ? '#b0aea6' : '#272727', 'font-family': MONO, opacity: op }, String(v));
+          }
+          if (!n) {
+            path('st-empty', { d: rectPath(g.pad, y0, cw, ch, 3), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            text('st-empty-t', { x: g.pad + cw / 2, y: y0 + ch / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#999', 'font-family': MONO }, '空');
+          }
+          if (fromN === n + 1 && from && from.stack) {
+            const v = from.stack[fromN - 1];
+            path('st-ghost', { d: rectPath(g.pad, y0, cw, ch, 3), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '3 3', opacity: 1 - t });
+            text('st-ghost-v', { x: g.pad + cw / 2, y: y0 + ch / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fsNode, fill: '#999', 'font-family': MONO, opacity: 1 - t }, String(v));
+          }
+          if (n) text('st-top', { x: g.pad + cw + 6, y: y0 + ch / 2 + 3, 'font-size': g.fs - 0.5, fill: '#555', 'font-family': MONO }, '← 栈顶');
+
+          const ix = g.pad + cw + 46;
+          const kChanged = from && from.k !== undefined && from.k !== state.k;
+          path('k-box', { d: rectPath(ix, y0, 52, ch, 3), fill: '#fffdf8', stroke: kChanged ? '#272727' : '#999', 'stroke-width': kChanged ? 1.6 : 1.2 });
+          text('k-val', { x: ix + 26, y: y0 + ch / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fsNode, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, `k = ${state.k}`);
+          const nodeTxt = state.node === null || state.node === undefined ? 'None' : String(state.node);
+          path('node-box', { d: rectPath(ix, y0 + ch + gap, 52, ch, 3), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.2 });
+          text('node-val', { x: ix + 26, y: y0 + ch + gap + ch / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.fsNode - 1, fill: '#555', 'font-family': MONO }, `node = ${nodeTxt}`);
+          const cnt = Object.keys(state.visited || {}).length;
+          text('visited-line', { x: ix, y: y0 + 2 * (ch + gap) + ch / 2 + 3, 'font-size': g.fs, fill: '#555', 'font-family': MONO }, `已访问 ${cnt} / ${N_COUNT}`);
+          if (state.dead && state.dead.length) {
+            text('dead-line', { x: ix, y: y0 + 2 * (ch + gap) + ch / 2 + 19, 'font-size': g.fs, fill: '#a8a69e', 'font-family': MONO }, '8、9 未访问：提前返回');
+          }
+          if (state.current !== null && state.current !== undefined) {
+            const cur = NODES[state.current];
+            text('cur-tag', { x: cur.x + g.r + 5, y: cur.y + 3, 'font-size': g.fs - 0.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, `弹出 ${state.current}`);
+          }
+        }
+
+        function drawCompare(state, { text, path, circle }) {
+          const g = geom;
+          const cx = g.W / 2;
+          text('cmp-title', { x: cx, y: 22, 'text-anchor': 'middle', 'font-size': g.narrow ? 11 : 13, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '两版对比 · 示例 k = 5，答案 6');
+          const x0 = g.pad;
+          const tw = g.W - g.pad * 2;
+          const c1 = g.narrow ? 108 : 168;
+          const headerH = 22;
+          const rowH = 34;
+          const y0 = 34;
+          path('cmp-head', { d: rectPath(x0, y0, tw, headerH, 2), fill: '#eeece2', stroke: '#999', 'stroke-width': 1.1 });
+          text('cmp-h1', { x: x0 + c1 / 2, y: y0 + 15, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '版本');
+          text('cmp-h2', { x: x0 + c1 + 8, y: y0 + 15, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '时间');
+          text('cmp-h3', { x: x0 + c1 + (g.narrow ? 62 : 92) + 8, y: y0 + 15, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '额外空间');
+          text('cmp-h4', { x: x0 + c1 + (g.narrow ? 132 : 182) + 8, y: y0 + 15, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '本例访问');
+          const rows = [
+            ['递归 sorted_list[k-1]', 'O(n)', 'O(n)', '7 / 7 个'],
+            ['迭代 stack 提前退出', 'O(k + h)', 'O(h)', '5 / 7 个 ✓']
+          ];
+          rows.forEach((row, k) => {
+            const ry = y0 + headerH + k * rowH;
+            path(`cmp-r-${k}`, { d: rectPath(x0, ry, tw, rowH, 0), fill: k === 1 ? '#f5f2e9' : '#fffdf8', stroke: '#999', 'stroke-width': 1 });
+            text(`cmp-a-${k}`, { x: x0 + 6, y: ry + rowH / 2 + 3.5, 'font-size': g.fs - 0.5, fill: '#272727', 'font-family': MONO, 'font-weight': k === 1 ? 'bold' : 'normal' }, row[0]);
+            text(`cmp-b-${k}`, { x: x0 + c1 + 8, y: ry + rowH / 2 + 3.5, 'font-size': g.fs, fill: '#272727', 'font-family': MONO }, row[1]);
+            text(`cmp-c-${k}`, { x: x0 + c1 + (g.narrow ? 62 : 92) + 8, y: ry + rowH / 2 + 3.5, 'font-size': g.fs, fill: '#272727', 'font-family': MONO }, row[2]);
+            text(`cmp-d-${k}`, { x: x0 + c1 + (g.narrow ? 132 : 182) + 8, y: ry + rowH / 2 + 3.5, 'font-size': g.fs, fill: '#272727', 'font-family': MONO }, row[3]);
+          });
+          const noteLines = g.narrow
+            ? ['提前退出：k=1 时迭代版只访问最左路径上的 h+1 个节点；', 'k = n 时两版都访问全部节点']
+            : ['提前退出：k=1 时迭代版只访问最左路径上的 h+1 个节点；k=n 时两版都访问全部'];
+          noteLines.forEach((ln, i) => {
+            text(`cmp-note-${i}`, { x: cx, y: y0 + headerH + 2 * rowH + 14 + i * 13, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, ln);
+          });
+          const msg = 'return 6 ✓ 与书例一致';
+          const bw = textW(msg, g.narrow ? 10 : 11.5) + 18;
+          path('cmp-ret', { d: rectPath(cx - bw / 2, y0 + headerH + 2 * rowH + 40, bw, 24, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.4 });
+          text('cmp-ret-t', { x: cx, y: y0 + headerH + 2 * rowH + 56, 'text-anchor': 'middle', 'font-size': g.narrow ? 10 : 11.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, msg);
+        }
+
+        function draw(state, t = 1, from = null) {
+          if (!geom || !state) return;
+          scene.update(prims => {
+            if (state.mode === 'intro1') drawIntro1(prims);
+            else if (state.mode === 'intro2') drawIntro2(prims);
+            else if (state.mode === 'rec') drawRec(state, t, from, prims);
+            else if (state.mode === 'iter') drawIter(state, t, from, prims);
+            else drawCompare(state, prims);
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.phase;
+          invariantEl.textContent = frame.invariant;
+          mK.textContent = state.mode === 'iter' ? String(state.k) : String(K);
+          mNode.textContent = state.current !== null && state.current !== undefined ? String(state.current)
+            : (state.node !== null && state.node !== undefined ? String(state.node) : '—');
+          mStructLabel.textContent = state.mode === 'rec' ? 'sorted_list 长度' : 'stack 长度';
+          mStruct.textContent = state.mode === 'rec' ? String(state.sorted.length)
+            : state.mode === 'iter' ? String(state.stack.length) : '—';
+          mVisited.textContent = `${Object.keys(state.visited || {}).length} / ${N_COUNT}`;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.explanation;
+          stage.setAttribute('aria-label', `二叉搜索树中第 K 小的数演示：第 ${step + 1} / ${frames.length} 步。${frame.explanation}`);
+          layout(state);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({
+          ...s,
+          path: s.path ? [...s.path] : null,
+          stack: s.stack ? [...s.stack] : null,
+          sorted: s.sorted ? [...s.sorted] : null,
+          dead: s.dead ? [...s.dead] : null,
+          visited: s.visited ? { ...s.visited } : null
+        });
+
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            motion.tween({
+              duration: 380,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        new ResizeObserver(() => { motion.cancel(); layout(trace.state); draw(trace.state, 1, null); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>

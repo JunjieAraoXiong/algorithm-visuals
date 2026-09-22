@@ -1,0 +1,1393 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "二叉树序列化与反序列化演示 / serialize and deserialize trace"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 34"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "① 题面与示例树"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "② 只存值不够：一个串两棵树"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "③ 引入 '#' 空节点标记"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "④ serialized_list 初始化"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "访问 5（根） · 第 1 个值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "访问 3（5 的左孩子） · 第 2 个值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "访问 1（3 的左孩子） · 第 3 个值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "1 的左孩子空 → '#'"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "1 的右孩子空 → '#'"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "访问 4（3 的右孩子） · 第 4 个值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "4 的左孩子空 → '#'"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "4 的右孩子空 → '#'"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "访问 9（5 的右孩子） · 第 5 个值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "访问 6（9 的左孩子） · 第 6 个值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "6 的左孩子空 → '#'"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "6 的右孩子空 → '#'"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "9 的右孩子空 → '#'"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "⑤ 完整串：join"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "⑥ split 成列表 node_values"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "19"
+                    ]
+                  ],
+                  "children": [
+                    "建节点 5（根）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "20"
+                    ]
+                  ],
+                  "children": [
+                    "建节点 3（5 的左孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "21"
+                    ]
+                  ],
+                  "children": [
+                    "建节点 1（3 的左孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "22"
+                    ]
+                  ],
+                  "children": [
+                    "'#' → 返回 None（1 的左孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "23"
+                    ]
+                  ],
+                  "children": [
+                    "'#' → 返回 None（1 的右孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "24"
+                    ]
+                  ],
+                  "children": [
+                    "建节点 4（3 的右孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "25"
+                    ]
+                  ],
+                  "children": [
+                    "'#' → 返回 None（4 的左孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "26"
+                    ]
+                  ],
+                  "children": [
+                    "'#' → 返回 None（4 的右孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "27"
+                    ]
+                  ],
+                  "children": [
+                    "建节点 9（5 的右孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "28"
+                    ]
+                  ],
+                  "children": [
+                    "建节点 6（9 的左孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "29"
+                    ]
+                  ],
+                  "children": [
+                    "'#' → 返回 None（6 的左孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "30"
+                    ]
+                  ],
+                  "children": [
+                    "'#' → 返回 None（6 的右孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "31"
+                    ]
+                  ],
+                  "children": [
+                    "'#' → 返回 None（9 的右孩子）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "32"
+                    ]
+                  ],
+                  "children": [
+                    "⑦ 重建完成：return node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "33"
+                    ]
+                  ],
+                  "children": [
+                    "⑧ 原树 ⇔ 重建树对比"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "题面"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "二叉树序列化与反序列化演示：第 1 / 34 步。题目：把一棵二叉树 serialize 成一个字符串，再 deserialize 回原来的树。书例：根 5，左孩子 3（带 1、4），右孩子 9（带 6）。下面的目标是串 \"5,3,1,#,#,4,#,#,9,6,#,#,#\" 与原树一一对应。"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ],
+        [
+          "style",
+          "height: 228px;"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 228"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i-title"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "18"
+                ]
+              ],
+              "children": [
+                "书例二叉树：根 5，共 6 个节点"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 349.4826699292834 51.696063325290396 L 242.8017218437421 89.63381157761663"
+                ],
+                [
+                  "data-visual-element",
+                  "i-e-5-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#8a8a84"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 381.5173300707166 51.696063325290396 L 488.1982781562579 89.63381157761661"
+                ],
+                [
+                  "data-visual-element",
+                  "i-e-5-9"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#8a8a84"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 209.21722083229068 102.56128322638664 L 122.91781201096924 138.66680109992083"
+                ],
+                [
+                  "data-visual-element",
+                  "i-e-3-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#8a8a84"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 239.17581219889672 105.23044885484077 L 286.274680483586 135.6836159857662"
+                ],
+                [
+                  "data-visual-element",
+                  "i-e-3-4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#8a8a84"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 494.17528340809866 108.11615179018625 L 470.21762442624265 132.4584185874389"
+                ],
+                [
+                  "data-visual-element",
+                  "i-e-9-6"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#8a8a84"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "365.5"
+                ],
+                [
+                  "cy",
+                  "46"
+                ],
+                [
+                  "data-visual-element",
+                  "i-n-5"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "16"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i-n-5-t"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "51.12"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "224.9"
+                ],
+                [
+                  "cy",
+                  "96"
+                ],
+                [
+                  "data-visual-element",
+                  "i-n-3"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "16"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i-n-3-t"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "224.9"
+                ],
+                [
+                  "y",
+                  "101.12"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "506.09999999999997"
+                ],
+                [
+                  "cy",
+                  "96"
+                ],
+                [
+                  "data-visual-element",
+                  "i-n-9"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "16"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i-n-9-t"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "506.09999999999997"
+                ],
+                [
+                  "y",
+                  "101.12"
+                ]
+              ],
+              "children": [
+                "9"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "105.39"
+                ],
+                [
+                  "cy",
+                  "146"
+                ],
+                [
+                  "data-visual-element",
+                  "i-n-1"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "16"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i-n-1-t"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "105.39"
+                ],
+                [
+                  "y",
+                  "151.12"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "302.22999999999996"
+                ],
+                [
+                  "cy",
+                  "146"
+                ],
+                [
+                  "data-visual-element",
+                  "i-n-4"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "16"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i-n-4-t"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "302.22999999999996"
+                ],
+                [
+                  "y",
+                  "151.12"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "456.89"
+                ],
+                [
+                  "cy",
+                  "146"
+                ],
+                [
+                  "data-visual-element",
+                  "i-n-6"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "16"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i-n-6-t"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "456.89"
+                ],
+                [
+                  "y",
+                  "151.12"
+                ]
+              ],
+              "children": [
+                "6"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i-flow1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "208"
+                ]
+              ],
+              "children": [
+                "serialize(root) → \"5,3,1,#,#,4,#,#,9,6,#,#,#\" → deserialize → 原树"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "i-cap1"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "186"
+                ]
+              ],
+              "children": [
+                "目标：serialize 把树拍平成一个字符串，deserialize 再把它唯一地还原成原树。"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "不变量 / Invariant"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "serialize 前序遍历写串、deserialize 同序消费重建；目标是让串与树一一对应。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "attributes": [
+                    [
+                      "data-m-label",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "当前访问"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-focus",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    "递归深度"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-depth",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "attributes": [
+                    [
+                      "data-m-prog",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "serialized_list"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-prog-v",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "0 / 13"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "attributes": [
+                    [
+                      "data-m-nodes",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "已访问节点"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-nodes-v",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "0 / 6"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "def serialize(root) / def deserialize(data)"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "题目：把一棵二叉树 serialize 成一个字符串，再 deserialize 回原来的树。书例：根 5，左孩子 3（带 1、4），右孩子 9（带 6）。下面的目标是串 \"5,3,1,#,#,4,#,#,9,6,#,#,#\" 与原树一一对应。"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of binary tree symmetry: DFS mirror comparison of the left and right subtrees, with paired node highlights, null checks, and the three verdicts (both null, one null, value mismatch). 二叉树对称性：DFS 镜像比较左右子树，成对高亮镜像节点，展示都 null、一 null、值不等三种判定。" />
+    <title>Binary Tree Symmetry · 二叉树对称性 · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .card-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card p:last-child { margin-bottom: 0; }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="sym-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Binary Tree Symmetry · <span lang="zh-CN">二叉树对称性</span></h1></div></header>
+      <p class="problem">Determine if a binary tree is vertically symmetric. That is, the left subtree of the root node is a mirror of the right subtree. Example: <code>[1, 2, 2, 3, 4, 4, 3]</code> → <code>True</code>.<span lang="zh-CN">判断一棵二叉树是否关于根节点的竖直轴对称：根节点的左子树是右子树的镜像。镜像 = 把树翻转（每个节点的左右孩子互换）后，右子树与左子树完全重合。书例：树 [1, 2, 2, 3, 4, 4, 3] 对称，输出 True。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="二叉树对称性演示 / binary tree symmetry trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="二叉树对称性演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>node1</code></dt><dd data-m-n1></dd></div>
+              <div><dt><code>node2</code></dt><dd data-m-n2></dd></div>
+              <div><dt>递归深度</dt><dd data-m-depth></dd></div>
+              <div><dt>本帧判定</dt><dd data-m-verdict></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="sym-code-title">
+          <h2 id="sym-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def binary_tree_symmetry(root: TreeNode) -&gt; bool:</span><span class="code-line" data-source-key="if-root">    if not root:</span><span class="code-line" data-source-key="return-empty">        return True</span><span class="code-line" data-source-key="call-dfs">    return dfs(root.left, root.right)</span><span class="code-line"></span><span class="code-line" data-source-key="dfs-def">def dfs(node1: TreeNode, node2: TreeNode) -&gt; bool:</span><span class="code-line">    # Base case: if both nodes are null, they're symmetric.</span><span class="code-line" data-source-key="if-both-null">    if not node1 and not node2:</span><span class="code-line" data-source-key="return-true">        return True</span><span class="code-line">    # If one node is null and the other isn't, they aren't symmetric.</span><span class="code-line" data-source-key="if-one-null">    if not node1 or not node2:</span><span class="code-line" data-source-key="return-false-null">        return False</span><span class="code-line">    # If the values of the current nodes don't match, trees aren't symmetric.</span><span class="code-line" data-source-key="if-val">    if node1.val != node2.val:</span><span class="code-line" data-source-key="return-false-val">        return False</span><span class="code-line">    # Compare the 'node1's left subtree with 'node2's right subtree. If these</span><span class="code-line">    # aren't symmetric, the whole tree is not symmetric.</span><span class="code-line" data-source-key="recurse-left">    if not dfs(node1.left, node2.right):</span><span class="code-line" data-source-key="early-return">        return False</span><span class="code-line">    # Compare the 'node1's right subtree with 'node2's left subtree.</span><span class="code-line" data-source-key="recurse-right">    return dfs(node1.right, node2.left)</span></code></pre>
+          <p class="note">橙色 = 当前比较的镜像对（弧线连接 <code>node1</code> 与 <code>node2</code>）；红色 = 判定失败的对；虚线圆 <code>null</code> = 不存在的节点；竖直虚线 = 对称轴。树形布局帧间固定，只有高亮随步骤移动。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="sym-intuition">
+        <h2 id="sym-intuition">直觉：镜像 = 翻转后重合 / Mirror = flipped copy</h2>
+        <p class="section-intro">根节点自己不影响对称性——它坐在对称轴上，左右怎么比都是它自己。所以 <code>binary_tree_symmetry</code> 判掉空树之后，直接把 <code>root.left</code> 与 <code>root.right</code> 交给 <code>dfs</code>。真正的问题是：<strong>左子树是不是右子树翻转后的样子</strong>。翻转即每个节点的左右孩子互换，因此镜像位置上的节点一一对应：左子树某节点的左孩子，对应右子树镜像节点的右孩子。</p>
+        <p class="section-intro">于是 <code>dfs(node1, node2)</code> 只回答一件事：以 node1 为根的子树，是否是 node2 为根的子树的镜像？它同步向下走两棵树——node1 向左时 node2 向右，node1 向右时 node2 向左——任何一对节点不符，整棵树就不是对称的。</p>
+      </section>
+
+      <section class="section" aria-labelledby="sym-verdicts">
+        <h2 id="sym-verdicts">三种判定 / Three verdicts</h2>
+        <p class="section-intro">每一对镜像节点只有三种结局，前两条都发生在“访问孩子之前”——这就是面试里常说的：<strong>用属性前先判空</strong>。</p>
+        <div class="card-grid">
+          <article class="paper-card"><strong>都 null → True</strong><p><code>if not node1 and not node2: return True</code>。两边同时没有节点，结构上互相镜像。叶子节点的孩子比较总会走到这里。</p></article>
+          <article class="paper-card"><strong>一个 null → False</strong><p><code>if not node1 or not node2: return False</code>。一边有一边没有，形状已经不同——哪怕值全都相等。反例 [1,2,2,null,3,null,3] 就是死在这一条。</p></article>
+          <article class="paper-card"><strong>值不等 → False</strong><p><code>if node1.val != node2.val: return False</code>。镜像位置上的值必须相等；节点都存在但 2 对 3，立即失败。</p></article>
+          <article class="paper-card"><strong>都相等 → 递归两对镜像孩子</strong><p>先 <code>dfs(node1.left, node2.right)</code>，左镜像对返回 False 就提前 <code>return False</code>；否则 <code>return dfs(node1.right, node2.left)</code>。注意两对是“交叉”的——同侧的孩子互不比较。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="sym-edge">
+        <h2 id="sym-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card"><strong>空树 → True</strong><p><code>if not root: return True</code>。约定空树对称；这也是代码里唯一的根特判，之后全部交给 dfs。</p></article>
+          <article class="paper-card"><strong>单节点树 → True</strong><p>根非空，进入 <code>dfs(null, null)</code>：左右孩子都不存在，命中“都 null → True”。</p></article>
+          <article class="paper-card"><strong>值全等也可能 False</strong><p>[1,2,2,null,3,null,3] 里 1,2,2,3,3 全都成对相等，但左 2 缺左孩子、右 2 有右孩子——结构不镜像，照样输出 False。</p></article>
+          <article class="paper-card"><strong>面试提示：判空先于取属性</strong><p><code>dfs</code> 里先判两个 null，才去碰 <code>node1.val</code>、<code>node1.left</code>。对空节点取属性是这类题最常见的崩溃点。</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="sym-complexity">
+        <h2 id="sym-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(n)</strong><p>每个节点至多被比较一次（成对进入 dfs 一次），每次比较只做常数次判断，合计 O(n)。</p></article>
+          <article class="paper-card"><strong>Space · O(h)</strong><p>递归栈深度等于树高 h（dfs 的 node1/node2 各沿一条链向下）。平衡树 O(log n)；最坏情况树退化成链，h = n，空间 O(n)。</p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../palindromic-linked-list/">回文链表（双端比较同思路）</a><a href="../recursive-reverse-linked-list/">递归反转链表（递归同门）</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('sym-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mN1 = root.querySelector('[data-m-n1]');
+        const mN2 = root.querySelector('[data-m-n2]');
+        const mDepth = root.querySelector('[data-m-depth]');
+        const mVerdict = root.querySelector('[data-m-verdict]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const SANS = 'Arial, Helvetica, sans-serif';
+        const ORANGE = '#b3611e';
+        const RED = '#a3402f';
+
+        // ---- simulation: mirrors the Python implementation line by line ----
+        // SIM-START
+        function buildTreeSymmetry(levelOrder) {
+          if (!levelOrder.length) return null;
+          let counter = 0;
+          const nodes = levelOrder.map(v => (v === null ? null : { id: 'n' + counter++, val: v, left: null, right: null }));
+          const rootNode = nodes[0];
+          const queue = [rootNode];
+          let i = 1;
+          while (queue.length && i < levelOrder.length) {
+            const node = queue.shift();
+            if (i < levelOrder.length && nodes[i]) {
+              node.left = nodes[i];
+              queue.push(node.left);
+            }
+            i += 1;
+            if (i < levelOrder.length && nodes[i]) {
+              node.right = nodes[i];
+              queue.push(node.right);
+            }
+            i += 1;
+          }
+          return rootNode;
+        }
+
+        function simulateSymmetry(rootNode) {
+          const calls = [];
+          function dfs(node1, node2, depth, parentIndex, branch, gA, gB) {
+            const record = {
+              index: calls.length,
+              node1: node1 ? node1.val : null,
+              node2: node2 ? node2.val : null,
+              depth,
+              parent: parentIndex,
+              branch,
+              gA,
+              gB,
+              result: null,
+              reason: null,
+              a: node1,
+              b: node2
+            };
+            calls.push(record);
+            // Base case: if both nodes are null, they're symmetric.
+            if (!node1 && !node2) {
+              record.result = true;
+              record.reason = 'both-null';
+              return true;
+            }
+            // If one node is null and the other isn't, they aren't symmetric.
+            if (!node1 || !node2) {
+              record.result = false;
+              record.reason = 'one-null';
+              return false;
+            }
+            // If the values of the current nodes don't match, trees aren't symmetric.
+            if (node1.val !== node2.val) {
+              record.result = false;
+              record.reason = 'val';
+              return false;
+            }
+            const left = dfs(
+              node1.left,
+              node2.right,
+              depth + 1,
+              record.index,
+              'left',
+              node1.left ? null : node1.id + '-L',
+              node2.right ? null : node2.id + '-R'
+            );
+            // Compare the 'node1's left subtree with 'node2's right subtree. If these
+            // aren't symmetric, the whole tree is not symmetric.
+            if (!left) {
+              record.result = false;
+              record.reason = 'left-false';
+              return false;
+            }
+            const right = dfs(
+              node1.right,
+              node2.left,
+              depth + 1,
+              record.index,
+              'right',
+              node1.right ? null : node1.id + '-R',
+              node2.left ? null : node2.id + '-L'
+            );
+            record.result = right;
+            record.reason = right ? 'right-true' : 'right-false';
+            return right;
+          }
+
+          if (!rootNode) {
+            return { output: true, empty: true, calls };
+          }
+          const output = dfs(
+            rootNode.left,
+            rootNode.right,
+            1,
+            -1,
+            null,
+            rootNode.left ? null : rootNode.id + '-L',
+            rootNode.right ? null : rootNode.id + '-R'
+          );
+          return { output, empty: false, calls };
+        }
+        // SIM-END
+
+        const TREES = {};
+        function makeTree(key, levelOrder) {
+          const rootNode = buildTreeSymmetry(levelOrder);
+          let maxDepth = 0;
+          (function walk(node, depth) {
+            if (!node) return;
+            maxDepth = Math.max(maxDepth, depth);
+            walk(node.left, depth + 1);
+            walk(node.right, depth + 1);
+          })(rootNode, 0);
+          TREES[key] = { key, root: rootNode, maxDepth, sim: simulateSymmetry(rootNode) };
+        }
+        makeTree('main', [1, 2, 2, 3, 4, 4, 3]);
+        makeTree('val', [1, 2, 3]);
+        makeTree('nulltree', [1, 2, 2, null, 3, null, 3]);
+
+        const textW = (s, fs) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? fs : fs * 0.6), 0);
+        const vstr = v => (v === null ? 'null' : String(v));
+
+        const INV = {
+          intro: 'dfs(node1, node2) 只回答一件事：以 node1 为根的子树，是否是以 node2 为根的子树的镜像。',
+          axis: '镜像 = 翻转（每个节点左右孩子互换）后重合；虚线竖轴是对称轴。',
+          launch: '对称性与根无关：root 非空，直接比较它的左右子树。',
+          checks: '三个检查依次通过：都非 null、值相等。接下来递归两对镜像孩子——先左对右，再右对左。',
+          bothNull: '不存在的两边互相镜像：都 null ⇒ return True，递归在此停住。',
+          oneNull: '一边有一边没有，形状必然不同 ⇒ return False，无需再比。',
+          val: '镜像位置上的值必须相等：值不等 ⇒ return False，无需再比。',
+          early: '左镜像对返回 False，if not dfs(...): return False —— False 沿递归栈向上传播。',
+          doneTrue: '根调用收到 True：每个节点至多被比较一次，整棵树对称。',
+          doneFalse: '任一镜像对失败，整棵树即不对称：False 一路返回到根。',
+          edge: '空树直接 True；单节点树落到 dfs(null, null) 也是 True。'
+        };
+
+        function buildFrames() {
+          const frames = [];
+          const fr = (stepLabel, phase, sourceKeys, line, explanation, invariant, state) =>
+            frames.push({ stepLabel, phase, sourceKeys, line, explanation, invariant, state });
+
+          fr('① 题面与对称示例', '题面', ['func'],
+            'binary_tree_symmetry(root)  # 树 [1, 2, 2, 3, 4, 4, 3]',
+            '题目：判断二叉树是否竖直对称——左子树是右子树的镜像。上面是书例：根 1，左右各一棵 2 的子树，底层 3、4 成对镜像。答案是 True。下面三步先建立直觉：根为什么不用管、镜像到底比什么，然后用 dfs 把这棵树完整走一遍。',
+            INV.intro, { mode: 'intro1', tree: 'main' });
+
+          fr('② 根不影响对称性', '直觉', ['if-root', 'return-empty', 'call-dfs'],
+            'if not root: return True；return dfs(root.left, root.right)',
+            '根节点坐在对称轴上，自己跟自己永远对称，所以代码判掉空树之后，直接 return dfs(root.left, root.right)——根被置灰，真正要比较的是它左右两棵子树（两个虚线框）。',
+            INV.axis, { mode: 'intro2', tree: 'main' });
+
+          fr('③ 镜像 = 翻转后重合', '直觉', ['recurse-left', 'recurse-right'],
+            'dfs(node1.left, node2.right)；dfs(node1.right, node2.left)',
+            '把右子树翻转（每个节点左右互换），它应当和左子树完全重合。所以镜像对是交叉的：左 2 的左孩子 3 对应右 2 的右孩子 3（①），左 2 的右孩子 4 对应右 2 的左孩子 4（②）。同侧的孩子之间永不比较——这是 dfs 里两条递归线一左一右交叉的原因。',
+            INV.axis, { mode: 'intro3', tree: 'main' });
+
+          const NOTES = {
+            'main:0': '发起 dfs(root.left, root.right)：node1 = 左子树的 2，node2 = 右子树的 2——同一层、关于对称轴镜像的一对。三个检查依次通过（都非 null、值相等），接下来递归两对镜像孩子。',
+            'main:1': '第一对镜像孩子：node1.left = 3（左 2 的左孩子）对 node2.right = 3（右 2 的右孩子）——位置关于对称轴对称。3 == 3，检查通过，继续向下。',
+            'main:2': '3 的左孩子不存在、右侧 3 的右孩子也不存在：node1 = null、node2 = null。都 null ⇒ return True。注意代码先判空，从不访问 null.left 之类的属性。',
+            'main:3': '另一侧同样都 null ⇒ True。于是 dfs(3, 3)：两对镜像孩子全部成立，本层 return True。',
+            'main:4': '左子树整棵返回 True。现在走 dfs(2, 2) 的第二对镜像孩子：node1.right = 4（左 2 的右孩子）对 node2.left = 4（右 2 的左孩子）——同样关于对称轴镜像。4 == 4，继续。',
+            'main:5': '4 的左孩子不存在、左侧 4 的右孩子也不存在：node1 = null、node2 = null ⇒ return True。',
+            'main:6': '另一侧也都 null ⇒ True。dfs(4, 4) 与 dfs(2, 2) 相继返回 True——整棵左子树就是右子树的镜像。',
+            'val:0': 'node1 = 2、node2 = 3：都非 null，但 2 != 3。镜像位置的值不相等，直接 return False——标红的镜像对就是失败现场，根本等不到递归孩子。',
+            'nulltree:0': 'node1 = 左 2、node2 = 右 2：值相等，三个检查通过。于是递归第一对镜像孩子：node1.left（null！左 2 没有左孩子）对 node2.right（3，右 2 的右孩子）。',
+            'nulltree:1': 'node1 = null、node2 = 3：一个存在一个不存在 ⇒ return False。值明明全相等，但底下两个 3 的位置并不镜像——这就是“结构不对称”，标红的失败对。'
+          };
+
+          const branchText = (rec, calls) => {
+            if (rec.parent < 0) return '';
+            const p = calls[rec.parent];
+            return rec.branch === 'left'
+              ? `由 dfs(node1.left, node2.right) 进入：${p.node1} 的左孩子对 ${p.node2} 的右孩子。`
+              : `左镜像对已返回 True；由 dfs(node1.right, node2.left) 进入：${p.node1} 的右孩子对 ${p.node2} 的左孩子。`;
+          };
+
+          const GENERIC = {
+            checks: (rec, calls) => `${branchText(rec, calls)}node1 = ${vstr(rec.node1)}、node2 = ${vstr(rec.node2)}：都非 null 且值相等，三个检查依次通过，准备递归两对镜像孩子。`,
+            'both-null': rec => `node1 = null、node2 = null：两边都没有节点，互为镜像 ⇒ return True。`,
+            'one-null': rec => `node1 = ${vstr(rec.node1)}、node2 = ${vstr(rec.node2)}：一个存在一个不存在，结构不同 ⇒ return False。`,
+            val: rec => `node1 = ${vstr(rec.node1)}、node2 = ${vstr(rec.node2)}：镜像位置的值不相等 ⇒ return False。`,
+            early: () => '左镜像对 dfs(node1.left, node2.right) 返回了 False ⇒ if not dfs(...): return False：False 沿递归栈向上传播，本层提前返回，不再比较右镜像对。'
+          };
+
+          const KIND_LABEL = {
+            launch: '发起调用',
+            checks: '相等 · 继续',
+            'both-null': 'True',
+            'one-null': 'False · 结构不同',
+            val: 'False · 值不等',
+            early: 'False · 向上传播'
+          };
+
+          function addRun(treeKey, phaseName) {
+            const sim = TREES[treeKey].sim;
+            const calls = sim.calls;
+            const first = calls[0];
+            fr(`发起 dfs(${vstr(first.node1)}, ${vstr(first.node2)})`, phaseName, ['call-dfs'],
+              `return dfs(root.left, root.right)  # dfs(${vstr(first.node1)}, ${vstr(first.node2)})，深度 1`,
+              treeKey === 'main'
+                ? 'root = 1 非空（空树才直接 return True）。对称性与根自身无关：只需比较左右子树是否互为镜像，发起 dfs(2, 2)。'
+                : treeKey === 'val'
+                  ? '反例：root = 1，左孩子 2、右孩子 3。发起 dfs(2, 3)——看看值不等时死在哪一行。'
+                  : '反例 [1,2,2,null,3,null,3]：值全相同（1, 2, 2, 3, 3），结构却不对称。发起 dfs(2, 2)。',
+              INV.launch, { mode: 'run', tree: treeKey, callIndex: 0, kind: 'launch', verdict: null });
+
+            const emitEarly = rec => {
+              fr('False 向上传播 · return False', phaseName, ['recurse-left', 'early-return'],
+                'if not dfs(node1.left, node2.right): return False  # 左镜像对 = False',
+                GENERIC.early(), INV.early, { mode: 'run', tree: treeKey, callIndex: rec.index, kind: 'early', verdict: null });
+            };
+
+            // The early-return frame belongs AFTER the failing child call's frame:
+            // the left-false record was entered before its child, so flush the
+            // pending propagation frame as soon as the child's subtree is done.
+            let pendingEarly = null;
+            calls.forEach(rec => {
+              if (pendingEarly && pendingEarly.index + 1 < rec.index) {
+                emitEarly(pendingEarly);
+                pendingEarly = null;
+              }
+              const note = NOTES[`${treeKey}:${rec.index}`] || GENERIC[rec.reason === 'left-false' ? 'checks' : rec.reason](rec, calls);
+              if (rec.reason === 'left-false') {
+                fr(`dfs(${vstr(rec.node1)}, ${vstr(rec.node2)}) · 值相等，深入左镜像对`, phaseName,
+                  ['if-both-null', 'if-one-null', 'if-val'],
+                  `if node1.val != node2.val  # ${vstr(rec.node1)} == ${vstr(rec.node2)}，检查通过，继续递归`,
+                  note, INV.checks, { mode: 'run', tree: treeKey, callIndex: rec.index, kind: 'checks', verdict: null });
+                pendingEarly = rec;
+                return;
+              }
+              const kind = rec.reason === 'right-true' ? 'checks' : rec.reason;
+              const keys = {
+                checks: ['if-both-null', 'if-one-null', 'if-val'],
+                'both-null': ['if-both-null', 'return-true'],
+                'one-null': ['if-one-null', 'return-false-null'],
+                val: ['if-val', 'return-false-val']
+              }[kind];
+              const line = {
+                checks: `if node1.val != node2.val  # ${vstr(rec.node1)} == ${vstr(rec.node2)}，检查通过，继续递归`,
+                'both-null': 'if not node1 and not node2: return True',
+                'one-null': `if not node1 or not node2: return False  # ${vstr(rec.node1)} vs ${vstr(rec.node2)}`,
+                val: `if node1.val != node2.val: return False  # ${vstr(rec.node1)} != ${vstr(rec.node2)}`
+              }[kind];
+              const label = {
+                checks: `dfs(${vstr(rec.node1)}, ${vstr(rec.node2)}) · 值相等 ✓`,
+                'both-null': 'dfs(null, null) → True',
+                'one-null': `dfs(${vstr(rec.node1)}, ${vstr(rec.node2)}) → 一 null ✗`,
+                val: `dfs(${vstr(rec.node1)}, ${vstr(rec.node2)}) → 值不等 ✗`
+              }[kind];
+              const inv = { checks: INV.checks, 'both-null': INV.bothNull, 'one-null': INV.oneNull, val: INV.val }[kind];
+              fr(label, phaseName, keys, line, note, inv,
+                { mode: 'run', tree: treeKey, callIndex: rec.index, kind, verdict: null });
+            });
+            if (pendingEarly) emitEarly(pendingEarly);
+
+            fr(sim.output ? 'return True ✓ 树对称' : 'return False ✗ 树不对称', phaseName, ['call-dfs'],
+              `return dfs(root.left, root.right)  # 收到 ${sim.output ? 'True' : 'False'}`,
+              sim.output
+                ? 'return dfs(root.left, root.right) 收到 True ⇒ 整棵树对称，输出 True。复盘：7 个节点各被比较一次，三个检查加两对交叉递归，没有任何节点被重复访问。'
+                : 'return dfs(root.left, root.right) 收到 False ⇒ 输出 False。只要任意一对镜像节点不符——无论值不等还是结构不对称——False 都会沿递归栈一路返回到这里。',
+              sim.output ? INV.doneTrue : INV.doneFalse,
+              { mode: 'run', tree: treeKey, callIndex: -1, kind: 'final', verdict: sim.output });
+          }
+
+          addRun('main', '主例 · 对称树');
+          addRun('val', '反例 · 值不等');
+          addRun('nulltree', '反例 · 结构不对称');
+
+          fr('边界速览：空树与单节点', '边界', ['if-root', 'return-empty'],
+            'if not root: return True  # 空树；单节点 → dfs(null, null)',
+            '两条最短的 True 路径：空树 root = null，第一个 if 直接 return True；单节点树根非空，但 dfs(null, null) 都 null ⇒ True。两者都不需要任何递归。',
+            INV.edge, { mode: 'edge', tree: 'main' });
+
+          return frames;
+        }
+
+        const FRAMES = buildFrames();
+
+        const scene = core.createSvgScene(svg);
+        const motion = core.createMotionController();
+        let geom = null;
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout(state) {
+          const W = Math.max(stage.clientWidth, 300);
+          const narrow = W < 620;
+          const fs = narrow ? 9 : 10.5;
+          const fsNode = narrow ? 12.5 : 15;
+          const pad = narrow ? 8 : 16;
+          const r = narrow ? 12 : 15;
+          const gr = narrow ? 10 : 11;
+          const rowPitch = narrow ? 46 : 56;
+          const topY = narrow ? 28 : 34;
+          const tree = TREES[state.tree || 'main'];
+          const maxD = tree.maxDepth;
+          const slots = 2 ** maxD;
+          const slotW = (W - pad * 2) / slots;
+          const pos = new Map();
+          const ghosts = new Map();
+
+          let ghostMaxDepth = -1;
+          const rec = state.mode === 'run' && state.callIndex >= 0 ? tree.sim.calls[state.callIndex] : null;
+          const wantGhosts = rec && (rec.gA || rec.gB);
+          if (wantGhosts) ghostMaxDepth = rec.depth;
+
+          (function place(node, lo, hi, depth) {
+            const mid = (lo + hi) / 2;
+            pos.set(node.id, { x: pad + mid * slotW, y: topY + depth * rowPitch, node });
+            const cY = topY + (depth + 1) * rowPitch;
+            if (node.left) place(node.left, lo, mid, depth + 1);
+            else ghosts.set(node.id + '-L', { x: pad + (lo + mid) / 2 * slotW, y: cY, parent: node, side: 'L' });
+            if (node.right) place(node.right, mid, hi, depth + 1);
+            else ghosts.set(node.id + '-R', { x: pad + (mid + hi) / 2 * slotW, y: cY, parent: node, side: 'R' });
+          })(tree.root, 0, slots, 0);
+
+          const extraRows = Math.max(0, ghostMaxDepth - maxD);
+          const treeBottom = topY + (maxD + extraRows) * rowPitch + r + 8;
+          let H;
+          if (state.mode === 'intro1') H = topY + maxD * rowPitch + r + 54;
+          else if (state.mode === 'intro2') H = topY + maxD * rowPitch + r + 62;
+          else if (state.mode === 'intro3') H = topY + maxD * rowPitch + r + (narrow ? 140 : 128);
+          else if (state.mode === 'edge') H = 172;
+          else H = treeBottom + 40;
+          geom = { W, narrow, fs, fsNode, pad, r, gr, rowPitch, topY, pos, ghosts, tree, treeBottom, rootX: pos.get(tree.root.id).x };
+          svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+          stage.style.height = `${H}px`;
+        }
+
+        function collectNodes(node, acc) {
+          if (!node) return acc;
+          acc.push(node);
+          collectNodes(node.left, acc);
+          collectNodes(node.right, acc);
+          return acc;
+        }
+
+        function drawTreeBase(prims, opts = {}) {
+          const g = geom;
+          const { path, text, circle } = prims;
+          const all = collectNodes(g.tree.root, []);
+          // mirror axis
+          if (opts.axis) {
+            path('axis', { d: `M ${g.rootX} ${g.topY - 16} L ${g.rootX} ${g.treeBottom - 6}`, stroke: '#c4c2b8', 'stroke-width': 1.1, 'stroke-dasharray': '5 4', fill: 'none' });
+            text('axis-label', { x: g.rootX + 5, y: g.topY - 8, 'font-size': g.fs - 1, fill: '#999', 'font-family': MONO }, '对称轴');
+          }
+          // edges to real children
+          for (const node of all) {
+            const p = g.pos.get(node.id);
+            for (const side of ['left', 'right']) {
+              const child = node[side];
+              if (!child) continue;
+              const c = g.pos.get(child.id);
+              path(`edge-${child.id}`, { d: `M ${p.x} ${p.y + g.r} L ${c.x} ${c.y - g.r}`, stroke: '#333', 'stroke-width': 1.3, fill: 'none' });
+            }
+          }
+          // visible ghosts (null nodes) and dashed edges to them
+          if (opts.ghostKeys) {
+            for (const key of opts.ghostKeys) {
+              const gh = g.ghosts.get(key);
+              if (!gh) continue;
+              const p = g.pos.get(gh.parent.id);
+              path(`gedge-${key}`, { d: `M ${p.x} ${p.y + g.r} L ${gh.x} ${gh.y - g.gr}`, stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none' });
+              circle(`ghost-${key}`, { cx: gh.x, cy: gh.y, r: g.gr, fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
+              text(`ghost-t-${key}`, { x: gh.x, y: gh.y + 2.8, 'text-anchor': 'middle', 'font-size': g.narrow ? 7 : 8, fill: '#777', 'font-family': MONO }, 'null');
+            }
+          }
+          // nodes
+          for (const node of all) {
+            const p = g.pos.get(node.id);
+            const dim = opts.dimRoot && node === g.tree.root;
+            circle(`node-${node.id}`, { cx: p.x, cy: p.y, r: g.r, fill: dim ? '#f1efe7' : '#fffdf8', stroke: dim ? '#999' : '#272727', 'stroke-width': dim ? 1.2 : 1.5 });
+            text(`nv-${node.id}`, { x: p.x, y: p.y + (g.narrow ? 4.2 : 5), 'text-anchor': 'middle', 'font-size': g.fsNode, fill: dim ? '#999' : '#272727', 'font-family': SANS, 'font-weight': 'bold' }, String(node.val));
+            if (node === g.tree.root) text('root-tag', { x: p.x - g.r - 6, y: p.y + 3.5, 'text-anchor': 'end', 'font-size': g.fs - 0.5, fill: '#777', 'font-family': MONO }, 'root');
+            if (opts.marks) {
+              const ok = opts.marks === 'all-ok';
+              text(`mark-${node.id}`, { x: p.x, y: p.y + g.r + 12, 'text-anchor': 'middle', 'font-size': g.fs, fill: ok ? '#555' : RED, 'font-family': MONO, 'font-weight': 'bold' }, ok ? '✓' : '✗');
+            }
+          }
+        }
+
+        function endpoint(ref, gkey) {
+          const g = geom;
+          if (ref) return { ...g.pos.get(ref.id), r: g.r, ghost: false };
+          const gh = g.ghosts.get(gkey);
+          return gh ? { x: gh.x, y: gh.y, r: g.gr, ghost: true } : null;
+        }
+
+        function pairLine(prims, A, B, color) {
+          const g = geom;
+          const { path } = prims;
+          if (A.ghost && B.ghost) {
+            // both ghosts: route the compare line below the tree to keep edges readable
+            const yU = Math.max(A.y, B.y) + g.r + 24;
+            path('pair-conn', { d: `M ${A.x} ${A.y + A.r + 2} V ${yU - 6} Q ${A.x} ${yU} ${A.x + 6} ${yU} H ${B.x - 6} Q ${B.x} ${yU} ${B.x} ${yU - 6} V ${B.y + B.r + 2}`, stroke: color, 'stroke-width': 1.5, fill: 'none' });
+            return { bx: (A.x + B.x) / 2, by: yU - 8 };
+          }
+          const dist = Math.hypot(B.x - A.x, B.y - A.y);
+          const lift = Math.min(Math.max(26, dist * 0.24 + 12), Math.max(26, Math.min(A.y, B.y) - 16));
+          const my = Math.min(A.y, B.y) - lift;
+          path('pair-conn', { d: `M ${A.x} ${A.y - A.r - 2} C ${A.x} ${my}, ${B.x} ${my}, ${B.x} ${B.y - B.r - 2}`, stroke: color, 'stroke-width': 1.5, fill: 'none' });
+          const mid = { x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 };
+          return { bx: mid.x, by: (mid.y + my * 3) / 4 - 8 };
+        }
+
+        function pairBadge(prims, m, color, label) {
+          const g = geom;
+          const { path, text } = prims;
+          const bw = textW(label, g.fs) + 10;
+          path('pair-badge-bg', { d: rectPath(m.bx - bw / 2, m.by - 8, bw, 15, 3), fill: '#fffdf8', stroke: color, 'stroke-width': 1.1 });
+          text('pair-badge', { x: m.bx, y: m.by + 3.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: color, 'font-family': MONO, 'font-weight': 'bold' }, label);
+        }
+
+        function drawRun(state, prims) {
+          const g = geom;
+          const { text, circle } = prims;
+          const sim = g.tree.sim;
+          const rec = state.callIndex >= 0 ? sim.calls[state.callIndex] : null;
+          const color = state.kind === 'launch' || state.kind === 'checks' || state.kind === 'both-null' ? ORANGE : RED;
+          let m = null;
+          if (rec && state.kind !== 'final') {
+            const A = endpoint(rec.a, rec.gA);
+            const B = endpoint(rec.b, rec.gB);
+            // the compare line is drawn first so nodes stay on top where it crosses them
+            if (A && B) m = pairLine(prims, A, B, color);
+          }
+
+          drawTreeBase(prims, {
+            axis: true,
+            ghostKeys: rec && rec.gA ? [rec.gA, ...(rec.gB ? [rec.gB] : [])] : (rec && rec.gB ? [rec.gB] : null),
+            marks: state.kind === 'final' ? (state.verdict ? 'all-ok' : 'all-bad') : null
+          });
+
+          if (rec && state.kind !== 'final') {
+            const A = endpoint(rec.a, rec.gA);
+            const B = endpoint(rec.b, rec.gB);
+            if (A && B) {
+              for (const [pt, tag] of [[A, 'node1'], [B, 'node2']]) {
+                circle(`pair-ring-${tag}`, { cx: pt.x, cy: pt.y, r: pt.r + 4.5, fill: 'none', stroke: color, 'stroke-width': 2 });
+                text(`pair-tag-${tag}`, { x: pt.x, y: pt.y - pt.r - 9, 'text-anchor': 'middle', 'font-size': g.fs, fill: color, 'font-family': MONO, 'font-weight': 'bold' }, tag);
+              }
+              const label = {
+                launch: `发起 dfs(${vstr(rec.node1)}, ${vstr(rec.node2)})`,
+                checks: `${vstr(rec.node1)} == ${vstr(rec.node2)} ✓ 继续`,
+                'both-null': '都 null ⇒ True',
+                'one-null': `${vstr(rec.node1)} vs ${vstr(rec.node2)} ⇒ False`,
+                val: `${vstr(rec.node1)} ≠ ${vstr(rec.node2)} ⇒ False`,
+                early: '左镜像对 False ⇒ 提前返回 False'
+              }[state.kind];
+              pairBadge(prims, m, color, label);
+            }
+          }
+
+          if (state.kind === 'final') {
+            const ok = state.verdict;
+            const label = ok ? 'return True · 对称 ✓' : 'return False · 不对称 ✗';
+            const bw = textW(label, g.fs + 1) + 18;
+            const bx = g.W / 2 - bw / 2;
+            const by = geom.treeBottom + 16;
+            prims.path('verdict-box', { d: rectPath(bx, by - 11, bw, 21, 3), fill: '#fffdf8', stroke: ok ? '#272727' : RED, 'stroke-width': 1.4 });
+            text('verdict-text', { x: g.W / 2, y: by + 3.5, 'text-anchor': 'middle', 'font-size': g.fs + 1, fill: ok ? '#272727' : RED, 'font-family': MONO, 'font-weight': 'bold' }, label);
+          }
+        }
+
+        function drawIntro1(prims) {
+          const g = geom;
+          const { text } = prims;
+          drawTreeBase(prims, { axis: true });
+          const cy = g.topY + g.tree.maxDepth * g.rowPitch + g.r + 26;
+          text('i1-level', { x: g.W / 2, y: cy, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '层序 [1, 2, 2, 3, 4, 4, 3]');
+          const label = 'Output: True ✓ 对称';
+          const bw = textW(label, g.fs + 1.5) + 18;
+          prims.path('i1-out-box', { d: rectPath(g.W / 2 - bw / 2, cy + 8, bw, 22, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.4 });
+          text('i1-out', { x: g.W / 2, y: cy + 23.5, 'text-anchor': 'middle', 'font-size': g.fs + 1.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, label);
+        }
+
+        function subtreeBox(prims, node, key) {
+          const g = geom;
+          const nodes = collectNodes(node, []);
+          let x0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+          for (const n of nodes) {
+            const p = g.pos.get(n.id);
+            x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x);
+            y1 = Math.max(y1, p.y);
+          }
+          const pad2 = g.r + 8;
+          const y0 = g.pos.get(node.id).y;
+          prims.path(`box-${key}`, { d: rectPath(x0 - pad2, y0 - pad2, x1 - x0 + pad2 * 2, y1 - y0 + pad2, 6), fill: 'none', stroke: '#777', 'stroke-width': 1.2, 'stroke-dasharray': '5 4' });
+          return { cx: (x0 + x1) / 2, yBottom: y1 + pad2 };
+        }
+
+        function drawIntro2(prims) {
+          const g = geom;
+          const { text } = prims;
+          drawTreeBase(prims, { axis: true, dimRoot: true });
+          const L = subtreeBox(prims, g.tree.root.left, 'L');
+          const R = subtreeBox(prims, g.tree.root.right, 'R');
+          text('i2-lab-l', { x: L.cx, y: L.yBottom + 13, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '左子树');
+          text('i2-lab-r', { x: R.cx, y: R.yBottom + 13, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '右子树');
+          text('i2-lab-q', { x: g.W / 2, y: L.yBottom + 13, 'text-anchor': 'middle', 'font-size': g.fs, fill: ORANGE, 'font-family': MONO, 'font-weight': 'bold' }, '互为镜像？');
+        }
+
+        function drawIntro3(prims) {
+          const g = geom;
+          const { text, path, circle } = prims;
+          drawTreeBase(prims, { axis: true });
+          const n1 = g.tree.root.left;
+          const n2 = g.tree.root.right;
+          const pairs = [
+            { A: n1.left, B: n2.right, tag: '镜像 ①' },
+            { A: n1.right, B: n2.left, tag: '镜像 ②' }
+          ];
+          pairs.forEach((pr, k) => {
+            const A = g.pos.get(pr.A.id);
+            const B = g.pos.get(pr.B.id);
+            const dist = Math.hypot(B.x - A.x, B.y - A.y);
+            // smile arcs below the bottom row: nested bowls never cross the tree
+            const sag = Math.min(Math.max(30, dist * 0.35), 80);
+            const bowlBottom = A.y + g.r + sag * 0.75;
+            path(`i3-arc-${k}`, { d: `M ${A.x} ${A.y + g.r + 2} C ${A.x} ${A.y + g.r + sag}, ${B.x} ${B.y + g.r + sag}, ${B.x} ${B.y + g.r + 2}`, stroke: ORANGE, 'stroke-width': 1.4, 'stroke-dasharray': '5 4', fill: 'none' });
+            circle(`i3-ring-${k}-a`, { cx: A.x, cy: A.y, r: g.r + 4, fill: 'none', stroke: ORANGE, 'stroke-width': 1.6 });
+            circle(`i3-ring-${k}-b`, { cx: B.x, cy: B.y, r: g.r + 4, fill: 'none', stroke: ORANGE, 'stroke-width': 1.6 });
+            // the wider pair is labelled under its bowl, the inner one inside it
+            const labelY = bowlBottom + (k === 0 ? 17 : -8);
+            text(`i3-tag-${k}`, { x: (A.x + B.x) / 2, y: labelY, 'text-anchor': 'middle', 'font-size': g.fs, fill: ORANGE, 'font-family': MONO, 'font-weight': 'bold' }, `${pr.tag}：${pr.A.val} ↔ ${pr.B.val}`);
+          });
+          const capY = g.topY + g.tree.maxDepth * g.rowPitch + g.r + (g.narrow ? 104 : 96);
+          text('i3-cap1', { x: g.W / 2, y: capY, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '① node1.left ↔ node2.right　② node1.right ↔ node2.left');
+          text('i3-cap2', { x: g.W / 2, y: capY + 15, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '翻转后两棵子树应完全重合——同侧的孩子之间永不比较');
+        }
+
+        function drawEdge(prims) {
+          const g = geom;
+          const { text, path, circle } = prims;
+          const colW = (g.W - g.pad * 2) / 2;
+          // left: empty tree
+          const lx = g.pad + colW / 2;
+          text('e-t1', { x: lx, y: 26, 'text-anchor': 'middle', 'font-size': g.fs + 1, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '空树');
+          path('e-nullbox', { d: rectPath(lx - 30, 38, 60, 24, 3), fill: 'none', stroke: '#999', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
+          text('e-nullt', { x: lx, y: 53.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#777', 'font-family': MONO }, 'root = null');
+          text('e-l1', { x: lx, y: 84, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, 'if not root: return True');
+          const lab1 = '⇒ True（第一个 if 就返回）';
+          text('e-l2', { x: lx, y: 100, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, lab1);
+          // right: single node
+          const rx = g.pad + colW * 1.5;
+          text('e-t2', { x: rx, y: 26, 'text-anchor': 'middle', 'font-size': g.fs + 1, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '单节点树');
+          circle('e-node', { cx: rx, cy: 50, r: g.r, fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.5 });
+          text('e-nv', { x: rx, y: 54.5, 'text-anchor': 'middle', 'font-size': g.fsNode, fill: '#272727', 'font-family': SANS, 'font-weight': 'bold' }, '1');
+          path('e-ga', { d: rectPath(rx - 44, 82, 40, 18, 3), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+          text('e-gat', { x: rx - 24, y: 94.5, 'text-anchor': 'middle', 'font-size': g.fs - 0.5, fill: '#777', 'font-family': MONO }, 'null');
+          path('e-gb', { d: rectPath(rx + 4, 82, 40, 18, 3), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+          text('e-gbt', { x: rx + 24, y: 94.5, 'text-anchor': 'middle', 'font-size': g.fs - 0.5, fill: '#777', 'font-family': MONO }, 'null');
+          path('e-ge1', { d: `M ${rx - 4} ${50 + g.r} L ${rx - 24} 80`, stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none' });
+          path('e-ge2', { d: `M ${rx + 4} ${50 + g.r} L ${rx + 24} 80`, stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none' });
+          const lab2 = 'dfs(null, null) ⇒ True';
+          text('e-l3', { x: rx, y: 120, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, lab2);
+          const lab3 = '⇒ return True · 都 null';
+          text('e-l4', { x: rx, y: 136, 'text-anchor': 'middle', 'font-size': g.fs - 0.5, fill: '#555', 'font-family': MONO }, lab3);
+        }
+
+        function draw(state) {
+          if (!geom || !state) return;
+          scene.update(prims => {
+            if (state.mode === 'intro1') drawIntro1(prims);
+            else if (state.mode === 'intro2') drawIntro2(prims);
+            else if (state.mode === 'intro3') drawIntro3(prims);
+            else if (state.mode === 'edge') drawEdge(prims);
+            else drawRun(state, prims);
+          });
+        }
+
+        const VERDICT_METRIC = { launch: '发起调用', checks: '相等 · 继续', 'both-null': 'True', 'one-null': 'False · 结构不同', val: 'False · 值不等', early: 'False · 向上传播', final: '收官' };
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = frame.phase;
+          invariantEl.textContent = frame.invariant;
+          const sim = TREES[state.tree || 'main'].sim;
+          const rec = state.mode === 'run' && state.callIndex >= 0 ? sim.calls[state.callIndex] : null;
+          mN1.textContent = rec ? vstr(rec.node1) : '—';
+          mN2.textContent = rec ? vstr(rec.node2) : '—';
+          mDepth.textContent = rec ? String(rec.depth) : '—';
+          mVerdict.textContent = state.mode === 'run' ? (VERDICT_METRIC[state.kind] || '—') : '—';
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.explanation;
+          stage.setAttribute('aria-label', `二叉树对称性演示：第 ${step + 1} / ${frames.length} 步。${frame.explanation}`);
+          layout(state);
+          draw(state);
+        }
+
+        const cloneState = s => ({ ...s });
+
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        new ResizeObserver(() => { motion.cancel(); layout(trace.state); draw(trace.state); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>
