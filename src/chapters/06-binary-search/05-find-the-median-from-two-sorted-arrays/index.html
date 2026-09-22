@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Interactive bilingual visualization of finding the median of two sorted arrays by binary searching the slice position in the smaller array. 两个有序数组的中位数：在较小数组上二分切片位置。"
+    />
+    <title>Find the Median From Two Sorted Arrays · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      #median-lab {
+        --wash: #f5f2e9;
+      }
+      #median-lab .problem { max-width: 920px; margin: 0 3px 10px; color: #41413e; }
+      #median-lab .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      #median-lab .step-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; min-height: 24px; margin: 6px 3px 2px; color: var(--quiet); font: 12px/1.5 monospace; }
+      #median-lab .step-picker { display: flex; align-items: center; gap: 5px; margin-left: auto; color: var(--quiet); font-size: 12px; }
+      #median-lab .step-picker select { max-width: 100%; min-width: 0; }
+
+      #median-lab .stage { height: 296px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      #median-lab .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 208px; gap: 10px; margin: 12px 3px; }
+      #median-lab .invariant, #median-lab .metrics { padding: 9px 11px; border: 1px solid var(--rule); }
+      #median-lab .invariant strong { display: block; margin-bottom: 4px; font: 12px/1.4 monospace; }
+      #median-lab .invariant p { margin: 0; color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      #median-lab .metrics { display: grid; gap: 4px; margin: 0; font: 11px/1.45 monospace; align-content: start; }
+      #median-lab .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      #median-lab .metrics dt { color: var(--quiet); }
+      #median-lab .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+
+      #median-lab .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      #median-lab .section h2 { margin: 0 0 8px; font-size: 19px; font-weight: 500; }
+      #median-lab .section-intro { max-width: 920px; color: var(--quiet); }
+      #median-lab .case-grid, #median-lab .edge-grid, #median-lab .complexity, #median-lab .slice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+      #median-lab .slice-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      #median-lab .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      #median-lab .paper-card p { margin: 6px 0 0; color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      #median-lab .paper-card strong { font: 13px/1.4 monospace; }
+      #median-lab .paper-card svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+      #median-lab .rule-list { margin: 8px 0 0; padding-left: 22px; }
+      #median-lab .rule-list li { margin: 6px 0; }
+
+      @media (max-width: 720px) {
+        #median-lab .state-grid, #median-lab .case-grid, #median-lab .complexity { grid-template-columns: 1fr; }
+        #median-lab .slice-grid { grid-template-columns: 1fr; }
+        #median-lab .edge-grid { grid-template-columns: 1fr; }
+        #median-lab .step-picker { width: 100%; margin-left: 0; }
+        #median-lab .step-picker select { flex: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #median-lab .stage svg * { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="median-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Find the Median From Two Sorted Arrays<span lang="zh-CN"> · 两个有序数组的中位数</span></h1></div></header>
+      <p class="problem">
+        Given two sorted integer arrays, find their median as if they were merged into a single
+        sorted sequence. Example: <code>nums1 = [0, 2, 5, 6, 8]</code>, <code>nums2 = [1, 3, 7]</code> → 4.0,
+        because the merged array <code>[0, 1, 2, 3, 5, 6, 7, 8]</code> has median <code>(3 + 5) / 2</code>;
+        with <code>nums2 = [1, 3, 7, 9]</code> the median is 5.0. At least one array is non-empty.
+        <span lang="zh-CN">给定两个有序整数数组，求它们合并成一个有序序列后的中位数。例：<code>nums1 = [0, 2, 5, 6, 8]</code>、<code>nums2 = [1, 3, 7]</code> → 4.0（合并后 <code>[0, 1, 2, 3, 5, 6, 7, 8]</code>，中位数为 <code>(3 + 5) / 2</code>）；若 <code>nums2 = [1, 3, 7, 9]</code>，中位数是 5.0。约束：至少一个数组非空。</span>
+      </p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="两个有序数组的中位数二分切片演示 / median of two sorted arrays trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="两个有序数组的中位数演示，使用左右方向键切换步骤">
+            <svg class="lines" data-scene aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>half_total_len</code></dt><dd data-m-half></dd></div>
+              <div><dt><code>left</code></dt><dd data-m-left></dd></div>
+              <div><dt><code>right</code></dt><dd data-m-right></dd></div>
+              <div><dt><code>L1_index</code></dt><dd data-m-l1i></dd></div>
+              <div><dt><code>L2_index</code></dt><dd data-m-l2i></dd></div>
+              <div><dt><code>L1</code></dt><dd data-m-l1></dd></div>
+              <div><dt><code>R1</code></dt><dd data-m-r1></dd></div>
+              <div><dt><code>L2</code></dt><dd data-m-l2></dd></div>
+              <div><dt><code>R2</code></dt><dd data-m-r2></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite">
+            <code data-code></code><span data-en></span><span lang="zh-CN" data-zh></span>
+          </div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="median-code-title">
+          <h2 id="median-code-title">Final Python <span lang="zh-CN">/ 最终代码</span></h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="def">def find_the_median_from_two_sorted_arrays(nums1: List[int],</span><span class="code-line">                                           nums2: List[int]) -&gt; float:</span><span class="code-line">    # Optimization: ensure 'nums1' is the smaller array.</span><span class="code-line" data-source-key="swap-check">    if len(nums2) &lt; len(nums1):</span><span class="code-line" data-source-key="swap">        nums1, nums2 = nums2, nums1</span><span class="code-line" data-source-key="mn">    m, n = len(nums1), len(nums2)</span><span class="code-line" data-source-key="half">    half_total_len = (m + n) // 2</span><span class="code-line" data-source-key="bounds">    left, right = 0, m - 1</span><span class="code-line">    # A median always exists in a non-empty array, so continue binary search until</span><span class="code-line">    # it's found.</span><span class="code-line" data-source-key="loop">    while True:</span><span class="code-line" data-source-key="l1-index">        L1_index = (left + right) // 2</span><span class="code-line" data-source-key="l2-index">        L2_index = half_total_len - (L1_index + 1) - 1</span><span class="code-line">        # Set to -infinity or +infinity if out of bounds.</span><span class="code-line" data-source-key="l1">        L1 = float('-inf') if L1_index &lt; 0 else nums1[L1_index]</span><span class="code-line" data-source-key="r1">        R1 = float('inf') if L1_index &gt;= m - 1 else nums1[L1_index + 1]</span><span class="code-line" data-source-key="l2">        L2 = float('-inf') if L2_index &lt; 0 else nums2[L2_index]</span><span class="code-line" data-source-key="r2">        R2 = float('inf') if L2_index &gt;= n - 1 else nums2[L2_index + 1]</span><span class="code-line">        # If 'L1 &gt; R2', then 'L1' is too far to the right. Narrow the search space</span><span class="code-line">        # toward the left.</span><span class="code-line" data-source-key="if-l1-gt-r2">        if L1 &gt; R2:</span><span class="code-line" data-source-key="narrow-right">            right = L1_index - 1</span><span class="code-line">        # If 'L2 &gt; R1', then 'L1' is too far to the left. Narrow the search space</span><span class="code-line">        # toward the right.</span><span class="code-line" data-source-key="if-l2-gt-r1">        elif L2 &gt; R1:</span><span class="code-line" data-source-key="narrow-left">            left = L1_index + 1</span><span class="code-line">        # If both 'L1' and 'L2' are less than or equal to both 'R1' and 'R2', we</span><span class="code-line">        # found the correct slice.</span><span class="code-line" data-source-key="slice-found">        else:</span><span class="code-line" data-source-key="parity-even">            if (m + n) % 2 == 0:</span><span class="code-line" data-source-key="return-even">                return (max(L1, L2) + min(R1, R2)) / 2.0</span><span class="code-line" data-source-key="parity-odd">            else:</span><span class="code-line" data-source-key="return-odd">                return min(R1, R2)</span></code></pre>
+          <p class="note">虚线切片和 <code>L1</code> / <code>R1</code> / <code>L2</code> / <code>R2</code> chip 都只是变量引用：二分过程只改下标变量，<code>nums1</code> 和 <code>nums2</code> 从头到尾没有被修改。/ <span lang="zh-CN">The slices and chips are variable references only; the two arrays are never modified.</span></p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="median-merge">
+        <h2 id="median-merge">从合并到一刀切 / From merging to a single slice</h2>
+        <p class="section-intro">最直白的做法是把两个数组合并再取中位数：两个数组各自有序，顺序归并只要 <code>O(m + n)</code>，但题目想要的是 <code>O(log)</code> 级别。观察合并后的数组：中位数只取决于正中间的一两个值，而它们又只由“在哪里切一刀”决定——所以不必真合并，只要找到那个切分位置。/ <span lang="zh-CN">Merge first is only <code>O(m + n)</code>, but we can do better: the median depends only on the one or two middle values of the merged array, which are fixed by where we slice. So search for the slice instead of merging.</span></p>
+        <svg viewBox="0 0 480 196" role="img" aria-label="两个有序数组合并后的样子：左半区 4 个值、右半区 4 个值，中位数来自两半区内侧的两个值 3 和 5">
+          <defs><marker id="median-static-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#555"/></marker></defs>
+          <text x="4" y="32" font-size="11" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">nums1</text><rect x="56" y="16" width="34" height="26" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="73.0" y="33.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">0</text><rect x="96" y="16" width="34" height="26" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="113.0" y="33.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">2</text><rect x="136" y="16" width="34" height="26" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="153.0" y="33.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">5</text><rect x="176" y="16" width="34" height="26" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="193.0" y="33.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">6</text><rect x="216" y="16" width="34" height="26" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="233.0" y="33.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">8</text><text x="4" y="76" font-size="11" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">nums2</text><rect x="56" y="60" width="34" height="26" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="73.0" y="77.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">1</text><rect x="96" y="60" width="34" height="26" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="113.0" y="77.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">3</text><rect x="136" y="60" width="34" height="26" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="153.0" y="77.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">7</text><path d="M 262 44 C 300 44, 310 108, 330 116" fill="none" stroke="#555" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#median-static-arrow)"/><text x="252" y="34" font-size="10" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">想象合并（实际不合并）</text><text x="4" y="134" font-size="11" fill="#777" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">merged</text><rect x="56" y="118" width="30" height="26" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/><text x="71.0" y="135.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">0</text><rect x="90" y="118" width="30" height="26" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/><text x="105.0" y="135.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">1</text><rect x="124" y="118" width="30" height="26" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/><text x="139.0" y="135.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">2</text><rect x="158" y="118" width="30" height="26" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/><text x="173.0" y="135.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">3</text><rect x="192" y="118" width="30" height="26" rx="3" fill="#fffdf8" stroke="#b7b7b1" stroke-width="1.2" stroke-dasharray="4 3"/><text x="207.0" y="135.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">5</text><rect x="226" y="118" width="30" height="26" rx="3" fill="#fffdf8" stroke="#b7b7b1" stroke-width="1.2" stroke-dasharray="4 3"/><text x="241.0" y="135.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">6</text><rect x="260" y="118" width="30" height="26" rx="3" fill="#fffdf8" stroke="#b7b7b1" stroke-width="1.2" stroke-dasharray="4 3"/><text x="275.0" y="135.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">7</text><rect x="294" y="118" width="30" height="26" rx="3" fill="#fffdf8" stroke="#b7b7b1" stroke-width="1.2" stroke-dasharray="4 3"/><text x="309.0" y="135.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">8</text><rect x="154" y="114" width="38" height="34" rx="4" fill="none" stroke="#272727" stroke-width="1.4"/><rect x="188" y="114" width="38" height="34" rx="4" fill="none" stroke="#272727" stroke-width="1.4"/><path d="M 54 154 v 4 H 188 v -4" fill="none" stroke="#555" stroke-width="1.1"/><text x="124.0" y="172" text-anchor="middle" font-size="10" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">左半区 · 4 个</text><path d="M 192 154 v 4 H 322 v -4" fill="none" stroke="#555" stroke-width="1.1"/><text x="258.0" y="172" text-anchor="middle" font-size="10" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">右半区 · 4 个</text><text x="173.0" y="108" text-anchor="middle" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">3</text><text x="207.0" y="108" text-anchor="middle" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">5</text><text x="188.0" y="188" text-anchor="middle" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">median = (3 + 5) / 2 = 4.0</text>
+        </svg>
+        <ol class="rule-list">
+          <li>合并数组总能切成两半：总长为偶数时各半 <code>(m + n) / 2</code> 个值，中位数就来自两半区内侧的两个值——左半区的最大值和右半区的最小值。/ <span lang="zh-CN">Even total: each half holds <code>(m + n) / 2</code> values; the median is the mean of the inner-edge pair.</span></li>
+          <li>所以真正要决定的只有一件事：哪些值属于左半区、哪些属于右半区。/ <span lang="zh-CN">So the only real question is which values belong to the left half and which to the right.</span></li>
+          <li>左半区的<strong>大小</strong>已经知道（<code>half_total_len</code>），未知的只是每个数组各出几个值——这正是要搜索的东西。/ <span lang="zh-CN">The left half's <em>size</em> is known up front (<code>half_total_len</code>); what we search for is how many values each array contributes.</span></li>
+        </ol>
+      </section>
+
+      <section class="section" aria-labelledby="median-slices">
+        <h2 id="median-slices">候选切片很多，正确的只有一个 / Many slices, one correct</h2>
+        <p class="section-intro">左半区必须恰好装 <code>half_total_len</code> 个值，但满足“大小”的切法有很多种。以交换后的 <code>nums1 = [1, 3, 7]</code>、<code>nums2 = [0, 2, 5, 6, 8]</code> 为例（总长 8，左半区 4 个值），下面三种切法大小全对，却只有一种是合并数组真正的两半：/ <span lang="zh-CN">The left partition must hold exactly <code>half_total_len</code> values, but many cuts satisfy that size. With the swapped <code>nums1 = [1, 3, 7]</code>, <code>nums2 = [0, 2, 5, 6, 8]</code> (total 8, left half 4), all three cuts below have the right size — only one is the merged array's true halves.</span></p>
+        <div class="slice-grid">
+          <article class="paper-card">
+            <strong>切法一 · nums1 出 3 个</strong>
+            <svg viewBox="0 0 330 118" role="img" aria-label="候选切片一：nums1 出 3 个、nums2 出 1 个，左半区大小为 4 但 L1 大于 R2"><text x="2" y="32" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">nums1</text><rect x="44" y="16" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="59.0" y="32.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">1</text><rect x="78" y="16" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="93.0" y="32.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">3</text><rect x="112" y="16" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="127.0" y="32.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">7</text><text x="2" y="76" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">nums2</text><rect x="44" y="60" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="59.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">0</text><rect x="78" y="60" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="93.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">2</text><rect x="112" y="60" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="127.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">5</text><rect x="146" y="60" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="161.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">6</text><rect x="180" y="60" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="195.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">8</text><path d="M 142 11 v 34" fill="none" stroke="#272727" stroke-width="1.4" stroke-dasharray="5 3"/><path d="M 138 11 h 8 M 138 45 h 8" fill="none" stroke="#272727" stroke-width="1.4"/><path d="M 74 55 v 34" fill="none" stroke="#272727" stroke-width="1.4" stroke-dasharray="5 3"/><path d="M 70 55 h 8 M 70 89 h 8" fill="none" stroke="#272727" stroke-width="1.4"/><text x="44" y="112" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">✗ L1 = 7 &gt; R2 = 2</text></svg>
+            <p>大小对了，但 <code>L1 = 7</code> 大于 <code>R2 = 2</code>：左半区里混进了本该在右半区的值。/ <span lang="zh-CN">Right size, but <code>L1 = 7</code> exceeds <code>R2 = 2</code>: a right-half value leaked into the left.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>切法二 · nums1 出 0 个</strong>
+            <svg viewBox="0 0 330 118" role="img" aria-label="候选切片二：nums1 出 0 个、nums2 出 4 个，L1 越界取 -∞ 但 L2 大于 R1"><text x="2" y="32" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">nums1</text><rect x="44" y="16" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="59.0" y="32.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">1</text><rect x="78" y="16" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="93.0" y="32.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">3</text><rect x="112" y="16" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="127.0" y="32.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">7</text><text x="2" y="76" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">nums2</text><rect x="44" y="60" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="59.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">0</text><rect x="78" y="60" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="93.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">2</text><rect x="112" y="60" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="127.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">5</text><rect x="146" y="60" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="161.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">6</text><rect x="180" y="60" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="195.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">8</text><path d="M 40 11 v 34" fill="none" stroke="#272727" stroke-width="1.4" stroke-dasharray="5 3"/><path d="M 36 11 h 8 M 36 45 h 8" fill="none" stroke="#272727" stroke-width="1.4"/><path d="M 176 55 v 34" fill="none" stroke="#272727" stroke-width="1.4" stroke-dasharray="5 3"/><path d="M 172 55 h 8 M 172 89 h 8" fill="none" stroke="#272727" stroke-width="1.4"/><text x="44" y="112" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">✗ L2 = 6 &gt; R1 = 1</text></svg>
+            <p>nums1 一个不出时 <code>L1</code> 越界，取 <code>-∞</code>；但这次 <code>L2 = 6</code> 大于 <code>R1 = 1</code>，还是错。/ <span lang="zh-CN">With nums1 contributing nothing, <code>L1</code> is out of bounds and becomes <code>-∞</code>; but now <code>L2 = 6</code> exceeds <code>R1 = 1</code>.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>切法三 · 各出 2 个 ✓</strong>
+            <svg viewBox="0 0 330 118" role="img" aria-label="候选切片三：nums1 出 2 个、nums2 出 2 个，交叉比较全部通过"><text x="2" y="32" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">nums1</text><rect x="44" y="16" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="59.0" y="32.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">1</text><rect x="78" y="16" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="93.0" y="32.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">3</text><rect x="112" y="16" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="127.0" y="32.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">7</text><text x="2" y="76" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">nums2</text><rect x="44" y="60" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="59.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">0</text><rect x="78" y="60" width="30" height="24" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2"/><text x="93.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">2</text><rect x="112" y="60" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="127.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">5</text><rect x="146" y="60" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="161.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">6</text><rect x="180" y="60" width="30" height="24" rx="3" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="195.0" y="76.5" text-anchor="middle" font-size="12" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">8</text><path d="M 108 11 v 34" fill="none" stroke="#272727" stroke-width="1.4" stroke-dasharray="5 3"/><path d="M 104 11 h 8 M 104 45 h 8" fill="none" stroke="#272727" stroke-width="1.4"/><path d="M 108 55 v 34" fill="none" stroke="#272727" stroke-width="1.4" stroke-dasharray="5 3"/><path d="M 104 55 h 8 M 104 89 h 8" fill="none" stroke="#272727" stroke-width="1.4"/><text x="44" y="112" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">✓ 3 ≤ 5 且 2 ≤ 7 · 正确切片</text></svg>
+            <p><code>L1 ≤ R2</code> 且 <code>L2 ≤ R1</code> 同时成立：左半区每个值都 ≤ 右半区每个值。/ <span lang="zh-CN">Both <code>L1 ≤ R2</code> and <code>L2 ≤ R1</code> hold: every left value ≤ every right value.</span></p>
+          </article>
+        </div>
+        <p class="section-intro">判据只有一句话：左半区的每个值都必须 ≤ 右半区的每个值。由于每个数组内部有序，段内比较（<code>L1 ≤ R1</code>、<code>L2 ≤ R2</code>）天然成立，会出问题的只有交叉的两对：<code>L1 ≤ R2</code> 和 <code>L2 ≤ R1</code>。越界时用 <code>-∞</code>（左段空）或 <code>+∞</code>（右段空）占位，比较自动成立。/ <span lang="zh-CN">The test: every left value ≤ every right value. Internal comparisons (<code>L1 ≤ R1</code>, <code>L2 ≤ R2</code>) are free because each array is sorted; only the two crossings <code>L1 ≤ R2</code> and <code>L2 ≤ R1</code> can fail. Out-of-bounds boundary values become <code>-∞</code> / <code>+∞</code>.</span></p>
+      </section>
+
+      <section class="section" aria-labelledby="median-search">
+        <h2 id="median-search">只在 nums1 上二分 / Binary search on the smaller array</h2>
+        <p class="section-intro">四个边界值里只要定下 <code>L1_index</code>，其余三个都能推出来：<code>L2_index</code> 由 <code>half_total_len</code> 反推，<code>R1</code> / <code>R2</code> 就是 <code>L1</code> / <code>L2</code> 右边一格。于是问题变成“在 nums1 里二分 <code>L1_index</code>”：猜一个位置、检查两个交叉比较、不对就按方向收缩。开头的交换保证 nums1 是较短数组，搜索空间最多 <code>log(min(m, n))</code>。/ <span lang="zh-CN">Once <code>L1_index</code> is chosen, the other three boundary values follow: <code>L2_index</code> is forced by <code>half_total_len</code>, and <code>R1</code> / <code>R2</code> sit one step right of <code>L1</code> / <code>L2</code>. So binary-search <code>L1_index</code> inside nums1 — guess, check both crossings, narrow. The initial swap keeps nums1 the smaller array, capping the search space at <code>log(min(m, n))</code>.</span></p>
+        <div class="case-grid">
+          <article class="paper-card">
+            <strong><code>L1 &gt; R2</code> → 向左收缩</strong>
+            <p>nums1 左段有值超过了 nums2 右段的最小值，说明切片太靠右：<code>right = L1_index - 1</code>。上方「演示 · 切片太靠右」里连续收缩了两次，最后 <code>L1_index = -1</code>，nums1 左段为空、<code>L1</code> 取 <code>-∞</code>。/ <span lang="zh-CN">A nums1 left value exceeds the smallest nums2 right value: the slice is too far right, so <code>right = L1_index - 1</code>. In the first demo trace this fires twice, ending at <code>L1_index = -1</code> with <code>L1 = -∞</code>.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong><code>L2 &gt; R1</code> → 向右收缩</strong>
+            <p>nums2 左段有值超过了 nums1 右段的最小值，说明切片太靠左：<code>left = L1_index + 1</code>。上方「演示 · 切片太靠左」里收缩一次后 <code>R1</code> 越界取 <code>+∞</code>，比较自动通过。/ <span lang="zh-CN">A nums2 left value exceeds the smallest nums1 right value: the slice is too far left, so <code>left = L1_index + 1</code>. In the second demo trace this happens once, after which <code>R1 = +∞</code>.</span></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="median-odd">
+        <h2 id="median-odd">奇数总长：多出的值在右半区 / Odd totals: the extra value sits right</h2>
+        <p class="section-intro">总长为奇数时 <code>(m + n) // 2</code> 向下取整，左半区比右半区少一个值——正中间的那个数落在右半区，所以中位数就是 <code>min(R1, R2)</code>。上方「例 2 · 奇数总长」的 trace 走的就是这条路。/ <span lang="zh-CN">With an odd total, <code>(m + n) // 2</code> rounds down: the right partition holds one extra value, and the median is <code>min(R1, R2)</code> — the middle value of the merged array. The second example trace follows this path.</span></p>
+        <svg viewBox="0 0 400 128" role="img" aria-label="奇数总长：合并数组 9 个值，左半区 4 个、右半区 5 个，正中间的值 5 就是中位数"><text x="2" y="50" font-size="11" fill="#777" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">merged</text><rect x="40" y="34" width="30" height="26" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/><text x="55.0" y="51.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">0</text><rect x="74" y="34" width="30" height="26" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/><text x="89.0" y="51.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">1</text><rect x="108" y="34" width="30" height="26" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/><text x="123.0" y="51.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">2</text><rect x="142" y="34" width="30" height="26" rx="3" fill="#f5f2e9" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/><text x="157.0" y="51.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">3</text><rect x="176" y="34" width="30" height="26" rx="3" fill="#fffdf8" stroke="#b7b7b1" stroke-width="1.2" stroke-dasharray="4 3"/><text x="191.0" y="51.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">5</text><rect x="210" y="34" width="30" height="26" rx="3" fill="#fffdf8" stroke="#b7b7b1" stroke-width="1.2" stroke-dasharray="4 3"/><text x="225.0" y="51.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">6</text><rect x="244" y="34" width="30" height="26" rx="3" fill="#fffdf8" stroke="#b7b7b1" stroke-width="1.2" stroke-dasharray="4 3"/><text x="259.0" y="51.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">7</text><rect x="278" y="34" width="30" height="26" rx="3" fill="#fffdf8" stroke="#b7b7b1" stroke-width="1.2" stroke-dasharray="4 3"/><text x="293.0" y="51.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">8</text><rect x="312" y="34" width="30" height="26" rx="3" fill="#fffdf8" stroke="#b7b7b1" stroke-width="1.2" stroke-dasharray="4 3"/><text x="327.0" y="51.5" text-anchor="middle" font-size="12" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">9</text><rect x="172" y="30" width="38" height="34" rx="4" fill="none" stroke="#272727" stroke-width="1.4"/><path d="M 38 70 v 4 H 172 v -4" fill="none" stroke="#555" stroke-width="1.1"/><text x="106.0" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">左半区 4 = (5+4)//2</text><path d="M 176 70 v 4 H 338 v -4" fill="none" stroke="#555" stroke-width="1.1"/><text x="257.0" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">右半区 5 个（多出的一个在这边）</text><text x="191.0" y="24" text-anchor="middle" font-size="10.5" fill="#272727" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">5 = min(R1, R2)</text></svg>
+      </section>
+
+      <section class="section" aria-labelledby="median-note">
+        <h2 id="median-note">书中的提醒 / A note from the book</h2>
+        <p class="section-intro"><code>max(L1, L2)</code> 与 <code>min(R1, R2)</code> 只是用来<strong>计算</strong>中位数的两个值，它们本身并不是“中位数”；奇数总长时甚至只需要 <code>min(R1, R2)</code> 一个值。也不要把这个切片误会成“两个数组各自的中位数”——它是合并数组的切分位置。/ <span lang="zh-CN"><code>max(L1, L2)</code> and <code>min(R1, R2)</code> are merely the pair used to <em>compute</em> the median — they are not themselves "medians"; with an odd total, only <code>min(R1, R2)</code> is used. Nor is the slice related to each array's own median: it is the split position of the merged array.</span></p>
+      </section>
+
+      <section class="section" aria-labelledby="median-edge">
+        <h2 id="median-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card">
+            <strong>nums1 为空</strong>
+            <p>交换后 nums1 仍是较短数组（m = 0），<code>left = 0</code>、<code>right = -1</code>，第一轮 <code>L1_index = -1</code> → <code>L1 = -∞</code>、<code>R1 = +∞</code>，代码一行不改。如 <code>nums1 = []</code>、<code>nums2 = [1, 2, 3]</code> → 2.0。/ <span lang="zh-CN">After the swap nums1 is still the shorter one (m = 0): <code>left = 0</code>, <code>right = -1</code>, first round <code>L1_index = -1</code> → <code>L1 = -∞</code>, <code>R1 = +∞</code>. No special case needed.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>重复值</strong>
+            <p>所有比较都是 <code>≤</code> / <code>&gt;</code>：相等不会误判。交叉比较通过就意味着整个左半区 ≤ 右半区（含相等）。/ <span lang="zh-CN">All comparisons are <code>≤</code> / <code>&gt;</code>, so equal values never break the checks; passing both crossings means left ≤ right with equality allowed.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>负数</strong>
+            <p><code>-∞</code> / <code>+∞</code> 只是越界占位符，与真实值比较不受影响；负数走完全相同的逻辑（演示 2 的输入里就有 0）。/ <span lang="zh-CN">The infinities are out-of-bounds placeholders only; negative numbers flow through the identical logic.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong><code>while True</code> 会死循环吗</strong>
+            <p>不会。中位数必然存在（至少一个数组非空），±∞ 占位保证每次检查都有确定结论，搜索区间每轮严格缩小，必然收敛到正确切片——这就是书里用 <code>while True</code> 的原因。/ <span lang="zh-CN">No: the median always exists, the ±∞ guards make every check decisive, and the search interval shrinks strictly each round, so the loop always reaches the correct slice — the book's reason for <code>while True</code>.</span></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="median-complexity">
+        <h2 id="median-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(log min(m, n))</strong><p>只在较短的数组上二分 <code>L1_index</code>：每轮一次交叉检查，排除约一半候选位置；nums2 的切分由 <code>half_total_len</code> 直接推出，从不遍历。/ <span lang="zh-CN">Binary search runs only over the smaller array: one crossing check per round eliminates half the candidates; nums2's slice is derived, never scanned.</span></p></article>
+          <article class="paper-card"><strong>Extra space · O(1)</strong><p>只保存 <code>m</code>、<code>n</code>、<code>half_total_len</code>、<code>left</code>、<code>right</code> 和四个边界值变量；两个输入数组从头到尾不被修改。/ <span lang="zh-CN">Only a constant number of index and boundary-value variables are stored; both input arrays are left untouched.</span></p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../find-the-insertion-index/">搜索插入位置</a><a href="../first-and-last-occurrences-of-a-number/">数字的首尾出现位置</a><a href="../cutting-wood/">砍木头</a><a href="../find-the-target-in-a-rotated-sorted-array/">旋转排序数组中查找目标</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('median-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-scene]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const expressionEl = root.querySelector('[data-code]');
+        const explanationEl = root.querySelector('[data-en]');
+        const explanationZhEl = root.querySelector('[data-zh]');
+        const metrics = {
+          half: root.querySelector('[data-m-half]'),
+          left: root.querySelector('[data-m-left]'),
+          right: root.querySelector('[data-m-right]'),
+          l1i: root.querySelector('[data-m-l1i]'),
+          l2i: root.querySelector('[data-m-l2i]'),
+          l1: root.querySelector('[data-m-l1]'),
+          r1: root.querySelector('[data-m-r1]'),
+          l2: root.querySelector('[data-m-l2]'),
+          r2: root.querySelector('[data-m-r2]'),
+        };
+
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const NEG_INF = -Infinity;
+        const POS_INF = Infinity;
+        const fmtV = v => v === null || v === undefined ? '—' : v === NEG_INF ? '-∞' : v === POS_INF ? '+∞' : String(v);
+        const fmtR = r => Number.isInteger(r) ? r.toFixed(1) : String(r);
+
+        // The four traces replay the book code line by line. Both book examples
+        // land on the correct slice at the first midpoint, so two extra demo
+        // inputs are included to exercise the narrowing branches and the
+        // ±∞ out-of-bounds values for real.
+        const SCENARIOS = [
+          { tag: '例 1 · 偶数总长', in1: [0, 2, 5, 6, 8], in2: [1, 3, 7] },
+          { tag: '演示 · 切片太靠右（L1 > R2）', in1: [5, 6, 7], in2: [1, 2, 3, 4, 8] },
+          { tag: '演示 · 切片太靠左（L2 > R1）', in1: [1, 2, 3], in2: [4, 5, 6, 7, 8, 9] },
+          { tag: '例 2 · 奇数总长', in1: [0, 2, 5, 6, 8], in2: [1, 3, 7, 9] },
+        ];
+
+        function mergedOf(a, b) {
+          const values = [...a, ...b].sort((x, y) => x - y);
+          const total = values.length;
+          const mids = total % 2 === 0 ? [total / 2 - 1, total / 2] : [Math.floor(total / 2)];
+          return { values, mids };
+        }
+
+        function buildFrames() {
+          const frames = [];
+          const fmtA = a => `[${a.join(', ')}]`;
+
+          for (const sc of SCENARIOS) {
+            let nums1 = [...sc.in1];
+            let nums2 = [...sc.in2];
+            let d1 = [...nums1];
+            let d2 = [...nums2];
+            let swapped = false;
+            let m = null, n = null, half = null, left = null, right = null, round = 0;
+            let l1i = null, l2i = null, l1 = null, r1 = null, l2 = null, r2 = null;
+            let compare = null, compareBad = false, narrow = null, parity = null, computing = null;
+            let result = null, merged = null, maxChip = null, minChip = null, compute = null;
+
+            const snap = over => ({
+              nums1: [...d1], nums2: [...d2], swapped, m, n, half, left, right, round,
+              l1i, l2i, l1, r1, l2, r2, compare, compareBad, narrow, parity, computing,
+              result, merged, maxChip, minChip, compute, ...over,
+            });
+            const add = (keys, label, line, en, zh, invariant, over) => {
+              frames.push({ sourceKeys: keys, stepLabel: `${sc.tag} · ${label}`, line, en, zh, invariant, state: snap(over) });
+            };
+
+            add(['def'], '调用',
+              `find_the_median_from_two_sorted_arrays(nums1=${fmtA(sc.in1)}, nums2=${fmtA(sc.in2)})`,
+              `Call with nums1 = ${fmtA(sc.in1)} and nums2 = ${fmtA(sc.in2)}. The median is a property of the merged array, but we never actually merge.`,
+              `以 nums1 = ${fmtA(sc.in1)}、nums2 = ${fmtA(sc.in2)} 调用。中位数属于“合并后”的数组，但整个过程不会真正合并它们。`,
+              '切分位置一旦正确，中位数只由切口处的四个值决定。',
+              {});
+            if (sc === SCENARIOS[0]) {
+              const f = frames[frames.length - 1];
+              f.state = snap({ merged: mergedOf(sc.in1, sc.in2) });
+              f.en += ' The dashed row below is the merged array, shown only as a reference.';
+              f.zh += ' 下方灰色虚线行是合并后的数组，仅作参考。';
+            }
+
+            const needSwap = nums2.length < nums1.length;
+            add(['swap-check'], '比较长度',
+              `if len(nums2) < len(nums1):  # ${nums2.length} < ${nums1.length} → ${needSwap ? '成立' : '不成立'}`,
+              needSwap
+                ? `len(nums2) = ${nums2.length} < len(nums1) = ${nums1.length}, so the two arrays will be swapped.`
+                : `len(nums2) = ${nums2.length} is not < len(nums1) = ${nums1.length}; nums1 is already the smaller array.`,
+              needSwap
+                ? `len(nums2) = ${nums2.length} < len(nums1) = ${nums1.length} 成立：接下来交换两个数组，让 nums1 始终是较短的那个。`
+                : `len(nums2) = ${nums2.length} < len(nums1) = ${nums1.length} 不成立：nums1 已经是较短的数组，无需交换。`,
+              '让 nums1 恒为较短数组：二分只搜它，搜索空间 ≤ log(min(m, n))。',
+              {});
+
+            if (needSwap) {
+              [nums1, nums2] = [nums2, nums1];
+              d1 = [...nums1];
+              d2 = [...nums2];
+              swapped = true;
+              add(['swap'], '交换数组', 'nums1, nums2 = nums2, nums1',
+                `After the swap: nums1 = ${fmtA(nums1)} (m = ${nums1.length}), nums2 = ${fmtA(nums2)} (n = ${nums2.length}). Only the names changed — no values moved.`,
+                `交换后 nums1 = ${fmtA(nums1)}（m = ${nums1.length}），nums2 = ${fmtA(nums2)}（n = ${nums2.length}）。只是名字互换，值还在原来的数组里。`,
+                '交换只是改名；后面所有的 L / R 都基于交换后的名字。',
+                {});
+            }
+
+            m = nums1.length;
+            n = nums2.length;
+            add(['mn'], '记录长度', `m, n = len(nums1), len(nums2)  # m = ${m}, n = ${n}`,
+              `Record the lengths: m = ${m} (nums1), n = ${n} (nums2).`,
+              `记下长度：m = ${m}（nums1），n = ${n}（nums2）。`,
+              '之后 L1 / R1 的越界判断都依据 m、n。',
+              {});
+            half = Math.floor((m + n) / 2);
+            add(['half'], '半个总长', `half_total_len = (m + n) // 2  # (${m} + ${n}) // 2 = ${half}`,
+              `half_total_len = (${m} + ${n}) // 2 = ${half}. The left partition will hold exactly ${half} values${(m + n) % 2 === 1 ? ', one fewer than the right' : ''}.`,
+              `half_total_len = (${m} + ${n}) // 2 = ${half}：左半区固定装 ${half} 个值${(m + n) % 2 === 1 ? '，比右半区少一个（多出的在右边）' : '，右半区也是 ' + half + ' 个'}。`,
+              '左半区的大小在开搜之前就定死了——这是“切一刀”的约束。',
+              {});
+            left = 0;
+            right = m - 1;
+            add(['bounds'], '搜索区间', `left, right = 0, m - 1  # 0, ${m - 1}`,
+              `Binary search on L1's index inside nums1 only: left = 0, right = ${m - 1}.`,
+              `只在 nums1 里二分 L1 的下标：left = 0，right = ${m - 1}。`,
+              'left / right 框住 L1_index 的搜索区间；nums2 的切分由 half_total_len 反推，不用搜。',
+              {});
+
+            while (true) {
+              round += 1;
+              l1i = null; l2i = null; l1 = null; r1 = null; l2 = null; r2 = null;
+              compare = null; compareBad = false; narrow = null;
+              add(['loop'], `第 ${round} 轮开始`, 'while True:  # 中位数必然存在，找到才停',
+                `Round ${round} begins. The loop exits only through a return, so it runs until the correct slice is found.`,
+                `第 ${round} 轮开始。循环只通过 return 退出：中位数必然存在，一直搜到正确切片为止。`,
+                '每轮：猜 L1_index → 推出 L2_index → 检查两个交叉比较 → 按结果收缩或返回。',
+                {});
+              const L1_index = Math.floor((left + right) / 2);
+              l1i = L1_index;
+              add(['l1-index'], `第 ${round} 轮 · 猜 L1 的位置`, `L1_index = (left + right) // 2  # (${left} + ${right}) // 2 = ${L1_index}`,
+                `Guess L1_index = (${left} + ${right}) // 2 = ${L1_index}: slice nums1 right after index ${L1_index}${L1_index < 0 ? ' (before its first value)' : ''}.`,
+                `猜 L1_index = (${left} + ${right}) // 2 = ${L1_index}：nums1 在第 ${L1_index} 个值之后切开${L1_index < 0 ? '（即一个值都不出，切口在最左边）' : ''}。`,
+                'nums1 的切分先定：L1 是它左段的最后一个值。',
+                {});
+              const L2_index = half - (L1_index + 1) - 1;
+              l2i = L2_index;
+              add(['l2-index'], `第 ${round} 轮 · 推出 L2 的位置`, `L2_index = half_total_len - (L1_index + 1) - 1  # ${half} - ${L1_index + 1} - 1 = ${L2_index}`,
+                `L2_index = ${half} - ${L1_index + 1} - 1 = ${L2_index}: nums2 is sliced so both left segments together hold exactly ${half} values.`,
+                `L2_index = ${half} - ${L1_index + 1} - 1 = ${L2_index}：nums2 跟着切，让两个左段合起来恰好 ${half} 个值。`,
+                '(L1_index + 1) + (L2_index + 1) = half_total_len 恒成立——左半区大小永远正确。',
+                {});
+              const L1v = L1_index < 0 ? NEG_INF : nums1[L1_index];
+              const R1v = L1_index >= m - 1 ? POS_INF : nums1[L1_index + 1];
+              const L2v = L2_index < 0 ? NEG_INF : nums2[L2_index];
+              const R2v = L2_index >= n - 1 ? POS_INF : nums2[L2_index + 1];
+              l1 = L1v;
+              r1 = R1v;
+              add(['l1', 'r1'], `第 ${round} 轮 · nums1 的边界值`,
+                `L1 = nums1[${L1_index}] = ${fmtV(L1v)} · R1 = nums1[${L1_index + 1}] = ${fmtV(R1v)}`,
+                `Read nums1's boundary values: L1 = ${fmtV(L1v)}${L1_index < 0 ? ' (L1_index < 0, so float(\'-inf\'))' : ` (nums1[${L1_index}])`}, R1 = ${fmtV(R1v)}${L1_index >= m - 1 ? ' (past the last index, so float(\'inf\'))' : ` (nums1[${L1_index + 1}])`}.`,
+                `读出 nums1 一侧的两个边界值：L1 = ${fmtV(L1v)}${L1_index < 0 ? '（L1_index < 0 越界，取 -∞）' : `（nums1[${L1_index}]）`}，R1 = ${fmtV(R1v)}${L1_index >= m - 1 ? '（越过最后一个下标，取 +∞）' : `（nums1[${L1_index + 1}]）`}。`,
+                'L1 / R1 只是引用 nums1 里的值；数组本身没有被修改。',
+                {});
+              l2 = L2v;
+              r2 = R2v;
+              add(['l2', 'r2'], `第 ${round} 轮 · nums2 的边界值`,
+                `L2 = nums2[${L2_index}] = ${fmtV(L2v)} · R2 = nums2[${L2_index + 1}] = ${fmtV(R2v)}`,
+                `Read nums2's boundary values: L2 = ${fmtV(L2v)}${L2_index < 0 ? ' (L2_index < 0, so float(\'-inf\'))' : ` (nums2[${L2_index}])`}, R2 = ${fmtV(R2v)}${L2_index >= n - 1 ? ' (past the last index, so float(\'inf\'))' : ` (nums2[${L2_index + 1}])`}.`,
+                `读出 nums2 一侧的两个边界值：L2 = ${fmtV(L2v)}${L2_index < 0 ? '（越界取 -∞）' : `（nums2[${L2_index}]）`}，R2 = ${fmtV(R2v)}${L2_index >= n - 1 ? '（越界取 +∞）' : `（nums2[${L2_index + 1}]）`}。`,
+                'R1 / R2 是各自右段的第一个值；切口两侧的值都在手上了。',
+                {});
+
+              const viol1 = L1v > R2v;
+              compare = 'l1r2';
+              compareBad = viol1;
+              add(['if-l1-gt-r2'], `第 ${round} 轮 · L1 > R2 ?`, `if L1 > R2:  # ${fmtV(L1v)} > ${fmtV(R2v)} ${viol1 ? '✗ 成立' : '→ 不成立'}`,
+                viol1
+                  ? `${fmtV(L1v)} > ${fmtV(R2v)}: a nums1 left value exceeds every value that should sit to its right. L1 is too far right — narrow left with right = L1_index - 1.`
+                  : `${fmtV(L1v)} ≤ ${fmtV(R2v)}: every nums1 left value ≤ every nums2 right value. This crossing passes; check the other one.`,
+                viol1
+                  ? `${fmtV(L1v)} > ${fmtV(R2v)} 成立：nums1 左段里有值超过 nums2 右段的最小值，切片太靠右 → 下一行 right = L1_index - 1 向左收缩。`
+                  : `${fmtV(L1v)} ≤ ${fmtV(R2v)}：nums1 左段全部 ≤ nums2 右段 ✓，这个交叉比较通过，去查另一个。`,
+                viol1 ? '左半区必须全部 ≤ 右半区；L1 > R2 说明 nums1 切得太靠右。' : '交叉比较 L1 ≤ R2 通过；只剩 L2 ≤ R1 待查。',
+                {});
+              if (viol1) {
+                right = L1_index - 1;
+                compare = null;
+                add(['narrow-right'], `第 ${round} 轮 · 向左收缩`, `right = L1_index - 1  # right = ${right}`,
+                  `Narrow the search space to the left: right = ${L1_index} - 1 = ${right}. Indexes above ${right} can never be L1's final position.`,
+                  `搜索区间向左收窄：right = ${L1_index} - 1 = ${right}。大于 ${right} 的下标都不可能是 L1 的最终位置，直接排除。`,
+                  '收缩只动 nums1 的搜索区间；下一轮会猜一个更小的 L1_index。',
+                  { narrow: 'right' });
+                continue;
+              }
+
+              const viol2 = L2v > R1v;
+              compare = 'l2r1';
+              compareBad = viol2;
+              add(['if-l2-gt-r1'], `第 ${round} 轮 · L2 > R1 ?`, `elif L2 > R1:  # ${fmtV(L2v)} > ${fmtV(R1v)} ${viol2 ? '✗ 成立' : '→ 不成立'}`,
+                viol2
+                  ? `${fmtV(L2v)} > ${fmtV(R1v)}: a nums2 left value exceeds every value that should sit to its right. L1 is too far left — narrow right with left = L1_index + 1.`
+                  : `${fmtV(L2v)} ≤ ${fmtV(R1v)}: every nums2 left value ≤ every nums1 right value. Both crossings pass — the correct slice is found.`,
+                viol2
+                  ? `${fmtV(L2v)} > ${fmtV(R1v)} 成立：nums2 左段里有值超过 nums1 右段的最小值，切片太靠左 → 下一行 left = L1_index + 1 向右收缩。`
+                  : `${fmtV(L2v)} ≤ ${fmtV(R1v)}：nums2 左段全部 ≤ nums1 右段 ✓，两个交叉比较都通过，正确切片找到了。`,
+                viol2 ? 'L2 > R1 说明 nums1 切得太靠左，要向右收。' : '两个交叉比较全部通过 ⇒ 整个左半区 ≤ 整个右半区。',
+                {});
+              if (viol2) {
+                left = L1_index + 1;
+                compare = null;
+                add(['narrow-left'], `第 ${round} 轮 · 向右收缩`, `left = L1_index + 1  # left = ${left}`,
+                  `Narrow the search space to the right: left = ${L1_index} + 1 = ${left}. Indexes below ${left} can never be L1's final position.`,
+                  `搜索区间向右收窄：left = ${L1_index} + 1 = ${left}。小于 ${left} 的下标都不可能是 L1 的最终位置，直接排除。`,
+                  '收缩只动 nums1 的搜索区间；下一轮会猜一个更大的 L1_index。',
+                  { narrow: 'left' });
+                continue;
+              }
+
+              compare = 'found';
+              add(['slice-found'], `第 ${round} 轮 · 切片正确`, 'else:  # L1 ≤ R2 且 L2 ≤ R1 → 正确切片',
+                `Both crossings hold: ${fmtV(L1v)} ≤ ${fmtV(R2v)} and ${fmtV(L2v)} ≤ ${fmtV(R1v)}. Every left value ≤ every right value — this is the merged array's true halves.`,
+                `两个交叉比较都通过：${fmtV(L1v)} ≤ ${fmtV(R2v)} 且 ${fmtV(L2v)} ≤ ${fmtV(R1v)}。左半区每个值都 ≤ 右半区每个值——这就是合并数组真正的两半。`,
+                '每段内部本来有序，所以只要两个交叉比较通过，整个左半区就 ≤ 整个右半区。',
+                {});
+
+              const isEven = (m + n) % 2 === 0;
+              parity = isEven ? 'even' : 'odd';
+              add([isEven ? 'parity-even' : 'parity-odd'], isEven ? '偶数总长' : '奇数总长',
+                `if (m + n) % 2 == 0:  # (${m} + ${n}) % 2 = ${(m + n) % 2} → ${isEven ? '偶数，走进 if' : '奇数，走进 else'}`,
+                isEven
+                  ? `(${m} + ${n}) % 2 == 0: even total. The median is the mean of the merged array's two middle values.`
+                  : `(${m} + ${n}) % 2 == 1: odd total. The right partition holds the extra middle value.`,
+                isEven
+                  ? `(${m} + ${n}) % 2 == 0：总长为偶数，中位数是合并数组中间两个值的平均。`
+                  : `(${m} + ${n}) % 2 == 1：总长为奇数，多出的那个值在右半区。`,
+                isEven ? '偶数：需要左半区最大值和右半区最小值两个值。' : '奇数：正中间的值在右半区，只需要 min(R1, R2)。',
+                {});
+              if (isEven) {
+                computing = 'even';
+                result = (Math.max(L1v, L2v) + Math.min(R1v, R2v)) / 2;
+                maxChip = L1v >= L2v ? 'L1' : 'L2';
+                minChip = R1v <= R2v ? 'R1' : 'R2';
+                compute = `(max(L1, L2) + min(R1, R2)) / 2.0 = (${fmtV(Math.max(L1v, L2v))} + ${fmtV(Math.min(R1v, R2v))}) / 2 = ${fmtR(result)}`;
+                add(['return-even'], `第 ${round} 轮 · 计算中位数`, `return (max(L1, L2) + min(R1, R2)) / 2.0  # = ${fmtR(result)}`,
+                  `The merged array's two middle values are the largest of the left partition, max(L1, L2) = ${fmtV(Math.max(L1v, L2v))}, and the smallest of the right partition, min(R1, R2) = ${fmtV(Math.min(R1v, R2v))}. Their mean is ${fmtR(result)}.`,
+                  `合并数组中间的两个数 = 左半区最大值 max(L1, L2) = ${fmtV(Math.max(L1v, L2v))} 与右半区最小值 min(R1, R2) = ${fmtV(Math.min(R1v, R2v))}，取平均得 ${fmtR(result)}。`,
+                  '提醒：这两个值只是算中位数的原料，它们本身不是“中位数”。',
+                  {});
+              } else {
+                computing = 'odd';
+                result = Math.min(R1v, R2v);
+                minChip = R1v <= R2v ? 'R1' : 'R2';
+                compute = `min(R1, R2) = min(${fmtV(R1v)}, ${fmtV(R2v)}) = ${fmtR(result)}`;
+                add(['return-odd'], `第 ${round} 轮 · 计算中位数`, `return min(R1, R2)  # = ${fmtR(result)}`,
+                  `Odd total: the median is the right partition's smallest value, min(R1, R2) = min(${fmtV(R1v)}, ${fmtV(R2v)}) = ${fmtR(result)}.`,
+                  `总长为奇数：中位数就是右半区的最小值 min(R1, R2) = min(${fmtV(R1v)}, ${fmtV(R2v)}) = ${fmtR(result)}。`,
+                  '左半区少一个值，正中间的数落在右半区，即 min(R1, R2)。',
+                  {});
+              }
+              merged = mergedOf(nums1, nums2);
+              add([isEven ? 'return-even' : 'return-odd'], `返回 ${fmtR(result)}`,
+                `return ${fmtR(result)}`,
+                `Return ${fmtR(result)}. The dashed row is the actually-merged array ${fmtA(merged.values)} — its median matches, and no merge was ever performed.`,
+                `返回 ${fmtR(result)}。灰色虚线行是真正合并后的数组 ${fmtA(merged.values)}，它的中位数与答案一致——而代码从未执行过合并。`,
+                '答案只来自四个边界值，从未合并过两个数组。',
+                { compute: `✓ median = ${fmtR(result)}` });
+              break;
+            }
+          }
+          return frames;
+        }
+
+        // ---------- geometry ----------
+        let geom = null;
+        function layout() {
+          const width = Math.max(280, stage.clientWidth);
+          const compact = width < 560;
+          geom = {
+            width, compact,
+            cw: compact ? 25 : 48,
+            gap: compact ? 4 : 8,
+            cellH: compact ? 22 : 30,
+            arrX: compact ? 34 : 52,
+            chipW: compact ? 24 : 36,
+            chipH: compact ? 15 : 18,
+            ghostW: compact ? 26 : 36,
+            ghostH: compact ? 16 : 22,
+            row1Y: compact ? 30 : 42,
+            row2Y: compact ? 104 : 146,
+            searchY: compact ? 70 : 98,
+            bracketY: compact ? 142 : 198,
+            bracketLabelY: compact ? 153 : 213,
+            mergedY: compact ? 162 : 226,
+            mergedH: compact ? 20 : 26,
+            mergedIdxY: compact ? 192 : 264,
+            computeY: compact ? 206 : 280,
+            stageH: compact ? 214 : 296,
+          };
+          svg.setAttribute('viewBox', `0 0 ${width} ${geom.stageH}`);
+          stage.style.height = `${geom.stageH}px`;
+        }
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        // Map a frame state to drawable coordinates. Cell positions never move
+        // within a scenario; only the cuts, wash widths, chips, and search line
+        // change.
+        function derive(st) {
+          const g = geom;
+          const lenM = st.merged ? st.merged.values.length : 0;
+          const contentW = Math.max(
+            st.nums1.length * (g.cw + g.gap) - g.gap,
+            st.nums2.length * (g.cw + g.gap) - g.gap,
+            lenM ? lenM * (g.cw + g.gap) - g.gap : 0
+          );
+          const x0 = Math.max(g.arrX, Math.round((g.width - contentW) / 2));
+          const cellCx = i => x0 + i * (g.cw + g.gap) + g.cw / 2;
+          const cutX = (li) => li < 0
+            ? x0 - g.gap / 2
+            : x0 + (li + 1) * (g.cw + g.gap) - g.gap / 2;
+          const d = { x0, cut1: null, cut2: null, search: null, chips: {}, ghosts: {} };
+          if (st.l1i !== null) {
+            d.cut1 = cutX(st.l1i);
+            d.cut2 = cutX(st.l2i);
+          }
+          if (st.left !== null) {
+            const xs = st.left >= 0 && st.left < st.nums1.length ? cellCx(st.left) : x0 - 2;
+            const xe = st.right >= 0 && st.right < st.nums1.length ? cellCx(st.right) : x0 - 9;
+            d.search = { x0: Math.min(xs, xe), x1: Math.max(xs, xe) };
+          }
+          if (st.l1 !== null) {
+            const put = (key, row, li) => {
+              const len = row === 1 ? st.nums1.length : st.nums2.length;
+              if (key === 'L1' || key === 'L2') {
+                if (li < 0) {
+                  const gx = cutX(-1) - g.ghostW / 2 - 3;
+                  d.ghosts[key] = { x: gx, row };
+                  d.chips[key] = { x: gx, row };
+                } else {
+                  d.chips[key] = { x: cellCx(li), row };
+                }
+              } else if (li >= len - 1) {
+                const gx = cutX(len - 1) + g.ghostW / 2 + 3;
+                d.ghosts[key] = { x: gx, row };
+                d.chips[key] = { x: gx, row };
+              } else {
+                d.chips[key] = { x: cellCx(li + 1), row };
+              }
+            };
+            put('L1', 1, st.l1i);
+            put('R1', 1, st.l1i);
+            put('L2', 2, st.l2i);
+            put('R2', 2, st.l2i);
+          }
+          return d;
+        }
+
+        function draw(st, t = 1, from = null) {
+          if (!geom || !st) return;
+          const g = geom;
+          const fs = g.compact;
+          const ease = core.smoothstep(t);
+          const lerpN = (a, b) => a + (b - a) * ease;
+          const to = derive(st);
+          const fr = from ? derive(from) : null;
+          const x0 = to.x0;
+          const rowX = i => x0 + i * (g.cw + g.gap);
+          const chipYof = rowY => rowY - g.chipH - (fs ? 7 : 9);
+
+          const mixNum = (tv, fv) => {
+            if (tv === null && fv === null) return null;
+            if (tv === null) return { v: fv, opacity: 1 - ease };
+            if (fv === null) return { v: tv, opacity: ease };
+            return { v: lerpN(fv, tv), opacity: 1 };
+          };
+          const c1 = mixNum(to.cut1, fr ? fr.cut1 : null);
+          const c2 = mixNum(to.cut2, fr ? fr.cut2 : null);
+
+          const frWash1 = Boolean(from && from.l1i !== null && from.l1i >= 0);
+          const frWash2 = Boolean(from && from.l2i !== null && from.l2i >= 0);
+          const toWash1 = st.l1i !== null && st.l1i >= 0;
+          const toWash2 = st.l2i !== null && st.l2i >= 0;
+          const washMix = (tOn, fOn, tCut, fCut) => {
+            if (!tOn && !fOn) return null;
+            const tX = tOn ? tCut : x0 - 2;
+            const fX = fOn ? fCut : x0 - 2;
+            const opacity = tOn && fOn ? 1 : tOn ? ease : 1 - ease;
+            return { x1: lerpN(fX, tX), opacity };
+          };
+          const w1 = washMix(toWash1, frWash1, to.cut1 === null ? x0 - 2 : to.cut1, fr && fr.cut1 !== null ? fr.cut1 : x0 - 2);
+          const w2 = washMix(toWash2, frWash2, to.cut2 === null ? x0 - 2 : to.cut2, fr && fr.cut2 !== null ? fr.cut2 : x0 - 2);
+
+          const sMix = (() => {
+            const tS = to.search;
+            const fS = fr ? fr.search : null;
+            if (!tS && !fS) return null;
+            const t0v = tS ? tS.x0 : x0 - 9;
+            const t1v = tS ? tS.x1 : x0 - 2;
+            const f0v = fS ? fS.x0 : x0 - 9;
+            const f1v = fS ? fS.x1 : x0 - 2;
+            const opacity = tS && fS ? 1 : tS ? ease : 1 - ease;
+            return { x0: lerpN(f0v, t0v), x1: lerpN(f1v, t1v), opacity };
+          })();
+
+          scene.update(({ path, text }) => {
+            const valFs = fs ? 10.5 : 14;
+            const idxFs = fs ? 8 : 9.5;
+            const chipFs = fs ? 8.5 : 10.5;
+            const smallFs = fs ? 8 : 10;
+
+            // ---- stored structure: the two arrays (never modified) ----
+            st.nums1.forEach((v, i) => {
+              path(`c1-${i}`, { d: rectPath(rowX(i), g.row1Y, g.cw, g.cellH, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3 });
+            });
+            st.nums2.forEach((v, i) => {
+              path(`c2-${i}`, { d: rectPath(rowX(i), g.row2Y, g.cw, g.cellH, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3 });
+            });
+
+            // ---- the combined left partition wash ----
+            if (w1) path('wash1', { d: rectPath(x0 - 2, g.row1Y - 2, Math.max(2, w1.x1 - x0 + 3), g.cellH + 4, 4), fill: '#f5f2e9', stroke: 'none', opacity: 0.95 * w1.opacity });
+            if (w2) path('wash2', { d: rectPath(x0 - 2, g.row2Y - 2, Math.max(2, w2.x1 - x0 + 3), g.cellH + 4, 4), fill: '#f5f2e9', stroke: 'none', opacity: 0.95 * w2.opacity });
+
+            // ---- ghost merged reference row ----
+            let mergedOpacity = 0;
+            if (st.merged) {
+              mergedOpacity = fr && fr.merged ? 1 : t >= 1 ? 1 : ease;
+              st.merged.values.forEach((v, i) => {
+                path(`mc-${i}`, { d: rectPath(rowX(i), g.mergedY, g.cw, g.mergedH, 3), fill: '#fffdf8', stroke: '#b7b7b1', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', opacity: mergedOpacity });
+              });
+              st.merged.mids.forEach((mi, k) => {
+                path(`mmark-${k}`, { d: rectPath(rowX(mi) - 3, g.mergedY - 3, g.cw + 6, g.mergedH + 6, 4), fill: 'none', stroke: '#272727', 'stroke-width': 1.4, opacity: mergedOpacity, 'data-mid': String(mi) });
+              });
+            }
+
+            // ---- variable chips (L1 / R1 / L2 / R2) and ±∞ ghosts ----
+            for (const key of ['L1', 'R1', 'L2', 'R2']) {
+              const tC = to.chips[key];
+              const fC = fr ? fr.chips[key] : null;
+              if (tC || fC) {
+                const row = tC ? tC.row : fC.row;
+                const rowY = row === 1 ? g.row1Y : g.row2Y;
+                const chipY = chipYof(rowY);
+                let chipX, opacity;
+                if (tC && fC) { chipX = lerpN(fC.x, tC.x); opacity = 1; }
+                else if (tC) { chipX = tC.x; opacity = ease; }
+                else { chipX = fC.x; opacity = 1 - ease; }
+                path(`chip-${key}`, { d: rectPath(chipX - g.chipW / 2, chipY, g.chipW, g.chipH, 2), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.2, opacity, 'data-chip': key });
+              }
+              const tG = to.ghosts[key];
+              const fG = fr ? fr.ghosts[key] : null;
+              if (tG || fG) {
+                const row = tG ? tG.row : fG.row;
+                const rowY = row === 1 ? g.row1Y : g.row2Y;
+                let gx, opacity;
+                if (tG && fG) { gx = lerpN(fG.x, tG.x); opacity = 1; }
+                else if (tG) { gx = tG.x; opacity = ease; }
+                else { gx = fG.x; opacity = 1 - ease; }
+                path(`ghost-${key}`, { d: rectPath(gx - g.ghostW / 2, rowY + g.cellH / 2 - g.ghostH / 2, g.ghostW, g.ghostH, 3), fill: '#fffdf8', stroke: '#777', 'stroke-width': 1, 'stroke-dasharray': '4 3', opacity, 'data-ghost': key });
+              }
+            }
+
+            // ---- slice markers: cuts, brackets, search space ----
+            if (c1) {
+              path('cut1', {
+                d: `M ${c1.v} ${g.row1Y - 5} v ${g.cellH + 10} M ${c1.v - 4} ${g.row1Y - 5} h 8 M ${c1.v - 4} ${g.row1Y + g.cellH + 5} h 8`,
+                fill: 'none', stroke: '#272727', 'stroke-width': 1.4, 'stroke-dasharray': '5 3', opacity: c1.opacity, 'data-cut': 'nums1', 'data-at': st.l1i === null ? '' : String(st.l1i),
+              });
+            }
+            if (c2) {
+              path('cut2', {
+                d: `M ${c2.v} ${g.row2Y - 5} v ${g.cellH + 10} M ${c2.v - 4} ${g.row2Y - 5} h 8 M ${c2.v - 4} ${g.row2Y + g.cellH + 5} h 8`,
+                fill: 'none', stroke: '#272727', 'stroke-width': 1.4, 'stroke-dasharray': '5 3', opacity: c2.opacity, 'data-cut': 'nums2', 'data-at': st.l2i === null ? '' : String(st.l2i),
+              });
+            }
+            if (c1 && c1.v > x0 + 4) {
+              path('bracket1', { d: `M ${x0 - 2} ${g.bracketY + 4} v -4 H ${c1.v} v 4`, fill: 'none', stroke: '#555', 'stroke-width': 1.1, opacity: c1.opacity });
+            }
+            if (c2 && c2.v > x0 + 4) {
+              path('bracket2', { d: `M ${x0 - 2} ${g.bracketY + 4} v -4 H ${c2.v} v 4`, fill: 'none', stroke: '#555', 'stroke-width': 1.1, opacity: c2.opacity });
+            }
+            if (sMix) {
+              path('search', {
+                d: `M ${sMix.x0} ${g.searchY} H ${sMix.x1} M ${sMix.x0} ${g.searchY - 3} v 6 M ${sMix.x1} ${g.searchY - 3} v 6`,
+                fill: 'none', stroke: '#555', 'stroke-width': 1.1, opacity: sMix.opacity,
+                'data-left': st.left === null ? '' : String(st.left), 'data-right': st.right === null ? '' : String(st.right),
+              });
+            }
+
+            // ---- thin gray reference arrows: chip -> boundary value ----
+            for (const key of ['L1', 'R1', 'L2', 'R2']) {
+              const tC = to.chips[key];
+              const fC = fr ? fr.chips[key] : null;
+              if (!tC && !fC) continue;
+              const row = tC ? tC.row : fC.row;
+              const rowY = row === 1 ? g.row1Y : g.row2Y;
+              const chipY = chipYof(rowY);
+              let chipX, opacity;
+              if (tC && fC) { chipX = lerpN(fC.x, tC.x); opacity = 1; }
+              else if (tC) { chipX = tC.x; opacity = ease; }
+              else { chipX = fC.x; opacity = 1 - ease; }
+              const hasGhost = Boolean((tC && to.ghosts[key]) || (!tC && fC && fr.ghosts[key]));
+              const targetY = hasGhost ? rowY + g.cellH / 2 - g.ghostH / 2 - 1 : rowY - 2;
+              path(`chip-arrow-${key}`, { d: `M ${chipX} ${chipY + g.chipH + 1} L ${chipX} ${targetY}`, stroke: '#555', 'stroke-width': 1, fill: 'none', 'marker-end': 'url(#median-arrow)', opacity });
+            }
+
+            // ---- all text ----
+            text('lab1', { x: 4, y: g.row1Y + g.cellH / 2 + (fs ? 3 : -1), 'font-size': fs ? 9.5 : 11.5, fill: '#272727', 'font-family': MONO }, 'nums1');
+            text('lab2', { x: 4, y: g.row2Y + g.cellH / 2 + (fs ? 3 : -1), 'font-size': fs ? 9.5 : 11.5, fill: '#272727', 'font-family': MONO }, 'nums2');
+            if (!fs && st.m !== null) {
+              text('lab1s', { x: 4, y: g.row1Y + g.cellH / 2 + 11, 'font-size': 9.5, fill: '#777', 'font-family': MONO }, `m = ${st.m}`);
+              text('lab2s', { x: 4, y: g.row2Y + g.cellH / 2 + 11, 'font-size': 9.5, fill: '#777', 'font-family': MONO }, `n = ${st.n}`);
+            }
+            if (st.swapped && !fs) {
+              text('swap-tag', { x: 4, y: g.row2Y + g.cellH / 2 + 23, 'font-size': 9, fill: '#777', 'font-family': MONO }, '已交换');
+            }
+            st.nums1.forEach((v, i) => {
+              text(`c1v-${i}`, { x: rowX(i) + g.cw / 2, y: g.row1Y + g.cellH / 2 + (fs ? 3.5 : 4.8), 'text-anchor': 'middle', 'font-size': valFs, fill: '#272727', 'font-family': MONO }, String(v));
+              text(`c1i-${i}`, { x: rowX(i) + g.cw / 2, y: g.row1Y + g.cellH + (fs ? 10 : 13), 'text-anchor': 'middle', 'font-size': idxFs, fill: '#777', 'font-family': MONO }, String(i));
+            });
+            st.nums2.forEach((v, i) => {
+              text(`c2v-${i}`, { x: rowX(i) + g.cw / 2, y: g.row2Y + g.cellH / 2 + (fs ? 3.5 : 4.8), 'text-anchor': 'middle', 'font-size': valFs, fill: '#272727', 'font-family': MONO }, String(v));
+              text(`c2i-${i}`, { x: rowX(i) + g.cw / 2, y: g.row2Y + g.cellH + (fs ? 10 : 13), 'text-anchor': 'middle', 'font-size': idxFs, fill: '#777', 'font-family': MONO }, String(i));
+            });
+            if (st.l1i !== null && st.l2i !== null) {
+              const halfVal = (st.l1i + 1) + (st.l2i + 1);
+              const label = fs
+                ? `左半区 ${st.l1i + 1}+${st.l2i + 1}=${halfVal}`
+                : `左半区合计 = (L1_index+1) + (L2_index+1) = ${st.l1i + 1} + ${st.l2i + 1} = ${halfVal} = half_total_len`;
+              text('br-label', { x: x0, y: g.bracketLabelY, 'font-size': smallFs, fill: '#555', 'font-family': MONO }, label);
+            }
+            if (sMix && !fs && st.left !== null) {
+              text('search-label', { x: sMix.x0, y: g.searchY + 13, 'font-size': 9.5, fill: '#555', 'font-family': MONO }, `left = ${st.left} · right = ${st.right}`);
+            }
+            for (const key of ['L1', 'R1', 'L2', 'R2']) {
+              const tC = to.chips[key];
+              const fC = fr ? fr.chips[key] : null;
+              if (!tC && !fC) continue;
+              const row = tC ? tC.row : fC.row;
+              const rowY = row === 1 ? g.row1Y : g.row2Y;
+              const chipY = chipYof(rowY);
+              let chipX, opacity;
+              if (tC && fC) { chipX = lerpN(fC.x, tC.x); opacity = 1; }
+              else if (tC) { chipX = tC.x; opacity = ease; }
+              else { chipX = fC.x; opacity = 1 - ease; }
+              text(`chip-t-${key}`, { x: chipX, y: chipY + g.chipH / 2 + (fs ? 3 : 3.8), 'text-anchor': 'middle', 'font-size': chipFs, fill: '#272727', 'font-family': MONO, opacity }, key);
+            }
+            for (const key of ['L1', 'R1', 'L2', 'R2']) {
+              const tG = to.ghosts[key];
+              const fG = fr ? fr.ghosts[key] : null;
+              if (!tG && !fG) continue;
+              const row = tG ? tG.row : fG.row;
+              const rowY = row === 1 ? g.row1Y : g.row2Y;
+              let gx, opacity;
+              if (tG && fG) { gx = lerpN(fG.x, tG.x); opacity = 1; }
+              else if (tG) { gx = tG.x; opacity = ease; }
+              else { gx = fG.x; opacity = 1 - ease; }
+              text(`ghost-t-${key}`, { x: gx, y: rowY + g.cellH / 2 + (fs ? 3 : 3.8), 'text-anchor': 'middle', 'font-size': fs ? 9 : 11, fill: '#777', 'font-family': MONO, opacity }, key[0] === 'L' ? '-∞' : '+∞');
+            }
+            if (st.merged) {
+              text('labm', { x: 4, y: g.mergedY + g.mergedH / 2 + (fs ? 3 : 4), 'font-size': fs ? 9 : 11, fill: '#777', 'font-family': MONO, opacity: mergedOpacity }, 'merged');
+              const total = st.merged.values.length;
+              const centerX = rowX(Math.floor(total / 2) - (total % 2 === 0 ? 0 : 0)) + g.cw / 2;
+              st.merged.values.forEach((v, i) => {
+                text(`mcv-${i}`, { x: rowX(i) + g.cw / 2, y: g.mergedY + g.mergedH / 2 + (fs ? 3 : 4), 'text-anchor': 'middle', 'font-size': fs ? 9.5 : 11.5, fill: '#555', 'font-family': MONO, opacity: mergedOpacity }, String(v));
+              });
+              if (!st.compute) {
+                const medTxt = total % 2 === 0
+                  ? `median = (${st.merged.values[total / 2 - 1]} + ${st.merged.values[total / 2]}) / 2（仅参考）`
+                  : `median = ${st.merged.values[Math.floor(total / 2)]}（仅参考）`;
+                text('m-tag', { x: centerX, y: g.mergedIdxY, 'text-anchor': 'middle', 'font-size': fs ? 8.5 : 10, fill: '#555', 'font-family': MONO, opacity: mergedOpacity }, medTxt);
+              }
+            }
+            if (st.compute) {
+              text('compute', { x: x0, y: g.computeY, 'font-size': fs ? 9.5 : 11.5, fill: '#272727', 'font-family': MONO, 'data-compute': '1' }, st.compute);
+            }
+
+            // ---- compare marks and max / min tags ----
+            const badgeFor = {
+              l1r2: ['L1', 'R2'],
+              l2r1: ['L2', 'R1'],
+              found: ['L1', 'R1', 'L2', 'R2'],
+            }[st.compare];
+            if (badgeFor) {
+              for (const key of badgeFor) {
+                const ch = to.chips[key];
+                if (!ch) continue;
+                const rowY = ch.row === 1 ? g.row1Y : g.row2Y;
+                const chipY = chipYof(rowY);
+                const violated = st.compare !== 'found' && st.compareBad;
+                text(`badge-${key}`, { x: ch.x + g.chipW / 2 + 5, y: chipY + g.chipH / 2 + (fs ? 2.6 : 3.5), 'font-size': fs ? 9 : 11, fill: violated ? '#8a2f2f' : '#272727', 'font-family': MONO }, violated ? '✗' : '✓');
+                if (st.compare === 'found' || violated) {
+                  path(`ring-${key}`, { d: rectPath(ch.x - g.chipW / 2 - 3, chipY - 3, g.chipW + 6, g.chipH + 6, 3), fill: 'none', stroke: violated ? '#8a2f2f' : '#272727', 'stroke-width': 1, 'stroke-dasharray': '3 3' });
+                }
+              }
+            }
+            const tagChip = (key, tag) => {
+              const ch = to.chips[key];
+              if (!ch) return;
+              const rowY = ch.row === 1 ? g.row1Y : g.row2Y;
+              const chipY = chipYof(rowY);
+              text(`mm-${key}`, { x: ch.x + g.chipW / 2 + 5, y: chipY + g.chipH / 2 + (fs ? 2.6 : 3.5), 'font-size': fs ? 8 : 9.5, fill: '#555', 'font-family': MONO }, tag);
+            };
+            if (st.maxChip) tagChip(st.maxChip, 'max');
+            if (st.minChip) tagChip(st.minChip, 'min');
+          });
+        }
+
+        // ---------- trace wiring ----------
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('median-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        const motion = core.createMotionController();
+        let transitionFrom = null;
+        let currentFrame = null;
+
+        function render({ frame, state, step, frames }) {
+          currentFrame = frame;
+          phaseEl.textContent = frame.stepLabel;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.en;
+          explanationZhEl.textContent = frame.zh;
+          invariantEl.textContent = frame.invariant;
+          metrics.half.textContent = fmtV(state.half);
+          metrics.left.textContent = state.left === null ? '—' : String(state.left);
+          metrics.right.textContent = state.right === null ? '—' : String(state.right);
+          metrics.l1i.textContent = state.l1i === null ? '—' : String(state.l1i);
+          metrics.l2i.textContent = state.l2i === null ? '—' : String(state.l2i);
+          metrics.l1.textContent = fmtV(state.l1);
+          metrics.r1.textContent = fmtV(state.r1);
+          metrics.l2.textContent = fmtV(state.l2);
+          metrics.r2.textContent = fmtV(state.r2);
+          stage.setAttribute('aria-label', `两个有序数组的中位数演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({
+          ...s,
+          nums1: [...s.nums1],
+          nums2: [...s.nums2],
+          merged: s.merged ? { values: [...s.merged.values], mids: [...s.merged.mids] } : null,
+        });
+
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, null); return; }
+            motion.tween({
+              duration: 420,
+              update: eased => draw(state, eased, from),
+              complete: () => draw(state, 1, null),
+            });
+          },
+          formatStepOption: frame => frame.stepLabel,
+        });
+
+        layout();
+        new ResizeObserver(() => {
+          motion.cancel();
+          layout();
+          if (trace.state) draw(trace.state, 1, null);
+        }).observe(stage);
+        trace.setFrames(buildFrames());
+      })();
+    </script>
+  </body>
+</html>

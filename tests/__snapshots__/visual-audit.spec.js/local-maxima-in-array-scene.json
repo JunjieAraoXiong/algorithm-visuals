@@ -1,0 +1,1484 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "寻找局部极大值二分查找演示 / local maxima binary search trace"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 15"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "初始化 · left = 0, right = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "第 1 轮 · 进入循环（0 < 4）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "第 1 轮 · mid = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "第 1 轮 · 下降 ↘ nums[2]=3 > nums[3]=2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "第 1 轮 · right = mid = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "第 2 轮 · 进入循环（0 < 2）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "第 2 轮 · mid = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "第 2 轮 · 下降 ↘ nums[1]=4 > nums[2]=3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "第 2 轮 · right = mid = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "第 3 轮 · 进入循环（0 < 1）"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "第 3 轮 · mid = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "第 3 轮 · 上升 ↗ nums[0]=1 < nums[1]=4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "第 3 轮 · left = mid + 1 = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "循环结束 · left == right == 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "返回 1"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "初始化 · left = 0, right = 4"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "寻找局部极大值演示，第 1 / 15 步：初始化 · left = 0, right = 4"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "space-line"
+            ],
+            [
+              "data-space",
+              ""
+            ],
+            [
+              "style",
+              "left: 112px; width: 508px;"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "data-space-label",
+                  ""
+                ]
+              ],
+              "children": [
+                "[0, 4] 搜索区间 / space"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "chip"
+            ],
+            [
+              "data-chip",
+              "left"
+            ],
+            [
+              "style",
+              "left: 126px;"
+            ]
+          ],
+          "children": [
+            "left"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "chip"
+            ],
+            [
+              "data-chip",
+              "mid"
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ],
+          "children": [
+            "mid"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "chip"
+            ],
+            [
+              "data-chip",
+              "right"
+            ],
+            [
+              "style",
+              "left: 606px;"
+            ]
+          ],
+          "children": [
+            "right"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "slope-badge"
+            ],
+            [
+              "data-slope",
+              ""
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ]
+        },
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-lines",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#666"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 6 238 H 725"
+                ],
+                [
+                  "data-visual-element",
+                  "axis"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 126 238 L 126 218 L 246 98 L 246 238 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "fill-0"
+                ],
+                [
+                  "fill",
+                  "#efeada"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "none"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 246 238 L 246 98 L 366 138 L 366 238 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "fill-1"
+                ],
+                [
+                  "fill",
+                  "#f8f6f0"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "none"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 366 238 L 366 138 L 486 178 L 486 238 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "fill-2"
+                ],
+                [
+                  "fill",
+                  "#f8f6f0"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "none"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 486 238 L 486 178 L 606 138 L 606 238 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "fill-3"
+                ],
+                [
+                  "fill",
+                  "#efeada"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "none"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 126 218 L 246 98"
+                ],
+                [
+                  "data-visual-element",
+                  "seg-0"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 246 98 L 366 138"
+                ],
+                [
+                  "data-visual-element",
+                  "seg-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 366 138 L 486 178"
+                ],
+                [
+                  "data-visual-element",
+                  "seg-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 486 178 L 606 138"
+                ],
+                [
+                  "data-visual-element",
+                  "seg-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "126"
+                ],
+                [
+                  "cy",
+                  "218"
+                ],
+                [
+                  "data-visual-element",
+                  "pt-0"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "9"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ptv-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "126"
+                ],
+                [
+                  "y",
+                  "221.5"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-0"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "126"
+                ],
+                [
+                  "y",
+                  "253"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "246"
+                ],
+                [
+                  "cy",
+                  "98"
+                ],
+                [
+                  "data-visual-element",
+                  "pt-1"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "9"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ptv-1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "246"
+                ],
+                [
+                  "y",
+                  "101.5"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-1"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "246"
+                ],
+                [
+                  "y",
+                  "253"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "366"
+                ],
+                [
+                  "cy",
+                  "138"
+                ],
+                [
+                  "data-visual-element",
+                  "pt-2"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "9"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ptv-2"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "366"
+                ],
+                [
+                  "y",
+                  "141.5"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-2"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "366"
+                ],
+                [
+                  "y",
+                  "253"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "486"
+                ],
+                [
+                  "cy",
+                  "178"
+                ],
+                [
+                  "data-visual-element",
+                  "pt-3"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "9"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ptv-3"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "486"
+                ],
+                [
+                  "y",
+                  "181.5"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-3"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "486"
+                ],
+                [
+                  "y",
+                  "253"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "cx",
+                  "606"
+                ],
+                [
+                  "cy",
+                  "138"
+                ],
+                [
+                  "data-visual-element",
+                  "pt-4"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "r",
+                  "9"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ptv-4"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "606"
+                ],
+                [
+                  "y",
+                  "141.5"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-4"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "606"
+                ],
+                [
+                  "y",
+                  "253"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "不变量 / Invariant"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "搜索空间 = 整个数组；无相邻相等 ⇒ 极大值必然存在。/ A maxima always exists: no equal neighbors means no flat shelf."
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "left"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-left",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "0"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "right"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-right",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "4"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "mid"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-mid",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "nums[mid]"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-midval",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "nums[mid+1]"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-nextval",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    "轮次 / round"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-iter",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "0"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-code",
+              ""
+            ]
+          ],
+          "children": [
+            "left, right = 0, len(nums) - 1"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-en",
+              ""
+            ]
+          ],
+          "children": [
+            "The search space starts as the whole array: left = 0, right = 4. A local maxima is guaranteed to exist because no two adjacent values are equal — the terrain has no flat shelf."
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-zh",
+              ""
+            ]
+          ],
+          "children": [
+            "搜索空间先覆盖整个数组：left = 0、right = 4。相邻元素互不相等，地形没有平台，局部极大值必然存在。"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "note"
+        ]
+      ],
+      "children": [
+        "chip 只移动",
+        {
+          "tag": "code",
+          "children": [
+            "left"
+          ]
+        },
+        "/",
+        {
+          "tag": "code",
+          "children": [
+            "mid"
+          ]
+        },
+        "/",
+        {
+          "tag": "code",
+          "children": [
+            "right"
+          ]
+        },
+        "三个下标变量，地形与数组",
+        {
+          "tag": "code",
+          "children": [
+            "nums"
+          ]
+        },
+        "从不修改；点下的底色只是斜率分区：偏深 = 上升段，偏浅 = 下降段。/",
+        {
+          "tag": "span",
+          "children": [
+            "Chips move index variables only; the terrain never changes. Darker fill = rising segment, lighter = falling segment."
+          ]
+        }
+      ]
+    }
+  ]
+}

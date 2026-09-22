@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of weighted random selection (LeetCode 528): lay 1..sum(weights) on a number line, endpoints are prefix sums, lower-bound binary search finds the first endpoint ≥ target. 按权重随机选择：数轴分段 + 前缀和端点 + 下界二分查找。" />
+    <title>Weighted Random Selection · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      #weighted-lab { --wash: #f5f2e9; }
+      #weighted-lab .problem { max-width: 900px; margin: 0 3px 12px; color: #41413e; }
+      #weighted-lab .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      #weighted-lab .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 6px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      #weighted-lab .step-picker { margin-left: auto; }
+      #weighted-lab .stage { height: 280px; overflow: hidden; border-bottom: 1px solid var(--rule); }
+      #weighted-lab .lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+      #weighted-lab .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 232px; gap: 10px; margin: 12px 3px; }
+      #weighted-lab .invariant, #weighted-lab .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      #weighted-lab .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      #weighted-lab .invariant p { margin: 0; color: var(--quiet); font-size: 13px; line-height: 1.55; }
+      #weighted-lab .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      #weighted-lab .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      #weighted-lab .metrics dt { color: var(--quiet); }
+      #weighted-lab .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+      #weighted-lab .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      #weighted-lab .section h2 { margin: 0 0 8px; font-size: 19px; font-weight: 500; }
+      #weighted-lab .section-intro { max-width: 920px; color: var(--quiet); }
+      #weighted-lab .figure-grid, #weighted-lab .case-grid, #weighted-lab .edge-grid, #weighted-lab .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+      #weighted-lab .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      #weighted-lab .paper-card p { margin: 6px 0 0; color: var(--quiet); font-size: 13px; line-height: 1.55; }
+      #weighted-lab .paper-card strong { font: 13px/1.4 monospace; }
+      #weighted-lab .paper-card svg { display: block; width: 100%; height: auto; margin-top: 8px; }
+      #weighted-lab .mini-array { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 4px; align-items: center; }
+      #weighted-lab .mini-cell { display: grid; place-items: center; width: 34px; height: 32px; border: 1px solid #777; font: 13px/1 monospace; background: var(--paper); }
+      #weighted-lab .mini-cell.index { border: none; color: var(--quiet); height: 14px; font-size: 10px; }
+      #weighted-lab .mini-cell.dim { opacity: .38; }
+      #weighted-lab .mini-cell.hit { border: 2px solid var(--ink); background: var(--wash); font-weight: 700; }
+      #weighted-lab .mini-note { color: var(--quiet); font: 11px/1.5 monospace; }
+      #weighted-lab .reason-list { margin: 8px 0 0; padding-left: 24px; }
+      #weighted-lab .reason-list li { margin: 6px 0; }
+      @media (max-width: 700px) {
+        #weighted-lab .state-grid, #weighted-lab .figure-grid, #weighted-lab .case-grid, #weighted-lab .edge-grid, #weighted-lab .complexity { grid-template-columns: 1fr; }
+        #weighted-lab .step-picker { width: 100%; margin-left: 0; }
+        #weighted-lab .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="weighted-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Weighted Random Selection<span lang="zh-CN"> · 按权重随机选择</span></h1></div></header>
+      <p class="problem">
+        Given items with weights, implement random selection where P(index i) = weights[i] / sum(weights).
+        Example: <code>weights = [3, 1, 2, 4]</code> has <code>sum = 10</code>, so index 0 is returned about
+        30% of the time. Return the selected index.
+        <span lang="zh-CN">给定一组带权重的 items，实现随机选择：选到下标 i 的概率 P(i) = weights[i] / sum(weights)。例：<code>weights = [3, 1, 2, 4]</code>，<code>sum = 10</code>，下标 0 大约以 30% 的概率被选中。返回被选中的下标。</span>
+      </p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="按权重随机选择演示 / weighted random selection trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="按权重随机选择演示">
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>prefix_sums</code></dt><dd data-m-prefix></dd></div>
+              <div><dt><code>i</code></dt><dd data-m-i></dd></div>
+              <div><dt><code>target</code></dt><dd data-m-target></dd></div>
+              <div><dt><code>left</code></dt><dd data-m-left></dd></div>
+              <div><dt><code>right</code></dt><dd data-m-right></dd></div>
+              <div><dt><code>mid</code></dt><dd data-m-mid></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite">
+            <code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span>
+          </div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="weighted-code-title">
+          <h2 id="weighted-code-title">完整 Python 代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="cls">class WeightedRandomSelection:</span><span class="code-line" data-source-key="init-def">    def __init__(self, weights: List[int]):</span><span class="code-line" data-source-key="init-first">        self.prefix_sums = [weights[0]]</span><span class="code-line" data-source-key="init-loop">        for i in range(1, len(weights)):</span><span class="code-line" data-source-key="init-append">            self.prefix_sums.append(self.prefix_sums[-1] + weights[i])</span><span class="code-line"> </span><span class="code-line" data-source-key="sel-def">    def select(self) -&gt; int:</span><span class="code-line code-comment">        # Pick a random target between 1 and the largest possible endpoint.</span><span class="code-line" data-source-key="sel-target">        target = random.randint(1, self.prefix_sums[-1])</span><span class="code-line" data-source-key="sel-init">        left, right = 0, len(self.prefix_sums) - 1</span><span class="code-line code-comment">        # Perform lower-bound binary search to find which endpoint (i.e.,</span><span class="code-line code-comment">        # prefix sum value) corresponds to the target.</span><span class="code-line" data-source-key="sel-loop">        while left &lt; right:</span><span class="code-line" data-source-key="sel-mid">            mid = (left + right) // 2</span><span class="code-line" data-source-key="sel-if">            if self.prefix_sums[mid] &lt; target:</span><span class="code-line" data-source-key="sel-left">                left = mid + 1</span><span class="code-line" data-source-key="sel-else">            else:</span><span class="code-line" data-source-key="sel-right">                right = mid</span><span class="code-line" data-source-key="sel-return">        return left</span></code></pre>
+          <p class="note"><code>select()</code> 的 <code>target</code> 由 <code>random.randint</code> 产生；本页把书中的示例固定为 <code>target = 5</code>，刷新页面会重放同一段演示。/ The scripted trace fixes the book's illustrative target = 5; reloading replays the same numbers.</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="weighted-line">
+        <h2 id="weighted-line">把概率摊成一条数轴 · Lay probability on a number line</h2>
+        <p class="section-intro">所有概率的分母都是 <code>sum(weights)</code>。把数轴上的整数 <code>1..sum(weights)</code> 按权重切成 n 段：段 i 的长度就是 <code>weights[i]</code>。在数轴上均匀取一个数，它落入段 i 的概率恰好是 <code>weights[i] / sum(weights)</code>——这正是题目要求的分布。 / <span lang="zh-CN">All probabilities share the denominator sum(weights), so split the number line 1..sum(weights) into segments of length weights[i]; a uniform pick lands in segment i with exactly the desired probability.</span></p>
+        <div class="figure-grid">
+          <article class="paper-card">
+            <strong>weights = [1, 4] · sum = 5</strong>
+            <svg viewBox="0 0 560 138" role="img" aria-label="数轴 1 到 5 被切成 1 和 4 两段，段 0 概率 1/5，段 1 概率 4/5">
+              <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+                <text x="60" y="16" font-size="11.5" fill="#272727">在数轴上均匀取数</text>
+                <text x="500" y="16" font-size="10.5" fill="#555" text-anchor="end">P(0) = 1/5 · P(1) = 4/5</text>
+                <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+                  <rect x="60" y="30" width="88" height="38"/>
+                  <rect x="148" y="30" width="352" height="38" fill="#f5f2e9"/>
+                </g>
+                <text x="104" y="48" font-size="10" fill="#555" text-anchor="middle">i=0</text>
+                <text x="104" y="62" font-size="12" fill="#272727" text-anchor="middle">w=1</text>
+                <text x="324" y="48" font-size="10" fill="#555" text-anchor="middle">i=1</text>
+                <text x="324" y="62" font-size="12" fill="#272727" text-anchor="middle">w=4</text>
+                <g stroke="#555" stroke-width="1">
+                  <line x1="60" y1="68" x2="60" y2="76"/><line x1="148" y1="68" x2="148" y2="76"/><line x1="500" y1="68" x2="500" y2="76"/>
+                </g>
+                <g fill="#555" text-anchor="middle" font-size="10">
+                  <text x="60" y="90">1</text><text x="148" y="90">2</text><text x="500" y="90">5</text>
+                </g>
+                <g fill="#999" text-anchor="middle" font-size="9">
+                  <text x="104" y="90">1</text><text x="192" y="90">2</text><text x="280" y="90">3</text><text x="368" y="90">4</text><text x="456" y="90">5</text>
+                </g>
+                <path d="M 340 118 L 364 96" fill="none" stroke="#555" stroke-width="1.1" stroke-dasharray="4 3"/>
+                <text x="336" y="128" font-size="10" fill="#555" text-anchor="middle">取到 4 → 返回 index 1</text>
+              </g>
+            </svg>
+            <p>取到数字 k 就返回它所在的段。段越长（权重越大），被取中的概率越大——但取数本身永远是均匀的。 / <span lang="zh-CN">Picking number k means returning its segment; the pick is uniform, the segment sizes create the bias.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>weights = [3, 1, 2, 4] · sum = 10 · 端点即前缀和</strong>
+            <svg viewBox="0 0 560 150" role="img" aria-label="权重 3 1 2 4 的完整分段条形，端点 3 4 6 10 依次对应前缀和数组">
+              <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+                <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+                  <rect x="60" y="26" width="132" height="40"/>
+                  <rect x="192" y="26" width="44" height="40" fill="#f5f2e9"/>
+                  <rect x="236" y="26" width="88" height="40"/>
+                  <rect x="324" y="26" width="176" height="40" fill="#f5f2e9"/>
+                </g>
+                <g text-anchor="middle">
+                  <text x="126" y="43" font-size="9.5" fill="#555">i=0</text><text x="126" y="58" font-size="12" fill="#272727">w=3</text>
+                  <text x="214" y="43" font-size="9.5" fill="#555">i=1</text><text x="214" y="58" font-size="12" fill="#272727">w=1</text>
+                  <text x="280" y="43" font-size="9.5" fill="#555">i=2</text><text x="280" y="58" font-size="12" fill="#272727">w=2</text>
+                  <text x="412" y="43" font-size="9.5" fill="#555">i=3</text><text x="412" y="58" font-size="12" fill="#272727">w=4</text>
+                </g>
+                <g stroke="#555" stroke-width="1">
+                  <line x1="192" y1="66" x2="192" y2="73"/><line x1="236" y1="66" x2="236" y2="73"/><line x1="324" y1="66" x2="324" y2="73"/><line x1="500" y1="66" x2="500" y2="73"/>
+                </g>
+                <g fill="#555" text-anchor="middle" font-size="10">
+                  <text x="192" y="86">3</text><text x="236" y="86">4</text><text x="324" y="86">6</text><text x="500" y="86">10</text>
+                </g>
+                <text x="60" y="86" font-size="10" fill="#999">1</text>
+                <text x="60" y="112" font-size="10.5" fill="#777">prefix_sums</text>
+                <g fill="#fffdf8" stroke="#333" stroke-width="1.3">
+                  <rect x="130" y="98" width="80" height="26"/>
+                  <rect x="214" y="98" width="80" height="26"/>
+                  <rect x="298" y="98" width="80" height="26"/>
+                  <rect x="382" y="98" width="80" height="26"/>
+                </g>
+                <g fill="#272727" text-anchor="middle" font-size="12">
+                  <text x="170" y="115">3</text><text x="254" y="115">4</text><text x="338" y="115">6</text><text x="422" y="115">10</text>
+                </g>
+                <g fill="#777" text-anchor="middle" font-size="9">
+                  <text x="170" y="140">0</text><text x="254" y="140">1</text><text x="338" y="140">2</text><text x="422" y="140">3</text>
+                </g>
+                <g stroke="#888" stroke-width="0.9" fill="none">
+                  <line x1="192" y1="73" x2="170" y2="95"/><line x1="236" y1="73" x2="254" y2="95"/><line x1="324" y1="73" x2="338" y2="95"/><line x1="500" y1="73" x2="422" y2="95"/>
+                </g>
+                <text x="60" y="140" font-size="9.5" fill="#555">每个端点 = 一段前缀和</text>
+              </g>
+            </svg>
+            <p>段 i 的端点 = 前面所有段长 + 本段长 = <code>weights[0] + … + weights[i]</code>。把每个数字→下标存进哈希表要 <code>O(sum)</code> 空间；只存 n 个端点只要 <code>O(n)</code>，而且端点天然有序。 / <span lang="zh-CN">Endpoint i is the prefix sum weights[0..i]; storing n sorted endpoints beats an O(sum) hash map of every number.</span></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="weighted-first">
+        <h2 id="weighted-first">第一个 ≥ target 的端点 · The first endpoint ≥ target</h2>
+        <p class="section-intro">target 落在段 i，等价于「段 i 的端点是第一个 ≥ target 的端点」。端点在 target 左侧的一定属于更早的段；而第一个 ≥ target 的端点再往右，就已经是别的段了。所以答案 = 下界（lower bound）。 / <span lang="zh-CN">A number belongs to the segment whose endpoint is the first one ≥ target: endpoints left of the target belong to earlier segments.</span></p>
+        <div class="case-grid">
+          <article class="paper-card">
+            <strong>target = 5 · 端点 3、4 都太小</strong>
+            <div class="mini-array">
+              <span class="mini-cell dim">3</span><span class="mini-cell dim">4</span><span class="mini-cell hit">6</span><span class="mini-cell">10</span>
+            </div>
+            <div class="mini-array">
+              <span class="mini-cell index">0</span><span class="mini-cell index">1</span><span class="mini-cell index">2</span><span class="mini-cell index">3</span>
+            </div>
+            <p class="mini-note">3、4 &lt; 5 → 属于更早的段 · 6 是第一个 ≥ 5 的端点 → 返回 index 2（段 2 装数字 5、6）</p>
+          </article>
+          <article class="paper-card">
+            <strong>target = 4 · 恰好等于端点</strong>
+            <div class="mini-array">
+              <span class="mini-cell dim">3</span><span class="mini-cell hit">4</span><span class="mini-cell">6</span><span class="mini-cell">10</span>
+            </div>
+            <div class="mini-array">
+              <span class="mini-cell index">0</span><span class="mini-cell index">1</span><span class="mini-cell index">2</span><span class="mini-cell index">3</span>
+            </div>
+            <p class="mini-note">4 ≥ 4 成立 → 属于段 1（装数字 4），不是段 2。<code>&gt;=</code> 让「恰好等于」归本段——这正是 <code>else: right = mid</code> 保留 mid 的原因。 / <span lang="zh-CN">An endpoint equal to the target belongs to its own segment; the ≥ condition keeps mid as a candidate.</span></p>
+          </article>
+        </div>
+        <ol class="reason-list">
+          <li><code>prefix_sums</code> 单调不减（权重为正），所以「第一个 ≥ target」可以用下界二分查找，每轮排除一半。 / <span lang="zh-CN">prefix_sums is non-decreasing, so the first endpoint ≥ target is a lower-bound binary search.</span></li>
+          <li><code>prefix_sums[mid] &lt; target</code> → mid 及其左侧全部排除，<code>left = mid + 1</code>；否则 mid 本身是候选，<code>right = mid</code> 保留它。 / <span lang="zh-CN">If prefix_sums[mid] &lt; target, mid belongs to an earlier segment; otherwise keep mid as the candidate.</span></li>
+          <li><code>left == right</code> 时只剩一个候选端点，它的下标就是答案。 / <span lang="zh-CN">When left == right, the single remaining candidate endpoint is the answer.</span></li>
+        </ol>
+      </section>
+
+      <section class="section" aria-labelledby="weighted-bounds">
+        <h2 id="weighted-bounds">为什么 randint 的范围是 1..sum · Why the bounds are 1..sum</h2>
+        <div class="case-grid">
+          <article class="paper-card">
+            <strong>1..sum 一个不多 · Exactly the numbers on the line</strong>
+            <p>数轴上的数字是 <code>1..sum(weights)</code> 共 sum 个整数，每个整数恰好占一个单位长度；取到 0 或 sum+1 会落在所有段之外。<code>random.randint</code> 两端都含，所以 <code>sum</code> 本身也能取到——它属于最后一段。 / <span lang="zh-CN">The line holds exactly the integers 1..sum; randint is inclusive, so sum itself is reachable and belongs to the last segment.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>target 每次都不一样 · A fresh target per call</strong>
+            <p>每次调用 <code>select()</code> 都重新 <code>randint</code>。本页动画把书中的示例固定为 <code>target = 5</code>，好让每一步可复现；刷新页面会重放同一段演示。 / <span lang="zh-CN">Each select() call draws a fresh target; the trace fixes the book's example target = 5 so every step is reproducible.</span></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="weighted-edge">
+        <h2 id="weighted-edge">边界情况 · Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card">
+            <strong>某个权重独占鳌头 · One dominant weight</strong>
+            <p>一个段几乎铺满整条数轴：大多数 target 落进它，命中概率本就接近 1——这是分布的如实体现，不是错误。二分查找依旧 <code>O(log n)</code>。 / <span lang="zh-CN">A dominant segment covers nearly the whole line; the bias is the intended distribution, and the search stays O(log n).</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>单个元素 · Single item</strong>
+            <p><code>n = 1</code> 时 <code>left == right == 0</code>，<code>while</code> 循环直接跳过，返回 0；<code>randint(1, weights[0])</code> 取到什么都是它。 / <span lang="zh-CN">With n = 1 the loop is skipped and select returns 0.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>target 恰好等于端点 · Target equals an endpoint</strong>
+            <p><code>target = 4</code> → 端点 4 满足 <code>≥ target</code>，属于段 1 而非段 2。若条件写成 <code>&gt;</code> 就会把 4 错划给下一段——<code>&gt;=</code> 是关键。 / <span lang="zh-CN">A target equal to an endpoint belongs to that segment; the ≥ condition is what makes this work.</span></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="weighted-complexity">
+        <h2 id="weighted-complexity">复杂度 · Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>__init__ · O(n) 时间 / O(n) 空间</strong><p>一次遍历累加出 <code>prefix_sums</code>；数组本身占 <code>O(n)</code> 空间，比存 <code>O(sum)</code> 个数字的哈希表省得多。 / <span lang="zh-CN">One pass builds the prefix sums; storing n endpoints costs O(n) space.</span></p></article>
+          <article class="paper-card"><strong>select · O(log n) 时间 / O(1) 空间</strong><p>在排好序的端点数组上做下界二分，每轮减半；只用到 <code>left</code>、<code>right</code>、<code>mid</code> 三个变量。 / <span lang="zh-CN">A lower-bound binary search over the sorted endpoints uses O(log n) time and O(1) extra space.</span></p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目"><strong>相关题目：</strong><a href="../find-the-insertion-index/">搜索插入位置</a><a href="../first-and-last-occurrences-of-a-number/">数字的首尾出现位置</a><a href="../cutting-wood/">砍木头</a><a href="../find-the-target-in-a-rotated-sorted-array/">旋转排序数组中查找目标</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const core = window.AlgorithmVisualCore;
+        const root = document.getElementById('weighted-lab');
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const phaseEl = root.querySelector('[data-phase]');
+        const invariantEl = root.querySelector('[data-invariant]');
+        const mPrefix = root.querySelector('[data-m-prefix]');
+        const mI = root.querySelector('[data-m-i]');
+        const mTarget = root.querySelector('[data-m-target]');
+        const mLeft = root.querySelector('[data-m-left]');
+        const mRight = root.querySelector('[data-m-right]');
+        const mMid = root.querySelector('[data-m-mid]');
+        const expressionEl = root.querySelector('[data-expression]');
+        const explanationEl = root.querySelector('[data-explanation]');
+        const explanationZhEl = root.querySelector('[data-explanation-zh]');
+
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const WEIGHTS = [3, 1, 2, 4];
+        const FULL_PREFIX = [3, 4, 6, 10];
+        const SUM = 10;
+        const TARGET = 5;
+        const N = WEIGHTS.length;
+
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('weighted-arrow', { markerWidth: 6, markerHeight: 6, refX: 5, refY: 3, fill: '#666' });
+        const motion = core.createMotionController();
+        let geom = null;
+        let transitionFrom = null;
+
+        const st = over => ({ phase: 'build', prefix: [], i: null, target: null, left: null, right: null, mid: null, round: 0, done: false, answer: null, cmp: null, ...over });
+        const fr = (stepLabel, sourceKeys, line, en, zh, invariant, state) =>
+          ({ stepLabel, sourceKeys, line, en, zh, invariant, state });
+
+        const FRAMES = [
+          fr('构造函数 · 准备', ['cls', 'init-def'],
+            'class WeightedRandomSelection: → def __init__(self, weights: List[int])',
+            'The constructor receives weights = [3, 1, 2, 4]. The bar splits the number line 1..10 into segments whose lengths are the weights; the empty strip below will collect one endpoint per segment.',
+            '构造函数拿到 weights = [3, 1, 2, 4]。上方条形把数轴 1..10 按权重切成 4 段；下方空着的格子将逐段收集端点。',
+            '段 i 的长度 = weights[i]，总长 = sum(weights) = 10；数轴上每个数字恰好属于一段。',
+            st()),
+          fr('prefix_sums = [weights[0]] = [3]', ['init-first'],
+            'self.prefix_sums = [weights[0]]  # [3]',
+            'The first endpoint is just weights[0] = 3: segment 0 holds numbers 1..3, so its endpoint is 3.',
+            '第一个端点就是 weights[0] = 3：段 0 装数字 1..3，它的端点记作 3，存进 prefix_sums[0]。',
+            'prefix_sums[i] = 段 i 的端点 = weights[0] + … + weights[i]。',
+            st({ prefix: [3] })),
+          fr('i = 1 · 端点 3 + 1 = 4', ['init-loop', 'init-append'],
+            'for i in range(1, len(weights)): self.prefix_sums.append(prefix_sums[-1] + weights[i])  # i=1: 3 + 1 = 4',
+            'i = 1: the previous endpoint 3 plus weights[1] = 1 gives endpoint 4 — segment 1 holds the number 4 alone.',
+            'i = 1：上一个端点 3 加上 weights[1] = 1，得到端点 4——段 1 只装数字 4。',
+            '只存 n 个端点 ⇒ O(n) 空间，比存 sum 个数字的哈希表省得多。',
+            st({ prefix: [3, 4], i: 1 })),
+          fr('i = 2 · 端点 4 + 2 = 6', ['init-loop', 'init-append'],
+            'for i in range(1, len(weights)): self.prefix_sums.append(prefix_sums[-1] + weights[i])  # i=2: 4 + 2 = 6',
+            'i = 2: 4 + 2 = 6 — segment 2 will hold the numbers 5 and 6.',
+            'i = 2：4 + 2 = 6——段 2 将装数字 5、6。',
+            '只存 n 个端点 ⇒ O(n) 空间，比存 sum 个数字的哈希表省得多。',
+            st({ prefix: [3, 4, 6], i: 2 })),
+          fr('i = 3 · 端点 6 + 4 = 10', ['init-loop', 'init-append'],
+            'for i in range(1, len(weights)): self.prefix_sums.append(prefix_sums[-1] + weights[i])  # i=3: 6 + 4 = 10',
+            'i = 3: 6 + 4 = 10 — segment 3 holds numbers 7..10 and the whole line is covered.',
+            'i = 3：6 + 4 = 10——段 3 装数字 7..10，整条数轴被铺满。',
+            '只存 n 个端点 ⇒ O(n) 空间，比存 sum 个数字的哈希表省得多。',
+            st({ prefix: [3, 4, 6, 10], i: 3 })),
+          fr('循环结束 · prefix_sums = [3, 4, 6, 10]', ['init-loop'],
+            'for i in range(1, len(weights)):  # i = 4 越界，循环结束',
+            'i reaches len(weights) = 4, so the loop ends. The endpoints are sorted, ready for binary search.',
+            'i 走到 4，超出 range，循环结束。端点数组天然升序——可以二分查找。',
+            'prefix_sums 单调不减（权重为正）⇒ 排好序 ⇒ 可用下界二分。',
+            st({ prefix: [3, 4, 6, 10] })),
+          fr('select() · 复用同一份 prefix_sums', ['sel-def'],
+            'def select(self) -> int:',
+            'select() reuses the stored prefix_sums — the same four endpoints, no rebuilding. Only the search markers are new.',
+            'select() 复用已经存好的 prefix_sums——同一份 4 个端点，不需要重建。接下来只新增搜索标记。',
+            'self.prefix_sums 存在对象上，构造函数与 select 共享同一份数据。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10] })),
+          fr('target = randint(1, 10) = 5', ['sel-target'],
+            'target = random.randint(1, self.prefix_sums[-1])  # (1, 10)，本页固定取 5',
+            'Pick a uniform integer from 1 to 10. The trace fixes the book’s example target = 5 — the marker shows where 5 lands: inside segment 2.',
+            '在 1..10 之间均匀取一个整数。动画固定为书中的示例 target = 5——标记显示 5 落在段 2 内部。',
+            '1..sum 共 sum 个整数，每个对应数轴上一个单位；target 必落在某一段内。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET })),
+          fr('left, right = 0, 3', ['sel-init'],
+            'left, right = 0, len(self.prefix_sums) - 1  # 0, 3',
+            'The search space covers all four endpoints; the answer — the first endpoint ≥ target — must lie inside [left, right].',
+            '搜索空间覆盖全部 4 个端点；答案（第一个 ≥ target 的端点）必在 [left, right] 之内。',
+            '不变量：第一个 ≥ target 的端点始终在 [left, right] 内。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 0, right: 3 })),
+          fr('第 1 轮 · 0 < 3 进入循环', ['sel-loop'],
+            'while left < right:  # 0 < 3 成立，第 1 轮',
+            'Round 1 begins: 0 < 3 holds. The candidate endpoints are exactly those in [left, right] (shaded on the strip).',
+            '进入第 1 轮：0 < 3 成立。候选端点就是 [left, right] 内的那些（条形上已涂色）。',
+            '不变量：第一个 ≥ target 的端点始终在 [left, right] 内。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 0, right: 3, round: 1 })),
+          fr('mid = (0 + 3) // 2 = 1', ['sel-mid'],
+            'mid = (left + right) // 2  # (0 + 3) // 2 = 1',
+            'mid = 1. Compare the endpoint prefix_sums[1] = 4 with target = 5 to decide which half of the search space survives.',
+            'mid = 1。拿端点 prefix_sums[1] = 4 和 target = 5 比较，决定保留哪一半搜索空间。',
+            'mid 把当前区间切成两半；用 prefix_sums[mid] 与 target 的大小关系舍弃一半。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 0, right: 3, mid: 1, round: 1 })),
+          fr('prefix_sums[1] = 4 < 5 · 成立', ['sel-if'],
+            'if self.prefix_sums[mid] < target:  # 4 < 5 成立',
+            '4 < 5 is true: endpoint 4 belongs to an earlier segment, and so does every endpoint to its left. The first endpoint ≥ 5 must be to the right of mid.',
+            '4 < 5 成立：端点 4 属于更早的段，它左边的端点也一样；第一个 ≥ 5 的端点只可能在 mid 右边。',
+            'prefix_sums[mid] < target：mid 及左侧全部属于更早的段，连同 mid 一起排除。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 0, right: 3, mid: 1, round: 1, cmp: 'lt' })),
+          fr('left = 1 + 1 = 2', ['sel-left'],
+            'left = mid + 1  # 1 + 1 = 2',
+            'Endpoints 3 and 4 are confirmed < 5, so their segments are excluded: left moves to 2. The search space is now [2, 3].',
+            '端点 3、4 已确认 < 5，对应的段被排除：left 移到 2，搜索空间收成 [2, 3]。',
+            '排除掉的端点都 < target：它们的段只装更小的数字，答案不可能在其中。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 2, right: 3, mid: 1, round: 1 })),
+          fr('第 2 轮 · 2 < 3 进入循环', ['sel-loop'],
+            'while left < right:  # 2 < 3 成立，第 2 轮',
+            'Round 2 begins: 2 < 3 still holds, so the search continues with endpoints 6 and 10.',
+            '进入第 2 轮：2 < 3 仍成立，候选端点只剩 6 和 10。',
+            '不变量：第一个 ≥ target 的端点始终在 [left, right] 内。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 2, right: 3, round: 2 })),
+          fr('mid = (2 + 3) // 2 = 2', ['sel-mid'],
+            'mid = (left + right) // 2  # (2 + 3) // 2 = 2',
+            'mid = 2. Now compare prefix_sums[2] = 6 with target = 5.',
+            'mid = 2。这次比较 prefix_sums[2] = 6 和 target = 5。',
+            'mid 把当前区间切成两半；用 prefix_sums[mid] 与 target 的大小关系舍弃一半。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 2, right: 3, mid: 2, round: 2 })),
+          fr('prefix_sums[2] = 6 < 5 · 不成立', ['sel-if'],
+            'if self.prefix_sums[mid] < target:  # 6 < 5 不成立',
+            '6 < 5 is false — that is, prefix_sums[2] = 6 ≥ 5. Endpoint 6 qualifies, so mid itself is a candidate: the answer is mid or something to its left.',
+            '6 < 5 不成立，即 prefix_sums[2] = 6 ≥ 5。端点 6 满足条件，mid 自己就是候选：答案是它或它左边的端点。',
+            '否则分支：prefix_sums[mid] ≥ target，mid 本身就是候选，必须保留。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 2, right: 3, mid: 2, round: 2, cmp: 'ge' })),
+          fr('right = mid = 2', ['sel-else', 'sel-right'],
+            'else: right = mid  # right = 2',
+            'Keep mid as the candidate: right = 2. Endpoint 6 is not excluded — the search space narrows to the single endpoint at index 2 (mid still holds 2, but its chip is no longer drawn since it coincides with left).',
+            '保留 mid 作为候选：right = 2。端点 6 没有被排除——搜索空间收敛到唯一的下标 2（mid 仍等于 2，只是它的 chip 与 left 重合，不再单独画出）。',
+            'right = mid（不是 mid - 1）：满足条件的端点必须留在区间内。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 2, right: 2, mid: 2, round: 2 })),
+          fr('2 < 2 不成立 · 循环结束', ['sel-loop'],
+            'while left < right:  # 2 < 2 不成立，退出循环',
+            'left == right == 2: only one candidate endpoint remains, so the loop exits.',
+            'left == right == 2：只剩一个候选端点，循环结束。',
+            '循环不变量保证：剩下的唯一候选就是第一个 ≥ target 的端点。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 2, right: 2, round: 2 })),
+          fr('返回 left = 2 · 段 2 装数字 5、6', ['sel-return'],
+            'return left  # 2',
+            'Return 2. On the bar, target 5 lands inside segment 2 (numbers 5 and 6) — exactly the segment picked with probability 2/10.',
+            '返回 2。看条形：target 5 落在段 2 内（段 2 装数字 5、6），它的选中概率正是 2/10。',
+            '答案的下标 = 命中段的编号；概率 = 段长 / 总长 = weights[2] / 10。',
+            st({ phase: 'select', prefix: [3, 4, 6, 10], target: TARGET, left: 2, right: 2, round: 2, done: true, answer: 2 }))
+        ];
+
+        function rectPath(x, y, w, h, r = 0) {
+          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+
+        function layout() {
+          const width = stage.clientWidth;
+          const compact = width < 560;
+          if (compact) {
+            const gap = 6;
+            const cellW = Math.min(44, Math.floor((width - 16 - gap * (N - 1)) / N));
+            geom = {
+              width, compact, gap, cellW,
+              cellH: 22, wY: 18, wIdxY: 51, valFs: 11.5, idxFs: 8.5,
+              barX: 10, barY: 76, barH: 30, segIFs: 7.5, segWFs: 11, epY: 119,
+              tgtY: 56, tgtH: 14, tgtFs: 8.5, tgtChipW: 66,
+              chipY: 130, chipH: 15, chipFs: 8, chipW: 46, mergedChipW: 88,
+              pY: 152, pCellH: 24, pIdxY: 187, capFs: 8.5, boolY: 196, boolH: 16, boolFs: 9,
+              arrowTo: 149, runChipW: 78, runFs: 9,
+              stageH: 220
+            };
+          } else {
+            const gap = 12;
+            const cellW = Math.min(56, Math.floor((width - 160 - gap * (N - 1)) / N));
+            geom = {
+              width, compact, gap, cellW,
+              cellH: 30, wY: 24, wIdxY: 67, valFs: 14, idxFs: 10,
+              barX: 20, barY: 94, barH: 44, segIFs: 9.5, segWFs: 14, epY: 153,
+              tgtY: 72, tgtH: 16, tgtFs: 10, tgtChipW: 84,
+              chipY: 166, chipH: 18, chipFs: 10, chipW: 60, mergedChipW: 108,
+              pY: 192, pCellH: 30, pIdxY: 235, capFs: 10.5, boolY: 248, boolH: 20, boolFs: 10.5,
+              arrowTo: 190, runChipW: 96, runFs: 10.5,
+              stageH: 280
+            };
+          }
+          geom.blockW = N * geom.cellW + (N - 1) * geom.gap;
+          geom.startX = geom.compact
+            ? Math.max(8, Math.round((width - geom.blockW) / 2))
+            : Math.max(84, Math.round((width - geom.blockW) / 2));
+          geom.barW = width - 2 * geom.barX;
+          geom.unit = geom.barW / SUM;
+          stage.style.height = `${geom.stageH}px`;
+          svg.setAttribute('viewBox', `0 0 ${width} ${geom.stageH}`);
+        }
+
+        const cellX = index => geom.startX + index * (geom.cellW + geom.gap);
+        const cellCenter = index => cellX(index) + geom.cellW / 2;
+        const clampX = (x, half) => Math.min(geom.width - half - 2, Math.max(half + 2, x));
+
+        function draw(state, t = 1, from = null) {
+          if (!geom) return;
+          const g = geom;
+          const ease = core.smoothstep(t);
+          const active = Boolean(from) && t < 1;
+          const buildPhase = state.phase === 'build';
+          const sel = !buildPhase;
+
+          scene.update(({ path, text }) => {
+            // weights row
+            text('w-cap', { x: 8, y: g.compact ? 11 : 45, 'font-size': g.capFs, fill: '#777', 'font-family': MONO }, 'weights');
+            for (let idx = 0; idx < N; idx += 1) {
+              const x = cellX(idx);
+              path(`w-cell-${idx}`, { d: rectPath(x, g.wY, g.cellW, g.cellH, 2), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3 });
+              text(`w-val-${idx}`, { x: x + g.cellW / 2, y: g.wY + g.cellH / 2 + (g.compact ? 4 : 5), 'text-anchor': 'middle', 'font-size': g.valFs, fill: '#272727', 'font-family': MONO }, String(WEIGHTS[idx]));
+              text(`w-idx-${idx}`, { x: x + g.cellW / 2, y: g.wIdxY, 'text-anchor': 'middle', 'font-size': g.idxFs, fill: '#777', 'font-family': MONO }, String(idx));
+              if (buildPhase && state.i === idx) {
+                path(`w-ring-${idx}`, { d: rectPath(x - 4, g.wY - 4, g.cellW + 8, g.cellH + 8, 3), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+              }
+            }
+
+            // segment bar
+            let prev = 0;
+            for (let idx = 0; idx < N; idx += 1) {
+              const end = FULL_PREFIX[idx];
+              const x = g.barX + prev * g.unit;
+              const w = (end - prev) * g.unit;
+              prev = end;
+              let opacity = 1;
+              if (sel && state.left !== null) {
+                const dim = idx < state.left || idx > state.right;
+                opacity = dim ? 0.35 : 1;
+                if (active && from && from.phase === 'select' && from.left !== null) {
+                  const fromDim = idx < from.left || idx > from.right;
+                  opacity = fromDim === dim ? opacity : (fromDim ? 0.35 + 0.65 * ease : 1 - 0.65 * ease);
+                }
+              }
+              const isAnswer = state.answer === idx;
+              const inRange = sel && state.left !== null && idx >= state.left && idx <= state.right;
+              path(`seg-${idx}`, {
+                d: rectPath(x, g.barY, w, g.barH),
+                fill: inRange || isAnswer ? '#f5f2e9' : '#fffdf8',
+                stroke: '#333', 'stroke-width': isAnswer ? 1.8 : 1.3, opacity
+              });
+              text(`seg-i-${idx}`, { x: x + w / 2, y: g.barY + g.barH * 0.38 + 3, 'text-anchor': 'middle', 'font-size': g.segIFs, fill: '#555', 'font-family': MONO, opacity }, `i=${idx}`);
+              text(`seg-w-${idx}`, { x: x + w / 2, y: g.barY + g.barH * 0.78 + 4, 'text-anchor': 'middle', 'font-size': g.segWFs, fill: '#272727', 'font-family': MONO, opacity }, String(WEIGHTS[idx]));
+              if (isAnswer) {
+                path('seg-answer-ring', { d: rectPath(x - 3, g.barY - 3, w + 6, g.barH + 6), fill: 'none', stroke: '#272727', 'stroke-width': 1, 'stroke-dasharray': '5 3' });
+              }
+            }
+
+            // endpoint ticks and number-line labels
+            if (state.prefix.length) {
+              const x1 = g.barX + 0.5 * g.unit;
+              path('num-tick-1', { d: `M ${x1} ${g.barY + g.barH} l 0 5`, stroke: '#555', 'stroke-width': 1 });
+              text('num-lab-1', { x: x1, y: g.epY, 'text-anchor': 'middle', 'font-size': g.idxFs, fill: '#999', 'font-family': MONO }, '1');
+              state.prefix.forEach((endValue, idx) => {
+                const x = g.barX + endValue * g.unit;
+                path(`ep-tick-${idx}`, { d: `M ${x} ${g.barY + g.barH} l 0 5`, stroke: '#555', 'stroke-width': 1 });
+                text(`ep-lab-${idx}`, { x, y: g.epY, 'text-anchor': 'middle', 'font-size': g.idxFs, fill: '#555', 'font-family': MONO }, String(endValue));
+              });
+            }
+
+            // target marker
+            if (state.target !== null || (active && from && from.target !== null)) {
+              const shown = state.target !== null;
+              const v = shown ? state.target : from.target;
+              const x = g.barX + (v - 0.5) * g.unit;
+              const op = shown ? (active && from.target === null ? ease : 1) : 1 - ease;
+              const chipW = g.tgtChipW;
+              const cx = clampX(x, chipW / 2);
+              path('target-line', { d: `M ${x} ${g.tgtY + g.tgtH} L ${x} ${g.barY + g.barH + 5}`, stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', opacity: op });
+              path('target-chip', { d: rectPath(cx - chipW / 2, g.tgtY, chipW, g.tgtH, 2), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.2, opacity: op });
+              text('target-chip-text', { x: cx, y: g.tgtY + g.tgtH / 2 + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle', 'font-size': g.tgtFs, fill: '#272727', 'font-family': MONO, opacity: op }, `target = ${v}`);
+              if (Math.abs(cx - x) > 2) {
+                path('target-leader', { d: `M ${cx} ${g.tgtY + g.tgtH} L ${x} ${g.barY - 1}`, stroke: '#888', 'stroke-width': 1, opacity: op });
+              }
+            }
+
+            // search chips over the prefix strip
+            if (sel && state.left !== null) {
+              // Draw mid only while it sits at its own cell; once it coincides
+              // with left or right, that chip already marks the cell.
+              const drawMid = state.mid !== null && state.mid !== state.left && state.mid !== state.right;
+              if (state.left === state.right && !drawMid) {
+                const cx = clampX(cellCenter(state.left), g.mergedChipW / 2);
+                path('chip-left', { d: rectPath(cx - g.mergedChipW / 2, g.chipY, g.mergedChipW, g.chipH, 2), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.2 });
+                text('chip-left-text', { x: cx, y: g.chipY + g.chipH / 2 + (g.compact ? 3 : 3.6), 'text-anchor': 'middle', 'font-size': g.chipFs, fill: '#272727', 'font-family': MONO }, `left = right = ${state.left}`);
+                path('arrow-left', { d: `M ${cx} ${g.chipY + g.chipH + 1} L ${cellCenter(state.left)} ${g.pY - 2}`, stroke: '#666', 'stroke-width': 1, fill: 'none', 'marker-end': 'url(#weighted-arrow)' });
+              } else {
+                const entries = [
+                  { key: 'left', index: state.left, label: `left = ${state.left}` },
+                  ...(drawMid ? [{ key: 'mid', index: state.mid, label: `mid = ${state.mid}` }] : []),
+                  { key: 'right', index: state.right, label: `right = ${state.right}` }
+                ];
+                for (const entry of entries) {
+                  const cx = clampX(cellCenter(entry.index), g.chipW / 2);
+                  path(`chip-${entry.key}`, { d: rectPath(cx - g.chipW / 2, g.chipY, g.chipW, g.chipH, 2), fill: '#fffdf8', stroke: entry.key === 'mid' ? '#777' : '#333', 'stroke-width': 1.2, 'stroke-dasharray': entry.key === 'mid' ? '3 2' : null });
+                  text(`chip-${entry.key}-text`, { x: cx, y: g.chipY + g.chipH / 2 + (g.compact ? 3 : 3.6), 'text-anchor': 'middle', 'font-size': g.chipFs, fill: '#272727', 'font-family': MONO }, entry.label);
+                  path(`arrow-${entry.key}`, { d: `M ${cx} ${g.chipY + g.chipH + 1} L ${cellCenter(entry.index)} ${g.pY - 2}`, stroke: '#666', 'stroke-width': 1, fill: 'none', 'marker-end': 'url(#weighted-arrow)' });
+                }
+              }
+            }
+
+            // prefix_sums strip
+            text('p-cap', { x: g.compact ? 6 : 8, y: g.compact ? g.pIdxY : 208, 'font-size': g.compact ? 7.5 : g.capFs, fill: '#777', 'font-family': MONO }, 'prefix_sums');
+            for (let idx = 0; idx < N; idx += 1) {
+              const x = cellX(idx);
+              const filled = idx < state.prefix.length;
+              const appearing = active && from && idx >= from.prefix.length && idx < state.prefix.length;
+              const op = appearing ? ease : 1;
+              const inRange = sel && state.left !== null && idx >= state.left && idx <= state.right;
+              const isMid = sel && state.mid !== null && idx === state.mid;
+              const isAnswer = state.answer === idx;
+              const isNew = buildPhase && state.i === idx;
+              path(`p-cell-${idx}`, {
+                d: rectPath(x, g.pY, g.cellW, g.pCellH, 2),
+                fill: !filled ? 'none' : (inRange || isAnswer || isNew) ? '#f5f2e9' : '#fffdf8',
+                stroke: !filled ? '#999' : isAnswer || isNew ? '#272727' : isMid ? '#777' : '#333',
+                'stroke-width': isAnswer || isNew ? 1.8 : 1.3,
+                'stroke-dasharray': !filled ? '4 3' : isMid ? '5 3' : null,
+                opacity: op
+              });
+              if (filled) {
+                text(`p-val-${idx}`, { x: x + g.cellW / 2, y: g.pY + g.pCellH / 2 + (g.compact ? 4 : 5), 'text-anchor': 'middle', 'font-size': g.valFs, fill: '#272727', 'font-family': MONO, opacity: op }, String(state.prefix[idx]));
+              }
+              text(`p-idx-${idx}`, { x: x + g.cellW / 2, y: g.pIdxY, 'text-anchor': 'middle', 'font-size': g.idxFs, fill: '#777', 'font-family': MONO }, String(idx));
+            }
+
+            // running-total chip (constructor) — sits in the bool slot, under the new cell
+            if (buildPhase && state.i !== null) {
+              const cx = clampX(cellCenter(state.i), g.runChipW / 2);
+              const line = `M ${cx + 14} ${g.boolY - 1} L ${cx + 14} ${g.pY + g.pCellH + 3}`;
+              path('run-connector', { d: line, stroke: '#888', 'stroke-width': 1, fill: 'none', 'marker-end': 'url(#weighted-arrow)' });
+              path('run-chip', { d: rectPath(cx - g.runChipW / 2, g.boolY, g.runChipW, g.boolH, 2), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.1 });
+              text('run-chip-text', { x: cx, y: g.boolY + g.boolH / 2 + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle', 'font-size': g.runFs, fill: '#272727', 'font-family': MONO }, `${FULL_PREFIX[state.i - 1]} + ${WEIGHTS[state.i]} = ${FULL_PREFIX[state.i]}`);
+            }
+
+            // condition chip (select, mid set) — same slot as the running chip
+            if (sel && state.mid !== null && state.cmp) {
+              const mv = FULL_PREFIX[state.mid];
+              const lt = state.cmp === 'lt';
+              const label = `${mv} < ${state.target} → ${lt ? 'True' : 'False'}`;
+              const chipW = g.compact ? 96 : 128;
+              const cx = clampX(geom.width / 2, chipW / 2);
+              path('bool-chip', { d: rectPath(cx - chipW / 2, g.boolY, chipW, g.boolH, 2), fill: lt ? '#fffdf8' : '#f5f2e9', stroke: '#555', 'stroke-width': 1.1 });
+              text('bool-chip-text', { x: cx, y: g.boolY + g.boolH / 2 + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle', 'font-size': g.boolFs, fill: '#272727', 'font-family': MONO }, label);
+            }
+
+            // answer tag (final frame)
+            if (state.answer !== null) {
+              const label = g.compact ? `✓ 返回 ${state.answer} · P = 2/10` : `✓ 返回 ${state.answer} · 段 2 装数字 5、6 · P = 2/10`;
+              const chipW = g.compact ? 142 : 262;
+              const cx = clampX(geom.width / 2, chipW / 2);
+              path('ans-chip', { d: rectPath(cx - chipW / 2, g.boolY, chipW, g.boolH, 2), fill: '#f5f2e9', stroke: '#272727', 'stroke-width': 1.3 });
+              text('ans-chip-text', { x: cx, y: g.boolY + g.boolH / 2 + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle', 'font-size': g.boolFs, fill: '#272727', 'font-family': MONO }, label);
+            }
+          });
+        }
+
+        function render({ frame, state, step, frames }) {
+          phaseEl.textContent = `步骤 ${step + 1} / ${frames.length} · ${frame.stepLabel}`;
+          invariantEl.textContent = frame.invariant;
+          mPrefix.textContent = `[${state.prefix.join(', ')}]`;
+          mI.textContent = state.i === null ? '—' : state.i;
+          mTarget.textContent = state.target === null ? '—' : state.target;
+          mLeft.textContent = state.left === null ? '—' : state.left;
+          mRight.textContent = state.right === null ? '—' : state.right;
+          mMid.textContent = state.mid === null ? '—' : state.mid;
+          expressionEl.textContent = frame.line;
+          explanationEl.textContent = frame.en;
+          explanationZhEl.textContent = frame.zh;
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步 · ${frame.stepLabel}`);
+          draw(state, 1, null);
+        }
+
+        const cloneState = s => ({ ...s, prefix: [...s.prefix] });
+        const trace = core.createTrace({
+          root,
+          cloneState,
+          motion,
+          onRender: render,
+          onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
+          onTransition: ({ state, frame }) => {
+            const from = transitionFrom;
+            transitionFrom = null;
+            if (!from || motion.reduced) { draw(state, 1, null, frame); return; }
+            motion.tween({
+              duration: 420,
+              update: eased => draw(state, eased, from, frame),
+              complete: () => draw(state, 1, null, frame)
+            });
+          },
+          formatStepOption: frame => frame.stepLabel
+        });
+
+        layout();
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null, trace.frame || FRAMES[0]); }).observe(stage);
+        trace.setFrames(FRAMES);
+      })();
+    </script>
+  </body>
+</html>

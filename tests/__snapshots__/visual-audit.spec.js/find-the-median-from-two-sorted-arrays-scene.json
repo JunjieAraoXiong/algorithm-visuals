@@ -1,0 +1,2859 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "两个有序数组的中位数二分切片演示 / median of two sorted arrays trace"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 88"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 调用"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 比较长度"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 交换数组"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 记录长度"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 半个总长"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 搜索区间"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 第 1 轮开始"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 第 1 轮 · 猜 L1 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 第 1 轮 · 推出 L2 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 第 1 轮 · nums1 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 第 1 轮 · nums2 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 第 1 轮 · L1 > R2 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 第 1 轮 · L2 > R1 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 第 1 轮 · 切片正确"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 偶数总长"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 第 1 轮 · 计算中位数"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "例 1 · 偶数总长 · 返回 4.0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 调用"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 比较长度"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "19"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 记录长度"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "20"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 半个总长"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "21"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 搜索区间"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "22"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 1 轮开始"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "23"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 1 轮 · 猜 L1 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "24"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 1 轮 · 推出 L2 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "25"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 1 轮 · nums1 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "26"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 1 轮 · nums2 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "27"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 1 轮 · L1 > R2 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "28"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 1 轮 · 向左收缩"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "29"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 2 轮开始"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "30"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 2 轮 · 猜 L1 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "31"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 2 轮 · 推出 L2 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "32"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 2 轮 · nums1 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "33"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 2 轮 · nums2 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "34"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 2 轮 · L1 > R2 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "35"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 2 轮 · 向左收缩"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "36"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 3 轮开始"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "37"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 3 轮 · 猜 L1 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "38"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 3 轮 · 推出 L2 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "39"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 3 轮 · nums1 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "40"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 3 轮 · nums2 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "41"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 3 轮 · L1 > R2 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "42"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 3 轮 · L2 > R1 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "43"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 3 轮 · 切片正确"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "44"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 偶数总长"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "45"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 第 3 轮 · 计算中位数"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "46"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠右（L1 > R2） · 返回 4.5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "47"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 调用"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "48"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 比较长度"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "49"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 记录长度"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "50"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 半个总长"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "51"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 搜索区间"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "52"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 1 轮开始"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "53"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 1 轮 · 猜 L1 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "54"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 1 轮 · 推出 L2 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "55"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 1 轮 · nums1 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "56"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 1 轮 · nums2 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "57"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 1 轮 · L1 > R2 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "58"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 1 轮 · L2 > R1 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "59"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 1 轮 · 向右收缩"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "60"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 2 轮开始"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "61"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 2 轮 · 猜 L1 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "62"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 2 轮 · 推出 L2 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "63"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 2 轮 · nums1 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "64"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 2 轮 · nums2 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "65"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 2 轮 · L1 > R2 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "66"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 2 轮 · L2 > R1 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "67"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 2 轮 · 切片正确"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "68"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 奇数总长"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "69"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 第 2 轮 · 计算中位数"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "70"
+                    ]
+                  ],
+                  "children": [
+                    "演示 · 切片太靠左（L2 > R1） · 返回 5.0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "71"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 调用"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "72"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 比较长度"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "73"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 交换数组"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "74"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 记录长度"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "75"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 半个总长"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "76"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 搜索区间"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "77"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 第 1 轮开始"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "78"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 第 1 轮 · 猜 L1 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "79"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 第 1 轮 · 推出 L2 的位置"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "80"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 第 1 轮 · nums1 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "81"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 第 1 轮 · nums2 的边界值"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "82"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 第 1 轮 · L1 > R2 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "83"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 第 1 轮 · L2 > R1 ?"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "84"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 第 1 轮 · 切片正确"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "85"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 奇数总长"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "86"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 第 1 轮 · 计算中位数"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "87"
+                    ]
+                  ],
+                  "children": [
+                    "例 2 · 奇数总长 · 返回 5.0"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "例 1 · 偶数总长 · 调用"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "两个有序数组的中位数演示：第 1 / 88 步。以 nums1 = [0, 2, 5, 6, 8]、nums2 = [1, 3, 7] 调用。中位数属于“合并后”的数组，但整个过程不会真正合并它们。 下方灰色虚线行是合并后的数组，仅作参考。"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ],
+        [
+          "style",
+          "height: 296px;"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-hidden",
+              "true"
+            ],
+            [
+              "class",
+              "lines"
+            ],
+            [
+              "data-scene",
+              ""
+            ],
+            [
+              "viewBox",
+              "0 0 731 296"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#555"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 149 42 H 191 Q 194 42 194 45 V 69 Q 194 72 191 72 H 149 Q 146 72 146 69 V 45 Q 146 42 149 42 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "c1-0"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 205 42 H 247 Q 250 42 250 45 V 69 Q 250 72 247 72 H 205 Q 202 72 202 69 V 45 Q 202 42 205 42 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "c1-1"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 261 42 H 303 Q 306 42 306 45 V 69 Q 306 72 303 72 H 261 Q 258 72 258 69 V 45 Q 258 42 261 42 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "c1-2"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 317 42 H 359 Q 362 42 362 45 V 69 Q 362 72 359 72 H 317 Q 314 72 314 69 V 45 Q 314 42 317 42 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "c1-3"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 373 42 H 415 Q 418 42 418 45 V 69 Q 418 72 415 72 H 373 Q 370 72 370 69 V 45 Q 370 42 373 42 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "c1-4"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 149 146 H 191 Q 194 146 194 149 V 173 Q 194 176 191 176 H 149 Q 146 176 146 173 V 149 Q 146 146 149 146 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "c2-0"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 205 146 H 247 Q 250 146 250 149 V 173 Q 250 176 247 176 H 205 Q 202 176 202 173 V 149 Q 202 146 205 146 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "c2-1"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 261 146 H 303 Q 306 146 306 149 V 173 Q 306 176 303 176 H 261 Q 258 176 258 173 V 149 Q 258 146 261 146 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "c2-2"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#333"
+                ],
+                [
+                  "stroke-width",
+                  "1.3"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 149 226 H 191 Q 194 226 194 229 V 249 Q 194 252 191 252 H 149 Q 146 252 146 249 V 229 Q 146 226 149 226 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "mc-0"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 205 226 H 247 Q 250 226 250 229 V 249 Q 250 252 247 252 H 205 Q 202 252 202 249 V 229 Q 202 226 205 226 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "mc-1"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 261 226 H 303 Q 306 226 306 229 V 249 Q 306 252 303 252 H 261 Q 258 252 258 249 V 229 Q 258 226 261 226 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "mc-2"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 317 226 H 359 Q 362 226 362 229 V 249 Q 362 252 359 252 H 317 Q 314 252 314 249 V 229 Q 314 226 317 226 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "mc-3"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 373 226 H 415 Q 418 226 418 229 V 249 Q 418 252 415 252 H 373 Q 370 252 370 249 V 229 Q 370 226 373 226 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "mc-4"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 429 226 H 471 Q 474 226 474 229 V 249 Q 474 252 471 252 H 429 Q 426 252 426 249 V 229 Q 426 226 429 226 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "mc-5"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 485 226 H 527 Q 530 226 530 229 V 249 Q 530 252 527 252 H 485 Q 482 252 482 249 V 229 Q 482 226 485 226 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "mc-6"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 541 226 H 583 Q 586 226 586 229 V 249 Q 586 252 583 252 H 541 Q 538 252 538 249 V 229 Q 538 226 541 226 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "mc-7"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1.1"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 315 223 H 361 Q 365 223 365 227 V 251 Q 365 255 361 255 H 315 Q 311 255 311 251 V 227 Q 311 223 315 223 Z"
+                ],
+                [
+                  "data-mid",
+                  "3"
+                ],
+                [
+                  "data-visual-element",
+                  "mmark-0"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 371 223 H 417 Q 421 223 421 227 V 251 Q 421 255 417 255 H 371 Q 367 255 367 251 V 227 Q 367 223 371 223 Z"
+                ],
+                [
+                  "data-mid",
+                  "4"
+                ],
+                [
+                  "data-visual-element",
+                  "mmark-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "1.4"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "lab1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "4"
+                ],
+                [
+                  "y",
+                  "56"
+                ]
+              ],
+              "children": [
+                "nums1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "lab2"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "4"
+                ],
+                [
+                  "y",
+                  "160"
+                ]
+              ],
+              "children": [
+                "nums2"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c1v-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "170"
+                ],
+                [
+                  "y",
+                  "61.8"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c1i-0"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "170"
+                ],
+                [
+                  "y",
+                  "85"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c1v-1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "226"
+                ],
+                [
+                  "y",
+                  "61.8"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c1i-1"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "226"
+                ],
+                [
+                  "y",
+                  "85"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c1v-2"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "282"
+                ],
+                [
+                  "y",
+                  "61.8"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c1i-2"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "282"
+                ],
+                [
+                  "y",
+                  "85"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c1v-3"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "338"
+                ],
+                [
+                  "y",
+                  "61.8"
+                ]
+              ],
+              "children": [
+                "6"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c1i-3"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "338"
+                ],
+                [
+                  "y",
+                  "85"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c1v-4"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "394"
+                ],
+                [
+                  "y",
+                  "61.8"
+                ]
+              ],
+              "children": [
+                "8"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c1i-4"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "394"
+                ],
+                [
+                  "y",
+                  "85"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c2v-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "170"
+                ],
+                [
+                  "y",
+                  "165.8"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c2i-0"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "170"
+                ],
+                [
+                  "y",
+                  "189"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c2v-1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "226"
+                ],
+                [
+                  "y",
+                  "165.8"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c2i-1"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "226"
+                ],
+                [
+                  "y",
+                  "189"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c2v-2"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "282"
+                ],
+                [
+                  "y",
+                  "165.8"
+                ]
+              ],
+              "children": [
+                "7"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "c2i-2"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "282"
+                ],
+                [
+                  "y",
+                  "189"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "labm"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "4"
+                ],
+                [
+                  "y",
+                  "243"
+                ]
+              ],
+              "children": [
+                "merged"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "mcv-0"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "170"
+                ],
+                [
+                  "y",
+                  "243"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "mcv-1"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "226"
+                ],
+                [
+                  "y",
+                  "243"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "mcv-2"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "282"
+                ],
+                [
+                  "y",
+                  "243"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "mcv-3"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "338"
+                ],
+                [
+                  "y",
+                  "243"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "mcv-4"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "394"
+                ],
+                [
+                  "y",
+                  "243"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "mcv-5"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "450"
+                ],
+                [
+                  "y",
+                  "243"
+                ]
+              ],
+              "children": [
+                "6"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "mcv-6"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "506"
+                ],
+                [
+                  "y",
+                  "243"
+                ]
+              ],
+              "children": [
+                "7"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "mcv-7"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "562"
+                ],
+                [
+                  "y",
+                  "243"
+                ]
+              ],
+              "children": [
+                "8"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "m-tag"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "394"
+                ],
+                [
+                  "y",
+                  "264"
+                ]
+              ],
+              "children": [
+                "median = (3 + 5) / 2（仅参考）"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "不变量 / Invariant"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "切分位置一旦正确，中位数只由切口处的四个值决定。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "half_total_len"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-half",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "left"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-left",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "right"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-right",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "L1_index"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-l1i",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "L2_index"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-l2i",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "L1"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-l1",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "R1"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-r1",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "L2"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-l2",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "R2"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-m-r2",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-code",
+              ""
+            ]
+          ],
+          "children": [
+            "find_the_median_from_two_sorted_arrays(nums1=[0, 2, 5, 6, 8], nums2=[1, 3, 7])"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-en",
+              ""
+            ]
+          ],
+          "children": [
+            "Call with nums1 = [0, 2, 5, 6, 8] and nums2 = [1, 3, 7]. The median is a property of the merged array, but we never actually merge. The dashed row below is the merged array, shown only as a reference."
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-zh",
+              ""
+            ]
+          ],
+          "children": [
+            "以 nums1 = [0, 2, 5, 6, 8]、nums2 = [1, 3, 7] 调用。中位数属于“合并后”的数组，但整个过程不会真正合并它们。 下方灰色虚线行是合并后的数组，仅作参考。"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Interactive bilingual visualization of binary search over a sorted matrix via flat-index mapping: r = mid // n, c = mid % n, no flattening. 搜索二维矩阵：扁平下标映射 + 二分查找。" />
+  <title>Matrix Search · Algorithm Visuals</title>
+  <link rel="stylesheet" href="../assets/guide.css" />
+  <link rel="stylesheet" href="../assets/visual.css" />
+  <style>
+    #matrix-lab .problem { max-width: 920px; margin: 0 3px 10px; color: #41413e; }
+    #matrix-lab .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+    #matrix-lab .step-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; min-height: 24px; margin: 6px 3px 2px; color: var(--quiet); font: 12px/1.5 monospace; }
+    #matrix-lab .step-picker { display: flex; align-items: center; gap: 5px; margin-left: auto; color: var(--quiet); font-size: 12px; }
+    #matrix-lab .step-picker select { max-width: 100%; }
+
+    #matrix-lab .stage { overflow: hidden; border-bottom: 1px solid var(--rule); }
+    #matrix-lab svg text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    #matrix-lab .cellg { transition: opacity .3s; }
+    #matrix-lab .cellg.dim { opacity: .28; }
+    #matrix-lab .cellg rect { transition: fill .25s; }
+    #matrix-lab .cellg.midcell rect { fill: #f5f2e9; }
+    #matrix-lab .cellg.foundcell rect { fill: #f5f2e9; stroke-width: 1.9; }
+    #matrix-lab .tick-label, #matrix-lab .tick-mark { transition: opacity .3s; }
+    #matrix-lab .tick-label.dim, #matrix-lab .tick-mark.dim { opacity: .28; }
+    #matrix-lab .mid-outline { fill: none; stroke: #272727; stroke-width: 1.5; stroke-dasharray: 5 4; transition: transform .34s ease; }
+    #matrix-lab .connector { fill: none; stroke: #555; stroke-width: 1.2; stroke-dasharray: 5 4; opacity: 1; transition: opacity .25s; }
+    #matrix-lab .connector.off { opacity: 0; }
+    #matrix-lab .found-mark { fill: #272727; font-size: 11px; }
+
+    #matrix-lab .target-tag { position: absolute; z-index: 4; top: 6px; right: 6px; color: var(--quiet); font: 11px/1.2 monospace; }
+    #matrix-lab .mchip { position: absolute; z-index: 4; padding: 2px 7px; border: 1px solid #555; border-radius: 2px; background: var(--paper); font: 10.5px/1.4 monospace; transform: translateX(-50%); white-space: nowrap; transition: left .34s ease; }
+    #matrix-lab .mchip::after { content: ""; position: absolute; top: 100%; left: 50%; height: 6px; border-left: 1px solid #666; }
+    #matrix-lab .space-bracket { position: absolute; z-index: 1; height: 7px; border-right: 1px solid #555; border-bottom: 1px solid #555; border-left: 1px solid #555; transition: left .34s ease, width .34s ease; }
+    #matrix-lab .space-bracket span { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); color: var(--quiet); font: 9px/1 monospace; white-space: nowrap; }
+    #matrix-lab .mapchip { position: absolute; z-index: 4; padding: 6px 9px; border: 1px dashed #777; background: var(--paper); font: 11px/1.55 monospace; white-space: nowrap; transition: left .34s ease, top .34s ease, opacity .25s; }
+    #matrix-lab .mapchip span { display: block; }
+    #matrix-lab .mchip[hidden], #matrix-lab .mapchip[hidden], #matrix-lab .space-bracket[hidden] { display: none; }
+
+    #matrix-lab .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 232px; gap: 10px; margin: 12px 3px; }
+    #matrix-lab .invariant, #matrix-lab .metrics { padding: 9px 11px; border: 1px solid var(--rule); }
+    #matrix-lab .invariant strong { display: block; margin-bottom: 4px; font: 12px/1.4 monospace; }
+    #matrix-lab .invariant p { margin: 0; color: var(--quiet); font-size: 13px; line-height: 1.5; }
+    #matrix-lab .metrics { display: grid; gap: 4px; margin: 0; font: 11px/1.45 monospace; }
+    #matrix-lab .metrics div { display: flex; justify-content: space-between; gap: 10px; min-width: 0; }
+    #matrix-lab .metrics dt { color: var(--quiet); white-space: nowrap; }
+    #matrix-lab .metrics dd { margin: 0; text-align: right; white-space: nowrap; }
+
+    #matrix-lab .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+    #matrix-lab .section h2 { margin: 0 0 8px; font-size: 19px; font-weight: 500; }
+    #matrix-lab .section-intro { max-width: 920px; color: var(--quiet); }
+    #matrix-lab .case-grid, #matrix-lab .edge-grid, #matrix-lab .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+    #matrix-lab .edge-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    #matrix-lab .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+    #matrix-lab .paper-card p { margin: 6px 0 0; color: var(--quiet); font-size: 13px; line-height: 1.5; }
+    #matrix-lab .paper-card strong { font: 13px/1.4 monospace; }
+    #matrix-lab .mapping-fig { display: block; width: 100%; max-width: 680px; height: auto; margin-top: 10px; }
+    #matrix-lab .case-code { margin: 8px 0 0; padding: 8px 10px; border: 1px dashed #999; background: #faf9f4; font: 12px/1.7 monospace; overflow-x: auto; white-space: pre; }
+    #matrix-lab .reason-list { margin: 8px 0 0; padding-left: 22px; }
+    #matrix-lab .reason-list li { margin: 6px 0; }
+
+    @media (max-width: 720px) {
+      #matrix-lab .state-grid, #matrix-lab .case-grid, #matrix-lab .complexity { grid-template-columns: 1fr; }
+      #matrix-lab .edge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #matrix-lab .step-picker { width: 100%; margin-left: 0; }
+      #matrix-lab .step-picker select { flex: 1; }
+    }
+    @media (max-width: 480px) {
+      #matrix-lab .edge-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      #matrix-lab .space-bracket span { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #matrix-lab .cellg, #matrix-lab .cellg rect, #matrix-lab .tick-label, #matrix-lab .tick-mark, #matrix-lab .mid-outline, #matrix-lab .connector, #matrix-lab .mchip, #matrix-lab .space-bracket, #matrix-lab .mapchip { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main id="matrix-lab">
+    <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+    <header class="heading"><div><h1>Matrix Search<span lang="zh-CN"> · 搜索二维矩阵</span></h1></div></header>
+    <p class="problem">
+      Each row of <code>matrix</code> is sorted in non-decreasing order, and the first value of each row is
+      greater than or equal to the last value of the previous row — read in flattened order, the whole matrix
+      is one continuous sorted sequence. Determine whether <code>target</code> exists in it. The trace below uses
+      <code>matrix = [[2, 3, 4, 6], [7, 10, 11, 17], [20, 21, 24, 33]]</code> with <code>target = 21</code> (found),
+      then a second pass with <code>target = 0</code> (absent).
+      <span lang="zh-CN">矩阵的每一行按非递减顺序排列，且每行第一个值 ≥ 上一行最后一个值——按行优先展开，整个矩阵就是一段连续的升序序列。判断 <code>target</code> 是否存在。下方演示先用 <code>matrix = [[2, 3, 4, 6], [7, 10, 11, 17], [20, 21, 24, 33]]</code>、<code>target = 21</code>（能找到），再走一遍 <code>target = 0</code>（不存在）。</span>
+    </p>
+
+    <div class="learning-layout" data-learning-layout>
+      <section class="animation-panel" data-animation-panel aria-label="Matrix search binary search trace / 矩阵二分查找演示">
+        <div class="controls">
+          <button type="button" data-action="previous">← 上一步</button>
+          <output data-count aria-live="polite"></output>
+          <button type="button" data-action="next">下一步 →</button>
+          <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+        </div>
+        <div class="step-meta"><span data-phase></span></div>
+        <div class="stage" data-stage tabindex="0" aria-label="矩阵二分查找演示，使用左右方向键切换步骤">
+          <span class="target-tag" data-target-tag>target = 21</span>
+          <svg class="lines" data-lines aria-hidden="true"></svg>
+          <span class="mchip" data-chip="left" hidden>left</span>
+          <span class="mchip" data-chip="mid" hidden>mid</span>
+          <span class="mchip" data-chip="right" hidden>right</span>
+          <div class="space-bracket" data-bracket hidden><span>搜索区间 [left, right]</span></div>
+          <div class="mapchip" data-map hidden><span data-map-r></span><span data-map-c></span></div>
+        </div>
+        <div class="state-grid">
+          <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+          <dl class="metrics">
+            <div><dt><code>m / n</code></dt><dd>3 / 4</dd></div>
+            <div><dt><code>target</code></dt><dd data-m-target></dd></div>
+            <div><dt><code>left</code></dt><dd data-m-left></dd></div>
+            <div><dt><code>mid</code></dt><dd data-m-mid></dd></div>
+            <div><dt><code>right</code></dt><dd data-m-right></dd></div>
+            <div><dt><code>matrix[r][c]</code></dt><dd data-m-val></dd></div>
+            <div><dt>轮次 / round</dt><dd data-m-round></dd></div>
+          </dl>
+        </div>
+        <div class="operation" role="status" aria-live="polite">
+          <code data-code></code><span data-en></span><span lang="zh-CN" data-zh></span>
+        </div>
+      </section>
+
+      <aside class="code-panel" data-code-panel aria-labelledby="matrix-code-title">
+        <h2 id="matrix-code-title">Final Python <span lang="zh-CN">/ 最终代码</span></h2>
+        <p class="code-status" data-code-status></p>
+        <pre data-code-scroll tabindex="0"><code><span class="code-line">def matrix_search(matrix: List[List[int]], target: int) -&gt; bool:</span><span class="code-line" data-source-key="init-mn">    m, n = len(matrix), len(matrix[0])</span><span class="code-line" data-source-key="init-lr">    left, right = 0, m * n - 1</span><span class="code-line code-comment">    # Perform binary search to find the target.</span><span class="code-line" data-source-key="loop">    while left &lt;= right:</span><span class="code-line" data-source-key="mid">        mid = (left + right) // 2</span><span class="code-line" data-source-key="rc">        r, c = mid // n, mid % n</span><span class="code-line" data-source-key="hit">        if matrix[r][c] == target:</span><span class="code-line" data-source-key="return-true">            return True</span><span class="code-line" data-source-key="gt">        elif matrix[r][c] &gt; target:</span><span class="code-line" data-source-key="go-left">            right = mid - 1</span><span class="code-line">        else:</span><span class="code-line" data-source-key="go-right">            left = mid + 1</span><span class="code-line" data-source-key="return-false">    return False</span></code></pre>
+        <p class="note">移动 chip 只改变下标变量（<code>left</code>、<code>right</code>、<code>mid</code> 以及由 <code>mid</code> 映射出的 <code>r</code>、<code>c</code>）；矩阵本身从不被修改。/ Moving a chip changes only index variables; the matrix is never modified.</p>
+      </aside>
+    </div>
+
+    <section class="section" aria-labelledby="ms-mapping">
+      <h2 id="ms-mapping">下标映射：不构造扁平数组 / Index mapping without flattening</h2>
+      <p class="section-intro">逐个格子线性扫描是 <code>O(m·n)</code>，完全没有用到「有序」。把矩阵复制成一个扁平数组再二分，则要 <code>O(m·n)</code> 的时间和空间来构建——得不偿失。关键观察是：按行优先展开，矩阵本来就是一段升序序列，每个格子早已有一个「隐式」的扁平下标。只要能在下标 <code>i</code> 和格子 <code>(r, c)</code> 之间互相换算，就不需要真的扁平化。/ A linear scan costs <code>O(m·n)</code> and ignores the sorted property; materializing a flattened array costs <code>O(m·n)</code> time and space. Read row by row, the matrix already is one ascending sequence — every cell already has an implicit flat index. Mapping between <code>i</code> and <code>(r, c)</code> removes the need to flatten at all.</p>
+      <svg class="mapping-fig" viewBox="0 0 660 212" role="img" aria-label="矩阵格子到扁平下标的映射图：cell (r, c) 的扁平下标 i = r·n + c，反推 r = i // n、c = i % n">
+        <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+          <text x="66" y="20" text-anchor="end" font-size="9" fill="#999">r＼c</text>
+          <g fill="#777" text-anchor="middle" font-size="10">
+            <text x="99" y="20">0</text><text x="151" y="20">1</text><text x="203" y="20">2</text><text x="255" y="20">3</text>
+          </g>
+          <g fill="#777" text-anchor="end" font-size="10">
+            <text x="66" y="54">0</text><text x="66" y="98">1</text><text x="66" y="142">2</text>
+          </g>
+          <g fill="#fffdf8" stroke="#333" stroke-width="1.3">
+            <rect x="76" y="30" width="46" height="38" rx="2.5"/><rect x="128" y="30" width="46" height="38" rx="2.5"/><rect x="180" y="30" width="46" height="38" rx="2.5"/><rect x="232" y="30" width="46" height="38" rx="2.5"/>
+            <rect x="76" y="74" width="46" height="38" rx="2.5"/><rect x="128" y="74" width="46" height="38" rx="2.5"/><rect x="180" y="74" width="46" height="38" rx="2.5"/><rect x="232" y="74" width="46" height="38" rx="2.5"/>
+            <rect x="76" y="118" width="46" height="38" rx="2.5"/><rect x="128" y="118" width="46" height="38" rx="2.5"/><rect x="180" y="118" width="46" height="38" rx="2.5"/><rect x="232" y="118" width="46" height="38" rx="2.5"/>
+          </g>
+          <g text-anchor="middle">
+            <g font-size="13" fill="#272727">
+              <text x="99" y="49">2</text><text x="151" y="49">3</text><text x="203" y="49">4</text><text x="255" y="49">6</text>
+              <text x="99" y="93">7</text><text x="151" y="93">10</text><text x="203" y="93">11</text><text x="255" y="93">17</text>
+              <text x="99" y="137">20</text><text x="151" y="137">21</text><text x="203" y="137">24</text><text x="255" y="137">33</text>
+            </g>
+            <g font-size="8.5" fill="#999">
+              <text x="99" y="63">0</text><text x="151" y="63">1</text><text x="203" y="63">2</text><text x="255" y="63">3</text>
+              <text x="99" y="107">4</text><text x="151" y="107">5</text><text x="203" y="107">6</text><text x="255" y="107">7</text>
+              <text x="99" y="151">8</text><text x="151" y="151">9</text><text x="203" y="151">10</text><text x="255" y="151">11</text>
+            </g>
+          </g>
+          <line x1="76" y1="176" x2="620" y2="176" stroke="#999" stroke-width="1" />
+          <g stroke="#999" stroke-width="1">
+            <line x1="98.7" y1="173.5" x2="98.7" y2="178.5"/><line x1="144" y1="173.5" x2="144" y2="178.5"/><line x1="189.3" y1="173.5" x2="189.3" y2="178.5"/><line x1="234.7" y1="173.5" x2="234.7" y2="178.5"/><line x1="280" y1="173.5" x2="280" y2="178.5"/><line x1="325.3" y1="173.5" x2="325.3" y2="178.5"/><line x1="370.7" y1="173.5" x2="370.7" y2="178.5"/><line x1="416" y1="173.5" x2="416" y2="178.5"/><line x1="461.3" y1="173.5" x2="461.3" y2="178.5"/><line x1="506.7" y1="173.5" x2="506.7" y2="178.5"/><line x1="552" y1="173.5" x2="552" y2="178.5"/><line x1="597.3" y1="173.5" x2="597.3" y2="178.5"/>
+          </g>
+          <g fill="#777" text-anchor="middle" font-size="9">
+            <text x="98.7" y="191">0</text><text x="144" y="191">1</text><text x="189.3" y="191">2</text><text x="234.7" y="191">3</text><text x="280" y="191">4</text><text x="325.3" y="191">5</text><text x="370.7" y="191">6</text><text x="416" y="191">7</text><text x="461.3" y="191">8</text><text x="506.7" y="191">9</text><text x="552" y="191">10</text><text x="597.3" y="191">11</text>
+          </g>
+          <g fill="#555" text-anchor="middle" font-size="9">
+            <text x="98.7" y="168">row 0</text><text x="280" y="168">row 1</text><text x="461.3" y="168">row 2</text>
+          </g>
+          <text x="76" y="207" font-size="10" fill="#555">row r 的第一个扁平下标 = r·n（row 1 → 4，row 2 → 8）</text>
+          <rect x="306" y="30" width="340" height="122" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="5 4" />
+          <g font-size="12.5" fill="#272727">
+            <text x="322" y="58">i = r·n + c</text>
+            <text x="322" y="82">r = i // n</text>
+            <text x="322" y="106">c = i % n</text>
+          </g>
+          <g font-size="9.5" fill="#777">
+            <text x="452" y="58">cell (r, c) 的扁平下标</text>
+            <text x="452" y="82">行号 = i ÷ n 的商</text>
+            <text x="452" y="106">列号 = i ÷ n 的余数</text>
+          </g>
+          <text x="322" y="136" font-size="10" fill="#555">例：i = 5 → r = 5 // 4 = 1，c = 5 % 4 = 1 → cell (1, 1)</text>
+        </g>
+      </svg>
+    </section>
+
+    <section class="section" aria-labelledby="ms-binary">
+      <h2 id="ms-binary">在扁平数轴上二分 / Binary search on the flat number line</h2>
+      <p class="section-intro">搜索空间就是这条 <code>0 … m·n−1</code> 的数轴：<code>left = 0</code>、<code>right = m·n−1</code>。每轮取 <code>mid = (left + right) // 2</code>，用 <code>r = mid // n</code>、<code>c = mid % n</code> 映射回格子，比较 <code>matrix[r][c]</code> 与 <code>target</code>：相等即返回；中点值偏大则 <code>right = mid − 1</code>，偏小则 <code>left = mid + 1</code>。下方是 <code>target = 21</code> 的完整路线。/ The search space is the number line <code>0 … m·n−1</code>. Each round halves it: compute <code>mid</code>, map it back to a cell, compare, and narrow to one side. The full route for <code>target = 21</code>:</p>
+      <div class="case-grid">
+        <article class="paper-card">
+          <strong>target = 21 的中点路线 / The midpoint route</strong>
+          <div class="case-code">mid = 5  → cell (1, 1) = 10 &lt; 21  → left = mid + 1 = 6
+mid = 8  → cell (2, 0) = 20 &lt; 21  → left = mid + 1 = 9
+mid = 10 → cell (2, 2) = 24 &gt; 21  → right = mid - 1 = 9
+mid = 9  → cell (2, 1) = 21 == 21 → return True</div>
+        </article>
+        <article class="paper-card">
+          <strong>退出条件：while left &lt;= right / The exit condition</strong>
+          <p>第 4 轮时 <code>left == right == 9</code>，区间只剩一格；正是 <code>&lt;=</code> 让循环继续，检查这最后一格并命中。若写成 <code>left &lt; right</code>，单格空间会被直接跳过，target 明明在矩阵里也会返回 False。/ Round 4 keeps <code>left == right == 9</code>: a one-cell space. Only <code>&lt;=</code> enters the loop and examines that last cell; with <code>&lt;</code> a target sitting in a single-cell space would be missed.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="ms-why">
+      <h2 id="ms-why">为什么这样收缩不会漏 / Why the narrowing never misses</h2>
+      <ol class="reason-list">
+        <li>按扁平下标读，值单调不减：<code>i &lt; j ⇒ flat[i] ≤ flat[j]</code>。这是「每行有序 + 每行开头 ≥ 上行末尾」的直接推论。/ Flattened values are non-decreasing: <code>i &lt; j ⇒ flat[i] ≤ flat[j]</code>, exactly what the row rules guarantee.</li>
+        <li><code>matrix[r][c] &gt; target</code> 时，下标大于 <code>mid</code> 的值全部 <code>≥ matrix[r][c] &gt; target</code>，右侧（含 mid）可以整段丢弃；<code>right = mid − 1</code>。/ When the midpoint value exceeds target, everything to its right is at least as large — discard it safely with <code>right = mid − 1</code>.</li>
+        <li><code>matrix[r][c] &lt; target</code> 时对称：下标小于 <code>mid</code> 的值全部 <code>≤ matrix[r][c] &lt; target</code>，左侧（含 mid）丢弃；<code>left = mid + 1</code>。/ Symmetrically, a smaller midpoint value discards the left side with <code>left = mid + 1</code>.</li>
+        <li>不变量「target 若存在，必在 <code>[left, right]</code> 内」每轮保持；区间每轮至少折半，所以 <code>O(log(m·n))</code> 轮内必然定论。/ The invariant “target, if present, lies in [left, right]” is preserved each round while the space at least halves.</li>
+      </ol>
+    </section>
+
+    <section class="section" aria-labelledby="ms-edge">
+      <h2 id="ms-edge">边界情况 / Edge cases</h2>
+      <div class="edge-grid">
+        <article class="paper-card">
+          <strong>比所有值小 · target = 0</strong>
+          <p>上方「查找 0」场景逐步演示了这条路径：mid 依次 5、2、0，对应值 10、4、2 全部 <code>&gt; 0</code>，<code>right</code> 一路 11 → 4 → 1 → −1；循环以 <code>0 ≤ −1</code> 不成立结束，返回 False。/ Every midpoint is too large, so <code>right</code> marches left past 0 until the space is empty.</p>
+        </article>
+        <article class="paper-card">
+          <strong>比所有值大 · target = 100</strong>
+          <p>对称的另一端：mid 依次 5、8、10、11，值 10、20、24、33 全部 <code>&lt; 100</code>，<code>left</code> 一路 6 → 9 → 11 → 12；<code>12 ≤ 11</code> 不成立，返回 False。/ Symmetric: every midpoint is too small, <code>left</code> marches right past 11, and the loop exits empty-handed.</p>
+        </article>
+        <article class="paper-card">
+          <strong>只剩一格 · left == right</strong>
+          <p>「查找 21」第 4 轮：<code>left == right == 9</code>，<code>mid = 9</code>，单格空间仍被检查并命中。循环条件必须是 <code>left &lt;= right</code>。/ The last round of the found trace checks the single remaining cell — that is why the condition uses <code>&lt;=</code>.</p>
+        </article>
+        <article class="paper-card">
+          <strong>重复值 · duplicates</strong>
+          <p>题目只保证非递减，相等的值可以相邻：<code>== target</code> 分支先命中；<code>&gt;</code> 分支丢弃的右侧全部 <code>≥</code> 当前值，<code>&lt;</code> 分支同理——重复值不影响判断。/ Duplicates are fine: equality is checked first, and each strict comparison discards a side whose values cannot equal target.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="ms-complexity">
+      <h2 id="ms-complexity">复杂度 / Complexity</h2>
+      <div class="complexity">
+        <article class="paper-card"><strong>时间 · O(log(m·n))</strong><p>搜索空间共 <code>m·n</code> 格，每轮至少折半：一次中点、一次下标映射、一次比较。12 格的示例最多 4 轮即定论。/ The space of <code>m·n</code> cells at least halves each round; the 12-cell example settles in 4 rounds.</p></article>
+        <article class="paper-card"><strong>空间 · O(1)</strong><p>只保存 <code>left</code>、<code>right</code>、<code>mid</code> 和映射出的 <code>r</code>、<code>c</code> 几个整数；从不构造扁平数组（那样要 <code>O(m·n)</code> 时间和空间）。/ Only a few indexes are stored; no flattened array is ever built.</p></article>
+      </div>
+    </section>
+
+    <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../find-the-insertion-index/">搜索插入位置</a><a href="../first-and-last-occurrences-of-a-number/">数字的首尾出现位置</a><a href="../cutting-wood/">砍木头</a><a href="../find-the-target-in-a-rotated-sorted-array/">旋转排序数组中查找目标</a><a href="../">全部题目</a></nav>
+  </main>
+
+  <script src="../assets/core.js"></script>
+  <script>
+    (() => {
+      const core = window.AlgorithmVisualCore;
+      const root = document.getElementById('matrix-lab');
+      const stage = root.querySelector('[data-stage]');
+      const svg = root.querySelector('[data-lines]');
+      const phase = root.querySelector('[data-phase]');
+      const targetTag = root.querySelector('[data-target-tag]');
+      const chipL = root.querySelector('[data-chip="left"]');
+      const chipM = root.querySelector('[data-chip="mid"]');
+      const chipR = root.querySelector('[data-chip="right"]');
+      const bracket = root.querySelector('[data-bracket]');
+      const mapchip = root.querySelector('[data-map]');
+      const mapR = root.querySelector('[data-map-r]');
+      const mapC = root.querySelector('[data-map-c]');
+      const invariant = root.querySelector('[data-invariant]');
+      const mTarget = root.querySelector('[data-m-target]');
+      const mLeft = root.querySelector('[data-m-left]');
+      const mMid = root.querySelector('[data-m-mid]');
+      const mRight = root.querySelector('[data-m-right]');
+      const mVal = root.querySelector('[data-m-val]');
+      const mRound = root.querySelector('[data-m-round]');
+      const calloutCode = root.querySelector('[data-code]');
+      const calloutEn = root.querySelector('[data-en]');
+      const calloutZh = root.querySelector('[data-zh]');
+
+      const SVGNS = 'http://www.w3.org/2000/svg';
+      const MATRIX = [[2, 3, 4, 6], [7, 10, 11, 17], [20, 21, 24, 33]];
+      const M = MATRIX.length;
+      const N = MATRIX[0].length;
+      const CELLS = M * N;
+
+      let geom = null;
+      let cells = [];
+      let ticks = [];
+      let connector = null;
+      let midOutline = null;
+      let foundMark = null;
+      let midChipX = null;
+      let trace = null;
+
+      const colX = c => geom.gridX + c * (geom.cellW + geom.gap);
+      const rowY = r => geom.gridTop + r * (geom.cellH + geom.rowGap);
+      const rowCenterY = r => rowY(r) + geom.cellH / 2;
+      const tickX = i => geom.stripL + geom.step * (i + 0.5);
+
+      function el(name, attrs, parent) {
+        const node = document.createElementNS(SVGNS, name);
+        for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+        parent.append(node);
+        return node;
+      }
+      function txt(attrs, str, parent) {
+        const node = el('text', attrs, parent);
+        node.textContent = str;
+        return node;
+      }
+
+      // ---- Frames: a faithful port of the book code; states snapshot after each line. ----
+      function buildFrames() {
+        const frames = [];
+        const scenarios = [
+          { target: 21, name: '查找 21' },
+          { target: 0, name: '查找 0' },
+        ];
+        for (const sc of scenarios) {
+          const s = { target: sc.target, m: M, n: N, left: null, right: null, mid: null, r: null, c: null, round: 0, found: null };
+          const add = (keys, label, line, en, zh) =>
+            frames.push({ sourceKeys: keys, stepLabel: `${sc.name} · ${label}`, line, en, zh, state: { ...s } });
+
+          s.left = 0;
+          s.right = M * N - 1;
+          add(['init-mn'], '初始化 m, n', 'm, n = len(matrix), len(matrix[0])',
+            `The matrix has m = ${M} rows and n = ${N} columns, so the flattened sequence has m·n = ${CELLS} cells (indexes 0–${CELLS - 1}).`,
+            `矩阵有 m = ${M} 行、n = ${N} 列，扁平序列共 m·n = ${CELLS} 格（下标 0–${CELLS - 1}）。`);
+          add(['init-lr'], `搜索空间 0..${CELLS - 1}`, 'left, right = 0, m * n - 1',
+            `left = 0 and right = ${CELLS - 1}: the whole flattened sequence is the search space, and no flattened copy is ever built.`,
+            `left = 0、right = ${CELLS - 1}：整条扁平序列就是搜索空间——并不需要真的构造扁平数组。`);
+
+          while (true) {
+            if (s.left <= s.right) {
+              s.round += 1;
+              const single = s.left === s.right;
+              add(['loop'], `第${s.round}轮 · 进入循环`, 'while left <= right:',
+                single
+                  ? `${s.left} ≤ ${s.right}: one cell remains, and <= still enters the loop — the last cell gets examined.`
+                  : `${s.left} <= ${s.right} holds, so round ${s.round} begins.`,
+                single
+                  ? `${s.left} ≤ ${s.right} 仍成立：只剩一格，<= 让循环继续，最后一格也要被检查。`
+                  : `${s.left} ≤ ${s.right} 成立，进入第 ${s.round} 轮。`);
+            } else {
+              s.mid = null;
+              s.r = null;
+              s.c = null;
+              add(['loop'], `第${s.round + 1}轮 · 循环结束`, 'while left <= right:',
+                `${s.left} <= ${s.right} fails, so the loop ends with an empty search space.`,
+                `${s.left} ≤ ${s.right} 不成立：搜索区间为空，循环结束。`);
+              break;
+            }
+            s.mid = Math.floor((s.left + s.right) / 2);
+            s.r = null;
+            s.c = null;
+            add(['mid'], `第${s.round}轮 · mid = ${s.mid}`, 'mid = (left + right) // 2',
+              `mid = (${s.left} + ${s.right}) // 2 = ${s.mid}; the flat strip is cut at index ${s.mid}.`,
+              `mid = (${s.left} + ${s.right}) // 2 = ${s.mid}，扁平数轴在中点 ${s.mid} 处切开。`);
+            s.r = Math.floor(s.mid / N);
+            s.c = s.mid % N;
+            const v = MATRIX[s.r][s.c];
+            add(['rc'], `第${s.round}轮 · (r, c) = (${s.r}, ${s.c})`, 'r, c = mid // n, mid % n',
+              `r = ${s.mid} // ${N} = ${s.r} and c = ${s.mid} % ${N} = ${s.c}: flat index ${s.mid} lives in cell (${s.r}, ${s.c}), the one the dashed link points to.`,
+              `r = ${s.mid} // ${N} = ${s.r}、c = ${s.mid} % ${N} = ${s.c}：扁平下标 ${s.mid} 对应单元格 (${s.r}, ${s.c})，即虚线链接指向的那一格。`);
+            if (v === s.target) {
+              s.found = s.mid;
+              add(['hit', 'return-true'], `第${s.round}轮 · ${v} == target`, 'return True',
+                `matrix[${s.r}][${s.c}] = ${v} equals target — found at flat index ${s.mid}; return True.`,
+                `matrix[${s.r}][${s.c}] = ${v} == target，在扁平下标 ${s.mid} 命中，返回 True。`);
+              add(['return-true'], '返回 True', 'return True',
+                `Done: target = ${s.target} is in the matrix; the search touched only 4 of the ${CELLS} cells.`,
+                `结束：target = ${s.target} 在矩阵中；整个搜索只访问了 ${CELLS} 格中的 4 格。`);
+              break;
+            }
+            const goesRight = v < s.target;
+            add(['hit'], `第${s.round}轮 · ${v} ≠ ${s.target}`, 'if matrix[r][c] == target:',
+              `matrix[${s.r}][${s.c}] = ${v} is not ${s.target}; ${goesRight
+                ? `since ${v} < ${s.target}, target can only sit at flat indexes > ${s.mid}`
+                : `since ${v} > ${s.target}, target can only sit at flat indexes < ${s.mid}`}.`,
+              `matrix[${s.r}][${s.c}] = ${v} ≠ ${s.target}；${goesRight
+                ? `因为 ${v} < ${s.target}，target 只可能在 ${s.mid} 的右侧`
+                : `因为 ${v} > ${s.target}，target 只可能在 ${s.mid} 的左侧`}。`);
+            if (goesRight) {
+              s.left = s.mid + 1;
+              add(['go-right'], `第${s.round}轮 · left = ${s.left}`, 'left = mid + 1',
+                `Discard flat indexes ≤ ${s.mid} (all values ≤ ${v} < ${s.target}); left = ${s.mid} + 1 = ${s.left}.`,
+                `丢弃 flat ≤ ${s.mid} 的左半段（值全部 ≤ ${v} < ${s.target}）；left = ${s.mid} + 1 = ${s.left}。`);
+            } else {
+              s.right = s.mid - 1;
+              add(['gt', 'go-left'], `第${s.round}轮 · right = ${s.right}`, 'right = mid - 1',
+                `matrix[${s.r}][${s.c}] = ${v} > ${s.target}: discard flat indexes ≥ ${s.mid} (all values ≥ ${v}); right = ${s.mid} - 1 = ${s.right}.`,
+                `matrix[${s.r}][${s.c}] = ${v} > ${s.target}：丢弃 flat ≥ ${s.mid} 的右半段（值全部 ≥ ${v}）；right = ${s.mid} - 1 = ${s.right}。`);
+            }
+          }
+          if (s.found === null) {
+            add(['return-false'], '返回 False', 'return False',
+              `Done: the search space emptied out, so target = ${s.target} is absent from the matrix; return False.`,
+              `结束：搜索区间已空，target = ${s.target} 不在矩阵中，返回 False。`);
+          }
+        }
+        return frames;
+      }
+
+      // ---- Scene: static grid + strip, rebuilt on resize. ----
+      function buildScene() {
+        svg.replaceChildren();
+        cells = [];
+        ticks = [];
+        const g = geom;
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+
+        const defs = el('defs', {}, svg);
+        const marker = el('marker', { id: 'ms-arrow', viewBox: '0 0 8 8', refX: 7, refY: 4, markerWidth: 6, markerHeight: 6, orient: 'auto' }, defs);
+        el('path', { d: 'M0 0 L8 4 L0 8 Z', fill: '#555' }, marker);
+
+        txt({ x: g.gridX - 9, y: g.colHeaderY + 3, 'text-anchor': 'end', 'font-size': 8.5, fill: '#999' }, 'r\\c', svg).setAttribute('font-family', MONO);
+        for (let c = 0; c < N; c += 1) {
+          txt({ x: colX(c) + g.cellW / 2, y: g.colHeaderY + 4, 'text-anchor': 'middle', 'font-size': 10, fill: '#777' }, String(c), svg);
+        }
+        for (let r = 0; r < M; r += 1) {
+          txt({ x: g.gridX - 9, y: rowCenterY(r) + 3.5, 'text-anchor': 'end', 'font-size': 10, fill: '#777' }, String(r), svg);
+        }
+
+        for (let r = 0; r < M; r += 1) {
+          for (let c = 0; c < N; c += 1) {
+            const i = r * N + c;
+            const group = el('g', { 'class': 'cellg' }, svg);
+            el('rect', { x: colX(c), y: rowY(r), width: g.cellW, height: g.cellH, rx: 2.5, fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3 }, group);
+            txt({ x: colX(c) + g.cellW / 2, y: rowY(r) + g.cellH / 2 - 2.5, 'text-anchor': 'middle', 'font-size': g.compact ? 12.5 : 15, fill: '#272727' }, String(MATRIX[r][c]), group);
+            txt({ x: colX(c) + g.cellW / 2, y: rowY(r) + g.cellH / 2 + 11.5, 'text-anchor': 'middle', 'font-size': g.compact ? 7.5 : 8.5, fill: '#999' }, String(i), group);
+            cells[i] = { group };
+          }
+        }
+
+        el('line', { x1: g.stripL, y1: g.stripY, x2: g.stripR, y2: g.stripY, stroke: '#999', 'stroke-width': 1 }, svg);
+        for (let i = 0; i < CELLS; i += 1) {
+          const mark = el('line', { x1: tickX(i), y1: g.stripY - 2.5, x2: tickX(i), y2: g.stripY + 2.5, stroke: '#999', 'stroke-width': 1, 'class': 'tick-mark' }, svg);
+          const label = txt({ x: tickX(i), y: g.tickY, 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 9.5, fill: '#777', 'class': 'tick-label' }, String(i), svg);
+          ticks[i] = { mark, label };
+        }
+
+        connector = el('path', { 'class': 'connector off', 'marker-end': 'url(#ms-arrow)' }, svg);
+        midOutline = el('rect', { 'class': 'mid-outline', width: g.cellW - 5, height: g.cellH - 5, rx: 3, style: 'display: none' }, svg);
+        foundMark = txt({ 'class': 'found-mark', 'text-anchor': 'middle', style: 'display: none' }, '✓', svg);
+      }
+
+      function layout() {
+        const W = Math.max(280, (stage.clientWidth || 600) - 3);
+        const compact = W < 560;
+        geom = {
+          width: W,
+          compact,
+          cellW: compact ? 40 : 46,
+          gap: compact ? 8 : 10,
+          cellH: compact ? 34 : 42,
+          rowGap: compact ? 5 : 8,
+          gridX: compact ? 24 : 30,
+          gridTop: compact ? 20 : 26,
+          colHeaderY: compact ? 11 : 15,
+          busY: compact ? 140 : 180,
+          chipsTop: compact ? 148 : 190,
+          stripY: compact ? 182 : 226,
+          tickY: compact ? 195 : 240,
+          bracketY: compact ? 204 : 250,
+          braceH: compact ? 6 : 7,
+          stripL: 8,
+          stripR: W - 8,
+          stageH: compact ? 272 : 276,
+        };
+        geom.step = (geom.stripR - geom.stripL) / CELLS;
+        buildScene();
+        stage.style.height = `${geom.stageH}px`;
+        svg.setAttribute('viewBox', `0 0 ${W} ${geom.stageH}`);
+        for (const chip of [chipL, chipM, chipR]) chip.style.top = `${geom.chipsTop}px`;
+        paint(trace ? trace.state : null);
+      }
+
+      function placeChips(state) {
+        const g = geom;
+        const W = g.width;
+        const clampI = i => Math.max(0, Math.min(CELLS - 1, i));
+        const entries = [];
+        if (state.left !== null) entries.push({ el: chipL, x: tickX(clampI(state.left)) });
+        if (state.mid !== null) entries.push({ el: chipM, x: tickX(state.mid) });
+        if (state.right !== null) entries.push({ el: chipR, x: tickX(clampI(state.right)) });
+        const minGap = 40;
+        const sorted = [...entries].sort((a, b) => a.x - b.x);
+        for (let i = 1; i < sorted.length; i += 1) {
+          if (sorted[i].x < sorted[i - 1].x + minGap) sorted[i].x = sorted[i - 1].x + minGap;
+        }
+        const rawMean = entries.reduce((sum, e) => sum + e.x, 0) / entries.length;
+        const newMean = sorted.reduce((sum, e) => sum + e.x, 0) / sorted.length;
+        let shift = rawMean - newMean;
+        const lo = sorted[0].x + shift;
+        const hi = sorted[sorted.length - 1].x + shift;
+        if (lo < 22) shift += 22 - lo;
+        if (hi > W - 22) shift -= hi - (W - 22);
+        midChipX = null;
+        for (const e of entries) {
+          const x = Math.max(22, Math.min(W - 22, e.x + shift));
+          e.el.style.left = `${x}px`;
+          if (e.el === chipM) midChipX = x;
+        }
+      }
+
+      function paint(state) {
+        if (!geom) return;
+        const g = geom;
+        if (!state) {
+          chipL.hidden = true;
+          chipM.hidden = true;
+          chipR.hidden = true;
+          bracket.hidden = true;
+          mapchip.hidden = true;
+          connector.classList.add('off');
+          return;
+        }
+        for (let i = 0; i < CELLS; i += 1) {
+          const outside = state.left !== null && (i < state.left || i > state.right);
+          const isMid = state.mid !== null && state.r !== null && i === state.mid;
+          const isFound = state.found !== null && i === state.found;
+          const dim = outside && !isMid && !isFound;
+          cells[i].group.classList.toggle('dim', dim);
+          cells[i].group.classList.toggle('midcell', isMid);
+          cells[i].group.classList.toggle('foundcell', isFound);
+          ticks[i].label.classList.toggle('dim', dim);
+          ticks[i].mark.classList.toggle('dim', dim);
+        }
+        targetTag.textContent = `target = ${state.target}`;
+
+        placeChips(state);
+        chipL.hidden = state.left === null;
+        chipM.hidden = state.mid === null;
+        chipR.hidden = state.right === null;
+
+        if (state.left !== null && state.right !== null && state.right >= state.left) {
+          bracket.hidden = false;
+          bracket.style.left = `${tickX(state.left) - g.step / 2}px`;
+          bracket.style.width = `${tickX(state.right) - tickX(state.left) + g.step}px`;
+          bracket.style.top = `${g.bracketY}px`;
+        } else {
+          bracket.hidden = true;
+        }
+
+        if (state.r !== null) {
+          midOutline.style.display = '';
+          midOutline.setAttribute('transform', `translate(${colX(state.c) + 2.5} ${rowY(state.r) + 2.5})`);
+          mapchip.hidden = false;
+          mapR.textContent = `r = ${state.mid} // ${N} = ${state.r}`;
+          mapC.textContent = `c = ${state.mid} % ${N} = ${state.c}`;
+          if (g.compact) {
+            mapchip.style.left = '4px';
+            mapchip.style.top = `${g.bracketY + g.braceH + 8}px`;
+          } else {
+            mapchip.style.left = `${colX(N - 1) + g.cellW + 14}px`;
+            mapchip.style.top = `${rowCenterY(state.r) - 22}px`;
+          }
+        } else {
+          midOutline.style.display = 'none';
+          mapchip.hidden = true;
+        }
+
+        const showConnector = state.mid !== null && state.r !== null && midChipX !== null;
+        connector.classList.toggle('off', !showConnector);
+        if (showConnector) {
+          const laneX = state.c === 0 ? g.gridX - (g.compact ? 4 : 6) : colX(state.c) - g.gap / 2;
+          const d = `M ${midChipX} ${g.chipsTop - 2} L ${midChipX} ${g.busY} L ${laneX} ${g.busY} L ${laneX} ${rowCenterY(state.r)} L ${colX(state.c) - 1.5} ${rowCenterY(state.r)}`;
+          connector.setAttribute('d', d);
+        }
+
+        if (state.found !== null) {
+          const fr = Math.floor(state.found / N);
+          const fc = state.found % N;
+          foundMark.style.display = '';
+          foundMark.setAttribute('x', colX(fc) + g.cellW - 8);
+          foundMark.setAttribute('y', rowY(fr) + 13);
+        } else {
+          foundMark.style.display = 'none';
+        }
+      }
+
+      function invariantText(frame, state) {
+        if (frame.sourceKeys.includes('init-mn')) {
+          return '前提：按行优先展开，矩阵就是一段升序序列（flat 0 ≤ flat 1 ≤ …）。/ Read row by row, the matrix is one non-decreasing sequence.';
+        }
+        if (frame.sourceKeys.includes('init-lr')) {
+          return '不变量：若 target 存在，它的扁平下标必在 [left, right] = [0, 11] 内。/ If target exists, its flat index lies in [left, right].';
+        }
+        if (frame.sourceKeys.includes('return-true')) {
+          return '答案：True。target = 21 位于扁平下标 9，即 cell (2, 1)。/ Answer: True — target sits at flat index 9, cell (2, 1).';
+        }
+        if (frame.sourceKeys.includes('return-false')) {
+          return '答案：False。区间为空 ⇒ target 不存在。/ Answer: False — an empty space means the target is absent.';
+        }
+        if (state.found !== null) {
+          return 'matrix[r][c] == target：命中，直接返回 True。/ Equal — return True immediately.';
+        }
+        if (state.mid !== null && state.r === null) {
+          return 'mid 把当前区间切成两半；下一步把它映射回二维格子。/ mid cuts the space in half; next, map it back to a cell.';
+        }
+        if (state.r !== null && frame.sourceKeys.includes('hit')) {
+          return '中点值已检查；按升序，被排除的半段里不可能藏着 target。/ The midpoint is checked; sortedness keeps target out of the discarded half.';
+        }
+        if (state.r !== null && frame.sourceKeys.includes('go-right')) {
+          return 'matrix[r][c] < target ⇒ 左侧（含 mid）全部 < target，丢弃安全；left = mid + 1。/ Smaller midpoint: the left side (mid included) cannot contain target.';
+        }
+        if (state.r !== null && frame.sourceKeys.includes('go-left')) {
+          return 'matrix[r][c] > target ⇒ 右侧（含 mid）全部 > target，丢弃安全；right = mid − 1。/ Larger midpoint: the right side (mid included) cannot contain target.';
+        }
+        if (state.r !== null) {
+          return '映射：r = mid // n 定位行，c = mid % n 定位列；虚线即这条映射。/ r = mid // n finds the row, c = mid % n the column; the dashed link is this mapping.';
+        }
+        if (state.right !== null && state.right < state.left) {
+          return 'left > right：搜索区间为空，target 不存在。/ The space is empty; target is absent.';
+        }
+        return '不变量：target 若存在，必在 [left, right] 内；每轮取中点把它折半。/ Invariant: target, if present, lies in [left, right]; halve it each round.';
+      }
+
+      function render({ frame, state, step, frames }) {
+        phase.textContent = frame.stepLabel;
+        calloutCode.textContent = frame.line;
+        calloutEn.textContent = frame.en;
+        calloutZh.textContent = frame.zh;
+        mTarget.textContent = state.target;
+        mLeft.textContent = state.left === null ? '—' : state.left;
+        mMid.textContent = state.mid === null ? '—' : state.mid;
+        mRight.textContent = state.right === null ? '—' : state.right;
+        mVal.textContent = state.r === null ? '—' : `matrix[${state.r}][${state.c}] = ${MATRIX[state.r][state.c]}`;
+        mRound.textContent = state.round === 0 ? '—' : state.round;
+        invariant.textContent = invariantText(frame, state);
+        paint(state);
+        stage.setAttribute('aria-label', `矩阵二分查找演示：第 ${step + 1} / ${frames.length} 步。${frame.stepLabel}`);
+      }
+
+      const frames = buildFrames();
+      const motion = core.createMotionController();
+      layout();
+      new ResizeObserver(() => layout()).observe(stage);
+      trace = core.createTrace({
+        root,
+        cloneState: s => ({ ...s }),
+        motion,
+        onRender: render,
+      });
+      trace.setFrames(frames);
+    })();
+  </script>
+</body>
+</html>

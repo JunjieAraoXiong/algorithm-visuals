@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Interactive bilingual visualization of finding a local maxima (peak element) in an array with binary search over slope directions: a descending pair keeps [left, mid], an ascending pair keeps [mid+1, right]. 寻找局部极大值：按山坡斜率二分。"
+    />
+    <title>Local Maxima in Array · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      #peaks-lab .problem { max-width: 920px; margin: 0 3px 10px; color: #41413e; }
+      #peaks-lab .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      #peaks-lab .step-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; min-height: 24px; margin: 6px 3px 2px; color: var(--quiet); font: 12px/1.5 monospace; }
+      #peaks-lab .step-picker { display: flex; align-items: center; gap: 5px; margin-left: auto; color: var(--quiet); font-size: 12px; }
+      #peaks-lab .step-picker select { max-width: 100%; min-width: 0; }
+
+      #peaks-lab .stage { height: 300px; overflow: hidden; border-bottom: 1px solid var(--rule); }
+      #peaks-lab .space-line { position: absolute; z-index: 1; top: 6px; border-top: 1px solid #555; transition: left .34s ease, width .34s ease; }
+      #peaks-lab .space-line::before, #peaks-lab .space-line::after { content: ""; position: absolute; top: 0; width: 0; height: 6px; border-left: 1px solid #555; }
+      #peaks-lab .space-line::before { left: 0; }
+      #peaks-lab .space-line::after { right: 0; }
+      #peaks-lab .space-line span { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); color: var(--quiet); font: 9px/1 monospace; white-space: nowrap; }
+      #peaks-lab .chip { position: absolute; z-index: 4; top: 38px; width: 46px; padding: 2px 0; border: 1px solid #555; border-radius: 3px; background: var(--paper); font: 10px/1.4 monospace; text-align: center; transform: translateX(-50%); white-space: nowrap; transition: left .34s ease; }
+      #peaks-lab .chip::after { content: ""; position: absolute; top: 100%; left: 50%; height: 12px; border-left: 1px solid #666; }
+      #peaks-lab .slope-badge { position: absolute; z-index: 4; padding: 2px 7px; border: 1px solid #555; border-radius: 8px; background: var(--paper); font: 10px/1.4 monospace; white-space: nowrap; transform: translateX(-50%); transition: left .34s ease, top .34s ease; }
+      #peaks-lab .stage.has-result .chip::after { height: 6px; }
+
+      #peaks-lab .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 10px; margin: 12px 3px; }
+      #peaks-lab .invariant, #peaks-lab .metrics { padding: 9px 11px; border: 1px solid var(--rule); }
+      #peaks-lab .invariant strong { display: block; margin-bottom: 4px; font: 12px/1.4 monospace; }
+      #peaks-lab .invariant p { margin: 0; color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      #peaks-lab .metrics { display: grid; gap: 4px; margin: 0; font: 11px/1.45 monospace; }
+      #peaks-lab .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      #peaks-lab .metrics dt { color: var(--quiet); }
+      #peaks-lab .metrics dd { margin: 0; text-align: right; }
+
+      #peaks-lab .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      #peaks-lab .section h2 { margin: 0 0 8px; font-size: 19px; font-weight: 500; }
+      #peaks-lab .section-intro { max-width: 920px; color: var(--quiet); }
+      #peaks-lab .case-grid, #peaks-lab .edge-grid, #peaks-lab .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+      #peaks-lab .edge-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      #peaks-lab .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      #peaks-lab .paper-card p { margin: 6px 0 0; color: var(--quiet); font-size: 13px; line-height: 1.5; }
+      #peaks-lab .paper-card strong { font: 13px/1.4 monospace; }
+      #peaks-lab .paper-card svg { display: block; width: 100%; height: auto; margin-top: 8px; }
+      #peaks-lab .case-code { margin: 8px 0 0; padding: 7px 10px; border: 1px dashed #999; background: #faf9f4; font: 12px/1.6 monospace; overflow-x: auto; white-space: pre; }
+      #peaks-lab .reason-list { margin: 8px 0 0; padding-left: 22px; }
+      #peaks-lab .reason-list li { margin: 6px 0; }
+
+      @media (max-width: 720px) {
+        #peaks-lab .state-grid, #peaks-lab .case-grid, #peaks-lab .complexity { grid-template-columns: 1fr; }
+        #peaks-lab .edge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        #peaks-lab .step-picker { width: 100%; margin-left: 0; }
+        #peaks-lab .step-picker select { flex: 1; }
+      }
+      @media (max-width: 430px) {
+        #peaks-lab .edge-grid { grid-template-columns: 1fr; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #peaks-lab .chip, #peaks-lab .space-line, #peaks-lab .slope-badge { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="peaks-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Local Maxima in Array<span lang="zh-CN"> · 寻找局部极大值</span></h1></div></header>
+      <p class="problem">
+        A local maxima is a value strictly greater than both immediate neighbors; an element is
+        always considered greater than a neighbor outside the array, so an endpoint only needs to
+        beat its one in-bounds neighbor. Return the index of any local maxima in
+        <code>nums = [1, 4, 3, 2, 3]</code> → output <code>1</code> (index 4 is also acceptable).
+        Constraint: no two adjacent elements are equal.
+        <span lang="zh-CN">局部极大值是严格大于两个直接邻居的值；数组外的邻居一律视为更小，所以端点只需赢过它在数组内的那个邻居。返回任意一个局部极大值的下标：<code>nums = [1, 4, 3, 2, 3]</code> → 输出 <code>1</code>（返回下标 4 也合法）。约束：相邻元素互不相等。</span>
+      </p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="寻找局部极大值二分查找演示 / local maxima binary search trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count aria-live="polite"></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="寻找局部极大值演示，使用左右方向键切换步骤">
+            <div class="space-line" data-space><span data-space-label>搜索区间 / search space</span></div>
+            <span class="chip" data-chip="left">left</span>
+            <span class="chip" data-chip="mid" hidden>mid</span>
+            <span class="chip" data-chip="right">right</span>
+            <span class="slope-badge" data-slope hidden></span>
+            <svg class="lines" data-lines aria-hidden="true"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <dl class="metrics">
+              <div><dt><code>left</code></dt><dd data-m-left></dd></div>
+              <div><dt><code>right</code></dt><dd data-m-right></dd></div>
+              <div><dt><code>mid</code></dt><dd data-m-mid></dd></div>
+              <div><dt><code>nums[mid]</code></dt><dd data-m-midval></dd></div>
+              <div><dt><code>nums[mid+1]</code></dt><dd data-m-nextval></dd></div>
+              <div><dt>轮次 / round</dt><dd data-m-iter></dd></div>
+            </dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite">
+            <code data-code></code><span data-en></span><span lang="zh-CN" data-zh></span>
+          </div>
+          <p class="note">chip 只移动 <code>left</code> / <code>mid</code> / <code>right</code> 三个下标变量，地形与数组 <code>nums</code> 从不修改；点下的底色只是斜率分区：偏深 = 上升段，偏浅 = 下降段。/ <span lang="zh-CN">Chips move index variables only; the terrain never changes. Darker fill = rising segment, lighter = falling segment.</span></p>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="peaks-code-title">
+          <h2 id="peaks-code-title">Final Python <span lang="zh-CN">/ 最终代码</span></h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line">def local_maxima_in_array(nums: List[int]) -&gt; int:</span><span class="code-line" data-source-key="init">    left, right = 0, len(nums) - 1</span><span class="code-line" data-source-key="loop">    while left &lt; right:</span><span class="code-line" data-source-key="mid">        mid = (left + right) // 2</span><span class="code-line" data-source-key="compare">        if nums[mid] &gt; nums[mid + 1]:</span><span class="code-line" data-source-key="right-mid">            right = mid</span><span class="code-line">        else:</span><span class="code-line" data-source-key="left-mid1">            left = mid + 1</span><span class="code-line" data-source-key="return">    return left</span></code></pre>
+          <p class="note">下降段保留 mid（它自己就是候选）；上升段排除 mid（<code>nums[mid] &lt; nums[mid + 1]</code> 已证明它不是极大值）。/ <span lang="zh-CN">A descending pair keeps mid as a candidate; an ascending pair safely drops it.</span></p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="peaks-intuition">
+        <h2 id="peaks-intuition">直觉：山坡必会封顶 / Intuition: every climb must crest</h2>
+        <p class="section-intro">挨个比较每个元素和它的邻居是 <code>O(n)</code> 的线性做法，不算差；但这道题藏着两个更有力的条件：<strong>任意一个极大值都算对</strong>，且<strong>极大值必然存在</strong>——相邻元素不相等意味着地形没有平台，沿数组走不是在上坡就是在下坡，必然出现过峰（端点只跟一侧比，天然占优）。于是不必找到「那个」极大值，只要每次都朝「肯定有极大值」的一侧收窄。/ <span lang="zh-CN">A linear neighbor scan is <code>O(n)</code>, but two stronger facts hide in the statement: <strong>any</strong> maxima is acceptable, and a maxima <strong>always exists</strong> — no equal neighbors means no flat shelf, so the terrain always crests. We only ever narrow toward the side that must contain one.</span></p>
+        <div class="case-grid">
+          <article class="paper-card">
+            <strong>情况一 · 下降段 ↘ nums[mid] &gt; nums[mid+1]</strong>
+            <svg viewBox="0 0 340 118" role="img" aria-label="下降段示意：mid 大于右邻居，保留含 mid 的左半边">
+              <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+                <path d="M 10 88 H 330" stroke="#999" stroke-width="1" fill="none" />
+                <path d="M 60 31 L 130 42 L 200 64 L 270 53" fill="none" stroke="#555" stroke-width="1.4" />
+                <path d="M 130 42 L 200 64" fill="none" stroke="#272727" stroke-width="2.4" />
+                <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+                  <circle cx="60" cy="31" r="7" /><circle cx="130" cy="42" r="7" /><circle cx="200" cy="64" r="7" /><circle cx="270" cy="53" r="7" />
+                </g>
+                <g fill="#272727" text-anchor="middle" font-size="9.5">
+                  <text x="60" y="33.5">5</text><text x="130" y="44.5">4</text><text x="200" y="66.5">2</text><text x="270" y="55.5">3</text>
+                </g>
+                <circle cx="130" cy="42" r="12" fill="none" stroke="#777" stroke-width="1.1" stroke-dasharray="3 3" />
+                <circle cx="200" cy="64" r="12" fill="none" stroke="#777" stroke-width="1.1" stroke-dasharray="3 3" />
+                <text x="130" y="18" text-anchor="middle" font-size="9" fill="#555">mid</text>
+                <text x="200" y="40" text-anchor="middle" font-size="9" fill="#555">mid+1</text>
+                <g fill="#777" text-anchor="middle" font-size="8.5">
+                  <text x="60" y="101">…</text><text x="270" y="101">…</text>
+                </g>
+                <path d="M 40 94 V 101 H 150 V 94" fill="none" stroke="#555" stroke-width="1.1" />
+                <text x="95" y="113" text-anchor="middle" font-size="9" fill="#555">保留 [left, mid] · 含 mid</text>
+              </g>
+            </svg>
+            <div class="case-code">if nums[mid] &gt; nums[mid + 1]:
+    right = mid</div>
+            <p>mid 已经大于右邻居：若 <code>nums[mid-1]</code> 更小，mid 自己就是极大值；若更大，峰在更左边。两种可能都落在 <code>[left, mid]</code>，所以 mid 必须保留，右边界收到 mid。/ <span lang="zh-CN">mid already beats its right neighbor; if <code>nums[mid-1]</code> is smaller then mid is the maxima, otherwise one hides further left. Both cases live in <code>[left, mid]</code>, so mid stays.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>情况二 · 上升段 ↗ nums[mid] &lt; nums[mid+1]</strong>
+            <svg viewBox="0 0 340 118" role="img" aria-label="上升段示意：mid 小于右邻居，右侧必有峰，排除 mid 保留右半边">
+              <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+                <path d="M 10 88 H 330" stroke="#999" stroke-width="1" fill="none" />
+                <path d="M 60 64 L 130 75 L 200 53 L 270 31" fill="none" stroke="#555" stroke-width="1.4" />
+                <path d="M 130 75 L 200 53" fill="none" stroke="#272727" stroke-width="2.4" />
+                <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+                  <circle cx="60" cy="64" r="7" /><circle cx="130" cy="75" r="7" /><circle cx="200" cy="53" r="7" /><circle cx="270" cy="31" r="7" />
+                </g>
+                <g fill="#272727" text-anchor="middle" font-size="9.5">
+                  <text x="60" y="66.5">2</text><text x="130" y="77.5">1</text><text x="200" y="55.5">3</text><text x="270" y="33.5">5</text>
+                </g>
+                <circle cx="130" cy="75" r="12" fill="none" stroke="#777" stroke-width="1.1" stroke-dasharray="3 3" />
+                <circle cx="200" cy="53" r="12" fill="none" stroke="#777" stroke-width="1.1" stroke-dasharray="3 3" />
+                <text x="130" y="51" text-anchor="middle" font-size="9" fill="#555">mid</text>
+                <text x="200" y="29" text-anchor="middle" font-size="9" fill="#555">mid+1</text>
+                <g fill="#777" text-anchor="middle" font-size="8.5">
+                  <text x="60" y="101">…</text><text x="270" y="101">…</text>
+                </g>
+                <path d="M 180 94 V 101 H 290 V 94" fill="none" stroke="#555" stroke-width="1.1" />
+                <text x="235" y="113" text-anchor="middle" font-size="9" fill="#555">保留 [mid+1, right] · 排除 mid</text>
+              </g>
+            </svg>
+            <div class="case-code">else:
+    left = mid + 1</div>
+            <p>山坡向上必会封顶：一路升到 <code>right</code> 端点（端点只跟一侧比，算赢），或在某处由升转降（转折即峰）——峰一定在 mid 右侧。而 <code>nums[mid] &lt; nums[mid+1]</code> 已证明 mid 自己不是，排除它很安全。/ <span lang="zh-CN">An ascending slope must crest somewhere to the right — either at the right endpoint or at a rise-to-fall turn. And since <code>nums[mid]</code> already lost to its neighbor, dropping mid is safe.</span></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="peaks-why">
+        <h2 id="peaks-why">为什么这样收缩不会漏 / Why the narrowing never misses</h2>
+        <ol class="reason-list">
+          <li>极大值必存在：把数组画成地形线，无相邻相等 ⇒ 每一步严格上升或严格下降。从左端出发沿地形走，要么中途由升转降（转折点就是峰），要么一路升到底——端点只跟数组内的邻居比较，天然算赢。所以峰一定有，二分才有意义。/ <span lang="zh-CN">A maxima always exists: with no equal neighbors every step is strictly up or strictly down, so walking the terrain from the left either turns from rise to fall (the turn is a peak) or climbs all the way to an endpoint, which only compares against one in-bounds neighbor.</span></li>
+          <li>循环不变量：每次进入循环时，当前区间 <code>[left, right]</code> 必含至少一个局部极大值。初始时成立（整个数组必有峰）；之后每一轮按下面的规则收缩，都不把这个峰抛弃。/ <span lang="zh-CN">Loop invariant: when the loop body starts, the current range <code>[left, right]</code> contains a maxima. It holds initially, and neither narrowing rule below can throw the peak away.</span></li>
+          <li>下降段保留 mid：mid 大于右邻居，它<b>可能自己就是峰</b>（当 <code>nums[mid-1]</code> 更小时），所以右边界只能收到 <code>mid</code> 而不能是 <code>mid - 1</code>——收过头会把答案丢掉。/ <span lang="zh-CN">A descending pair keeps mid: mid might itself be the maxima (when <code>nums[mid-1]</code> is smaller), so <code>right</code> may only move to <code>mid</code>, never <code>mid - 1</code>.</span></li>
+          <li>上升段排除 mid：<code>nums[mid] &lt; nums[mid+1]</code> 说明 mid 严格小于一个邻居，<b>绝不可能是极大值</b>，所以左边界可以直接越过它到 <code>mid + 1</code>。/ <span lang="zh-CN">An ascending pair drops mid: <code>nums[mid]</code> already lost to a neighbor, so it can never be the maxima and <code>left</code> may safely jump to <code>mid + 1</code>.</span></li>
+          <li>收敛：每轮至少排除一半候选下标，<code>O(log n)</code> 轮后必有 <code>left == right</code>；配合不变量，这个唯一剩下的下标就是局部极大值。/ <span lang="zh-CN">Convergence: each round discards at least half the candidates, so <code>left == right</code> after <code>O(log n)</code> rounds; the invariant makes that single index a maxima.</span></li>
+        </ol>
+      </section>
+
+      <section class="section" aria-labelledby="peaks-edge">
+        <h2 id="peaks-edge">边界情况 / Edge cases</h2>
+        <div class="edge-grid">
+          <article class="paper-card">
+            <strong>峰在最开头 · 严格递减</strong>
+            <svg viewBox="0 0 190 76" role="img" aria-label="严格递减数组，峰在下标 0">
+              <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+                <path d="M 8 62 H 182" stroke="#999" stroke-width="1" fill="none" />
+                <path d="M 30 20 L 74 36 L 118 44 L 162 52" fill="none" stroke="#555" stroke-width="1.4" />
+                <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+                  <circle cx="30" cy="20" r="7" /><circle cx="74" cy="36" r="7" /><circle cx="118" cy="44" r="7" /><circle cx="162" cy="52" r="7" />
+                </g>
+                <g fill="#272727" text-anchor="middle" font-size="9.5">
+                  <text x="30" y="22.5">5</text><text x="74" y="38.5">3</text><text x="118" y="46.5">2</text><text x="162" y="54.5">1</text>
+                </g>
+                <circle cx="30" cy="20" r="11" fill="none" stroke="#272727" stroke-width="1.5" />
+              </g>
+            </svg>
+            <p>每个 mid 都落在下降段，<code>right</code> 一路左移，最终收在 <code>0</code>。/ <span lang="zh-CN">Every midpoint forms a descending pair, so <code>right</code> marches left until the answer is index <code>0</code>.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>峰在最末尾 · 严格递增</strong>
+            <svg viewBox="0 0 190 76" role="img" aria-label="严格递增数组，峰在最后一个下标">
+              <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+                <path d="M 8 62 H 182" stroke="#999" stroke-width="1" fill="none" />
+                <path d="M 30 52 L 74 44 L 118 36 L 162 20" fill="none" stroke="#555" stroke-width="1.4" />
+                <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+                  <circle cx="30" cy="52" r="7" /><circle cx="74" cy="44" r="7" /><circle cx="118" cy="36" r="7" /><circle cx="162" cy="20" r="7" />
+                </g>
+                <g fill="#272727" text-anchor="middle" font-size="9.5">
+                  <text x="30" y="54.5">1</text><text x="74" y="46.5">2</text><text x="118" y="38.5">3</text><text x="162" y="22.5">5</text>
+                </g>
+                <circle cx="162" cy="20" r="11" fill="none" stroke="#272727" stroke-width="1.5" />
+              </g>
+            </svg>
+            <p>每个 mid 都落在上升段，<code>left</code> 一路右移，最终收在 <code>n - 1</code>。/ <span lang="zh-CN">Every midpoint forms an ascending pair, so <code>left</code> marches right to the last index.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>单元素数组</strong>
+            <svg viewBox="0 0 190 76" role="img" aria-label="单元素数组，直接返回 0">
+              <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+                <path d="M 8 62 H 182" stroke="#999" stroke-width="1" fill="none" />
+                <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+                  <circle cx="95" cy="38" r="7" />
+                </g>
+                <text x="95" y="40.5" text-anchor="middle" font-size="9.5" fill="#272727">7</text>
+                <circle cx="95" cy="38" r="11" fill="none" stroke="#272727" stroke-width="1.5" />
+                <text x="95" y="16" text-anchor="middle" font-size="9" fill="#555">0 &lt; 0 不成立，直接返回 0</text>
+              </g>
+            </svg>
+            <p><code>while 0 &lt; 0</code> 一开始就不成立，直接返回 <code>0</code>——它在外侧的邻居被视为更小。/ <span lang="zh-CN"><code>while 0 &lt; 0</code> fails immediately, so the single element's index <code>0</code> is returned; its out-of-bounds neighbors count as smaller.</span></p>
+          </article>
+          <article class="paper-card">
+            <strong>多个极大值</strong>
+            <svg viewBox="0 0 190 76" role="img" aria-label="有两个峰的数组，返回任意一个都合法">
+              <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+                <path d="M 8 62 H 182" stroke="#999" stroke-width="1" fill="none" />
+                <path d="M 28 42 L 62 18 L 96 46 L 130 12 L 164 38" fill="none" stroke="#555" stroke-width="1.4" />
+                <g fill="#fffdf8" stroke="#272727" stroke-width="1.4">
+                  <circle cx="28" cy="42" r="7" /><circle cx="62" cy="18" r="7" /><circle cx="96" cy="46" r="7" /><circle cx="130" cy="12" r="7" /><circle cx="164" cy="38" r="7" />
+                </g>
+                <g fill="#272727" text-anchor="middle" font-size="9.5">
+                  <text x="28" y="44.5">1</text><text x="62" y="20.5">5</text><text x="96" y="48.5">2</text><text x="130" y="14.5">6</text><text x="164" y="40.5">3</text>
+                </g>
+                <circle cx="62" cy="18" r="11" fill="none" stroke="#272727" stroke-width="1.5" />
+                <circle cx="130" cy="12" r="11" fill="none" stroke="#272727" stroke-width="1.5" />
+              </g>
+            </svg>
+            <p>任意一个峰都合法；二分走到哪个取决于 mid 的落点，本例返回 <code>1</code>。/ <span lang="zh-CN">Any peak is a valid answer; which one binary search finds depends on where mid lands — here it returns <code>1</code>.</span></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="peaks-complexity">
+        <h2 id="peaks-complexity">复杂度 / Complexity</h2>
+        <div class="complexity">
+          <article class="paper-card"><strong>Time · O(log n)</strong><p>与经典二分同构：每轮取一次中点、比较一对邻居、把候选区间缩小约一半。/ <span lang="zh-CN">One midpoint, one neighbor comparison, and roughly half the candidates per round — the same shape as classic binary search.</span></p></article>
+          <article class="paper-card"><strong>Extra space · O(1)</strong><p>只保存 <code>left</code>、<code>mid</code>、<code>right</code> 三个下标；数组 <code>nums</code> 从不修改。/ <span lang="zh-CN">Only three index variables are stored; <code>nums</code> is never modified.</span></p></article>
+        </div>
+      </section>
+
+      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../find-the-insertion-index/">搜索插入位置</a><a href="../first-and-last-occurrences-of-a-number/">数字的首尾出现位置</a><a href="../cutting-wood/">砍木头</a><a href="../find-the-target-in-a-rotated-sorted-array/">旋转排序数组中查找目标</a><a href="../">全部题目</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.getElementById('peaks-lab');
+        const core = window.AlgorithmVisualCore;
+        const stage = root.querySelector('[data-stage]');
+        const svg = root.querySelector('[data-lines]');
+        const spaceLine = root.querySelector('[data-space]');
+        const spaceLabel = root.querySelector('[data-space-label]');
+        const slopeBadge = root.querySelector('[data-slope]');
+        const chips = {
+          left: root.querySelector('[data-chip="left"]'),
+          mid: root.querySelector('[data-chip="mid"]'),
+          right: root.querySelector('[data-chip="right"]'),
+        };
+        const phase = root.querySelector('[data-phase]');
+        const invariant = root.querySelector('[data-invariant]');
+        const mLeft = root.querySelector('[data-m-left]');
+        const mRight = root.querySelector('[data-m-right]');
+        const mMid = root.querySelector('[data-m-mid]');
+        const mMidVal = root.querySelector('[data-m-midval]');
+        const mNextVal = root.querySelector('[data-m-nextval]');
+        const mIter = root.querySelector('[data-m-iter]');
+        const calloutCode = root.querySelector('[data-code]');
+        const calloutEn = root.querySelector('[data-en]');
+        const calloutZh = root.querySelector('[data-zh]');
+
+        const NUMS = [1, 4, 3, 2, 3];
+        const N = NUMS.length;
+        const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const BASE = 238;
+        const POINT_R = 9;
+        const CHIP_Y = 46;
+        let geo = { xs: [], ys: [], width: 0 };
+        let trace;
+
+        const clone = value => ({ ...value, snap: value.snap ? { ...value.snap } : null });
+
+        function buildFrames() {
+          const frames = [];
+          const s = { left: 0, right: N - 1, mid: null, iteration: 0, slope: null, keep: null, keepLo: null, keepHi: null, snap: null, done: false, result: null };
+          const add = (sourceKeys, label, line, en, zh, inv) => frames.push({ sourceKeys, stepLabel: label, line, en, zh, invariant: inv, state: clone(s) });
+
+          add(['init'], '初始化 · left = 0, right = 4', 'left, right = 0, len(nums) - 1',
+            `The search space starts as the whole array: left = 0, right = ${N - 1}. A local maxima is guaranteed to exist because no two adjacent values are equal — the terrain has no flat shelf.`,
+            `搜索空间先覆盖整个数组：left = 0、right = ${N - 1}。相邻元素互不相等，地形没有平台，局部极大值必然存在。`,
+            `搜索空间 = 整个数组；无相邻相等 ⇒ 极大值必然存在。/ A maxima always exists: no equal neighbors means no flat shelf.`);
+
+          while (true) {
+            if (s.left < s.right) {
+              s.iteration += 1;
+              add(['loop'], `第 ${s.iteration} 轮 · 进入循环（${s.left} < ${s.right}）`, 'while left < right:',
+                `${s.left} < ${s.right}, so round ${s.iteration} begins. Invariant: the current range [${s.left}, ${s.right}] still contains at least one local maxima.`,
+                `${s.left} < ${s.right} 成立，进入第 ${s.iteration} 轮。不变量：当前区间 [${s.left}, ${s.right}] 内仍含至少一个局部极大值。`,
+                `不变量：nums[left…right] 内必有局部极大值。/ Invariant: the current range contains a maxima.`);
+            } else {
+              s.done = true;
+              s.mid = null;
+              add(['loop'], `循环结束 · left == right == ${s.left}`, 'while left < right:',
+                `${s.left} < ${s.right} fails, so the loop ends. One index remains, and the invariant says it must be a local maxima.`,
+                `${s.left} < ${s.right} 不成立，循环结束。剩下的唯一下标必为局部极大值——不变量保证了这一点。`,
+                `left == right，唯一剩下的下标必是极大值。/ One index remains; the invariant makes it a maxima.`);
+              break;
+            }
+
+            s.mid = Math.floor((s.left + s.right) / 2);
+            s.slope = null;
+            s.keep = null;
+            s.snap = null;
+            add(['mid'], `第 ${s.iteration} 轮 · mid = ${s.mid}`, 'mid = (left + right) // 2',
+              `mid = (${s.left} + ${s.right}) // 2 = ${s.mid}. One comparison now decides the direction: nums[mid] against its right neighbor nums[mid + 1].`,
+              `mid = (${s.left} + ${s.right}) // 2 = ${s.mid}。接下来只用一次比较定方向：nums[mid] 对它的右邻居 nums[mid + 1]。`,
+              `不变量：nums[left…right] 内必有局部极大值。/ Invariant: the current range contains a maxima.`);
+
+            if (NUMS[s.mid] > NUMS[s.mid + 1]) {
+              s.slope = 'desc';
+              add(['compare'], `第 ${s.iteration} 轮 · 下降 ↘ nums[${s.mid}]=${NUMS[s.mid]} > nums[${s.mid + 1}]=${NUMS[s.mid + 1]}`, 'if nums[mid] > nums[mid + 1]:',
+                `nums[${s.mid}] = ${NUMS[s.mid]} > nums[${s.mid + 1}] = ${NUMS[s.mid + 1]}: a descending slope. Either mid itself is a maxima, or one hides to its left — narrow left but keep mid in the space.`,
+                `nums[${s.mid}] = ${NUMS[s.mid]} > nums[${s.mid + 1}] = ${NUMS[s.mid + 1]}，是一段下降坡：mid 自己可能就是极大值，或者极大值藏在左侧——向左收窄，但保留 mid。`,
+                `下降段 ⇒ mid 或 mid 左侧必有极大值。/ A descending pair means mid or something left of it is a maxima.`);
+              s.slope = null;
+              const from = s.right;
+              s.right = s.mid;
+              s.keep = 'incl';
+              s.keepLo = s.left;
+              s.keepHi = s.right;
+              s.snap = { variable: 'right', from, to: s.right };
+              add(['right-mid'], `第 ${s.iteration} 轮 · right = mid = ${s.right}`, 'right = mid',
+                `right snaps from ${from} to mid = ${s.right}; the search space is now [${s.left}, ${s.right}]. Index ${from} was only a comparison opponent, never a candidate.`,
+                `right 从 ${from} 收至 mid = ${s.right}，新搜索空间为 [${s.left}, ${s.right}]；下标 ${from} 只是比较用的对手，从来不是候选。`,
+                `保留 [${s.keepLo}, ${s.keepHi}]，含 mid——它仍可能是答案。/ Keep [${s.keepLo}, ${s.keepHi}] including mid; it might still be the answer.`);
+              s.keep = null;
+              s.snap = null;
+            } else {
+              s.slope = 'asc';
+              add(['compare'], `第 ${s.iteration} 轮 · 上升 ↗ nums[${s.mid}]=${NUMS[s.mid]} < nums[${s.mid + 1}]=${NUMS[s.mid + 1]}`, 'if nums[mid] > nums[mid + 1]:',
+                `nums[${s.mid}] = ${NUMS[s.mid]} < nums[${s.mid + 1}] = ${NUMS[s.mid + 1]}: an ascending slope. The climb must crest somewhere to the right — mid is ruled out, so narrow right and exclude mid.`,
+                `nums[${s.mid}] = ${NUMS[s.mid]} < nums[${s.mid + 1}] = ${NUMS[s.mid + 1]}，是一段上升坡：山坡向右必会封顶——mid 一定不是极大值，向右收窄并排除它。`,
+                `上升段 ⇒ 右侧必有极大值，mid 可安全排除。/ An ascending pair rules mid out; a maxima waits on the right.`);
+              s.slope = null;
+              const from = s.left;
+              s.left = s.mid + 1;
+              s.keep = 'excl';
+              s.keepLo = s.left;
+              s.keepHi = s.right;
+              s.snap = { variable: 'left', from, to: s.left };
+              add(['left-mid1'], `第 ${s.iteration} 轮 · left = mid + 1 = ${s.left}`, 'left = mid + 1',
+                `left jumps past mid from ${from} to ${s.left}; the search space is now [${s.left}, ${s.right}]. nums[${s.mid}] = ${NUMS[s.mid]} already lost to its right neighbor, so dropping it is safe.`,
+                `left 从 ${from} 越过 mid 跳到 ${s.left}，新搜索空间为 [${s.left}, ${s.right}]。nums[${s.mid}] = ${NUMS[s.mid]} 已输给右邻居，排除它是安全的。`,
+                `保留 [${s.keepLo}, ${s.keepHi}]，排除 mid。/ Keep [${s.keepLo}, ${s.keepHi}] excluding mid.`);
+              s.keep = null;
+              s.snap = null;
+            }
+          }
+
+          s.result = s.left;
+          add(['return'], `返回 ${s.result}`, 'return left',
+            `Return left = ${s.result}: nums[${s.result}] = ${NUMS[s.result]} is greater than both neighbors nums[${s.result - 1}] = ${NUMS[s.result - 1]} and nums[${s.result + 1}] = ${NUMS[s.result + 1]}. (Returning index 4, the other maxima, would also be accepted.)`,
+            `返回 left = ${s.result}：nums[${s.result}] = ${NUMS[s.result]} 同时大于两个邻居 nums[${s.result - 1}] = ${NUMS[s.result - 1]} 与 nums[${s.result + 1}] = ${NUMS[s.result + 1]}。（返回另一个极大值的下标 4 也合法。）`,
+            `返回 left = ${s.result}：它就是收缩到最后的那个极大值。/ Return left; it is the maxima the search space collapsed onto.`);
+          return frames;
+        }
+
+        const frames = buildFrames();
+        const scene = core.createSvgScene(svg);
+        scene.defineMarker('peak-snap-arrow', { fill: '#666' });
+
+        function layout() {
+          const width = stage.clientWidth;
+          const gap = Math.min(120, Math.max(56, (width - 28) / (N - 1)));
+          const total = gap * (N - 1);
+          const startX = Math.max(16, (width - total) / 2);
+          const xs = NUMS.map((_, index) => Math.round(startX + index * gap));
+          const ys = NUMS.map(value => BASE - 20 - (value - 1) * 40);
+          geo = { xs, ys, width };
+          paint(trace ? trace.state : frames[0].state);
+        }
+
+        function drawTerrain(state) {
+          const { xs, ys, width } = geo;
+          scene.update(({ path, text, circle }) => {
+            path('axis', { d: `M 6 ${BASE} H ${Math.max(6, width - 6)}`, stroke: '#999', 'stroke-width': 1, fill: 'none' });
+
+            for (let i = 0; i < N - 1; i += 1) {
+              const rising = NUMS[i + 1] > NUMS[i];
+              const dim = i + 1 < state.left || i > state.right;
+              path(`fill-${i}`, {
+                d: `M ${xs[i]} ${BASE} L ${xs[i]} ${ys[i]} L ${xs[i + 1]} ${ys[i + 1]} L ${xs[i + 1]} ${BASE} Z`,
+                fill: rising ? '#efeada' : '#f8f6f0',
+                stroke: 'none',
+                opacity: dim ? 0.35 : 1,
+              });
+            }
+
+            for (let i = 0; i < N - 1; i += 1) {
+              const active = state.slope !== null && state.mid === i;
+              const dim = i + 1 < state.left || i > state.right;
+              path(`seg-${i}`, {
+                d: `M ${xs[i]} ${ys[i]} L ${xs[i + 1]} ${ys[i + 1]}`,
+                stroke: active ? '#272727' : '#555',
+                'stroke-width': active ? 2.4 : 1.4,
+                fill: 'none',
+                opacity: dim ? 0.28 : 1,
+              });
+            }
+
+            NUMS.forEach((value, i) => {
+              const dim = i < state.left || i > state.right;
+              const isMid = state.mid !== null && i === state.mid;
+              const isNeighbor = state.slope !== null && state.mid !== null && i === state.mid + 1;
+              const isFound = state.result === i;
+              circle(`pt-${i}`, {
+                cx: xs[i], cy: ys[i], r: POINT_R,
+                fill: isFound ? '#e9e5d9' : '#fffdf8',
+                stroke: '#272727', 'stroke-width': isFound ? 2 : 1.4,
+                opacity: dim ? 0.28 : 1,
+              });
+              text(`ptv-${i}`, {
+                x: xs[i], y: ys[i] + 3.5, 'text-anchor': 'middle', 'font-size': 10.5,
+                fill: '#272727', 'font-family': MONO, opacity: dim ? 0.28 : 1,
+              }, String(value));
+              text(`idx-${i}`, {
+                x: xs[i], y: BASE + 15, 'text-anchor': 'middle', 'font-size': 9,
+                fill: '#777', 'font-family': MONO,
+              }, String(i));
+              if ((isMid || isNeighbor) && state.slope !== null) {
+                circle(`ring-${i}`, {
+                  cx: xs[i], cy: ys[i], r: 13, fill: 'none', stroke: '#777',
+                  'stroke-width': 1.1, 'stroke-dasharray': '3 3',
+                });
+              }
+              if (isFound) {
+                circle(`found-ring-${i}`, {
+                  cx: xs[i], cy: ys[i], r: 13.5, fill: 'none', stroke: '#272727', 'stroke-width': 1.6,
+                });
+                text('found-tag', {
+                  x: xs[i], y: ys[i] - 22, 'text-anchor': 'middle', 'font-size': 10,
+                  fill: '#272727', 'font-family': MONO,
+                }, '✓ 极大值 maxima');
+              }
+            });
+
+            if (state.snap) {
+              const fromX = xs[state.snap.from];
+              const toX = xs[state.snap.to];
+              path('snap-arrow', {
+                d: `M ${fromX} ${CHIP_Y} L ${toX} ${CHIP_Y}`,
+                stroke: '#666', 'stroke-width': 1.2, 'stroke-dasharray': '4 3',
+                fill: 'none', 'marker-end': 'url(#peak-snap-arrow)',
+              });
+              text('snap-label', {
+                x: (fromX + toX) / 2, y: CHIP_Y - 20, 'text-anchor': 'middle', 'font-size': 9,
+                fill: '#666', 'font-family': MONO,
+              }, `${state.snap.variable} = ${state.snap.variable === 'right' ? 'mid' : 'mid + 1'}`);
+            }
+          });
+        }
+
+        function paint(state) {
+          if (!state || !geo.xs.length) return;
+          const { xs, width } = geo;
+          stage.classList.toggle('has-result', state.result !== null);
+          drawTerrain(state);
+
+          if (state.keep) {
+            spaceLabel.textContent = state.keep === 'incl'
+              ? `↘ 保留 [${state.keepLo}, ${state.keepHi}] 含 mid`
+              : `↗ 保留 [${state.keepLo}, ${state.keepHi}] 排除 mid`;
+          } else if (state.result !== null) {
+            spaceLabel.textContent = `✓ nums[${state.result}] = ${NUMS[state.result]} 是极大值`;
+          } else if (state.done) {
+            spaceLabel.textContent = `left == right == ${state.left}`;
+          } else {
+            spaceLabel.textContent = `[${state.left}, ${state.right}] 搜索区间 / space`;
+          }
+          const spaceLeft = Math.max(2, xs[state.left] - POINT_R - 5);
+          const spaceRight = Math.min(width - 2, xs[state.right] + POINT_R + 5);
+          spaceLine.style.left = `${spaceLeft}px`;
+          spaceLine.style.width = `${Math.max(14, spaceRight - spaceLeft)}px`;
+
+          const chipEntries = [{ el: chips.left, x: xs[state.left] }];
+          if (state.mid !== null) chipEntries.push({ el: chips.mid, x: xs[state.mid] });
+          chipEntries.push({ el: chips.right, x: xs[state.right] });
+          const clampChip = x => Math.min(width - 26, Math.max(26, x));
+          const gap = 48;
+          const ordered = [...chipEntries].sort((a, b) => a.x - b.x);
+          for (let i = 1; i < ordered.length; i += 1) {
+            if (ordered[i].x < ordered[i - 1].x + gap) ordered[i].x = ordered[i - 1].x + gap;
+          }
+          const mean = chipEntries.reduce((sum, entry) => sum + entry.x, 0) / chipEntries.length;
+          const settledMean = ordered.reduce((sum, entry) => sum + entry.x, 0) / ordered.length;
+          let shift = mean - settledMean;
+          const groupMin = ordered[0].x + shift;
+          const groupMax = ordered[ordered.length - 1].x + shift;
+          if (groupMin < 28) shift += 28 - groupMin;
+          if (groupMax > width - 28) shift -= groupMax - (width - 28);
+          ordered.forEach(entry => { entry.el.style.left = `${clampChip(entry.x + shift)}px`; });
+          chips.mid.hidden = state.mid === null;
+
+          if (state.slope !== null && state.mid !== null) {
+            const segCx = (xs[state.mid] + xs[state.mid + 1]) / 2;
+            const top = Math.max(72, Math.min(geo.ys[state.mid], geo.ys[state.mid + 1]) - 28);
+            slopeBadge.hidden = false;
+            slopeBadge.textContent = state.slope === 'desc' ? '↘ 下降 descending' : '↗ 上升 ascending';
+            slopeBadge.style.left = `${segCx}px`;
+            slopeBadge.style.top = `${top}px`;
+          } else {
+            slopeBadge.hidden = true;
+          }
+        }
+
+        function render({ frame, state, step, frames }) {
+          phase.textContent = frame.stepLabel;
+          calloutCode.textContent = frame.line;
+          calloutEn.textContent = frame.en;
+          calloutZh.textContent = frame.zh;
+          invariant.textContent = frame.invariant;
+          mLeft.textContent = state.left;
+          mRight.textContent = state.right;
+          mMid.textContent = state.mid === null ? '—' : state.mid;
+          mMidVal.textContent = state.mid === null ? '—' : NUMS[state.mid];
+          mNextVal.textContent = state.mid === null || state.mid + 1 >= N ? '—' : NUMS[state.mid + 1];
+          mIter.textContent = state.iteration;
+          paint(state);
+          stage.setAttribute('aria-label', `寻找局部极大值演示，第 ${step + 1} / ${frames.length} 步：${frame.stepLabel}`);
+        }
+
+        new ResizeObserver(() => layout()).observe(stage);
+        layout();
+        trace = core.createTrace({
+          root,
+          cloneState: clone,
+          motion: core.createMotionController(),
+          onRender: render,
+        });
+        trace.setFrames(frames);
+      })();
+    </script>
+  </body>
+</html>

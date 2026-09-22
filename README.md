@@ -59,6 +59,10 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [First and Last Occurrences of a Number / 数字的首尾出现位置](https://junjiearaoxiong.github.io/algorithm-visuals/first-and-last-occurrences-of-a-number/)
 - [Cutting Wood / 砍木头](https://junjiearaoxiong.github.io/algorithm-visuals/cutting-wood/)
 - [Find the Target in a Rotated Sorted Array / 旋转排序数组中查找目标](https://junjiearaoxiong.github.io/algorithm-visuals/find-the-target-in-a-rotated-sorted-array/)
+- [Find the Median From Two Sorted Arrays / 两个有序数组的中位数](https://junjiearaoxiong.github.io/algorithm-visuals/find-the-median-from-two-sorted-arrays/)
+- [Matrix Search / 搜索二维矩阵](https://junjiearaoxiong.github.io/algorithm-visuals/matrix-search/)
+- [Local Maxima in Array / 寻找局部极大值](https://junjiearaoxiong.github.io/algorithm-visuals/local-maxima-in-array/)
+- [Weighted Random Selection / 按权重随机选择](https://junjiearaoxiong.github.io/algorithm-visuals/weighted-random-selection/)
 
 ### 07 · Stacks / 栈
 
