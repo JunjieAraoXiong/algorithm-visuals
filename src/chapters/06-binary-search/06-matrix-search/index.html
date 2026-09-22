@@ -440,11 +440,14 @@ mid = 9  → cell (2, 1) = 21 == 21 → return True</div>
 
         connector = el('path', { 'class': 'connector off', 'marker-end': 'url(#ms-arrow)' }, svg);
         midOutline = el('rect', { 'class': 'mid-outline', width: g.cellW - 5, height: g.cellH - 5, rx: 3, style: 'display: none' }, svg);
-        foundMark = txt({ 'class': 'found-mark', 'text-anchor': 'middle', style: 'display: none' }, '✓', svg);
+        foundMark = el('g', { 'class': 'found-mark', style: 'display: none' }, svg);
+        el('rect', { x: -8, y: 0, width: 15, height: 14, rx: 2, fill: '#fffdf8', stroke: '#555', 'stroke-width': 1 }, foundMark);
+        const foundTick = txt({ x: 0, y: 10.5, 'text-anchor': 'middle', 'font-size': 10, fill: '#272727' }, '✓', foundMark);
+        foundTick.setAttribute('font-family', MONO);
       }
 
       function layout() {
-        const W = Math.max(280, (stage.clientWidth || 600) - 3);
+        const W = Math.max(280, stage.clientWidth || 600);
         const compact = W < 560;
         geom = {
           width: W,
@@ -571,8 +574,7 @@ mid = 9  → cell (2, 1) = 21 == 21 → return True</div>
           const fr = Math.floor(state.found / N);
           const fc = state.found % N;
           foundMark.style.display = '';
-          foundMark.setAttribute('x', colX(fc) + g.cellW - 8);
-          foundMark.setAttribute('y', rowY(fr) + 13);
+          foundMark.setAttribute('transform', `translate(${colX(fc) + g.cellW - 9} ${rowY(fr) + 2})`);
         } else {
           foundMark.style.display = 'none';
         }
@@ -635,6 +637,14 @@ mid = 9  → cell (2, 1) = 21 == 21 → return True</div>
       const motion = core.createMotionController();
       layout();
       new ResizeObserver(() => layout()).observe(stage);
+      // Early layout can measure the stage before the grid tracks settle;
+      // re-check once paints and resources have resolved.
+      const relayoutIfChanged = () => {
+        if (geom && Math.abs(stage.clientWidth - geom.width) > 0.5) layout();
+      };
+      window.addEventListener('load', relayoutIfChanged);
+      requestAnimationFrame(relayoutIfChanged);
+      setTimeout(relayoutIfChanged, 150);
       trace = core.createTrace({
         root,
         cloneState: s => ({ ...s }),
