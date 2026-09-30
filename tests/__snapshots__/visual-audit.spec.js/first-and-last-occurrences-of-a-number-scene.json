@@ -16,6 +16,121 @@
   ],
   "children": [
     {
+      "tag": "label",
+      "attributes": [
+        [
+          "class",
+          "case-picker"
+        ]
+      ],
+      "children": [
+        "例子",
+        {
+          "tag": "select",
+          "attributes": [
+            [
+              "aria-label",
+              "选择演示例子"
+            ],
+            [
+              "data-example-select",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "duplicates"
+                ]
+              ],
+              "children": [
+                "target = 4 · 多次出现"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "single"
+                ]
+              ],
+              "children": [
+                "target = 6 · 只出现一次"
+              ]
+            },
+            {
+              "tag": "optgroup",
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "missing"
+                    ]
+                  ],
+                  "children": [
+                    "target = 6 · 缺失、left 越界"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "singleton"
+                    ]
+                  ],
+                  "children": [
+                    "nums = [4] · 首尾都是 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "empty"
+                    ]
+                  ],
+                  "children": [
+                    "nums = [] · 空数组"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "case-input"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-case-input",
+              ""
+            ]
+          ],
+          "children": [
+            "nums = [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11], target = 4"
+          ]
+        }
+      ]
+    },
+    {
       "tag": "div",
       "attributes": [
         [
@@ -112,7 +227,7 @@
                     ]
                   ],
                   "children": [
-                    "问题 · 找首尾下标"
+                    "问题 · target = 4"
                   ]
                 },
                 {
@@ -124,7 +239,7 @@
                     ]
                   ],
                   "children": [
-                    "调用下界搜索"
+                    "调用 · 找首个"
                   ]
                 },
                 {
@@ -136,7 +251,7 @@
                     ]
                   ],
                   "children": [
-                    "下界 · left=0, right=12"
+                    "首个 · 初始化 [0, 12]"
                   ]
                 },
                 {
@@ -148,7 +263,7 @@
                     ]
                   ],
                   "children": [
-                    "下界 · mid = 6"
+                    "首个 · mid = 6"
                   ]
                 },
                 {
@@ -160,7 +275,7 @@
                     ]
                   ],
                   "children": [
-                    "nums[6]=5>4 · right=5"
+                    "首个 · right = mid - 1 → [0, 5]"
                   ]
                 },
                 {
@@ -172,7 +287,7 @@
                     ]
                   ],
                   "children": [
-                    "下界 · mid = 2"
+                    "首个 · mid = 2"
                   ]
                 },
                 {
@@ -184,7 +299,7 @@
                     ]
                   ],
                   "children": [
-                    "nums[2]=3<4 · left=3"
+                    "首个 · left = mid + 1 → [3, 5]"
                   ]
                 },
                 {
@@ -196,7 +311,7 @@
                     ]
                   ],
                   "children": [
-                    "下界 · mid = 4"
+                    "首个 · mid = 4"
                   ]
                 },
                 {
@@ -208,7 +323,7 @@
                     ]
                   ],
                   "children": [
-                    "nums[4]=4 · right=mid"
+                    "首个 · right = mid → [3, 4]"
                   ]
                 },
                 {
@@ -220,7 +335,7 @@
                     ]
                   ],
                   "children": [
-                    "下界 · mid = 3"
+                    "首个 · mid = 3"
                   ]
                 },
                 {
@@ -232,7 +347,7 @@
                     ]
                   ],
                   "children": [
-                    "nums[3]=4 · right=3"
+                    "首个 · right = mid → [3, 3]"
                   ]
                 },
                 {
@@ -244,7 +359,7 @@
                     ]
                   ],
                   "children": [
-                    "校验 · 下界 = 3"
+                    "校验 · 首个 = 3"
                   ]
                 },
                 {
@@ -256,7 +371,7 @@
                     ]
                   ],
                   "children": [
-                    "调用上界搜索"
+                    "调用 · 找末个"
                   ]
                 },
                 {
@@ -268,7 +383,7 @@
                     ]
                   ],
                   "children": [
-                    "上界 · left=0, right=12"
+                    "末个 · 初始化 [0, 12]"
                   ]
                 },
                 {
@@ -280,7 +395,7 @@
                     ]
                   ],
                   "children": [
-                    "上界 · mid = 7（右偏）"
+                    "末个 · mid = 7"
                   ]
                 },
                 {
@@ -292,7 +407,7 @@
                     ]
                   ],
                   "children": [
-                    "nums[7]=6>4 · right=6"
+                    "末个 · right = mid - 1 → [0, 6]"
                   ]
                 },
                 {
@@ -304,7 +419,7 @@
                     ]
                   ],
                   "children": [
-                    "上界 · mid = 4"
+                    "末个 · mid = 4"
                   ]
                 },
                 {
@@ -316,7 +431,7 @@
                     ]
                   ],
                   "children": [
-                    "nums[4]=4 · left=mid"
+                    "末个 · left = mid → [4, 6]"
                   ]
                 },
                 {
@@ -328,7 +443,7 @@
                     ]
                   ],
                   "children": [
-                    "上界 · mid = 6"
+                    "末个 · mid = 6"
                   ]
                 },
                 {
@@ -340,7 +455,7 @@
                     ]
                   ],
                   "children": [
-                    "nums[6]=5>4 · right=5"
+                    "末个 · right = mid - 1 → [4, 5]"
                   ]
                 },
                 {
@@ -352,7 +467,7 @@
                     ]
                   ],
                   "children": [
-                    "上界 · mid = 5（关键右偏）"
+                    "末个 · mid = 5（右偏）"
                   ]
                 },
                 {
@@ -364,7 +479,7 @@
                     ]
                   ],
                   "children": [
-                    "nums[5]=4 · left=5"
+                    "末个 · left = mid → [5, 5]"
                   ]
                 },
                 {
@@ -376,7 +491,7 @@
                     ]
                   ],
                   "children": [
-                    "校验 · 上界 = 5"
+                    "校验 · 末个 = 5"
                   ]
                 },
                 {
@@ -420,6 +535,12 @@
         },
         {
           "tag": "span",
+          "attributes": [
+            [
+              "data-target",
+              ""
+            ]
+          ],
           "children": [
             "target = 4"
           ]
@@ -431,7 +552,7 @@
       "attributes": [
         [
           "aria-label",
-          "第 1 / 24 步。在非递减数组里找 4 第一次与最后一次出现的下标；找不到就返回 [-1, -1]。数组有序，所以可以二分：问题等价于求 4 所在块的左右端点。"
+          "第 1 / 24 步。分别寻找 4 的首个和末个出现位置。两条轨道读取同一个数组，各自维护 left、right 和 mid。"
         ],
         [
           "class",
@@ -440,486 +561,1118 @@
         [
           "data-stage",
           ""
-        ],
-        [
-          "style",
-          "height: 212px;"
         ]
       ],
       "children": [
         {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "band"
-            ],
-            [
-              "data-band",
-              ""
-            ],
-            [
-              "hidden",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "band-label"
-                ],
-                [
-                  "data-band-label",
-                  ""
-                ]
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "track"
-            ],
-            [
-              "data-track",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "0"
-                ],
-                [
-                  "style",
-                  "left: 140.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "1"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "1"
-                ],
-                [
-                  "style",
-                  "left: 175.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "2"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "2"
-                ],
-                [
-                  "style",
-                  "left: 210.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "3"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "3"
-                ],
-                [
-                  "style",
-                  "left: 245.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "4"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "4"
-                ],
-                [
-                  "style",
-                  "left: 280.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "4"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "5"
-                ],
-                [
-                  "style",
-                  "left: 315.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "4"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "6"
-                ],
-                [
-                  "style",
-                  "left: 350.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "5"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "7"
-                ],
-                [
-                  "style",
-                  "left: 385.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "6"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "8"
-                ],
-                [
-                  "style",
-                  "left: 420.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "7"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "9"
-                ],
-                [
-                  "style",
-                  "left: 455.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "8"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "10"
-                ],
-                [
-                  "style",
-                  "left: 490.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "9"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "11"
-                ],
-                [
-                  "style",
-                  "left: 525.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "10"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "cell"
-                ],
-                [
-                  "data-index",
-                  "12"
-                ],
-                [
-                  "style",
-                  "left: 560.5px; top: 118px; width: 30px; height: 54px; font-size: 13.5px;"
-                ]
-              ],
-              "children": [
-                "11"
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "span",
-          "attributes": [
-            [
-              "class",
-              "chip"
-            ],
-            [
-              "data-chip",
-              "left"
-            ],
-            [
-              "hidden",
-              ""
-            ]
-          ],
-          "children": [
-            "left"
-          ]
-        },
-        {
-          "tag": "span",
-          "attributes": [
-            [
-              "class",
-              "chip mid-chip"
-            ],
-            [
-              "data-chip",
-              "mid"
-            ],
-            [
-              "hidden",
-              ""
-            ]
-          ],
-          "children": [
-            "mid"
-          ]
-        },
-        {
-          "tag": "span",
-          "attributes": [
-            [
-              "class",
-              "chip"
-            ],
-            [
-              "data-chip",
-              "right"
-            ],
-            [
-              "hidden",
-              ""
-            ]
-          ],
-          "children": [
-            "right"
-          ]
-        },
-        {
-          "tag": "span",
+          "tag": "section",
           "attributes": [
             [
               "aria-label",
-              "首个出现位置 / first occurrence"
+              "寻找首个出现位置"
             ],
             [
               "class",
-              "found-tag"
+              "search-lane"
             ],
             [
-              "data-tag-first",
-              ""
-            ],
-            [
-              "hidden",
-              ""
-            ],
-            [
-              "style",
-              "top: 190px;"
-            ]
-          ],
-          "children": [
-            "首个"
-          ]
-        },
-        {
-          "tag": "span",
-          "attributes": [
-            [
-              "aria-label",
-              "末个出现位置 / last occurrence"
-            ],
-            [
-              "class",
-              "found-tag"
-            ],
-            [
-              "data-tag-last",
-              ""
-            ],
-            [
-              "hidden",
-              ""
-            ],
-            [
-              "style",
-              "top: 190px;"
-            ]
-          ],
-          "children": [
-            "末个"
-          ]
-        },
-        {
-          "tag": "svg",
-          "attributes": [
-            [
-              "aria-hidden",
-              "true"
-            ],
-            [
-              "class",
-              "lines"
-            ],
-            [
-              "data-lines",
-              ""
-            ],
-            [
-              "viewBox",
-              "0 0 731 211"
+              "data-lane",
+              "lb"
             ]
           ],
           "children": [
             {
-              "tag": "defs",
+              "tag": "header",
+              "attributes": [
+                [
+                  "class",
+                  "lane-heading"
+                ]
+              ],
               "children": [
                 {
-                  "tag": "marker",
+                  "tag": "h3",
+                  "children": [
+                    "找首个 · 命中后 right = mid"
+                  ]
+                },
+                {
+                  "tag": "output",
                   "attributes": [
                     [
-                      "viewBox",
-                      "0 0 8 8"
+                      "data-lane-status",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "尚未调用"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "lane-stage"
+                ],
+                [
+                  "style",
+                  "height: 169px;"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "band"
+                    ],
+                    [
+                      "data-band",
+                      ""
+                    ],
+                    [
+                      "hidden",
+                      ""
                     ]
                   ],
                   "children": [
                     {
-                      "tag": "path",
+                      "tag": "span",
                       "attributes": [
                         [
-                          "d",
-                          "M0 0 L8 4 L0 8 Z"
+                          "class",
+                          "band-label"
                         ],
                         [
-                          "fill",
-                          "#555"
+                          "data-band-label",
+                          ""
                         ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "track"
+                    ],
+                    [
+                      "data-track",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "0"
+                        ],
+                        [
+                          "style",
+                          "left: 26px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "1"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "1"
+                        ],
+                        [
+                          "style",
+                          "left: 75px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "2"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "2"
+                        ],
+                        [
+                          "style",
+                          "left: 124px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "3"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "3"
+                        ],
+                        [
+                          "style",
+                          "left: 173px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "4"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "4"
+                        ],
+                        [
+                          "style",
+                          "left: 222px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "4"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "5"
+                        ],
+                        [
+                          "style",
+                          "left: 271px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "4"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "6"
+                        ],
+                        [
+                          "style",
+                          "left: 320px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "5"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "7"
+                        ],
+                        [
+                          "style",
+                          "left: 369px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "6"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "8"
+                        ],
+                        [
+                          "style",
+                          "left: 418px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "7"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "9"
+                        ],
+                        [
+                          "style",
+                          "left: 467px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "8"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "10"
+                        ],
+                        [
+                          "style",
+                          "left: 516px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "9"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "11"
+                        ],
+                        [
+                          "style",
+                          "left: 565px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "10"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "12"
+                        ],
+                        [
+                          "style",
+                          "left: 614px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "11"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "aria-label",
+                          "下标 13，位于数组之外，不可访问"
+                        ],
+                        [
+                          "class",
+                          "cell boundary-slot"
+                        ],
+                        [
+                          "data-index",
+                          "13"
+                        ],
+                        [
+                          "hidden",
+                          ""
+                        ],
+                        [
+                          "style",
+                          "left: 663px; top: 90px; width: 42px; height: 44px; font-size: 10px;"
+                        ]
+                      ],
+                      "children": [
+                        "越界"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "chip"
+                    ],
+                    [
+                      "data-chip",
+                      "left"
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "chip mid-chip"
+                    ],
+                    [
+                      "data-chip",
+                      "mid"
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "chip"
+                    ],
+                    [
+                      "data-chip",
+                      "right"
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "found-tag"
+                    ],
+                    [
+                      "data-tag-first",
+                      ""
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "empty-array"
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ],
+                    [
+                      "style",
+                      "top: 90px;"
+                    ]
+                  ],
+                  "children": [
+                    "nums = [] · 没有可访问的元素"
+                  ]
+                },
+                {
+                  "tag": "svg",
+                  "attributes": [
+                    [
+                      "aria-hidden",
+                      "true"
+                    ],
+                    [
+                      "class",
+                      "lines"
+                    ],
+                    [
+                      "data-lines",
+                      ""
+                    ],
+                    [
+                      "viewBox",
+                      "0 0 731 169"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "defs",
+                      "children": [
+                        {
+                          "tag": "marker",
+                          "attributes": [
+                            [
+                              "viewBox",
+                              "0 0 8 8"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "path",
+                              "attributes": [
+                                [
+                                  "d",
+                                  "M0 0 L8 4 L0 8 Z"
+                                ],
+                                [
+                                  "fill",
+                                  "#555"
+                                ]
+                              ]
+                            }
+                          ]
+                        }
                       ]
                     }
                   ]
                 }
               ]
             }
+          ]
+        },
+        {
+          "tag": "section",
+          "attributes": [
+            [
+              "aria-label",
+              "寻找末个出现位置"
+            ],
+            [
+              "class",
+              "search-lane"
+            ],
+            [
+              "data-lane",
+              "ub"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "header",
+              "attributes": [
+                [
+                  "class",
+                  "lane-heading"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "h3",
+                  "children": [
+                    "找末个 · 命中后 left = mid"
+                  ]
+                },
+                {
+                  "tag": "output",
+                  "attributes": [
+                    [
+                      "data-lane-status",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "尚未调用"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "lane-stage"
+                ],
+                [
+                  "style",
+                  "height: 169px;"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "band"
+                    ],
+                    [
+                      "data-band",
+                      ""
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "band-label"
+                        ],
+                        [
+                          "data-band-label",
+                          ""
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "track"
+                    ],
+                    [
+                      "data-track",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "0"
+                        ],
+                        [
+                          "style",
+                          "left: 26px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "1"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "1"
+                        ],
+                        [
+                          "style",
+                          "left: 75px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "2"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "2"
+                        ],
+                        [
+                          "style",
+                          "left: 124px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "3"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "3"
+                        ],
+                        [
+                          "style",
+                          "left: 173px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "4"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "4"
+                        ],
+                        [
+                          "style",
+                          "left: 222px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "4"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "5"
+                        ],
+                        [
+                          "style",
+                          "left: 271px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "4"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "6"
+                        ],
+                        [
+                          "style",
+                          "left: 320px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "5"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "7"
+                        ],
+                        [
+                          "style",
+                          "left: 369px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "6"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "8"
+                        ],
+                        [
+                          "style",
+                          "left: 418px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "7"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "9"
+                        ],
+                        [
+                          "style",
+                          "left: 467px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "8"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "10"
+                        ],
+                        [
+                          "style",
+                          "left: 516px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "9"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "11"
+                        ],
+                        [
+                          "style",
+                          "left: 565px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "10"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "cell"
+                        ],
+                        [
+                          "data-index",
+                          "12"
+                        ],
+                        [
+                          "style",
+                          "left: 614px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                        ]
+                      ],
+                      "children": [
+                        "11"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "aria-label",
+                          "下标 13，位于数组之外，不可访问"
+                        ],
+                        [
+                          "class",
+                          "cell boundary-slot"
+                        ],
+                        [
+                          "data-index",
+                          "13"
+                        ],
+                        [
+                          "hidden",
+                          ""
+                        ],
+                        [
+                          "style",
+                          "left: 663px; top: 90px; width: 42px; height: 44px; font-size: 10px;"
+                        ]
+                      ],
+                      "children": [
+                        "越界"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "chip"
+                    ],
+                    [
+                      "data-chip",
+                      "left"
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "chip mid-chip"
+                    ],
+                    [
+                      "data-chip",
+                      "mid"
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "chip"
+                    ],
+                    [
+                      "data-chip",
+                      "right"
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "found-tag"
+                    ],
+                    [
+                      "data-tag-last",
+                      ""
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "empty-array"
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ],
+                    [
+                      "style",
+                      "top: 90px;"
+                    ]
+                  ],
+                  "children": [
+                    "nums = [] · 没有可访问的元素"
+                  ]
+                },
+                {
+                  "tag": "svg",
+                  "attributes": [
+                    [
+                      "aria-hidden",
+                      "true"
+                    ],
+                    [
+                      "class",
+                      "lines"
+                    ],
+                    [
+                      "data-lines",
+                      ""
+                    ],
+                    [
+                      "viewBox",
+                      "0 0 731 169"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "defs",
+                      "children": [
+                        {
+                          "tag": "marker",
+                          "attributes": [
+                            [
+                              "viewBox",
+                              "0 0 8 8"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "path",
+                              "attributes": [
+                                [
+                                  "d",
+                                  "M0 0 L8 4 L0 8 Z"
+                                ],
+                                [
+                                  "fill",
+                                  "#555"
+                                ]
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "result-row"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-result",
+              ""
+            ]
+          ],
+          "children": [
+            "已确认 [—, —]"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-result-note",
+              ""
+            ]
+          ],
+          "children": [
+            "两个搜索各自维护指针"
           ]
         }
       ]
@@ -957,7 +1710,7 @@
                 ]
               ],
               "children": [
-                "相等的值在非递减数组里连成一块；答案就是这块的左右两个端点。/ Equal values form one contiguous block; the answer is its two ends."
+                "相等的值连成一块；两个搜索分别寻找这块的左端和右端。/ Equal values form a contiguous block; locate its two ends."
               ]
             }
           ]
@@ -1165,7 +1918,7 @@
             ]
           ],
           "children": [
-            "nums = [1,2,3,4,4,4,5,6,7,8,9,10,11], target = 4"
+            "nums = [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11], target = 4"
           ]
         },
         {
@@ -1177,7 +1930,7 @@
             ]
           ],
           "children": [
-            "在非递减数组里找 4 第一次与最后一次出现的下标；找不到就返回 [-1, -1]。数组有序，所以可以二分：问题等价于求 4 所在块的左右端点。"
+            "分别寻找 4 的首个和末个出现位置。两条轨道读取同一个数组，各自维护 left、right 和 mid。"
           ]
         },
         {
@@ -1189,7 +1942,7 @@
             ]
           ],
           "children": [
-            "Find the first and last index of 4 in a non-decreasing array; return [-1, -1] if absent. The task is to locate the two ends of the block of 4s."
+            "Find the first and last occurrence of 4. Both searches read the same array and keep independent pointers."
           ]
         }
       ]

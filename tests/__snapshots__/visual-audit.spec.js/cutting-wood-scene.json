@@ -108,7 +108,7 @@
                     ]
                   ],
                   "children": [
-                    "初始化搜索空间 [0, 8]"
+                    "搜索 H ∈ [0, 8]"
                   ]
                 },
                 {
@@ -120,7 +120,7 @@
                     ]
                   ],
                   "children": [
-                    "循环 · 0 < 8"
+                    "第 1 轮 · 0 < 8"
                   ]
                 },
                 {
@@ -132,7 +132,7 @@
                     ]
                   ],
                   "children": [
-                    "mid = 5"
+                    "第 1 轮 · 试 H = 5"
                   ]
                 },
                 {
@@ -144,7 +144,7 @@
                     ]
                   ],
                   "children": [
-                    "判定 H = 5 → False"
+                    "H = 5 · 4 米 → False"
                   ]
                 },
                 {
@@ -156,7 +156,7 @@
                     ]
                   ],
                   "children": [
-                    "right = mid - 1 → 4"
+                    "不够木材 · right = 4"
                   ]
                 },
                 {
@@ -168,7 +168,7 @@
                     ]
                   ],
                   "children": [
-                    "循环 · 0 < 4"
+                    "第 2 轮 · 0 < 4"
                   ]
                 },
                 {
@@ -180,7 +180,7 @@
                     ]
                   ],
                   "children": [
-                    "mid = 3"
+                    "第 2 轮 · 试 H = 3"
                   ]
                 },
                 {
@@ -192,7 +192,7 @@
                     ]
                   ],
                   "children": [
-                    "判定 H = 3 → True"
+                    "H = 3 · 8 米 → True"
                   ]
                 },
                 {
@@ -204,7 +204,7 @@
                     ]
                   ],
                   "children": [
-                    "left = mid → 3"
+                    "够木材 · left = 3"
                   ]
                 },
                 {
@@ -216,7 +216,7 @@
                     ]
                   ],
                   "children": [
-                    "循环 · 3 < 4"
+                    "第 3 轮 · 3 < 4"
                   ]
                 },
                 {
@@ -228,7 +228,7 @@
                     ]
                   ],
                   "children": [
-                    "mid = 4"
+                    "第 3 轮 · 试 H = 4"
                   ]
                 },
                 {
@@ -240,7 +240,7 @@
                     ]
                   ],
                   "children": [
-                    "判定 H = 4 → False"
+                    "H = 4 · 6 米 → False"
                   ]
                 },
                 {
@@ -252,7 +252,7 @@
                     ]
                   ],
                   "children": [
-                    "right = mid - 1 → 3"
+                    "不够木材 · right = 3"
                   ]
                 },
                 {
@@ -264,7 +264,7 @@
                     ]
                   ],
                   "children": [
-                    "循环结束 · 3 == 3"
+                    "只剩 H = 3 · 循环结束"
                   ]
                 },
                 {
@@ -276,7 +276,7 @@
                     ]
                   ],
                   "children": [
-                    "return 3"
+                    "答案 H = 3 · 最高可行高度"
                   ]
                 }
               ]
@@ -303,7 +303,83 @@
             ]
           ],
           "children": [
-            "初始化搜索空间 [0, 8]"
+            "搜索 H ∈ [0, 8]"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "detail-toggle"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "input",
+              "attributes": [
+                [
+                  "data-detail",
+                  ""
+                ]
+              ]
+            },
+            "逐棵展开计算"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "ol",
+      "attributes": [
+        [
+          "aria-label",
+          "解题过程"
+        ],
+        [
+          "class",
+          "parts"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "li",
+          "attributes": [
+            [
+              "aria-current",
+              "true"
+            ],
+            [
+              "data-part",
+              "choose"
+            ]
+          ],
+          "children": [
+            "1. 试一个 H"
+          ]
+        },
+        {
+          "tag": "li",
+          "attributes": [
+            [
+              "data-part",
+              "collect"
+            ]
+          ],
+          "children": [
+            "2. 累加木材"
+          ]
+        },
+        {
+          "tag": "li",
+          "attributes": [
+            [
+              "data-part",
+              "narrow"
+            ]
+          ],
+          "children": [
+            "3. 缩小范围"
           ]
         }
       ]
@@ -313,7 +389,7 @@
       "attributes": [
         [
           "aria-label",
-          "砍木头演示：第 1 / 15 步。最高的树是 8 米，H 的取值范围是 [0, 8]；left 和 right 守住区间两端。"
+          "砍木头演示：第 1 / 15 步。二分的是锯高 H 的取值 [0, 8]，不是树的下标；树高数组不用排序。"
         ],
         [
           "class",
@@ -325,7 +401,7 @@
         ],
         [
           "style",
-          "height: 362px;"
+          "height: 400px;"
         ]
       ],
       "children": [
@@ -346,7 +422,7 @@
             ],
             [
               "viewBox",
-              "0 0 731 362"
+              "0 0 731 400"
             ]
           ],
           "children": [
@@ -412,11 +488,59 @@
               ]
             },
             {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "trees-title"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "4"
+                ],
+                [
+                  "y",
+                  "17"
+                ]
+              ],
+              "children": [
+                "树高 heights · 不用排序"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "saw-status"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "726"
+                ],
+                [
+                  "y",
+                  "17"
+                ]
+              ],
+              "children": [
+                "目标 k = 7 m"
+              ]
+            },
+            {
               "tag": "path",
               "attributes": [
                 [
                   "d",
-                  "M 34 40 L 34 234"
+                  "M 32 49 V 202"
                 ],
                 [
                   "data-visual-element",
@@ -428,11 +552,7 @@
                 ],
                 [
                   "stroke",
-                  "#333"
-                ],
-                [
-                  "stroke-width",
-                  "1.2"
+                  "#555"
                 ]
               ]
             },
@@ -441,11 +561,11 @@
               "attributes": [
                 [
                   "d",
-                  "M 30 234 L 721 234"
+                  "M 28 202 H 726"
                 ],
                 [
                   "data-visual-element",
-                  "axis-x"
+                  "ground"
                 ],
                 [
                   "fill",
@@ -454,59 +574,7 @@
                 [
                   "stroke",
                   "#333"
-                ],
-                [
-                  "stroke-width",
-                  "1.2"
                 ]
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "axis-y-cap"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "x",
-                  "34"
-                ],
-                [
-                  "y",
-                  "36"
-                ]
-              ],
-              "children": [
-                "height"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "axis-x-cap"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "x",
-                  "721"
-                ],
-                [
-                  "y",
-                  "247"
-                ]
-              ],
-              "children": [
-                "i"
               ]
             },
             {
@@ -514,7 +582,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 29 234 L 34 234"
+                  "M 28 202 h 4"
                 ],
                 [
                   "data-visual-element",
@@ -526,11 +594,7 @@
                 ],
                 [
                   "stroke",
-                  "#555"
-                ],
-                [
-                  "stroke-width",
-                  "1"
+                  "#999"
                 ]
               ]
             },
@@ -547,11 +611,11 @@
                 ],
                 [
                   "x",
-                  "26"
+                  "24"
                 ],
                 [
                   "y",
-                  "237.5"
+                  "205.5"
                 ]
               ],
               "children": [
@@ -563,7 +627,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 29 211 L 34 211"
+                  "M 28 184 h 4"
                 ],
                 [
                   "data-visual-element",
@@ -575,11 +639,7 @@
                 ],
                 [
                   "stroke",
-                  "#555"
-                ],
-                [
-                  "stroke-width",
-                  "1"
+                  "#999"
                 ]
               ]
             },
@@ -596,11 +656,11 @@
                 ],
                 [
                   "x",
-                  "26"
+                  "24"
                 ],
                 [
                   "y",
-                  "214.5"
+                  "187.5"
                 ]
               ],
               "children": [
@@ -612,7 +672,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 29 188 L 34 188"
+                  "M 28 166 h 4"
                 ],
                 [
                   "data-visual-element",
@@ -624,11 +684,7 @@
                 ],
                 [
                   "stroke",
-                  "#555"
-                ],
-                [
-                  "stroke-width",
-                  "1"
+                  "#999"
                 ]
               ]
             },
@@ -645,11 +701,11 @@
                 ],
                 [
                   "x",
-                  "26"
+                  "24"
                 ],
                 [
                   "y",
-                  "191.5"
+                  "169.5"
                 ]
               ],
               "children": [
@@ -661,7 +717,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 29 165 L 34 165"
+                  "M 28 148 h 4"
                 ],
                 [
                   "data-visual-element",
@@ -673,11 +729,7 @@
                 ],
                 [
                   "stroke",
-                  "#555"
-                ],
-                [
-                  "stroke-width",
-                  "1"
+                  "#999"
                 ]
               ]
             },
@@ -694,11 +746,11 @@
                 ],
                 [
                   "x",
-                  "26"
+                  "24"
                 ],
                 [
                   "y",
-                  "168.5"
+                  "151.5"
                 ]
               ],
               "children": [
@@ -710,7 +762,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 29 142 L 34 142"
+                  "M 28 130 h 4"
                 ],
                 [
                   "data-visual-element",
@@ -722,11 +774,7 @@
                 ],
                 [
                   "stroke",
-                  "#555"
-                ],
-                [
-                  "stroke-width",
-                  "1"
+                  "#999"
                 ]
               ]
             },
@@ -743,11 +791,11 @@
                 ],
                 [
                   "x",
-                  "26"
+                  "24"
                 ],
                 [
                   "y",
-                  "145.5"
+                  "133.5"
                 ]
               ],
               "children": [
@@ -759,7 +807,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 29 119 L 34 119"
+                  "M 28 112 h 4"
                 ],
                 [
                   "data-visual-element",
@@ -771,11 +819,7 @@
                 ],
                 [
                   "stroke",
-                  "#555"
-                ],
-                [
-                  "stroke-width",
-                  "1"
+                  "#999"
                 ]
               ]
             },
@@ -792,11 +836,11 @@
                 ],
                 [
                   "x",
-                  "26"
+                  "24"
                 ],
                 [
                   "y",
-                  "122.5"
+                  "115.5"
                 ]
               ],
               "children": [
@@ -808,7 +852,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 29 96 L 34 96"
+                  "M 28 94 h 4"
                 ],
                 [
                   "data-visual-element",
@@ -820,11 +864,7 @@
                 ],
                 [
                   "stroke",
-                  "#555"
-                ],
-                [
-                  "stroke-width",
-                  "1"
+                  "#999"
                 ]
               ]
             },
@@ -841,11 +881,11 @@
                 ],
                 [
                   "x",
-                  "26"
+                  "24"
                 ],
                 [
                   "y",
-                  "99.5"
+                  "97.5"
                 ]
               ],
               "children": [
@@ -857,7 +897,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 29 73 L 34 73"
+                  "M 28 76 h 4"
                 ],
                 [
                   "data-visual-element",
@@ -869,11 +909,7 @@
                 ],
                 [
                   "stroke",
-                  "#555"
-                ],
-                [
-                  "stroke-width",
-                  "1"
+                  "#999"
                 ]
               ]
             },
@@ -890,11 +926,11 @@
                 ],
                 [
                   "x",
-                  "26"
+                  "24"
                 ],
                 [
                   "y",
-                  "76.5"
+                  "79.5"
                 ]
               ],
               "children": [
@@ -906,7 +942,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 29 50 L 34 50"
+                  "M 28 58 h 4"
                 ],
                 [
                   "data-visual-element",
@@ -918,11 +954,7 @@
                 ],
                 [
                   "stroke",
-                  "#555"
-                ],
-                [
-                  "stroke-width",
-                  "1"
+                  "#999"
                 ]
               ]
             },
@@ -939,11 +971,11 @@
                 ],
                 [
                   "x",
-                  "26"
+                  "24"
                 ],
                 [
                   "y",
-                  "53.5"
+                  "61.5"
                 ]
               ],
               "children": [
@@ -955,7 +987,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 190.6 188 h 56 v 46 h -56 Z"
+                  "M 139.75 166 h 52 v 36 h -52 Z"
                 ],
                 [
                   "data-visual-element",
@@ -971,7 +1003,7 @@
                 ],
                 [
                   "stroke-width",
-                  "1.5"
+                  "1.3"
                 ]
               ]
             },
@@ -980,7 +1012,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "bar-label-0"
+                  "height-0"
                 ],
                 [
                   "fill",
@@ -988,11 +1020,11 @@
                 ],
                 [
                   "x",
-                  "218.6"
+                  "165.75"
                 ],
                 [
                   "y",
-                  "182"
+                  "159"
                 ]
               ],
               "children": [
@@ -1000,11 +1032,59 @@
               ]
             },
             {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "index-0"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "165.75"
+                ],
+                [
+                  "y",
+                  "218"
+                ]
+              ],
+              "children": [
+                "heights[0]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "contribution-0"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "165.75"
+                ],
+                [
+                  "y",
+                  "242"
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            },
+            {
               "tag": "path",
               "attributes": [
                 [
                   "d",
-                  "M 323.2 96 h 56 v 138 h -56 Z"
+                  "M 291.25 94 h 52 v 108 h -52 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1020,7 +1100,7 @@
                 ],
                 [
                   "stroke-width",
-                  "1.5"
+                  "1.3"
                 ]
               ]
             },
@@ -1029,7 +1109,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "bar-label-1"
+                  "height-1"
                 ],
                 [
                   "fill",
@@ -1037,11 +1117,11 @@
                 ],
                 [
                   "x",
-                  "351.2"
+                  "317.25"
                 ],
                 [
                   "y",
-                  "90"
+                  "87"
                 ]
               ],
               "children": [
@@ -1049,11 +1129,59 @@
               ]
             },
             {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "index-1"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "317.25"
+                ],
+                [
+                  "y",
+                  "218"
+                ]
+              ],
+              "children": [
+                "heights[1]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "contribution-1"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "317.25"
+                ],
+                [
+                  "y",
+                  "242"
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            },
+            {
               "tag": "path",
               "attributes": [
                 [
                   "d",
-                  "M 455.79999999999995 165 h 56 v 69 h -56 Z"
+                  "M 442.75 148 h 52 v 54 h -52 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1069,7 +1197,7 @@
                 ],
                 [
                   "stroke-width",
-                  "1.5"
+                  "1.3"
                 ]
               ]
             },
@@ -1078,7 +1206,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "bar-label-2"
+                  "height-2"
                 ],
                 [
                   "fill",
@@ -1086,11 +1214,11 @@
                 ],
                 [
                   "x",
-                  "483.79999999999995"
+                  "468.75"
                 ],
                 [
                   "y",
-                  "159"
+                  "141"
                 ]
               ],
               "children": [
@@ -1098,11 +1226,59 @@
               ]
             },
             {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "index-2"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "468.75"
+                ],
+                [
+                  "y",
+                  "218"
+                ]
+              ],
+              "children": [
+                "heights[2]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "contribution-2"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "468.75"
+                ],
+                [
+                  "y",
+                  "242"
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            },
+            {
               "tag": "path",
               "attributes": [
                 [
                   "d",
-                  "M 588.4 50 h 56 v 184 h -56 Z"
+                  "M 594.25 58 h 52 v 144 h -52 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1118,7 +1294,7 @@
                 ],
                 [
                   "stroke-width",
-                  "1.5"
+                  "1.3"
                 ]
               ]
             },
@@ -1127,7 +1303,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "bar-label-3"
+                  "height-3"
                 ],
                 [
                   "fill",
@@ -1135,11 +1311,11 @@
                 ],
                 [
                   "x",
-                  "616.4"
+                  "620.25"
                 ],
                 [
                   "y",
-                  "44"
+                  "51"
                 ]
               ],
               "children": [
@@ -1147,11 +1323,152 @@
               ]
             },
             {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "index-3"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "620.25"
+                ],
+                [
+                  "y",
+                  "218"
+                ]
+              ],
+              "children": [
+                "heights[3]"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "contribution-3"
+                ],
+                [
+                  "fill",
+                  "#777"
+                ],
+                [
+                  "x",
+                  "620.25"
+                ],
+                [
+                  "y",
+                  "242"
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "contribution-title"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "4"
+                ],
+                [
+                  "y",
+                  "242"
+                ]
+              ],
+              "children": [
+                "贡献"
+              ]
+            },
+            {
               "tag": "path",
               "attributes": [
                 [
                   "d",
-                  "M 39.5 288 H 83.5 Q 87.5 288 87.5 292 V 314 Q 87.5 318 83.5 318 H 39.5 Q 35.5 318 35.5 314 V 292 Q 35.5 288 39.5 288 Z"
+                  "M 3 258 H 728"
+                ],
+                [
+                  "data-visual-element",
+                  "divider"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#b7b7b1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "height-axis-title"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "4"
+                ],
+                [
+                  "y",
+                  "278"
+                ]
+              ],
+              "children": [
+                "候选锯高 H · 二分搜索的对象"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "range"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "726"
+                ],
+                [
+                  "y",
+                  "278"
+                ]
+              ],
+              "children": [
+                "[left, right] = [0, 8]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 6 333 h 74.55555555555556 v 40 h -74.55555555555556 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1167,11 +1484,11 @@
                 ],
                 [
                   "stroke",
-                  "#555"
+                  "#999"
                 ],
                 [
                   "stroke-width",
-                  "1.3"
+                  "1"
                 ]
               ]
             },
@@ -1180,7 +1497,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "cell-text-0"
+                  "candidate-0"
                 ],
                 [
                   "fill",
@@ -1192,15 +1509,15 @@
                 ],
                 [
                   "x",
-                  "61.5"
+                  "43.27777777777778"
                 ],
                 [
                   "y",
-                  "306.8"
+                  "349"
                 ]
               ],
               "children": [
-                "True"
+                "H=0"
               ]
             },
             {
@@ -1208,7 +1525,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "cell-h-0"
+                  "tested-0"
                 ],
                 [
                   "fill",
@@ -1220,15 +1537,15 @@
                 ],
                 [
                   "x",
-                  "61.5"
+                  "43.27777777777778"
                 ],
                 [
                   "y",
-                  "331"
+                  "365"
                 ]
               ],
               "children": [
-                "H=0"
+                "—"
               ]
             },
             {
@@ -1236,7 +1553,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 115.5 288 H 159.5 Q 163.5 288 163.5 292 V 314 Q 163.5 318 159.5 318 H 115.5 Q 111.5 318 111.5 314 V 292 Q 111.5 288 115.5 288 Z"
+                  "M 86.55555555555556 333 h 74.55555555555556 v 40 h -74.55555555555556 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1252,11 +1569,11 @@
                 ],
                 [
                   "stroke",
-                  "#555"
+                  "#999"
                 ],
                 [
                   "stroke-width",
-                  "1.3"
+                  "1"
                 ]
               ]
             },
@@ -1265,7 +1582,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "cell-text-1"
+                  "candidate-1"
                 ],
                 [
                   "fill",
@@ -1277,15 +1594,15 @@
                 ],
                 [
                   "x",
-                  "137.5"
+                  "123.83333333333334"
                 ],
                 [
                   "y",
-                  "306.8"
+                  "349"
                 ]
               ],
               "children": [
-                "True"
+                "H=1"
               ]
             },
             {
@@ -1293,7 +1610,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "cell-h-1"
+                  "tested-1"
                 ],
                 [
                   "fill",
@@ -1305,15 +1622,15 @@
                 ],
                 [
                   "x",
-                  "137.5"
+                  "123.83333333333334"
                 ],
                 [
                   "y",
-                  "331"
+                  "365"
                 ]
               ],
               "children": [
-                "H=1"
+                "—"
               ]
             },
             {
@@ -1321,7 +1638,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 191.5 288 H 235.5 Q 239.5 288 239.5 292 V 314 Q 239.5 318 235.5 318 H 191.5 Q 187.5 318 187.5 314 V 292 Q 187.5 288 191.5 288 Z"
+                  "M 167.11111111111111 333 h 74.55555555555556 v 40 h -74.55555555555556 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1337,11 +1654,11 @@
                 ],
                 [
                   "stroke",
-                  "#555"
+                  "#999"
                 ],
                 [
                   "stroke-width",
-                  "1.3"
+                  "1"
                 ]
               ]
             },
@@ -1350,7 +1667,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "cell-text-2"
+                  "candidate-2"
                 ],
                 [
                   "fill",
@@ -1362,15 +1679,15 @@
                 ],
                 [
                   "x",
-                  "213.5"
+                  "204.38888888888889"
                 ],
                 [
                   "y",
-                  "306.8"
+                  "349"
                 ]
               ],
               "children": [
-                "True"
+                "H=2"
               ]
             },
             {
@@ -1378,7 +1695,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "cell-h-2"
+                  "tested-2"
                 ],
                 [
                   "fill",
@@ -1390,15 +1707,15 @@
                 ],
                 [
                   "x",
-                  "213.5"
+                  "204.38888888888889"
                 ],
                 [
                   "y",
-                  "331"
+                  "365"
                 ]
               ],
               "children": [
-                "H=2"
+                "—"
               ]
             },
             {
@@ -1406,7 +1723,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 267.5 288 H 311.5 Q 315.5 288 315.5 292 V 314 Q 315.5 318 311.5 318 H 267.5 Q 263.5 318 263.5 314 V 292 Q 263.5 288 267.5 288 Z"
+                  "M 247.66666666666669 333 h 74.55555555555556 v 40 h -74.55555555555556 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1422,11 +1739,11 @@
                 ],
                 [
                   "stroke",
-                  "#555"
+                  "#999"
                 ],
                 [
                   "stroke-width",
-                  "1.3"
+                  "1"
                 ]
               ]
             },
@@ -1435,7 +1752,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "cell-text-3"
+                  "candidate-3"
                 ],
                 [
                   "fill",
@@ -1447,39 +1764,11 @@
                 ],
                 [
                   "x",
-                  "289.5"
+                  "284.94444444444446"
                 ],
                 [
                   "y",
-                  "306.8"
-                ]
-              ],
-              "children": [
-                "True"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "cell-h-3"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "289.5"
-                ],
-                [
-                  "y",
-                  "331"
+                  "349"
                 ]
               ],
               "children": [
@@ -1487,11 +1776,39 @@
               ]
             },
             {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tested-3"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "284.94444444444446"
+                ],
+                [
+                  "y",
+                  "365"
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            },
+            {
               "tag": "path",
               "attributes": [
                 [
                   "d",
-                  "M 343.5 288 H 387.5 Q 391.5 288 391.5 292 V 314 Q 391.5 318 387.5 318 H 343.5 Q 339.5 318 339.5 314 V 292 Q 339.5 288 343.5 288 Z"
+                  "M 328.22222222222223 333 h 74.55555555555556 v 40 h -74.55555555555556 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1499,7 +1816,7 @@
                 ],
                 [
                   "fill",
-                  "#fffdf8"
+                  "#f5f2e9"
                 ],
                 [
                   "opacity",
@@ -1511,7 +1828,7 @@
                 ],
                 [
                   "stroke-width",
-                  "1.3"
+                  "1"
                 ]
               ]
             },
@@ -1520,432 +1837,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "cell-text-4"
-                ],
-                [
-                  "fill",
-                  "#777"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "365.5"
-                ],
-                [
-                  "y",
-                  "306.8"
-                ]
-              ],
-              "children": [
-                "False"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "cell-h-4"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "365.5"
-                ],
-                [
-                  "y",
-                  "331"
-                ]
-              ],
-              "children": [
-                "H=4"
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 419.5 288 H 463.5 Q 467.5 288 467.5 292 V 314 Q 467.5 318 463.5 318 H 419.5 Q 415.5 318 415.5 314 V 292 Q 415.5 288 419.5 288 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "cell-5"
-                ],
-                [
-                  "fill",
-                  "#fffdf8"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.3"
-                ]
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "cell-text-5"
-                ],
-                [
-                  "fill",
-                  "#777"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "441.5"
-                ],
-                [
-                  "y",
-                  "306.8"
-                ]
-              ],
-              "children": [
-                "False"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "cell-h-5"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "441.5"
-                ],
-                [
-                  "y",
-                  "331"
-                ]
-              ],
-              "children": [
-                "H=5"
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 495.5 288 H 539.5 Q 543.5 288 543.5 292 V 314 Q 543.5 318 539.5 318 H 495.5 Q 491.5 318 491.5 314 V 292 Q 491.5 288 495.5 288 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "cell-6"
-                ],
-                [
-                  "fill",
-                  "#fffdf8"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.3"
-                ]
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "cell-text-6"
-                ],
-                [
-                  "fill",
-                  "#777"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "517.5"
-                ],
-                [
-                  "y",
-                  "306.8"
-                ]
-              ],
-              "children": [
-                "False"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "cell-h-6"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "517.5"
-                ],
-                [
-                  "y",
-                  "331"
-                ]
-              ],
-              "children": [
-                "H=6"
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 571.5 288 H 615.5 Q 619.5 288 619.5 292 V 314 Q 619.5 318 615.5 318 H 571.5 Q 567.5 318 567.5 314 V 292 Q 567.5 288 571.5 288 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "cell-7"
-                ],
-                [
-                  "fill",
-                  "#fffdf8"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.3"
-                ]
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "cell-text-7"
-                ],
-                [
-                  "fill",
-                  "#777"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "593.5"
-                ],
-                [
-                  "y",
-                  "306.8"
-                ]
-              ],
-              "children": [
-                "False"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "cell-h-7"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "593.5"
-                ],
-                [
-                  "y",
-                  "331"
-                ]
-              ],
-              "children": [
-                "H=7"
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 647.5 288 H 691.5 Q 695.5 288 695.5 292 V 314 Q 695.5 318 691.5 318 H 647.5 Q 643.5 318 643.5 314 V 292 Q 643.5 288 647.5 288 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "cell-8"
-                ],
-                [
-                  "fill",
-                  "#fffdf8"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.3"
-                ]
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "cell-text-8"
-                ],
-                [
-                  "fill",
-                  "#777"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "669.5"
-                ],
-                [
-                  "y",
-                  "306.8"
-                ]
-              ],
-              "children": [
-                "False"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "cell-h-8"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "x",
-                  "669.5"
-                ],
-                [
-                  "y",
-                  "331"
-                ]
-              ],
-              "children": [
-                "H=8"
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 47.5 259 H 75.5 Q 77.5 259 77.5 261 V 272 Q 77.5 274 75.5 274 H 47.5 Q 45.5 274 45.5 272 V 261 Q 45.5 259 47.5 259 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "ptr-left"
-                ],
-                [
-                  "fill",
-                  "#fffdf8"
-                ],
-                [
-                  "opacity",
-                  "1"
-                ],
-                [
-                  "stroke",
-                  "#555"
-                ],
-                [
-                  "stroke-width",
-                  "1.2"
-                ]
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "ptr-label-left"
+                  "candidate-4"
                 ],
                 [
                   "fill",
@@ -1957,12 +1849,43 @@
                 ],
                 [
                   "x",
-                  "61.5"
+                  "365.5"
                 ],
                 [
                   "y",
-                  "270"
+                  "349"
                 ]
+              ],
+              "children": [
+                "H=4"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tested-4"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "365.5"
+                ],
+                [
+                  "y",
+                  "365"
+                ]
+              ],
+              "children": [
+                "—"
               ]
             },
             {
@@ -1970,23 +1893,355 @@
               "attributes": [
                 [
                   "d",
-                  "M 61.5 274 L 61.5 283"
+                  "M 408.77777777777777 333 h 74.55555555555556 v 40 h -74.55555555555556 Z"
                 ],
                 [
                   "data-visual-element",
-                  "ptr-arrow-left"
+                  "cell-5"
                 ],
                 [
                   "fill",
-                  "none"
-                ],
-                [
-                  "marker-end",
-                  "url(#cw-arrow)"
+                  "#f5f2e9"
                 ],
                 [
                   "opacity",
                   "1"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "candidate-5"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "446.05555555555554"
+                ],
+                [
+                  "y",
+                  "349"
+                ]
+              ],
+              "children": [
+                "H=5"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tested-5"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "446.05555555555554"
+                ],
+                [
+                  "y",
+                  "365"
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 489.33333333333337 333 h 74.55555555555556 v 40 h -74.55555555555556 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "cell-6"
+                ],
+                [
+                  "fill",
+                  "#f5f2e9"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "candidate-6"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "526.6111111111112"
+                ],
+                [
+                  "y",
+                  "349"
+                ]
+              ],
+              "children": [
+                "H=6"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tested-6"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "526.6111111111112"
+                ],
+                [
+                  "y",
+                  "365"
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 569.8888888888889 333 h 74.55555555555556 v 40 h -74.55555555555556 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "cell-7"
+                ],
+                [
+                  "fill",
+                  "#f5f2e9"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "candidate-7"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "607.1666666666667"
+                ],
+                [
+                  "y",
+                  "349"
+                ]
+              ],
+              "children": [
+                "H=7"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tested-7"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "607.1666666666667"
+                ],
+                [
+                  "y",
+                  "365"
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 650.4444444444445 333 h 74.55555555555556 v 40 h -74.55555555555556 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "cell-8"
+                ],
+                [
+                  "fill",
+                  "#f5f2e9"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "candidate-8"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "687.7222222222223"
+                ],
+                [
+                  "y",
+                  "349"
+                ]
+              ],
+              "children": [
+                "H=8"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "tested-8"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "687.7222222222223"
+                ],
+                [
+                  "y",
+                  "365"
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 24.27777777777778 310 h 38 v 15 h -38 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "pointer-left"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
                 ],
                 [
                   "stroke",
@@ -1999,23 +2254,68 @@
               ]
             },
             {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "pointer-label-left"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "43.27777777777778"
+                ],
+                [
+                  "y",
+                  "321"
+                ]
+              ],
+              "children": [
+                "left"
+              ]
+            },
+            {
               "tag": "path",
               "attributes": [
                 [
                   "d",
-                  "M 655.5 259 H 683.5 Q 685.5 259 685.5 261 V 272 Q 685.5 274 683.5 274 H 655.5 Q 653.5 274 653.5 272 V 261 Q 653.5 259 655.5 259 Z"
+                  "M 43.27777777777778 325 V 329"
                 ],
                 [
                   "data-visual-element",
-                  "ptr-right"
+                  "pointer-arrow-left"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "marker-end",
+                  "url(#cw-arrow)"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 667.7222222222223 310 h 40 v 15 h -40 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "pointer-right"
                 ],
                 [
                   "fill",
                   "#fffdf8"
-                ],
-                [
-                  "opacity",
-                  "1"
                 ],
                 [
                   "stroke",
@@ -2027,7 +2327,7 @@
                 ],
                 [
                   "stroke-width",
-                  "1.2"
+                  "1.1"
                 ]
               ]
             },
@@ -2036,24 +2336,23 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ptr-label-right"
+                  "pointer-label-right"
                 ],
                 [
                   "fill",
                   "#272727"
                 ],
                 [
-                  "opacity",
-                  "1"
-                ],
-                [
                   "x",
-                  "669.5"
+                  "687.7222222222223"
                 ],
                 [
                   "y",
-                  "270"
+                  "321"
                 ]
+              ],
+              "children": [
+                "right"
               ]
             },
             {
@@ -2061,11 +2360,11 @@
               "attributes": [
                 [
                   "d",
-                  "M 669.5 274 L 669.5 283"
+                  "M 687.7222222222223 325 V 329"
                 ],
                 [
                   "data-visual-element",
-                  "ptr-arrow-right"
+                  "pointer-arrow-right"
                 ],
                 [
                   "fill",
@@ -2076,17 +2375,33 @@
                   "url(#cw-arrow)"
                 ],
                 [
-                  "opacity",
-                  "1"
+                  "stroke",
+                  "#555"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "axis-note"
                 ],
                 [
-                  "stroke",
+                  "fill",
                   "#555"
                 ],
                 [
-                  "stroke-width",
-                  "1.1"
+                  "x",
+                  "4"
+                ],
+                [
+                  "y",
+                  "392"
                 ]
+              ],
+              "children": [
+                "— 尚未试过；淡化的 H 已排除"
               ]
             }
           ]
@@ -2098,205 +2413,32 @@
       "attributes": [
         [
           "class",
-          "state-grid"
+          "wood-total"
         ]
       ],
       "children": [
         {
-          "tag": "article",
+          "tag": "span",
           "attributes": [
             [
-              "class",
-              "invariant"
+              "data-sum",
+              ""
             ]
           ],
           "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "不变量 / Invariant"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "data-invariant",
-                  ""
-                ]
-              ],
-              "children": [
-                "答案（最高的可行 H）一定落在 [left, right] 里。"
-              ]
-            }
+            "wood_collected = —"
           ]
         },
         {
-          "tag": "dl",
+          "tag": "strong",
           "attributes": [
             [
-              "class",
-              "metrics"
+              "data-total",
+              ""
             ]
           ],
           "children": [
-            {
-              "tag": "div",
-              "children": [
-                {
-                  "tag": "dt",
-                  "children": [
-                    {
-                      "tag": "code",
-                      "children": [
-                        "left"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "dd",
-                  "attributes": [
-                    [
-                      "data-m-left",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "0"
-                  ]
-                }
-              ]
-            },
-            {
-              "tag": "div",
-              "children": [
-                {
-                  "tag": "dt",
-                  "children": [
-                    {
-                      "tag": "code",
-                      "children": [
-                        "right"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "dd",
-                  "attributes": [
-                    [
-                      "data-m-right",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "8"
-                  ]
-                }
-              ]
-            },
-            {
-              "tag": "div",
-              "children": [
-                {
-                  "tag": "dt",
-                  "children": [
-                    {
-                      "tag": "code",
-                      "children": [
-                        "mid"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "dd",
-                  "attributes": [
-                    [
-                      "data-m-mid",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "—"
-                  ]
-                }
-              ]
-            },
-            {
-              "tag": "div",
-              "children": [
-                {
-                  "tag": "dt",
-                  "children": [
-                    {
-                      "tag": "code",
-                      "children": [
-                        "wood_collected"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "dd",
-                  "attributes": [
-                    [
-                      "data-m-wood",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "—"
-                  ]
-                }
-              ]
-            },
-            {
-              "tag": "div",
-              "children": [
-                {
-                  "tag": "dt",
-                  "children": [
-                    {
-                      "tag": "code",
-                      "children": [
-                        "k"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "dd",
-                  "children": [
-                    "7"
-                  ]
-                }
-              ]
-            },
-            {
-              "tag": "div",
-              "children": [
-                {
-                  "tag": "dt",
-                  "children": [
-                    "cuts_enough_wood(mid)"
-                  ]
-                },
-                {
-                  "tag": "dd",
-                  "attributes": [
-                    [
-                      "data-m-outcome",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "—"
-                  ]
-                }
-              ]
-            }
+            "需要 7 m"
           ]
         }
       ]
@@ -2323,7 +2465,7 @@
             ]
           ],
           "children": [
-            "left, right = 0, max(heights)"
+            "left, right = 0, max(heights) # [0, 8]"
           ]
         },
         {
@@ -2335,7 +2477,7 @@
             ]
           ],
           "children": [
-            "The tallest tree is 8 m, so H ranges over [0, 8]; left and right guard the two ends."
+            "Search saw heights, not array indices. The tree heights do not need to be sorted."
           ]
         },
         {
@@ -2347,9 +2489,172 @@
             ]
           ],
           "children": [
-            "最高的树是 8 米，H 的取值范围是 [0, 8]；left 和 right 守住区间两端。"
+            "二分的是锯高 H 的取值 [0, 8]，不是树的下标；树高数组不用排序。"
           ]
         }
+      ]
+    },
+    {
+      "tag": "table",
+      "attributes": [
+        [
+          "aria-label",
+          "已经完成的高度判定"
+        ],
+        [
+          "class",
+          "trial-table"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "thead",
+          "children": [
+            {
+              "tag": "tr",
+              "children": [
+                {
+                  "tag": "th",
+                  "children": [
+                    "试过的 H"
+                  ]
+                },
+                {
+                  "tag": "th",
+                  "children": [
+                    "木材 / 需 7 m"
+                  ]
+                },
+                {
+                  "tag": "th",
+                  "children": [
+                    "判定"
+                  ]
+                },
+                {
+                  "tag": "th",
+                  "children": [
+                    "新范围"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "tbody",
+          "attributes": [
+            [
+              "data-trials",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "tr",
+              "children": [
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                },
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                },
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                },
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "tr",
+              "children": [
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                },
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                },
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                },
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "tr",
+              "children": [
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                },
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                },
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                },
+                {
+                  "tag": "td",
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "invariant"
+        ],
+        [
+          "data-invariant",
+          ""
+        ]
+      ],
+      "children": [
+        "最高的可行 H 始终在 [left, right] 内。"
       ]
     }
   ]

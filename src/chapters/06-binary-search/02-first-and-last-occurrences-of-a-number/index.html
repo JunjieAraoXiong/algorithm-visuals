@@ -67,33 +67,88 @@
       @media (prefers-reduced-motion: reduce) {
         .cell, .chip, .band, .found-tag { transition: none; }
       }
+      .case-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 3px 6px; font-size: 13px; }
+      .case-picker select { max-width: 100%; }
+      .case-input { margin: 5px 3px 9px; overflow-wrap: anywhere; font: 12px/1.5 monospace; }
+      .search-lane { padding-top: 10px; }
+      .search-lane + .search-lane { border-top: 1px solid var(--rule); }
+      .lane-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin: 0 3px; }
+      .lane-heading h3 { margin: 0; font-size: 13px; font-weight: 500; }
+      .lane-heading output { color: var(--quiet); font: 12px/1.5 monospace; }
+      .search-lane.is-current .lane-heading h3 { text-decoration: underline; text-underline-offset: 4px; }
+      .lane-stage { position: relative; height: 168px; }
+      .lane-stage .cell { transition: opacity .2s ease, background-color .2s ease; }
+      .lane-stage .chip { min-width: 62px; font-size: 11px; transition: opacity .2s ease; }
+      .lane-stage .chip::after { display: none; }
+      .lane-stage .found-tag { font-size: 11px; }
+      .lane-stage .band-label { display: none; }
+      .boundary-slot { border-style: dashed; color: var(--quiet); }
+      .boundary-slot[hidden], .empty-array[hidden] { display: none; }
+      .empty-array { position: absolute; top: 90px; left: 0; width: 100%; text-align: center; color: var(--quiet); font: 13px/1.5 monospace; }
+      .result-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 9px 3px 0; font: 13px/1.5 monospace; }
+      .result-row span { color: var(--quiet); font: 12px/1.5 Arial, Helvetica, sans-serif; }
+      @media (max-width: 480px) {
+        .lane-stage .cell { border-width: 1px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .lane-stage .cell, .lane-stage .chip { transition: none; }
+      }
     </style>
   </head>
   <body>
     <main id="fl-lab">
       <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
       <header class="heading"><div><h1>First and Last Occurrences of a Number · 数字的首尾出现位置</h1></div></header>
-      <p class="problem">Given a non-decreasing array, return the first and last index of <code>target</code>, or <code>[-1, -1]</code> if it is not found. <code>nums = [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11], target = 4</code> → <code>[3, 5]</code>.<br />在非递减数组中返回 <code>target</code> 第一次与最后一次出现的下标；不存在则返回 <code>[-1, -1]</code>。标准二分只能命中其中一个位置，这里拆成两次二分：下界找第一个 <code>nums[i] &gt;= target</code>，上界找最右一个 <code>nums[i] &lt;= target</code>。</p>
+      <p class="problem">在非递减数组中返回 <code>target</code> 第一次与最后一次出现的下标；不存在则返回 <code>[-1, -1]</code>。<br />Return the first and last index of the target in a sorted array, or <code>[-1, -1]</code> if absent.</p>
 
       <div class="learning-layout" data-learning-layout>
         <section class="animation-panel" data-animation-panel aria-label="First and last occurrences trace / 首尾出现位置演示">
+          <label class="case-picker">例子 <select data-example-select aria-label="选择演示例子">
+            <option value="duplicates">target = 4 · 多次出现</option>
+            <option value="single">target = 6 · 只出现一次</option>
+            <optgroup label="边界情况">
+              <option value="missing">target = 6 · 缺失、left 越界</option>
+              <option value="singleton">nums = [4] · 首尾都是 0</option>
+              <option value="empty">nums = [] · 空数组</option>
+            </optgroup>
+          </select></label>
+          <p class="case-input"><code data-case-input></code></p>
           <div class="controls">
             <button type="button" data-action="previous">← 上一步</button>
             <output data-count aria-live="polite"></output>
             <button type="button" data-action="next">下一步 →</button>
             <label class="step-picker" style="margin-left:auto">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
           </div>
-          <div class="step-meta"><span data-phase></span><span>target = 4</span></div>
+          <div class="step-meta"><span data-phase></span><span data-target></span></div>
           <div class="stage" data-stage tabindex="0" aria-label="算法演示 / algorithm trace">
-            <div class="band" data-band hidden><span class="band-label" data-band-label></span></div>
-            <div class="track" data-track></div>
-            <span class="chip" data-chip="left" hidden>left</span>
-            <span class="chip mid-chip" data-chip="mid" hidden>mid</span>
-            <span class="chip" data-chip="right" hidden>right</span>
-            <span class="found-tag" data-tag-first hidden aria-label="首个出现位置 / first occurrence">首个</span>
-            <span class="found-tag" data-tag-last hidden aria-label="末个出现位置 / last occurrence">末个</span>
-            <svg class="lines" data-lines aria-hidden="true"></svg>
+            <section class="search-lane" data-lane="lb" aria-label="寻找首个出现位置">
+              <header class="lane-heading"><h3>找首个 · 命中后 right = mid</h3><output data-lane-status>尚未调用</output></header>
+              <div class="lane-stage">
+                <div class="band" data-band hidden><span class="band-label" data-band-label></span></div>
+                <div class="track" data-track></div>
+                <span class="chip" data-chip="left" hidden></span>
+                <span class="chip mid-chip" data-chip="mid" hidden></span>
+                <span class="chip" data-chip="right" hidden></span>
+                <span class="found-tag" data-tag-first hidden></span>
+                <span class="empty-array" hidden>nums = [] · 没有可访问的元素</span>
+                <svg class="lines" data-lines aria-hidden="true"></svg>
+              </div>
+            </section>
+            <section class="search-lane" data-lane="ub" aria-label="寻找末个出现位置">
+              <header class="lane-heading"><h3>找末个 · 命中后 left = mid</h3><output data-lane-status>尚未调用</output></header>
+              <div class="lane-stage">
+                <div class="band" data-band hidden><span class="band-label" data-band-label></span></div>
+                <div class="track" data-track></div>
+                <span class="chip" data-chip="left" hidden></span>
+                <span class="chip mid-chip" data-chip="mid" hidden></span>
+                <span class="chip" data-chip="right" hidden></span>
+                <span class="found-tag" data-tag-last hidden></span>
+                <span class="empty-array" hidden>nums = [] · 没有可访问的元素</span>
+                <svg class="lines" data-lines aria-hidden="true"></svg>
+              </div>
+            </section>
           </div>
+          <div class="result-row"><output data-result aria-live="polite">结果 [—, —]</output><span data-result-note></span></div>
           <div class="state-grid">
             <article class="invariant"><strong>不变量 · invariant</strong><p data-invariant></p></article>
             <dl class="metrics">
@@ -185,19 +240,19 @@
         <div class="card-grid">
           <article class="paper-card">
             <strong>target 不存在 · 返回 [-1, -1]</strong>
-            <p>两个搜索结束时都要校验：<code>nums[left] == target</code> / <code>nums[right] == target</code>，不满足就返回 <code>-1</code>。例如 <code>target = 12</code>，两个搜索分别收拢到端点 12，<code>nums[12] = 11 ≠ 12</code>，主函数返回 <code>[-1, -1]</code>。</p>
+            <p>两个搜索结束时都要校验最终值。边界例子 <code>nums = [1, 3, 5], target = 6</code> 中，找首个停在 <code>left = 2</code>；找末个则到达 <code>left = 3, right = 2</code>。两次检查的 <code>nums[2] = 5</code> 都不是 target，返回 <code>[-1, -1]</code>。</p>
           </article>
           <article class="paper-card">
             <strong>空数组 · nums = []</strong>
             <p><code>nums and ...</code> 先判空，短路掉对 <code>nums[0]</code> 的访问，空数组直接返回 <code>-1</code>，不会越界。</p>
           </article>
           <article class="paper-card">
-            <strong>target 只出现一次 · [6, 6]</strong>
-            <p>例如 <code>target = 7</code>：下界与上界收拢到同一个下标 6，校验都通过，返回 <code>[6, 6]</code>——首尾可以是同一位置。</p>
+            <strong>target 只出现一次 · [7, 7]</strong>
+            <p>例如 <code>target = 6</code>：两个搜索都停在下标 7，校验通过，返回 <code>[7, 7]</code>。同一个元素同时是首个和末个出现位置。</p>
           </article>
           <article class="paper-card">
             <strong>返回值为什么用 right 而不是 left</strong>
-            <p>上界搜索里 <code>left = mid + 1</code>，而 <code>mid</code> 最大能到 <code>n - 1</code>；若 <code>target</code> 大于所有元素，<code>left</code> 会变成 <code>n</code> 越界。循环结束时 <code>right</code> 一定在数组内，所以返回语句检查的是 <code>nums[right]</code>。</p>
+            <p>上界搜索里 <code>left = mid + 1</code>，而 <code>mid</code> 最大能到 <code>n - 1</code>；若 <code>target</code> 大于所有元素，<code>left</code> 会变成 <code>n</code> 越界。非空数组中 <code>right</code> 仍是合法下标，所以检查 <code>nums[right]</code>；空数组则由 <code>nums and ...</code> 短路保护。</p>
           </article>
         </div>
       </section>
@@ -222,21 +277,27 @@
     <script>
       (() => {
         const root = document.getElementById('fl-lab');
-        const NUMS = [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11];
-        const TARGET = 4;
+        const BASE_NUMS = [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11];
+        const examples = {
+          duplicates: { nums: BASE_NUMS, target: 4 },
+          single: { nums: BASE_NUMS, target: 6 },
+          missing: { nums: [1, 3, 5], target: 6 },
+          singleton: { nums: [4], target: 4 },
+          empty: { nums: [], target: 4 }
+        };
+        const requestedExample = new URLSearchParams(location.search).get('case');
+        let exampleKey = Object.hasOwn(examples, requestedExample) ? requestedExample : 'duplicates';
+        let NUMS = examples[exampleKey].nums;
+        let TARGET = examples[exampleKey].target;
         const stage = root.querySelector('[data-stage]');
-        const track = root.querySelector('[data-track]');
-        const band = root.querySelector('[data-band]');
-        const bandLabel = root.querySelector('[data-band-label]');
-        const chips = Object.fromEntries([...root.querySelectorAll('[data-chip]')].map(chip => [chip.dataset.chip, chip]));
-        const tagFirst = root.querySelector('[data-tag-first]');
-        const tagLast = root.querySelector('[data-tag-last]');
-        const lines = root.querySelector('[data-lines]');
+        const exampleSelect = root.querySelector('[data-example-select]');
         const phaseEl = root.querySelector('[data-phase]');
         const invariantEl = root.querySelector('[data-invariant]');
         const expression = root.querySelector('[data-expression]');
         const explanationZh = root.querySelector('[data-zh]');
         const explanationEn = root.querySelector('[data-en]');
+        const resultEl = root.querySelector('[data-result]');
+        const resultNote = root.querySelector('[data-result-note]');
         const metric = {
           left: root.querySelector('[data-m-left]'),
           right: root.querySelector('[data-m-right]'),
@@ -247,366 +308,355 @@
         };
         const clone = value => JSON.parse(JSON.stringify(value));
         const motion = AlgorithmVisualCore.createMotionController();
-        const scene = AlgorithmVisualCore.createSvgScene(lines);
-        scene.defineMarker('fl-arc-arrow', { fill: '#555', markerWidth: 7, markerHeight: 7, refX: 6, refY: 4 });
+        const views = Object.fromEntries(['lb', 'ub'].map(key => {
+          const lane = root.querySelector('[data-lane="' + key + '"]');
+          const svg = lane.querySelector('[data-lines]');
+          const scene = AlgorithmVisualCore.createSvgScene(svg);
+          scene.defineMarker('fl-reference-' + key, { fill: '#555', markerWidth: 5, markerHeight: 5, refX: 6, refY: 4 });
+          return [key, {
+            lane, svg, scene,
+            stage: lane.querySelector('.lane-stage'),
+            track: lane.querySelector('[data-track]'),
+            status: lane.querySelector('[data-lane-status]'),
+            band: lane.querySelector('[data-band]'),
+            bandLabel: lane.querySelector('[data-band-label]'),
+            chips: Object.fromEntries([...lane.querySelectorAll('[data-chip]')].map(chip => [chip.dataset.chip, chip])),
+            tag: lane.querySelector('.found-tag'),
+            empty: lane.querySelector('.empty-array'),
+            cells: [],
+            ghost: null
+          }];
+        }));
         let positions = [];
-        let cells = [];
-        let geometry = { cellTop: 116, cellH: 54, rowsY: [10, 32, 54], bandTop: 103, minSep: 46 };
-        let arcs = new Map();
-        let arcFade = 1;
+        let geometry = {};
+        let frames;
         let trace;
 
         function buildFrames() {
           const frames = [];
-          const s = { phase: 'intro', left: null, right: null, mid: null, lb: null, ub: null };
-          const add = (label, sourceKeys, line, zh, en, invariantText, phaseLabel, patch) => {
-            if (patch) patch(s);
-            frames.push({ stepLabel: label, sourceKeys, line, zh, en, invariantText, phaseLabel, state: clone(s) });
-          };
-          add('问题 · 找首尾下标', ['main-def'],
-            'nums = [1,2,3,4,4,4,5,6,7,8,9,10,11], target = 4',
-            '在非递减数组里找 4 第一次与最后一次出现的下标；找不到就返回 [-1, -1]。数组有序，所以可以二分：问题等价于求 4 所在块的左右端点。',
-            'Find the first and last index of 4 in a non-decreasing array; return [-1, -1] if absent. The task is to locate the two ends of the block of 4s.',
-            '相等的值在非递减数组里连成一块；答案就是这块的左右两个端点。/ Equal values form one contiguous block; the answer is its two ends.',
+          const freshSearch = () => ({ left: null, right: null, mid: null, result: null, status: 'waiting' });
+          const state = { phase: 'intro', lb: null, ub: null, searches: { lb: freshSearch(), ub: freshSearch() } };
+          function add(label, sourceKeys, line, zh, en, invariantText, phaseLabel) {
+            frames.push({ stepLabel: label, sourceKeys, line, zh, en, invariantText, phaseLabel, state: clone(state) });
+          }
+          add('问题 · target = ' + TARGET, ['main-def'],
+            'nums = [' + NUMS.join(', ') + '], target = ' + TARGET,
+            '分别寻找 ' + TARGET + ' 的首个和末个出现位置。两条轨道读取同一个数组，各自维护 left、right 和 mid。',
+            'Find the first and last occurrence of ' + TARGET + '. Both searches read the same array and keep independent pointers.',
+            '相等的值连成一块；两个搜索分别寻找这块的左端和右端。/ Equal values form a contiguous block; locate its two ends.',
             '问题 / problem');
-          add('调用下界搜索', ['main-lower'],
-            'lower_bound = lower_bound_binary_search(nums, target)',
-            '第一个搜索：下界二分，找第一个满足 nums[i] >= target 的下标，也就是最左的 4。',
-            'First search: the lower bound — the first index with nums[i] >= target, i.e. the leftmost 4.',
-            '下界二分进行期间，[left, right] 始终包含第一个 4。/ During the lower-bound search, [left, right] always contains the first 4.',
-            '主函数 / main');
-          add('下界 · left=0, right=12', ['lb-def', 'lb-init'],
-            'left, right = 0, len(nums) - 1    # 0, 12',
-            '搜索空间先覆盖整个数组：第一个 4 可能藏在任意下标。',
-            'The search space starts as the whole array; the first 4 could be anywhere.',
-            '[left, right] 始终包含第一个 4。/ [left, right] always contains the first 4.',
-            '下界二分 / lower-bound search',
-            st => { st.phase = 'lb'; st.left = 0; st.right = 12; });
-          add('下界 · mid = 6', ['lb-while', 'lb-mid'],
-            'mid = (left + right) // 2    # (0 + 12) // 2 = 6',
-            '每轮取区间中点（向下取整），用 nums[mid] 与 target 比较来决定怎么收缩。',
-            'Each round picks the midpoint (rounded down) and compares nums[mid] with the target.',
-            'mid 把 [left, right] 分成两半，含答案的一半会被保留。/ mid splits the interval; the half that keeps the answer survives.',
-            '下界二分 / lower-bound search',
-            st => { st.mid = 6; });
-          add('nums[6]=5>4 · right=5', ['lb-gt', 'lb-gt-move'],
-            'if nums[mid] > target: right = mid - 1    # 5 > 4',
-            'nums[6] = 5 大于 4：第一个 4 只可能在 mid 左边，而 mid 自己不是 4，可以一并排除，right = mid - 1。',
-            'nums[6] = 5 is greater than 4, so the first 4 must lie to the left of mid; mid itself is excluded too (right = mid - 1).',
-            '[left, right] 始终包含第一个 4；区间外的一定不是答案。/ [left, right] keeps the first 4; anything outside it is ruled out.',
-            '下界二分 / lower-bound search',
-            st => { st.right = 5; });
-          add('下界 · mid = 2', ['lb-while', 'lb-mid'],
-            'mid = (left + right) // 2    # (0 + 5) // 2 = 2',
-            '新的区间是 [0, 5]，重新取中点 mid = 2。',
-            'The search space is now [0, 5]; recompute mid = 2.',
-            'mid 把 [left, right] 分成两半，含答案的一半会被保留。/ mid splits the interval; the half that keeps the answer survives.',
-            '下界二分 / lower-bound search',
-            st => { st.mid = 2; });
-          add('nums[2]=3<4 · left=3', ['lb-lt', 'lb-lt-move'],
-            'elif nums[mid] < target: left = mid + 1    # 3 < 4',
-            'nums[2] = 3 小于 4：第一个 4 只可能在 mid 右边，mid 自己不是 4，left = mid + 1。',
-            'nums[2] = 3 is less than 4, so the first 4 must lie to the right of mid (left = mid + 1).',
-            '[left, right] 始终包含第一个 4；区间外的一定不是答案。/ [left, right] keeps the first 4; anything outside it is ruled out.',
-            '下界二分 / lower-bound search',
-            st => { st.left = 3; });
-          add('下界 · mid = 4', ['lb-while', 'lb-mid'],
-            'mid = (left + right) // 2    # (3 + 5) // 2 = 4',
-            '区间 [3, 5] 的中点是 4，nums[4] 正好是 4。',
-            'The midpoint of [3, 5] is 4, and nums[4] happens to equal 4.',
-            'mid 把 [left, right] 分成两半，含答案的一半会被保留。/ mid splits the interval; the half that keeps the answer survives.',
-            '下界二分 / lower-bound search',
-            st => { st.mid = 4; });
-          add('nums[4]=4 · right=mid', ['lb-eq', 'lb-eq-move'],
-            'else: right = mid    # nums[mid] == 4',
-            'nums[mid] == 4 时有两种可能：mid 就是第一个 4，或者左边还有 4。不能排除 mid，把它留在区间内：right = mid。',
-            'When nums[mid] == 4, mid might be the first 4 or another 4 may sit to its left, so keep mid in the space: right = mid.',
-            'nums[mid] == target 时保留 mid：答案仍在 [left, right] 内。/ Keeping mid preserves the answer inside [left, right].',
-            '下界二分 / lower-bound search',
-            st => { st.right = 4; });
-          add('下界 · mid = 3', ['lb-while', 'lb-mid'],
-            'mid = (left + right) // 2    # (3 + 4) // 2 = 3',
-            '区间收窄到 [3, 4]，mid = 3，nums[3] 也是 4。',
-            'The interval narrows to [3, 4]; mid = 3 and nums[3] is also 4.',
-            'nums[mid] == target 时保留 mid：答案仍在 [left, right] 内。/ Keeping mid preserves the answer inside [left, right].',
-            '下界二分 / lower-bound search',
-            st => { st.mid = 3; });
-          add('nums[3]=4 · right=3', ['lb-eq', 'lb-eq-move'],
-            'else: right = mid    # nums[3] == 4, right = 3',
-            'nums[3] == 4，继续保留 mid：right = 3。此时 left == right == 3，循环条件 left < right 不再成立，循环结束。',
-            'nums[3] == 4, so keep mid again: right = 3. Now left == right == 3 and the loop exits.',
-            '指针重合在下标 3；它是不是答案，还要用 nums[3] == target 校验。/ The pointers meet at index 3; nums[3] == target confirms it.',
-            '下界二分 / lower-bound search',
-            st => { st.right = 3; });
-          add('校验 · 下界 = 3', ['lb-return'],
-            'return left if nums and nums[left] == target else -1    # nums[3] == 4 → 3',
-            '指针重合在下标 3，nums[3] == 4 校验通过，下界确认为 3——第一个 4 的位置。',
-            'The pointers meet at index 3 and nums[3] == 4, so the lower bound is confirmed as 3 — the first 4.',
-            '下界 = 3：第一个 nums[i] >= 4 的下标。/ lower_bound = 3, the first index with nums[i] >= 4.',
-            '下界完成 / lower bound done',
-            st => { st.lb = 3; st.mid = null; });
-          add('调用上界搜索', ['main-upper'],
-            'upper_bound = upper_bound_binary_search(nums, target)',
-            '第二个搜索：上界二分，找最右一个 nums[i] <= target 的下标，也就是最后一个 4。',
-            'Second search: the upper bound — the last index with nums[i] <= target, i.e. the rightmost 4.',
-            '上界二分进行期间，[left, right] 始终包含最后一个 4。/ During the upper-bound search, [left, right] always contains the last 4.',
-            '主函数 / main',
-            st => { st.phase = 'main'; st.left = null; st.right = null; });
-          add('上界 · left=0, right=12', ['ub-def', 'ub-init'],
-            'left, right = 0, len(nums) - 1    # 0, 12',
-            '搜索空间再次覆盖整个数组：最后一个 4 可能藏在任意下标。',
-            'The search space again starts as the whole array; the last 4 could be anywhere.',
-            '[left, right] 始终包含最后一个 4。/ [left, right] always contains the last 4.',
-            '上界二分 / upper-bound search',
-            st => { st.phase = 'ub'; st.left = 0; st.right = 12; });
-          add('上界 · mid = 7（右偏）', ['ub-while', 'ub-bias-comment', 'ub-mid'],
-            'mid = (left + right) // 2 + 1    # (0 + 12) // 2 + 1 = 7',
-            '上界搜索的中点故意右偏一位（注释：bias the midpoint to the right）。没有这 +1，区间只剩两个元素时循环会原地打转，两步之后就能看到。',
-            'The upper-bound midpoint is biased one to the right; without the +1 the loop stalls once two elements remain — shown two steps ahead.',
-            'mid 右偏：两个元素的区间里 mid 落在 right 上，循环必然推进。/ The right-biased mid lands on right in a two-element interval, so the loop always progresses.',
-            '上界二分 / upper-bound search',
-            st => { st.mid = 7; });
-          add('nums[7]=6>4 · right=6', ['ub-gt', 'ub-gt-move'],
-            'if nums[mid] > target: right = mid - 1    # 6 > 4',
-            'nums[7] = 6 大于 4：最后一个 4 只可能在 mid 左边，right = mid - 1。大于、小于 target 的分支与下界搜索完全一样。',
-            'nums[7] = 6 is greater than 4, so the last 4 must lie to the left (right = mid - 1). The > and < branches match the lower-bound search.',
-            '[left, right] 始终包含最后一个 4；区间外的一定不是答案。/ [left, right] keeps the last 4; anything outside it is ruled out.',
-            '上界二分 / upper-bound search',
-            st => { st.right = 6; });
-          add('上界 · mid = 4', ['ub-while', 'ub-mid'],
-            'mid = (left + right) // 2 + 1    # (0 + 6) // 2 + 1 = 4',
-            '区间 [0, 6] 右偏取中点：mid = 4，nums[4] 是 4。',
-            'The right-biased midpoint of [0, 6] is 4, and nums[4] equals 4.',
-            'mid 右偏：两个元素的区间里 mid 落在 right 上，循环必然推进。/ The right-biased mid lands on right in a two-element interval, so the loop always progresses.',
-            '上界二分 / upper-bound search',
-            st => { st.mid = 4; });
-          add('nums[4]=4 · left=mid', ['ub-eq', 'ub-eq-move'],
-            'else: left = mid    # nums[mid] == 4',
-            'nums[mid] == 4：mid 可能是最后一个 4，也可能右边还有 4。保留 mid（left = mid），继续向右缩小——这正是与下界搜索相反的方向。',
-            'nums[mid] == 4: mid might be the last 4 or another 4 may sit to its right, so keep mid (left = mid) and search rightward — the mirror of the lower-bound rule.',
-            'nums[mid] == target 时保留 mid：答案仍在 [left, right] 内。/ Keeping mid preserves the answer inside [left, right].',
-            '上界二分 / upper-bound search',
-            st => { st.left = 4; });
-          add('上界 · mid = 6', ['ub-while', 'ub-mid'],
-            'mid = (left + right) // 2 + 1    # (4 + 6) // 2 + 1 = 6',
-            '区间 [4, 6]，右偏中点 mid = 6，nums[6] = 5。',
-            'The interval is [4, 6]; the right-biased mid is 6 and nums[6] = 5.',
-            'mid 右偏：两个元素的区间里 mid 落在 right 上，循环必然推进。/ The right-biased mid lands on right in a two-element interval, so the loop always progresses.',
-            '上界二分 / upper-bound search',
-            st => { st.mid = 6; });
-          add('nums[6]=5>4 · right=5', ['ub-gt', 'ub-gt-move'],
-            'if nums[mid] > target: right = mid - 1    # 5 > 4',
-            'nums[6] = 5 大于 4，往左收：right = 5。搜索区间只剩 [4, 5] 两个元素——最容易写错的一步到了。',
-            'nums[6] = 5 is greater than 4, so right = 5. Only two elements [4, 5] remain — the step where a naive midpoint stalls.',
-            '[left, right] 始终包含最后一个 4；区间外的一定不是答案。/ [left, right] keeps the last 4; anything outside it is ruled out.',
-            '上界二分 / upper-bound search',
-            st => { st.right = 5; });
-          add('上界 · mid = 5（关键右偏）', ['ub-while', 'ub-bias-comment', 'ub-mid'],
-            'mid = (left + right) // 2 + 1    # (4 + 5) // 2 + 1 = 5',
-            '关键一步：若按 (4 + 5) // 2 = 4 取中点，则 left = mid = 4，区间永远停在 [4, 5] 死循环。+1 让 mid 落到 right 上，循环才能继续。',
-            'The critical step: a left-biased mid would set left = mid = 4 forever; the +1 bias lands mid on the right pointer so the loop can finish.',
-            'mid 右偏：两个元素的区间里 mid 落在 right 上，循环必然推进。/ The right-biased mid lands on right in a two-element interval, so the loop always progresses.',
-            '上界二分 / upper-bound search',
-            st => { st.mid = 5; });
-          add('nums[5]=4 · left=5', ['ub-eq', 'ub-eq-move'],
-            'else: left = mid    # nums[5] == 4, left = 5',
-            'nums[5] == 4，保留 mid：left = 5。此时 left == right == 5，循环结束。',
-            'nums[5] == 4, so keep mid: left = 5. Now left == right == 5 and the loop exits.',
-            '指针重合在下标 5；它是不是答案，还要用 nums[5] == target 校验。/ The pointers meet at index 5; nums[5] == target confirms it.',
-            '上界二分 / upper-bound search',
-            st => { st.left = 5; });
-          add('校验 · 上界 = 5', ['ub-comment', 'ub-return'],
-            'return right if nums and nums[right] == target else -1    # nums[5] == 4 → 5',
-            '指针重合在下标 5，nums[5] == 4 校验通过，上界确认为 5。返回语句检查 nums[right] 而不是 nums[left]：若 target 不存在，left = mid + 1 可能等于 n 越界，right 不会。',
-            'The pointers meet at index 5 and nums[5] == 4, so the upper bound is 5. The return checks nums[right], not nums[left]: when the target is missing, left = mid + 1 can run past the end.',
-            '上界 = 5：最右一个 nums[i] <= 4 的下标。/ upper_bound = 5, the last index with nums[i] <= 4.',
-            '上界完成 / upper bound done',
-            st => { st.ub = 5; st.mid = null; });
-          add('返回 [3, 5]', ['main-return'],
-            'return [lower_bound, upper_bound]    # [3, 5]',
-            'lower_bound = 3、upper_bound = 5，返回 [3, 5]：4 第一次出现在下标 3，最后一次出现在下标 5。',
-            'lower_bound = 3 and upper_bound = 5, so the function returns [3, 5] — 4 first appears at index 3 and last at index 5.',
-            '两次二分各花 O(log n)，数组始终没有被修改。/ Two O(log n) searches; the array was never modified.',
-            '完成 / done',
-            st => { st.phase = 'done'; st.left = null; st.right = null; });
+
+          for (const key of ['lb', 'ub']) {
+            const first = key === 'lb';
+            const name = first ? '首个' : '末个';
+            const helper = first ? 'lower_bound_binary_search' : 'upper_bound_binary_search';
+            const variable = first ? 'lower_bound' : 'upper_bound';
+            const search = state.searches[key];
+            const invariant = '如果 target 存在，[left, right] 保留它的' + name + '出现位置；最终仍须校验值。';
+            state.phase = 'main';
+            add('调用 · 找' + name, [first ? 'main-lower' : 'main-upper'],
+              variable + ' = ' + helper + '(nums, target)',
+              first ? '先调用找首个位置的搜索。' : '首个位置的搜索已返回；现在调用第二次搜索，前一条轨道保留已完成的状态。',
+              first ? 'Call the first-occurrence search.' : 'Call the last-occurrence search; the first lane keeps its completed state.',
+              invariant, '主函数 / main');
+
+            state.phase = key;
+            search.left = 0;
+            search.right = NUMS.length - 1;
+            search.status = 'searching';
+            add(name + ' · 初始化 [0, ' + search.right + ']', [key + '-def', key + '-init', key + '-while'],
+              'left, right = 0, len(nums) - 1    # 0, ' + search.right,
+              NUMS.length === 0 ? '空数组让 right = -1；0 < -1 不成立，循环直接跳过。'
+                : NUMS.length === 1 ? 'left = right = 0；0 < 0 不成立，循环直接跳过，下一步校验唯一的元素。'
+                : '本次搜索从完整的闭区间 [0, ' + search.right + '] 开始。',
+              NUMS.length === 0 ? 'For an empty array, right is -1 and the loop is skipped.'
+                : NUMS.length === 1 ? 'left and right are both 0. Skip the loop and validate the only element.'
+                : 'Start this search in the inclusive interval [0, ' + search.right + '].',
+              invariant, '找' + name + ' / ' + (first ? 'first occurrence' : 'last occurrence'));
+
+            while (search.left < search.right) {
+              search.mid = Math.floor((search.left + search.right) / 2) + (first ? 0 : 1);
+              const mid = search.mid;
+              const value = NUMS[mid];
+              const twoLeft = search.right - search.left === 1;
+              add(name + ' · mid = ' + mid + (!first && twoLeft ? '（右偏）' : ''),
+                [key + '-while', key + '-mid'],
+                'mid = (left + right) // 2' + (first ? '' : ' + 1') + '    # mid = ' + mid,
+                !first && twoLeft
+                  ? '只剩两个位置：右偏让 mid 落在 right 上；若命中后执行 left = mid，区间也会缩小。'
+                  : '在 [' + search.left + ', ' + search.right + '] 中取' + (first ? '向下取整的' : '右偏的') + '中点 ' + mid + '，读取 nums[' + mid + '] = ' + value + '。',
+                !first && twoLeft
+                  ? 'With two positions left, the right-biased midpoint reaches right, so left = mid can make progress.'
+                  : 'Read nums[' + mid + '] = ' + value + ' at the ' + (first ? 'left-biased' : 'right-biased') + 'midpoint.',
+                invariant, '找' + name + ' / ' + (first ? 'first occurrence' : 'last occurrence'));
+
+              let branch, move, zh, en;
+              if (value > TARGET) {
+                branch = 'gt';
+                move = 'right = mid - 1';
+                search.right = mid - 1;
+                zh = 'nums[' + mid + '] = ' + value + ' 大于 target。mid 及右侧都太大，排除它们：right = ' + search.right + '。';
+                en = 'The midpoint value is too large; discard mid and every position to its right.';
+              } else if (value < TARGET) {
+                branch = 'lt';
+                move = 'left = mid + 1';
+                search.left = mid + 1;
+                zh = 'nums[' + mid + '] = ' + value + ' 小于 target。mid 及左侧都太小，排除它们：left = ' + search.left + '。';
+                if (search.left === NUMS.length) zh += ' left 已到 n，虚线格表示数组外的位置，不能读取 nums[left]。';
+                en = 'The midpoint value is too small; discard mid and every position to its left.';
+                if (search.left === NUMS.length) en += ' left now equals n, outside the array.';
+              } else {
+                branch = 'eq';
+                move = first ? 'right = mid' : 'left = mid';
+                if (first) search.right = mid;
+                else search.left = mid;
+                zh = '命中 ' + TARGET + '：mid 可能就是' + name + '位置，先保留它，再继续向' + (first ? '左' : '右') + '找。' + move + ' = ' + mid + '。';
+                en = 'A match may be the ' + (first ? 'first' : 'last') + ' occurrence. Keep mid and continue ' + (first ? 'left' : 'right') + '.';
+              }
+              add(name + ' · ' + move + ' → [' + search.left + ', ' + search.right + ']',
+                [key + '-' + branch, key + '-' + branch + '-move'],
+                move + '    # nums[' + mid + '] = ' + value + ', target = ' + TARGET,
+                zh, en, invariant, '找' + name + ' / ' + (first ? 'first occurrence' : 'last occurrence'));
+            }
+
+            const candidate = first ? search.left : search.right;
+            const found = NUMS.length > 0 && NUMS[candidate] === TARGET;
+            search.result = found ? candidate : -1;
+            search.status = 'done';
+            search.mid = null;
+            state[key] = search.result;
+            const checked = NUMS.length ? 'nums[' + candidate + '] = ' + NUMS[candidate] : 'nums = []';
+            const returnLine = first
+              ? 'return left if nums and nums[left] == target else -1'
+              : 'return right if nums and nums[right] == target else -1';
+            add('校验 · ' + name + ' = ' + search.result, [key + '-return'],
+              returnLine + '    # ' + checked + ' → ' + search.result,
+              !NUMS.length
+                ? 'nums 为空，短路跳过数组访问，返回 -1。'
+                : checked + (found ? ' 等于 target，确认' + name + '下标 ' + candidate + '。' : ' 不等于 target，本次搜索返回 -1。') +
+                  (!first && search.left === NUMS.length ? '检查的是合法的 right=' + search.right + '，而非越界的 left=' + search.left + '。' : ''),
+              !NUMS.length
+                ? 'The empty-array guard short-circuits the element access and returns -1.'
+                : 'Validate ' + checked + ' and return ' + search.result + '.',
+              '搜索结束只确定候选位置；与 target 相等才可以返回该下标。/ Validate the candidate before returning an index.',
+              name + '已返回 / search returned');
+          }
+
+          state.phase = 'done';
+          const result = '[' + state.lb + ', ' + state.ub + ']';
+          add('返回 ' + result, ['main-return'],
+            'return [lower_bound, upper_bound]    # ' + result,
+            state.lb === -1
+              ? '两次校验都未找到 target，返回 [-1, -1]。'
+              : state.lb === state.ub
+                ? '首个与末个都在下标 ' + state.lb + '：同一个元素同时是首个和末个，返回 ' + result + '。'
+                : '首个在下标 ' + state.lb + '，末个在下标 ' + state.ub + '，返回 ' + result + '。',
+            'Return ' + result + (state.lb >= 0 && state.lb === state.ub ? '; both endpoints refer to the same element.' : '.'),
+            '两次搜索各需 O(log n)，数组始终不变。/ Two O(log n) searches; the array is unchanged.',
+            '完成 / done');
           return frames;
         }
 
-        const frames = buildFrames();
-
         function makeCells() {
-          track.replaceChildren();
-          cells = NUMS.map((value, index) => {
-            const cell = document.createElement('span');
-            cell.className = 'cell';
-            cell.textContent = String(value);
-            cell.dataset.index = String(index);
-            track.append(cell);
-            return cell;
-          });
+          for (const view of Object.values(views)) {
+            view.track.replaceChildren();
+            view.cells = NUMS.map((value, index) => {
+              const cell = document.createElement('span');
+              cell.className = 'cell';
+              cell.textContent = String(value);
+              cell.dataset.index = String(index);
+              view.track.append(cell);
+              return cell;
+            });
+            view.ghost = document.createElement('span');
+            view.ghost.className = 'cell boundary-slot';
+            view.ghost.textContent = '越界';
+            view.ghost.dataset.index = String(NUMS.length);
+            view.ghost.setAttribute('aria-label', '下标 ' + NUMS.length + '，位于数组之外，不可访问');
+            view.ghost.hidden = true;
+            view.track.append(view.ghost);
+            view.empty.hidden = NUMS.length !== 0;
+          }
+          exampleSelect.value = exampleKey;
+          root.querySelector('[data-case-input]').textContent = 'nums = [' + NUMS.join(', ') + '], target = ' + TARGET;
+          root.querySelector('[data-target]').textContent = 'target = ' + TARGET;
         }
 
         function layout() {
           const width = stage.clientWidth;
-          let cellW;
-          let gap;
-          if (width >= 900) { cellW = 44; gap = 8; }
-          else if (width >= 520) { cellW = 30; gap = 5; }
-          else { gap = 3; cellW = Math.max(18, Math.floor((width - 20 - gap * 12) / 13)); }
-          const cellH = width >= 700 ? 54 : 44;
-          const cellTop = width >= 700 ? 118 : 94;
-          const rowsY = width >= 700 ? [10, 34, 58] : [6, 28, 50];
-          const total = cellW * NUMS.length + gap * (NUMS.length - 1);
-          const start = Math.max(8, (width - total) / 2);
-          geometry = { cellW, gap, cellH, cellTop, rowsY, bandTop: cellTop - 14, minSep: cellW + gap + 16 };
-          positions = NUMS.map((_, index) => ({
+          const count = NUMS.length + 1;
+          const gap = width < 500 ? 4 : 7;
+          const cellW = Math.min(42, Math.floor((width - 24 - gap * (count - 1)) / count));
+          const cellH = width < 500 ? 38 : 44;
+          const total = count * cellW + (count - 1) * gap;
+          const start = (width - total) / 2;
+          geometry = { width, cellW, cellH, cellTop: NUMS.length ? 90 : 28, rowsY: [3, 28, 53] };
+          positions = Array.from({ length: count }, (_, index) => ({
             x: start + index * (cellW + gap),
             center: start + index * (cellW + gap) + cellW / 2
           }));
-          cells.forEach((cell, index) => {
-            cell.style.left = `${positions[index].x}px`;
-            cell.style.top = `${cellTop}px`;
-            cell.style.width = `${cellW}px`;
-            cell.style.height = `${cellH}px`;
-            cell.style.fontSize = `${Math.max(11, Math.min(20, cellW * 0.45))}px`;
-          });
-          stage.style.height = `${cellTop + cellH + 40}px`;
-          lines.setAttribute('viewBox', `0 0 ${width} ${stage.clientHeight}`);
-          paint(trace ? trace.state : frames[0].state);
-        }
-
-        function chipRows(state) {
-          const visible = ['left', 'mid', 'right'].filter(name => state[name] !== null);
-          const placed = [];
-          const rows = {};
-          visible
-            .sort((a, b) => positions[state[a]].center - positions[state[b]].center)
-            .forEach(name => {
-              const cx = positions[state[name]].center;
-              let row = 0;
-              while (placed.some(entry => entry.row === row && Math.abs(entry.cx - cx) < geometry.minSep)) row += 1;
-              placed.push({ cx, row });
-              rows[name] = row;
+          for (const view of Object.values(views)) {
+            [...view.cells, view.ghost].forEach((cell, index) => {
+              cell.style.left = positions[index].x + 'px';
+              cell.style.top = geometry.cellTop + 'px';
+              cell.style.width = cellW + 'px';
+              cell.style.height = cellH + 'px';
+              cell.style.fontSize = cell === view.ghost ? '10px' : Math.max(11, Math.min(19, cellW * .46)) + 'px';
             });
-          return rows;
+            view.stage.style.height = (NUMS.length ? geometry.cellTop + cellH + 35 : 92) + 'px';
+            view.empty.style.top = NUMS.length ? '90px' : '30px';
+            view.svg.setAttribute('viewBox', '0 0 ' + width + ' ' + view.stage.clientHeight);
+          }
+          if (frames) paint(trace ? trace.state : frames[0].state);
         }
 
-        function paint(state) {
-          if (!positions.length || !state) return;
-          const searching = (state.phase === 'lb' && state.lb === null) || (state.phase === 'ub' && state.ub === null);
-          cells.forEach((cell, index) => {
-            const outside = searching && (index < state.left || index > state.right);
-            cell.classList.toggle('outside', outside);
-            cell.classList.toggle('target-zone', searching && NUMS[index] === TARGET);
-            cell.classList.toggle('at-mid', searching && state.mid === index);
-            cell.classList.toggle('found-first', state.lb === index);
-            cell.classList.toggle('found-last', state.ub === index);
+        function pointerPositions(search) {
+          if (!NUMS.length) return {};
+          const names = ['left', 'mid', 'right'].filter(name => search[name] !== null && positions[search[name]]);
+          const placed = [];
+          const result = {};
+          names.sort((a, b) => search[a] - search[b]).forEach(name => {
+            const target = positions[search[name]].center;
+            const x = Math.max(36, Math.min(geometry.width - 36, target));
+            let row = 0;
+            while (placed.some(item => item.row === row && Math.abs(item.x - x) < 74)) row += 1;
+            placed.push({ row, x });
+            result[name] = { x, y: geometry.rowsY[row], target };
           });
-          const rows = chipRows(state);
-          for (const [name, chip] of Object.entries(chips)) {
-            const index = state[name];
-            if (index === null || !positions[index]) {
-              chip.hidden = true;
-              continue;
-            }
-            chip.hidden = false;
-            const row = rows[name] ?? 0;
-            chip.style.left = `${positions[index].center}px`;
-            chip.style.top = `${geometry.rowsY[row]}px`;
-          }
-          band.hidden = !searching;
-          if (searching) {
-            const first = positions[state.left];
-            const last = positions[state.right];
-            band.style.left = `${first.x - 5}px`;
-            band.style.top = `${geometry.bandTop}px`;
-            band.style.width = `${last.x + geometry.cellW - first.x + 10}px`;
-            band.style.height = `${geometry.cellH + 14 + 18}px`;
-            bandLabel.textContent = `[${state.left}, ${state.right}]`;
-          }
-          const firstTag = state.lb !== null ? positions[state.lb] : null;
-          const lastTag = state.ub !== null ? positions[state.ub] : null;
-          tagFirst.hidden = !firstTag;
-          tagLast.hidden = !lastTag;
-          if (firstTag) tagFirst.style.left = `${firstTag.center}px`;
-          if (lastTag) tagLast.style.left = `${lastTag.center}px`;
-          tagFirst.style.top = `${geometry.cellTop + geometry.cellH + 18}px`;
-          tagLast.style.top = `${geometry.cellTop + geometry.cellH + 18}px`;
-          scene.update(({ path }) => {
-            for (const [name, arc] of arcs) {
-              const y = geometry.bandTop - 6;
-              path(`arc-${name}`, {
-                d: `M ${arc.from} ${y} C ${arc.from} ${y - 44}, ${arc.to} ${y - 44}, ${arc.to} ${y}`,
-                fill: 'none', stroke: '#555', 'stroke-width': 1.4, 'stroke-dasharray': '5 5',
-                opacity: arcFade, 'marker-end': 'url(#fl-arc-arrow)'
+          return result;
+        }
+
+        function paintPointers(view, search, previous, progress = 1) {
+          const currentPositions = pointerPositions(search);
+          const previousPositions = previous ? pointerPositions(previous) : {};
+          view.scene.update(({ path }) => {
+            for (const [name, chip] of Object.entries(view.chips)) {
+              const to = currentPositions[name];
+              chip.hidden = !to;
+              if (!to) continue;
+              const from = previousPositions[name] || to;
+              const x = from.x + (to.x - from.x) * progress;
+              const y = from.y + (to.y - from.y) * progress;
+              const target = from.target + (to.target - from.target) * progress;
+              chip.textContent = name + '=' + search[name];
+              chip.style.left = x + 'px';
+              chip.style.top = y + 'px';
+              path('reference-' + name, {
+                d: 'M ' + x + ' ' + (y + 22) + ' L ' + target + ' ' + (geometry.cellTop - 5),
+                fill: 'none', stroke: '#555', 'stroke-width': 1,
+                'stroke-dasharray': name === 'mid' ? '3 3' : 'none',
+                'marker-end': 'url(#fl-reference-' + view.lane.dataset.lane + ')'
               });
             }
           });
         }
 
+        function paint(state) {
+          if (!state) return;
+          for (const [key, view] of Object.entries(views)) {
+            const search = state.searches[key];
+            const searching = search.status === 'searching';
+            view.lane.classList.toggle('is-current', state.phase === key);
+            view.cells.forEach((cell, index) => {
+              cell.classList.toggle('outside', searching && (index < search.left || index > search.right));
+              cell.classList.toggle('target-zone', searching && NUMS[index] === TARGET);
+              cell.classList.toggle('at-mid', searching && search.mid === index);
+              cell.classList.toggle('found-first', key === 'lb' && search.result === index);
+              cell.classList.toggle('found-last', key === 'ub' && search.result === index);
+            });
+            view.ghost.hidden = !NUMS.length || search.left !== NUMS.length;
+            view.band.hidden = !NUMS.length || !searching || search.left > search.right;
+            if (!view.band.hidden) {
+              const first = positions[search.left];
+              const last = positions[search.right];
+              view.band.style.left = first.x - 4 + 'px';
+              view.band.style.top = geometry.cellTop - 15 + 'px';
+              view.band.style.width = last.x + geometry.cellW - first.x + 8 + 'px';
+              view.band.style.height = geometry.cellH + 33 + 'px';
+              view.bandLabel.textContent = '[' + search.left + ', ' + search.right + ']';
+            }
+            const found = search.result !== null && search.result >= 0 ? positions[search.result] : null;
+            view.tag.hidden = !found;
+            if (found) {
+              view.tag.textContent = (key === 'lb' ? '首个=' : '末个=') + search.result;
+              view.tag.style.left = found.center + 'px';
+              view.tag.style.top = geometry.cellTop + geometry.cellH + 18 + 'px';
+            }
+            paintPointers(view, search);
+          }
+        }
+
         function render({ frame, state, step }) {
-          phaseEl.textContent = `阶段 · ${frame.phaseLabel}`;
+          phaseEl.textContent = '阶段 · ' + frame.phaseLabel;
           invariantEl.textContent = frame.invariantText;
           expression.textContent = frame.line;
           explanationZh.textContent = frame.zh;
           explanationEn.textContent = frame.en;
-          metric.left.textContent = state.left === null ? '—' : state.left;
-          metric.right.textContent = state.right === null ? '—' : state.right;
-          metric.mid.textContent = state.mid === null ? '—' : state.mid;
-          metric.numsMid.textContent = state.mid === null ? '—' : NUMS[state.mid];
+          const active = state.searches[state.phase];
+          for (const name of ['left', 'right', 'mid']) {
+            metric[name].textContent = !active || active[name] === null ? '—' : active[name];
+          }
+          metric.numsMid.textContent = !active || active.mid === null ? '—' : NUMS[active.mid];
           metric.lb.textContent = state.lb === null ? '—' : state.lb;
           metric.ub.textContent = state.ub === null ? '—' : state.ub;
+          resultEl.textContent = (state.phase === 'done' ? '结果 ' : '已确认 ') +
+            '[' + (state.lb === null ? '—' : state.lb) + ', ' + (state.ub === null ? '—' : state.ub) + ']';
+          resultNote.textContent = state.phase === 'done'
+            ? state.lb === -1 ? '最终值不等于 target' : state.lb === state.ub ? '同一元素的首尾下标相同' : '重复值块的两个端点'
+            : state.lb === null ? '两个搜索各自维护指针' : '第一条轨道保留已返回的状态';
+          for (const [key, view] of Object.entries(views)) {
+            const search = state.searches[key];
+            view.status.textContent = search.status === 'waiting' ? '尚未调用'
+              : search.status === 'done' ? '已返回 ' + search.result
+              : search.left > search.right ? '区间已空 · 等待校验' : '搜索中 [' + search.left + ', ' + search.right + ']';
+          }
           paint(state);
-          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
-        }
-
-        function clearArcs() {
-          motion.cancel();
-          arcs.clear();
-          arcFade = 1;
-        }
-
-        function prepareStep() {
-          clearArcs();
+          stage.setAttribute('aria-label', '第 ' + (step + 1) + ' / ' + frames.length + ' 步。' + frame.zh);
         }
 
         function animateStep({ beforeState, state }) {
           if (motion.reduced || !beforeState) return;
-          for (const name of ['left', 'right']) {
-            const from = beforeState[name];
-            const to = state[name];
-            if (from === null || to === null || from === to || !positions[from] || !positions[to]) continue;
-            arcs.set(name, { from: positions[from].center, to: positions[to].center });
-          }
-          if (!arcs.size) return;
-          arcFade = 1;
           motion.tween({
-            duration: 520,
-            update(eased) {
-              arcFade = 1 - eased;
-              paint(trace.state);
+            duration: 300,
+            update(progress) {
+              for (const [key, view] of Object.entries(views)) {
+                paintPointers(view, state.searches[key], beforeState.searches[key], progress);
+              }
             },
-            complete() {
-              arcs.clear();
-              arcFade = 1;
-              paint(trace.state);
-            }
+            complete() { paint(state); }
           });
         }
 
+        function selectExample() {
+          motion.cancel();
+          exampleKey = exampleSelect.value;
+          NUMS = examples[exampleKey].nums;
+          TARGET = examples[exampleKey].target;
+          frames = buildFrames();
+          makeCells();
+          // The query identifies the example; core.js continues to own #step.
+          const url = new URL(location.href);
+          if (exampleKey === 'duplicates') url.searchParams.delete('case');
+          else url.searchParams.set('case', exampleKey);
+          history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+          // The new trace must supply state before layout paints its pointers.
+          trace.setFrames(frames, { initialStep: 0 });
+          layout();
+        }
+
+        frames = buildFrames();
         makeCells();
-        new ResizeObserver(() => { clearArcs(); layout(); }).observe(stage);
         layout();
         trace = AlgorithmVisualCore.createTrace({
-          root,
-          cloneState: clone,
-          motion,
+          root, cloneState: clone, motion,
           onRender: render,
-          onBeforeStep: prepareStep,
+          onBeforeStep: () => motion.cancel(),
           onTransition: animateStep,
           formatStepOption: frame => frame.stepLabel
         });
         trace.setFrames(frames);
+        exampleSelect.addEventListener('change', selectExample);
+        new ResizeObserver(() => { motion.cancel(); layout(); }).observe(stage);
       })();
     </script>
   </body>
