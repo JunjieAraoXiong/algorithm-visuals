@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { themeColors, themePage, themePaletteCss } from './theme-palette.mjs';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceRoot = path.join(repositoryRoot, 'src');
@@ -105,11 +106,17 @@ sameMembers(readmeSlugs, slugs, 'README visual links must exactly match src/ques
 fs.rmSync(outputRoot, { recursive: true, force: true });
 fs.mkdirSync(outputRoot, { recursive: true });
 fs.cpSync(path.join(sourceRoot, 'assets'), path.join(outputRoot, 'assets'), { recursive: true });
-fs.copyFileSync(path.join(sourceRoot, 'index.html'), path.join(outputRoot, 'index.html'));
+for (const asset of ['visual.css', 'guide.css']) {
+  fs.writeFileSync(path.join(outputRoot, 'assets', asset), themeColors(readText(path.join(sourceRoot, 'assets', asset))));
+}
+fs.appendFileSync(path.join(outputRoot, 'assets', 'theme.css'), themePaletteCss());
+fs.writeFileSync(path.join(outputRoot, 'index.html'), themePage(catalog, './assets'));
 fs.copyFileSync(path.join(sourceRoot, '.nojekyll'), path.join(outputRoot, '.nojekyll'));
 
 for (const question of questions) {
   fs.cpSync(question.sourceDirectory, path.join(outputRoot, question.slug), { recursive: true });
+  const page = path.join(outputRoot, question.slug, 'index.html');
+  fs.writeFileSync(page, themePage(readText(page), '../assets'));
 }
 
 validateOutputLinks([
