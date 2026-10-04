@@ -10,6 +10,6 @@ The build copies each question to its stable public `/<problem-slug>/` route.
 - [`05-sliding-windows/`](05-sliding-windows/) — Sliding Windows / 滑动窗口 (3)
 - [`06-binary-search/`](06-binary-search/) — Binary Search / 二分查找 (4)
 - [`07-stacks/`](07-stacks/) — Stacks / 栈 (3)
-- [`08-heaps/`](08-heaps/) — Heaps / 堆 (3)
+- [`08-heaps/`](08-heaps/) — Heaps / 堆 (4)
 - [`09-intervals/`](09-intervals/) — Intervals / 区间 (3)
 - [`10-prefix-sums/`](10-prefix-sums/) — Prefix Sums / 前缀和 (3)
