@@ -412,18 +412,20 @@
         const cellH = compact ? 22 : 26;
         const spread = compact ? 42 : 58;
         const rowH = compact ? 27 : 32;
-        const nameY = compact ? 46 : 50;
-        const chipW = compact ? 70 : 82;
+        // Leave a top band for the incoming num card and its comparison.
+        const nameY = compact ? 60 : 66;
+        const chipW = compact ? 96 : 116;
         const chipH = compact ? 19 : 21;
-        const chipY = nameY + (compact ? 5 : 7);
+        const chipY = nameY + (compact ? 10 : 11);
         const row0Y = chipY + chipH + (compact ? 9 : 11);
         const cxL = width * (compact ? 0.29 : 0.27);
         const cxR = width - cxL;
         const stripCellW = compact ? 24 : 28;
         const stripGap = compact ? 5 : 7;
         const stripCellH = compact ? 20 : 22;
-        const stripY = row0Y + 3 * rowH + cellH + (compact ? 30 : 34);
-        const height = stripY + stripCellH + 30;
+        // The trace never holds more than 4 values per heap (3 tree levels).
+        const stripY = row0Y + 2 * rowH + cellH + (compact ? 58 : 64);
+        const height = stripY + stripCellH + 34;
         geom = { width, compact, cellW, cellH, spread, rowH, nameY, chipW, chipH, chipY, row0Y, cxL, cxR, stripCellW, stripGap, stripCellH, stripY, height };
         svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
         stage.style.height = `${Math.ceil(height)}px`;
@@ -449,9 +451,12 @@
         const g = geom;
         const isLeft = side === 'left';
         const name = isLeft ? 'left_half' : 'right_half';
-        const chipText = values.length
-          ? `${isLeft ? 'max' : 'min'}: ${isLeft ? decode(values[0]) : values[0]}`
-          : `${isLeft ? 'max' : 'min'}: None`;
+        // The left heap stores -num, so its chip shows the decode -left_half[0].
+        const chipText = !values.length
+          ? `${isLeft ? 'max' : 'min'} = (空)`
+          : isLeft
+            ? `max = -(${values[0]}) = ${decode(values[0])}`
+            : `min = ${values[0]}`;
 
         text(`${side}-name`, { x: cx, y: g.nameY, 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12.5, fill: '#272727', 'font-family': MONO, 'font-weight': 500 }, name);
 
@@ -508,7 +513,7 @@
         const sizeY = bottomY + (g.compact ? 15 : 17);
         text(`${side}-size`, { x: cx, y: sizeY, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: '#272727', 'font-family': MONO }, `size = ${values.length}`);
         if (isLeft) {
-          text('left-note', { x: cx, y: sizeY + (g.compact ? 12 : 14), 'text-anchor': 'middle', 'font-size': g.compact ? 8 : 9, fill: '#777', 'font-family': MONO }, '(存 -num)');
+          text('left-note', { x: cx, y: sizeY + (g.compact ? 12 : 14), 'text-anchor': 'middle', 'font-size': g.compact ? 8 : 9, fill: '#777', 'font-family': MONO }, '存的是 -num');
         }
         if (frame.kind === 'check') {
           path(`${side}-size-ring`, { d: rectPath(cx - 33, sizeY - (g.compact ? 10 : 12), 66, g.compact ? 14 : 16, 2), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
@@ -524,28 +529,47 @@
           drawHeap({ cx: g.cxL, side: 'left', values: state.left, frame, t, from });
           drawHeap({ cx: g.cxR, side: 'right', values: state.right, frame, t, from });
 
-          // Incoming num card and arrow to its target heap.
+          // Incoming num card. On judge/push frames an arrow drops into the
+          // chosen heap; the comparison (or size check) is written beside it.
           if (state.num !== null && frame.kind !== 'median' && frame.kind !== 'transfer') {
             const cardW = g.compact ? 74 : 84;
             const cardH = g.compact ? 20 : 22;
             const dashed = frame.kind === 'judge' || frame.kind === 'check';
             path('num-card', { d: rectPath(8, 8, cardW, cardH, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.2, ...(dashed ? { 'stroke-dasharray': '4 3' } : {}) });
             text('num-text', { x: 8 + cardW / 2, y: 8 + cardH / 2 + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, `num = ${state.num}`);
-            const targetCx = state.target === 'right' ? g.cxR : g.cxL;
-            const startX = 8 + cardW;
-            const startY = 8 + cardH / 2;
-            const endX = targetCx;
-            const endY = g.row0Y - 12;
-            const midX = (startX + endX) / 2;
-            const lift = g.compact ? 26 : 34;
-            path('num-arrow', { d: `M ${startX} ${startY} C ${midX} ${startY - lift}, ${midX} ${endY - lift}, ${endX} ${endY}`, fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': dashed ? '5 4' : null, 'marker-end': 'url(#median-arrow)' });
+            let note = '';
+            if (frame.kind === 'judge') {
+              const top = state.left.length ? decode(state.left[0]) : null;
+              note = top === null
+                ? 'left_half 为空 → left_half'
+                : `${state.num} ≤ max ${top} ? ${state.num <= top ? '是 → left_half' : '否 → right_half'}`;
+            } else if (frame.kind === 'check') {
+              const L = state.left.length;
+              const R = state.right.length;
+              note = frame.sourceKeys.includes('reb-left-if')
+                ? `${L} > ${R} + 1 → 左堆多 2 个`
+                : `${L} < ${R} → 右堆更大`;
+            }
+            if (note) {
+              text('num-note', { x: 8 + cardW + 10, y: 8 + cardH / 2 + (g.compact ? 3.5 : 4), 'font-size': g.compact ? 10 : 11.5, fill: '#272727', 'font-family': MONO }, note);
+            }
+            if (state.target) {
+              const startX = 8 + cardW / 2;
+              const startY = 8 + cardH;
+              const endX = state.target === 'right' ? g.cxR : g.cxL;
+              const endY = g.nameY - (g.compact ? 13 : 15);
+              path('num-arrow', { d: `M ${startX} ${startY} C ${startX} ${endY}, ${endX} ${endY - 14}, ${endX} ${endY}`, fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': dashed ? '5 4' : null, 'marker-end': 'url(#median-arrow)' });
+            }
           }
 
           // Transfer arrow + flying chip between heap tops.
           if (frame.kind === 'transfer' && state.move) {
-            const fromCx = state.move.from === 'left' ? g.cxL : g.cxR;
-            const toCx = state.move.from === 'left' ? g.cxR : g.cxL;
-            const startY = g.row0Y - 6;
+            // Run between the inner top corners of the two chips so the arc
+            // never crosses a heap name or the max/min readout.
+            const inset = g.chipW / 2 - 12;
+            const fromCx = state.move.from === 'left' ? g.cxL + inset : g.cxR - inset;
+            const toCx = state.move.from === 'left' ? g.cxR - inset : g.cxL + inset;
+            const startY = g.chipY - 3;
             const midX = (fromCx + toCx) / 2;
             const lift = g.compact ? 44 : 56;
             path('transfer-path', { d: `M ${fromCx} ${startY} C ${midX} ${startY - lift}, ${midX} ${startY - lift}, ${toCx} ${startY}`, fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '6 4', 'marker-end': 'url(#median-arrow)' });
@@ -566,42 +590,68 @@
             text('transfer-caption', { x: midX, y: startY - lift - (g.compact ? 4 : 6), 'text-anchor': 'middle', 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, '转移堆顶');
           }
 
-          // Median result box.
+          // Median result box: shows which heap tops produce the answer.
           if (state.median !== null) {
-            const boxW = g.compact ? 108 : 128;
+            const even = state.left.length === state.right.length;
+            const label = even
+              ? `(${decode(state.left[0])} + ${state.right[0]}) / 2 = ${fmtMedian(state.median)}`
+              : `median = ${fmtMedian(state.median)}`;
+            const boxW = g.compact ? 124 : 150;
             const boxH = g.compact ? 22 : 24;
             const boxX = g.width - boxW - 8;
             path('median-card', { d: rectPath(boxX, 8, boxW, boxH, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
-            text('median-card-text', { x: boxX + boxW / 2, y: 8 + boxH / 2 + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, `median = ${fmtMedian(state.median)}`);
+            text('median-card-text', { x: boxX + boxW / 2, y: 8 + boxH / 2 + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, label);
           }
 
-          // Sorted strip with the median box.
-          const sorted = [
-            ...state.left.map(decode),
-            ...state.right
-          ].sort((a, b) => a - b);
+          // Sorted strip, split where left_half ends and right_half begins.
+          // Each half is already the sorted lower / upper part, so the gap
+          // between them is exactly the value rule max(left) <= min(right).
+          const lower = state.left.map(decode).sort((a, b) => a - b);
+          const upper = [...state.right].sort((a, b) => a - b);
+          const sorted = [...lower, ...upper];
           const scW = g.stripCellW;
           const gap = g.stripGap;
-          const totalW = sorted.length * scW + (sorted.length - 1) * gap;
+          const split = lower.length && upper.length ? (g.compact ? 22 : 26) : 0;
+          const totalW = sorted.length * scW + Math.max(0, sorted.length - 1) * gap + split - (split ? gap : 0);
           const startX = (g.width - totalW) / 2;
-          text('sorted-caption', { x: 8, y: g.stripY + g.stripCellH / 2 + 3.5, 'font-size': g.compact ? 9 : 10, fill: '#777', 'font-family': MONO }, 'sorted');
+          const cellX = i => startX + i * (scW + gap) + (i >= lower.length && split ? split - gap : 0);
+          const cellMid = g.stripY + g.stripCellH / 2;
+          text('sorted-caption', { x: 8, y: cellMid + 3.5, 'font-size': g.compact ? 9 : 10, fill: '#777', 'font-family': MONO }, 'sorted');
           if (!sorted.length) {
-            text('sorted-empty', { x: g.width / 2, y: g.stripY + g.stripCellH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 10.5, fill: '#999', 'font-family': MONO }, '尚无元素');
+            text('sorted-empty', { x: g.width / 2, y: cellMid + 3.5, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 10.5, fill: '#999', 'font-family': MONO }, '尚无元素');
           }
           for (let i = 0; i < sorted.length; i += 1) {
-            const x = startX + i * (scW + gap);
+            const x = cellX(i);
             path(`sorted-cell-${i}`, { d: rectPath(x, g.stripY, scW, g.stripCellH, 3), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.1 });
-            text(`sorted-text-${i}`, { x: x + scW / 2, y: g.stripY + g.stripCellH / 2 + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 11.5, fill: '#272727', 'font-family': MONO }, String(sorted[i]));
+            text(`sorted-text-${i}`, { x: x + scW / 2, y: cellMid + (g.compact ? 3.2 : 3.8), 'text-anchor': 'middle', 'font-size': g.compact ? 10 : 11.5, fill: '#272727', 'font-family': MONO }, String(sorted[i]));
+          }
+          if (split) {
+            const sx = cellX(lower.length - 1) + scW + (split - gap) / 2 + gap / 2;
+            text('sorted-split', { x: sx, y: cellMid + 4, 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 13, fill: '#272727', 'font-family': MONO }, '≤');
+          }
+          // Brackets under each half; labels point outward so they never meet.
+          const bracketY = g.stripY + g.stripCellH + 5;
+          const tick = 4;
+          const halves = [
+            { key: 'left', from: 0, to: lower.length - 1, name: 'left_half', anchor: 'end' },
+            { key: 'right', from: lower.length, to: sorted.length - 1, name: 'right_half', anchor: 'start' }
+          ];
+          for (const h of halves) {
+            if (h.to < h.from) continue;
+            const x0 = cellX(h.from) + 1;
+            const x1 = cellX(h.to) + scW - 1;
+            path(`sorted-bracket-${h.key}`, { d: `M ${x0} ${bracketY} V ${bracketY + tick} H ${x1} V ${bracketY}`, fill: 'none', stroke: '#777', 'stroke-width': 1 });
+            text(`sorted-bracket-label-${h.key}`, { x: h.anchor === 'end' ? x1 : x0, y: bracketY + tick + (g.compact ? 11 : 12), 'text-anchor': h.anchor, 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, h.name);
           }
           if (sorted.length) {
             const midIndex = (sorted.length - 1) / 2;
             const even = sorted.length % 2 === 0;
-            const boxStart = even ? midIndex - 0.5 : midIndex;
-            const boxCount = even ? 2 : 1;
-            const bx = startX + boxStart * (scW + gap) - 4;
-            const bw = boxCount * scW + (boxCount - 1) * gap + 8;
+            const first = even ? midIndex - 0.5 : midIndex;
+            const last = even ? midIndex + 0.5 : midIndex;
+            const bx = cellX(first) - 4;
+            const bw = cellX(last) + scW + 4 - bx;
             path('sorted-median-box', { d: rectPath(bx, g.stripY - 4, bw, g.stripCellH + 8, 4), fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 4' });
-            text('sorted-median-label', { x: bx + bw / 2, y: g.stripY + g.stripCellH + (g.compact ? 13 : 15), 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 9.5, fill: '#555', 'font-family': MONO }, even ? 'median values' : 'median');
+            text('sorted-median-label', { x: bx + bw / 2, y: g.stripY - (g.compact ? 9 : 10), 'text-anchor': 'middle', 'font-size': g.compact ? 8.5 : 9.5, fill: '#555', 'font-family': MONO }, even ? 'median values' : 'median');
           }
         });
       }
