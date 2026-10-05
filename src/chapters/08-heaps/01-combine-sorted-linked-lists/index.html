@@ -75,7 +75,6 @@
           <h2 id="combine-code-title">完整 Python 代码</h2>
           <p class="code-status" data-code-status></p>
           <pre data-code-scroll tabindex="0"><code><span class="code-line">class ListNode:</span><span class="code-line">    def __init__(self, val: int, next=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.next = next</span><span class="code-line"> </span><span class="code-line" data-source-key="func">def combine_sorted_linked_lists(lists: List[ListNode]) -&gt; ListNode:</span><span class="code-line">    # Define a custom comparator for 'ListNode', enabling the min-heap</span><span class="code-line">    # to prioritize nodes with smaller values.</span><span class="code-line" data-source-key="comparator">    ListNode.__lt__ = lambda self, other: self.val &lt; other.val</span><span class="code-line" data-source-key="heap-init">    heap = []</span><span class="code-line">    # Push the head of each linked list into the heap.</span><span class="code-line" data-source-key="for-heads">    for head in lists:</span><span class="code-line" data-source-key="if-head">        if head:</span><span class="code-line" data-source-key="push-head">            heapq.heappush(heap, head)</span><span class="code-line">    # Set a dummy node to point to the head of the output linked list.</span><span class="code-line" data-source-key="dummy">    dummy = ListNode(-1)</span><span class="code-line">    # Create a pointer to iterate through the combined linked list as</span><span class="code-line">    # we add nodes to it.</span><span class="code-line" data-source-key="curr-init">    curr = dummy</span><span class="code-line" data-source-key="loop">    while heap:</span><span class="code-line">        # Pop the node with the smallest value from the heap and add it</span><span class="code-line">        # to the output linked list.</span><span class="code-line" data-source-key="pop">        smallest_node = heapq.heappop(heap)</span><span class="code-line" data-source-key="link">        curr.next = smallest_node</span><span class="code-line" data-source-key="advance">        curr = curr.next</span><span class="code-line">        # Push the popped node's subsequent node to the heap.</span><span class="code-line" data-source-key="if-next">        if smallest_node.next:</span><span class="code-line" data-source-key="push-next">            heapq.heappush(heap, smallest_node.next)</span><span class="code-line" data-source-key="return">    return dummy.next</span></code></pre>
-          <p class="note">图中每一行是一个堆元素：圆圈内是该链表当前的候选头（堆里的那个节点），右侧是它后面的节点；<code>min</code> 标记指向当前堆顶。</p>
         </aside>
       </div>
 
@@ -235,224 +234,272 @@
         const explanationZhEl = root.querySelector('[data-explanation-zh]');
 
         const VAL = { a1: 1, a6: 6, b1: 1, b4: 4, b6: 6, c3: 3, c7: 7 };
-        const ORDER = ['a1', 'a6', 'b1', 'b4', 'b6', 'c3', 'c7'];
+        const LISTS = [['a1', 'a6'], ['b1', 'b4', 'b6'], ['c3', 'c7']];
+        const ORDER = LISTS.flat();
+        const LIST_OF = id => ({ a: 0, b: 1, c: 2 })[id[0]];
+        const COL_OF = id => LISTS[LIST_OF(id)].indexOf(id);
+        const NEXT_OF = id => LISTS[LIST_OF(id)][COL_OF(id) + 1] || null;
         const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
         const SANS = 'Arial, Helvetica, sans-serif';
+        const lt = (x, y) => VAL[x] < VAL[y]; // ListNode.__lt__
+        const tagOf = id => `${VAL[id]}（lists[${LIST_OF(id)}]）`;
 
-        const st = (rows, popped, output, hasDummy, curr) => ({ rows, popped, output, hasDummy, curr });
+        // heapq.heappush: append, then move up while smaller than the parent.
+        function heapPush(heap, id) {
+          let pos = heap.length;
+          heap.push(id);
+          const start = pos;
+          const firstParent = pos > 0 ? heap[(pos - 1) >> 1] : null;
+          while (pos > 0) {
+            const parent = (pos - 1) >> 1;
+            if (!lt(heap[pos], heap[parent])) break;
+            [heap[pos], heap[parent]] = [heap[parent], heap[pos]];
+            pos = parent;
+          }
+          const lines = [`heappush：${tagOf(id)} 放到末尾 heap[${start}]`];
+          if (start === 0) lines.push('堆里只有它，它就是根');
+          else if (pos === start) lines.push(`父节点 heap[${(start - 1) >> 1}] = ${VAL[firstParent]} ≤ ${VAL[id]}，不上浮`);
+          else lines.push(`比父节点 ${VAL[firstParent]} 小，上浮到 heap[${pos}]`);
+          return lines;
+        }
 
-        const fr = (stepLabel, sourceKeys, line, en, zh, invariant, state) =>
-          ({ stepLabel, sourceKeys, line, en, zh, invariant, state });
+        // heapq.heappop: take the root, move the last entry to the root, sift it down.
+        // (For this input the result equals CPython's heapq order.)
+        function heapPop(heap) {
+          const top = heap[0];
+          const last = heap.pop();
+          const lines = [`heappop：取走根 ${tagOf(top)}`];
+          if (!heap.length) { lines.push('堆空了'); return { top, lines }; }
+          heap[0] = last;
+          let pos = 0;
+          for (;;) {
+            const l = 2 * pos + 1, r = l + 1;
+            let child = l;
+            if (l >= heap.length) break;
+            if (r < heap.length && lt(heap[r], heap[l])) child = r;
+            if (!lt(heap[child], heap[pos])) break;
+            [heap[pos], heap[child]] = [heap[child], heap[pos]];
+            pos = child;
+          }
+          lines.push(heap.length === 1 ? `末尾 ${VAL[last]} 移到根，堆里只剩它`
+            : pos === 0
+            ? `末尾 ${VAL[last]} 移到根，不大于孩子，不下沉`
+            : `末尾 ${VAL[last]} 移到根并下沉 → 新根 ${tagOf(heap[0])}`);
+          return { top, lines };
+        }
+
+        const INITIAL = { heap: null, ghost: null, smallest: null, output: [], hasDummy: false, hasCurr: false, curr: -1, note: [], exhausted: null, done: false };
+        function apply(prev, op) {
+          const s = { ...prev, heap: prev.heap && [...prev.heap], output: [...prev.output], note: [], ghost: null, exhausted: null };
+          if (op.t === 'heap-init') s.heap = [];
+          else if (op.t === 'push') s.note = heapPush(s.heap, op.id);
+          else if (op.t === 'push-next') s.note = heapPush(s.heap, NEXT_OF(s.smallest));
+          else if (op.t === 'dummy') s.hasDummy = true;
+          else if (op.t === 'curr') s.hasCurr = true;
+          else if (op.t === 'pop') {
+            const { top, lines } = heapPop(s.heap);
+            s.ghost = top; s.smallest = top; s.note = lines;
+          } else if (op.t === 'link') s.output.push(s.smallest);
+          else if (op.t === 'advance') s.curr = s.output.length - 1;
+          else if (op.t === 'if-none') {
+            s.exhausted = LIST_OF(s.smallest);
+            s.note = [`smallest_node.next 是 None`, `lists[${s.exhausted}] 已耗尽，不压入`];
+          } else if (op.t === 'loop-end') s.note = ['heap 为空 → while heap 结束'];
+          else if (op.t === 'return') s.done = true;
+          return s;
+        }
+
+        const fr = (stepLabel, sourceKeys, line, en, zh, invariant, op) =>
+          ({ stepLabel, sourceKeys, line, en, zh, invariant, op });
 
         const FRAMES = [
           fr('初始：3 条有序链表', ['func'], 'def combine_sorted_linked_lists(lists)  # lists = [1→6, 1→4→6, 3→7]',
             'k = 3 sorted lists hold 7 nodes in total; they must become one sorted list.',
-            '给定 k = 3 条升序链表：lists[0] = 1→6、lists[1] = 1→4→6、lists[2] = 3→7，共 7 个节点，要合成一条升序链表。',
+            '给定 k = 3 条升序链表：lists[0] = 1→6、lists[1] = 1→4→6、lists[2] = 3→7，共 7 个节点，要合成一条升序链表。heap 和 dummy 还没创建。',
             '每条链表内部升序，目标是全局升序。',
-            st([{ front: null, rest: ['a1', 'a6'] }, { front: null, rest: ['b1', 'b4', 'b6'] }, { front: null, rest: ['c3', 'c7'] }], null, [], false, -1)),
+            { t: 'init' }),
           fr('定义比较器，建空堆', ['comparator', 'heap-init'], 'ListNode.__lt__ = lambda self, other: self.val < other.val; heap = []',
             'A custom __lt__ lets heapq order nodes by val; the heap starts as an empty list.',
             '小顶堆需要知道节点谁小：给 ListNode 定义 __lt__ 按 val 比较，heap 从空列表开始。注意这会全局修改 ListNode 类，面试时先确认可以接受。',
             '堆中每条链表至多保留一个候选头。',
-            st([{ front: null, rest: ['a1', 'a6'] }, { front: null, rest: ['b1', 'b4', 'b6'] }, { front: null, rest: ['c3', 'c7'] }], null, [], false, -1)),
+            { t: 'heap-init' }),
           fr('压入 lists[0] 的头 1', ['for-heads', 'if-head', 'push-head'], 'heapq.heappush(heap, head)  # head = 1（lists[0]）',
-            'Iteration 1 pushes the head of lists[0]; each heap row shows one candidate front plus the rest of its list.',
-            'for 循环第 1 轮：head 指向 lists[0] 的头 1，非空，压入堆。图中每行是一个堆元素：圆圈内是该链表的候选头，右侧是它后面的节点。',
+            'Iteration 1 pushes a reference to the head of lists[0]; the node itself stays in its list.',
+            'for 循环第 1 轮：head 是 lists[0] 的头 1，非空，压入堆。堆里存的是这个节点的引用：堆格标着它来自 lists[0]，原节点下方标着 heap[0]。',
             '堆中每条链表至多保留一个候选头。',
-            st([{ front: 'a1', rest: ['a6'] }, { front: null, rest: ['b1', 'b4', 'b6'] }, { front: null, rest: ['c3', 'c7'] }], null, [], false, -1)),
+            { t: 'push', id: 'a1' }),
           fr('压入 lists[1] 的头 1', ['for-heads', 'if-head', 'push-head'], 'heapq.heappush(heap, head)  # head = 1（lists[1]）',
-            'Iteration 2 pushes the head of lists[1]; the two 1s are tied, so either can pop first.',
-            '第 2 轮：lists[1] 的头 1 入堆。两个 1 相等，min 指向上方那个——先弹哪个都不影响结果。',
+            'Iteration 2 appends the head of lists[1] at heap[1]; it is not smaller than its parent 1, so it stays.',
+            '第 2 轮：lists[1] 的头 1 放到末尾 heap[1]。它不比父节点 1 小（__lt__ 是严格小于），不上浮。两个 1 相等，谁在根都不影响结果。',
             '堆中每条链表至多保留一个候选头。',
-            st([{ front: 'a1', rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: null, rest: ['c3', 'c7'] }], null, [], false, -1)),
+            { t: 'push', id: 'b1' }),
           fr('压入 lists[2] 的头 3', ['for-heads', 'if-head', 'push-head'], 'heapq.heappush(heap, head)  # head = 3（lists[2]）',
-            'Iteration 3 pushes the head of lists[2]; the smallest candidate (1) is now the global smallest node.',
-            '第 3 轮：lists[2] 的头 3 入堆。现在堆里有三条链表的候选头，其中最小的候选（1）就是当前全局最小节点。',
+            'Iteration 3 pushes the head of lists[2]; the root heap[0] now holds the global smallest node.',
+            '第 3 轮：lists[2] 的头 3 放到 heap[2]，比父节点 1 大，不上浮。现在堆里有三条链表各自的头，根 heap[0] 就是全局最小节点。',
             '链表已排序 ⇒ 候选头就是该链表的最小剩余节点；全局最小必在堆顶。',
-            st([{ front: 'a1', rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, [], false, -1)),
+            { t: 'push', id: 'c3' }),
           fr('建哑节点 D', ['dummy'], 'dummy = ListNode(-1)',
             'The dummy node D is a placeholder head, so appends can start uniformly from curr = D.',
             '哑节点 D（虚线圆）不存放数据，只做输出链表的占位头：有了它，curr 从 D 开始拼接，不用单独处理“第一个节点”这种特殊情况。',
             'D.next 最终将指向合并结果的头节点。',
-            st([{ front: 'a1', rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, [], true, -1)),
+            { t: 'dummy' }),
           fr('curr 指向 D', ['curr-init'], 'curr = dummy',
             'curr marks the tail of the output list; every new node is attached right after it.',
             'curr 表示输出链表的尾部，新节点总是接到 curr 之后。现在 curr = D，输出链表还是空的。',
             'curr 始终指向输出链表的最后一个节点。',
-            st([{ front: 'a1', rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, [], true, -1)),
+            { t: 'curr' }),
           fr('弹出堆顶最小 1', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 1（lists[0] 的候选头）',
-            'The heap is non-empty; pop its smallest candidate (1, front of lists[0]). Remaining candidates: 1 and 3.',
-            'while heap 成立，进入循环。堆顶最小的候选是 1（lists[0] 的头），弹出它——图中该行候选被划掉。堆里剩下的候选是 1、3。',
+            'The heap is non-empty; heappop removes the root (1 from lists[0]). The last entry 3 moves to the root and sinks below the other 1.',
+            'while heap 成立，进入循环。heappop 取走根：lists[0] 的 1，smallest_node 指向它（节点仍在原链表里）。末尾的 3 移到根，比孩子 1 大，下沉——新根是 lists[1] 的 1。',
             '全局最小必在堆顶：每条链表的头就是它的最小剩余节点，再取候选中的最小。',
-            st([{ front: null, rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], 'a1', [], true, -1)),
+            { t: 'pop' }),
           fr('curr.next = 1', ['link'], 'curr.next = smallest_node  # D.next = 1',
             'Attach the popped 1 after curr (D); the output list gets its first real node. Its stale next still points at 6 and will be rewritten later.',
             '把弹出的 1 接到 curr（D）后面，输出链表有了第一个真实节点。注意 1 的旧 next 还指着 6，这条旧链接之后会被改写。',
             '输出链表保持升序：新接入的总是当前最小节点。',
-            st([{ front: null, rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1'], true, -1)),
+            { t: 'link' }),
           fr('curr 前移到 1', ['advance'], 'curr = curr.next',
             'curr advances to the node just attached; only the variable moves, no node moves.',
             'curr 前移到刚接入的 1；下一轮新节点就接在它后面。这一步只有变量在动，节点本身没有移动。',
             'curr 始终指向输出链表的最后一个节点。',
-            st([{ front: null, rest: ['a6'] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1'], true, 0)),
+            { t: 'advance' }),
           fr('压入后继 6', ['if-next', 'push-next'], 'heapq.heappush(heap, smallest_node.next)  # 压入 6',
-            'The popped 1 has a successor 6; push it as the new candidate front of lists[0]. Candidates are 6, 1, 3 again.',
-            '刚弹出的 1 还有后继 6：把它压入堆，成为 lists[0] 新的候选头。候选又变回 6、1、3 三个。',
+            'The popped 1 has a successor 6; push it as the new candidate of lists[0]. It lands at heap[2] under root 1.',
+            '刚弹出的 1 还有后继 6：把它压入堆，成为 lists[0] 新的候选头。6 放到 heap[2]，不比父节点 1 小，不上浮。',
             '候选一弹出，它的后继立刻补上，堆仍覆盖每条未耗尽的链表。',
-            st([{ front: 'a6', rest: [] }, { front: 'b1', rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1'], true, 0)),
+            { t: 'push-next' }),
           fr('弹出堆顶最小 1', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 1（lists[1] 的候选头）',
-            'Pop the smallest candidate (1, front of lists[1]). Remaining candidates: 6 and 3.',
-            '堆顶最小的候选是 1（lists[1] 的头），弹出。堆里剩下的候选是 6、3。',
+            'Pop the root (1 from lists[1]). The last entry 6 moves to the root and sinks below 3.',
+            'heappop 取走根：lists[1] 的 1。末尾的 6 移到根，比孩子 3 大，下沉——新根是 3。',
             '全局最小必在堆顶。',
-            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], 'b1', ['a1'], true, 0)),
+            { t: 'pop' }),
           fr('curr.next = 1', ['link'], 'curr.next = smallest_node  # 第二个 1 接到第一个 1 后',
             'Attach the second 1 after the first one; the stale 1.next = 6 is overwritten, so no manual unlinking is needed.',
             '接到 curr（第一个 1）后面。这一步改写了 1.next：原来指向 6 的旧链接被覆盖，输出变成 1→1，不需要手动断开原链表。',
             '输出链表保持升序。',
-            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1', 'b1'], true, 0)),
+            { t: 'link' }),
           fr('curr 前移到第二个 1', ['advance'], 'curr = curr.next',
             'curr advances to the second 1.',
             'curr 前移到第二个 1，继续等下一个最小节点。',
             'curr 始终指向输出链表的最后一个节点。',
-            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b4', 'b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1', 'b1'], true, 1)),
+            { t: 'advance' }),
           fr('压入后继 4', ['if-next', 'push-next'], 'heapq.heappush(heap, smallest_node.next)  # 压入 4',
-            'Push 4, the successor of the second 1, as the new candidate of lists[1]. Candidates: 6, 4, 3.',
-            '第二个 1 的后继 4 入堆，成为 lists[1] 的新候选头。候选：6、4、3。',
+            'Push 4, the successor of the second 1, as the new candidate of lists[1]. It lands at heap[2] under root 3.',
+            '第二个 1 的后继 4 入堆，成为 lists[1] 的新候选头。4 放到 heap[2]，不比父节点 3 小，不上浮。',
             '候选一弹出，它的后继立刻补上。',
-            st([{ front: 'a6', rest: [] }, { front: 'b4', rest: ['b6'] }, { front: 'c3', rest: ['c7'] }], null, ['a1', 'b1'], true, 1)),
+            { t: 'push-next' }),
           fr('弹出堆顶最小 3', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 3（lists[2] 的候选头）',
-            'Pop 3, the candidate front of lists[2]. Remaining candidates: 6 and 4.',
-            '堆顶最小的候选是 3（lists[2] 的头），弹出。剩下的候选是 6、4。',
+            'Pop the root 3 (lists[2]). The last entry 4 moves to the root; it is smaller than its child 6, so it stays.',
+            'heappop 取走根：lists[2] 的 3。末尾的 4 移到根，比孩子 6 小，留在根。',
             '全局最小必在堆顶。',
-            st([{ front: 'a6', rest: [] }, { front: 'b4', rest: ['b6'] }, { front: null, rest: ['c7'] }], 'c3', ['a1', 'b1'], true, 1)),
+            { t: 'pop' }),
           fr('curr.next = 3', ['link'], 'curr.next = smallest_node  # 输出 1→1→3',
             'Attach 3 after curr; the output is now 1→1→3.',
             '把 3 接到 curr（第二个 1）后面，输出变成 1→1→3。',
             '输出链表保持升序。',
-            st([{ front: 'a6', rest: [] }, { front: 'b4', rest: ['b6'] }, { front: null, rest: ['c7'] }], null, ['a1', 'b1', 'c3'], true, 1)),
+            { t: 'link' }),
           fr('curr 前移到 3', ['advance'], 'curr = curr.next',
             'curr advances to 3.',
             'curr 前移到 3。',
             'curr 始终指向输出链表的最后一个节点。',
-            st([{ front: 'a6', rest: [] }, { front: 'b4', rest: ['b6'] }, { front: null, rest: ['c7'] }], null, ['a1', 'b1', 'c3'], true, 2)),
+            { t: 'advance' }),
           fr('压入后继 7', ['if-next', 'push-next'], 'heapq.heappush(heap, smallest_node.next)  # 压入 7',
-            'Push 7, the successor of 3, as the new candidate of lists[2]. Candidates: 6, 4, 7.',
-            '3 的后继 7 入堆，成为 lists[2] 的新候选头。候选：6、4、7。',
+            'Push 7, the successor of 3, as the new candidate of lists[2]. Candidates: 4, 6, 7.',
+            '3 的后继 7 入堆，成为 lists[2] 的新候选头，放到 heap[2]，不上浮。候选：4、6、7。',
             '候选一弹出，它的后继立刻补上。',
-            st([{ front: 'a6', rest: [] }, { front: 'b4', rest: ['b6'] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3'], true, 2)),
+            { t: 'push-next' }),
           fr('弹出堆顶最小 4', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 4（lists[1] 的候选头）',
-            'Pop 4, the candidate front of lists[1]. Remaining candidates: 6 and 7.',
-            '堆顶最小的候选是 4（lists[1] 的头），弹出。剩下的候选是 6、7——两个 6 马上就要碰头了。',
+            'Pop the root 4 (lists[1]). The last entry 7 moves to the root and sinks below 6.',
+            'heappop 取走根：lists[1] 的 4。末尾的 7 移到根，比孩子 6 大，下沉——新根是 lists[0] 的 6。',
             '全局最小必在堆顶。',
-            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b6'] }, { front: 'c7', rest: [] }], 'b4', ['a1', 'b1', 'c3'], true, 2)),
+            { t: 'pop' }),
           fr('curr.next = 4', ['link'], 'curr.next = smallest_node  # 输出 1→1→3→4',
             'Attach 4 after curr; the output is now 1→1→3→4.',
             '把 4 接到 curr（3）后面，输出变成 1→1→3→4。',
             '输出链表保持升序。',
-            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b6'] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4'], true, 2)),
+            { t: 'link' }),
           fr('curr 前移到 4', ['advance'], 'curr = curr.next',
             'curr advances to 4.',
             'curr 前移到 4。',
             'curr 始终指向输出链表的最后一个节点。',
-            st([{ front: 'a6', rest: [] }, { front: null, rest: ['b6'] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4'], true, 3)),
+            { t: 'advance' }),
           fr('压入后继 6', ['if-next', 'push-next'], 'heapq.heappush(heap, smallest_node.next)  # 压入 6（lists[1]）',
-            'Push 6, the successor of 4, as the new candidate of lists[1]. Candidates: 6, 6, 7 — either 6 can pop first.',
-            '4 的后继 6 入堆。候选：6、6、7——两个 6 相等，任取先弹结果都一样。',
+            'Push 6, the successor of 4, as the new candidate of lists[1]. It ties with the root 6, so it does not move up.',
+            '4 的后继 6 入堆，放到 heap[2]。它和根 6 相等，不严格更小，不上浮。两个 6 先弹哪个结果都一样。',
             '候选一弹出，它的后继立刻补上。',
-            st([{ front: 'a6', rest: [] }, { front: 'b6', rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4'], true, 3)),
+            { t: 'push-next' }),
           fr('弹出堆顶最小 6', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 6（lists[0] 的候选头）',
-            'Pop 6, the last node of lists[0]. Remaining candidates: 6 and 7.',
-            '堆顶最小的候选是 6（lists[0] 的头，也是它最后一个节点），弹出。剩下的候选是 6、7。',
+            'Pop the root 6, the last node of lists[0]. The last entry 6 (lists[1]) moves to the root; it is smaller than 7, so it stays.',
+            'heappop 取走根：lists[0] 的 6，也是它最后一个节点。末尾的 6（lists[1]）移到根，比孩子 7 小，留在根。',
             '全局最小必在堆顶。',
-            st([{ front: null, rest: [] }, { front: 'b6', rest: [] }, { front: 'c7', rest: [] }], 'a6', ['a1', 'b1', 'c3', 'b4'], true, 3)),
+            { t: 'pop' }),
           fr('curr.next = 6', ['link'], 'curr.next = smallest_node  # 输出 1→1→3→4→6',
             'Attach 6 after curr; the output is now 1→1→3→4→6.',
-            '把 6 接到 curr（4）后面，输出变成 1→1→3→4→6。',
+            '把 6 接到 curr（4）后面，输出变成 1→1→3→4→6。lists[0] 已没有未接入的节点。',
             '输出链表保持升序。',
-            st([{ front: null, rest: [] }, { front: 'b6', rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6'], true, 3)),
+            { t: 'link' }),
           fr('curr 前移到 6', ['advance'], 'curr = curr.next',
             'curr advances to 6.',
             'curr 前移到 6。',
             'curr 始终指向输出链表的最后一个节点。',
-            st([{ front: null, rest: [] }, { front: 'b6', rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6'], true, 4)),
+            { t: 'advance' }),
           fr('next 为 None，不压入', ['if-next'], 'if smallest_node.next:  # None，跳过 push',
-            'The popped 6 has no successor; lists[0] is exhausted, so nothing is pushed and its row shows None.',
-            '刚弹出的 6 的 next 是 None：lists[0] 已耗尽（图中该行变成 None），不再压入。候选只剩 6、7。',
+            'The popped 6 has no successor; lists[0] is exhausted, so nothing is pushed. The heap keeps 6 and 7.',
+            '刚弹出的 6 的 next 是 None：lists[0] 已耗尽，不再压入。堆里只剩 6、7 两个候选，堆变小了。',
             '堆仍覆盖每条未耗尽的链表；耗尽的链表不再有候选。',
-            st([{ front: 'b6', rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6'], true, 4)),
+            { t: 'if-none' }),
           fr('弹出堆顶最小 6', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 6（lists[1] 的候选头）',
-            'Pop 6, the last node of lists[1]. The only remaining candidate is 7.',
-            '弹出 lists[1] 的最后节点 6。堆里只剩一个候选：7。',
+            'Pop the root 6, the last node of lists[1]. The last entry 7 moves to the root; the heap holds only 7.',
+            'heappop 取走根：lists[1] 的最后节点 6。末尾的 7 移到根，堆里只剩 7。',
             '全局最小必在堆顶。',
-            st([{ front: null, rest: [] }, { front: 'c7', rest: [] }], 'b6', ['a1', 'b1', 'c3', 'b4', 'a6'], true, 4)),
+            { t: 'pop' }),
           fr('curr.next = 6', ['link'], 'curr.next = smallest_node  # 输出 1→1→3→4→6→6',
             'Attach the second 6; the output is now 1→1→3→4→6→6.',
             '把第二个 6 接到 curr 后面，输出变成 1→1→3→4→6→6。',
             '输出链表保持升序。',
-            st([{ front: null, rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6'], true, 4)),
+            { t: 'link' }),
           fr('curr 前移到 6', ['advance'], 'curr = curr.next',
             'curr advances to the second 6.',
             'curr 前移到第二个 6。',
             'curr 始终指向输出链表的最后一个节点。',
-            st([{ front: null, rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6'], true, 5)),
+            { t: 'advance' }),
           fr('next 为 None，不压入', ['if-next'], 'if smallest_node.next:  # None，跳过 push',
             'The popped 6 has no successor; lists[1] is exhausted, only the 7 of lists[2] remains.',
             '6 的 next 是 None，lists[1] 也耗尽，不再压入。只剩 lists[2] 的候选 7。',
             '堆仍覆盖每条未耗尽的链表。',
-            st([{ front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6'], true, 5)),
+            { t: 'if-none' }),
           fr('弹出堆顶最小 7', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 7（lists[2] 的候选头）',
-            'Pop 7, the last candidate; the heap is now empty.',
-            '弹出 7（lists[2] 的头）。堆空了——所有节点都已经接进输出链表。',
+            'Pop 7, the last entry; the heap is now empty.',
+            'heappop 取走唯一的根 7（lists[2]）。堆空了。',
             '全局最小必在堆顶。',
-            st([{ front: null, rest: [] }], 'c7', ['a1', 'b1', 'c3', 'b4', 'a6', 'b6'], true, 5)),
+            { t: 'pop' }),
           fr('curr.next = 7', ['link'], 'curr.next = smallest_node  # 输出 1→1→3→4→6→6→7',
             'Attach 7; the output is the full sorted list 1→1→3→4→6→6→7.',
             '把 7 接到 curr 后面，输出完成：1→1→3→4→6→6→7。',
             '输出链表保持升序。',
-            st([{ front: null, rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6', 'c7'], true, 5)),
+            { t: 'link' }),
           fr('curr 前移到 7', ['advance'], 'curr = curr.next',
             'curr advances to 7, the tail.',
             'curr 前移到 7，即输出链表的尾节点。',
             'curr 始终指向输出链表的最后一个节点。',
-            st([{ front: null, rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6', 'c7'], true, 6)),
+            { t: 'advance' }),
           fr('next 为 None，不压入', ['if-next'], 'if smallest_node.next:  # None，跳过 push',
-            '7 has no successor; lists[2] is exhausted and the heap is completely empty.',
-            '7 的 next 是 None，lists[2] 也耗尽了，堆彻底变空。',
+            '7 has no successor; lists[2] is exhausted and every list is used up.',
+            '7 的 next 是 None，lists[2] 也耗尽了，三条链表都已用完。',
             '堆空 ⇒ 所有节点都已接入输出链表。',
-            st([], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6', 'c7'], true, 6)),
+            { t: 'if-none' }),
           fr('堆空，循环结束', ['loop'], 'while heap:  # 空，退出循环',
             'while heap is false; the loop ends with every node attached in sorted order.',
             'while heap 不成立，循环结束。此时全部 7 个节点已按升序接入输出链表。',
             '堆空 ⇒ 所有节点都已接入输出链表。',
-            st([], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6', 'c7'], true, 6)),
+            { t: 'loop-end' }),
           fr('返回 dummy.next', ['return'], 'return dummy.next  # 1→1→3→4→6→6→7',
             'Skip the placeholder D and return dummy.next — the head of the combined sorted list.',
             '跳过哑节点 D，返回 dummy.next：合并后的升序链表 1→1→3→4→6→6→7。',
             'dummy.next 就是合并结果的头节点。',
-            st([], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6', 'c7'], true, 6, true))
+            { t: 'return' })
         ];
-        FRAMES[FRAMES.length - 1].state.done = true;
-
-        // Give every list a fixed row (rows never shift when a list runs out) and
-        // keep the node that smallest_node refers to after the pop frame.
-        const LIST_OF = id => ({ a: 0, b: 1, c: 2 })[id[0]];
-        const normalizeRows = (rows, smallest) => {
-          if (rows.length === 3) return rows.map((row, i) => ({ ...row, list: i, done: false }));
-          const fixed = [0, 1, 2].map(i => ({ front: null, rest: [], list: i, done: true }));
-          rows.forEach(row => {
-            const ids = [row.front, ...row.rest].filter(Boolean);
-            const list = LIST_OF(ids.length ? ids[0] : smallest);
-            fixed[list] = { ...row, list, done: false };
-          });
-          return fixed;
-        };
-        let lastPopped = null;
-        FRAMES.forEach(frame => {
-          const s = frame.state;
-          if (s.popped) lastPopped = s.popped;
-          s.smallest = lastPopped;
-          s.rows = normalizeRows(s.rows, lastPopped);
-        });
+        FRAMES.reduce((prev, frame) => (frame.state = apply(prev, frame.op)), INITIAL);
 
         const scene = core.createSvgScene(svg);
         scene.defineMarker('cb-node-arrow', { fill: '#333' });
@@ -462,86 +509,87 @@
         let geom = {};
         let transitionFrom = null;
 
-        function minRowOf(s) {
-          if (s.popped) return LIST_OF(s.popped);
-          let best = null;
-          s.rows.forEach((row, i) => {
-            if (!row.front || row.front === s.popped) return;
-            if (best === null || VAL[row.front] < VAL[s.rows[best].front]) best = i;
-          });
-          return best;
-        }
-
         function rectPath(x, y, w, h, r = 0) {
           if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
           return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
         }
 
+        // Desktop: lists (top left) | heap tree (top right), output across the bottom.
+        // Phone: lists, heap, output stacked.
         function layout() {
           const width = stage.clientWidth;
-          const compact = width < 560;
+          const compact = width < 600;
           const nodeR = compact ? 13 : 16;
-          const cellW = compact ? 46 : 56;
-          const cellH = compact ? 38 : 44;
-          const cellX = compact ? 42 : 68;
-          const heapTop = 30;
-          const rowGap = 14;
-          const rowPitch = cellH + rowGap;
-          const chainGap = compact ? 24 : 30;
-          let chainDx = compact ? 46 : 56;
-          chainDx = Math.min(chainDx, (width - 14) / 8);
-          const rowsBottom = heapTop + 3 * rowPitch - rowGap;
-          const noteY = rowsBottom + 20;
-          const outLabelY = rowsBottom + (compact ? 42 : 32);
-          const chipY = outLabelY + (compact ? 20 : 24);
-          const outCy = chipY + (compact ? 40 : 46);
-          const dX = compact
-            ? Math.max(nodeR + 4, (width - 8 * chainDx) / 2)
-            : 92;
-          const stageH = outCy + nodeR + (compact ? 22 : 26);
-          geom = { width, compact, nodeR, cellW, cellH, cellX, heapTop, rowPitch, chainGap, chainDx, rowsBottom, noteY, outLabelY, chipY, outCy, dX, stageH };
+          const dx = compact ? 54 : 60;
+          const listX0 = compact ? 80 : 100;
+          const rowY0 = compact ? 30 : 44;
+          const rowPitch = compact ? 50 : 62;
+          const slotW = compact ? 44 : 52;
+          const slotH = compact ? 30 : 34;
+          let heap;
+          if (compact) {
+            const top = rowY0 + 2 * rowPitch + nodeR + 34;
+            heap = { cx: width / 2, titleY: top, rootY: top + 40, childY: top + 102, childDx: Math.min(70, width / 2 - slotW / 2 - 34), noteX: width / 2, noteAnchor: 'middle' };
+            heap.noteY = heap.childY + slotH / 2 + 36;
+          } else {
+            const left = Math.max(listX0 + 2 * dx + nodeR + 70, width * 0.42);
+            const cx = Math.min((left + width) / 2, left + 220);
+            heap = { cx, titleY: 18, rootY: 64, childY: 140, childDx: 84, noteX: cx, noteAnchor: 'middle' };
+            heap.noteY = heap.childY + slotH / 2 + 38;
+          }
+          heap.ghostX = heap.cx - heap.childDx - slotW - (compact ? 4 : 18);
+          if (compact) heap.ghostX = Math.max(slotW / 2 + 4, heap.ghostX);
+          const outDx = compact ? Math.min(46, (width - 14) / 8) : dx;
+          const blockTop = heap.noteY + (compact ? 34 : 16);
+          const chipY = blockTop + (compact ? 20 : 4);
+          const outCy = chipY + (compact ? 40 : 50);
+          const dX = compact ? Math.max(nodeR + 4, (width - 8 * outDx) / 2) : listX0;
+          const outLabelY = compact ? blockTop + 2 : outCy + 4;
+          const stageH = outCy + nodeR + (compact ? 24 : 28);
+          geom = { width, compact, nodeR, dx, listX0, rowY0, rowPitch, slotW, slotH, heap, outDx, chipY, outCy, dX, outLabelY, stageH };
           svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
           stage.style.height = `${Math.ceil(stageH)}px`;
         }
 
-        const rowCY = i => geom.heapTop + i * geom.rowPitch + geom.cellH / 2;
-        const cellCenterX = () => geom.cellX + geom.cellW / 2;
-        const chainX = (i, k) => geom.cellX + geom.cellW + geom.chainGap + geom.nodeR + k * geom.chainDx;
-        const outX = i => geom.dX + (i + 1) * geom.chainDx;
-
-        const locate = (s, id) => {
-          if (!s) return null;
-          for (let i = 0; i < s.rows.length; i += 1) {
-            const row = s.rows[i];
-            if (row.front === id) return { area: 'front', row: i };
-            const k = row.rest.indexOf(id);
-            if (k !== -1) return { area: 'rest', row: i, idx: k };
-          }
+        const rowY = i => geom.rowY0 + i * geom.rowPitch;
+        const outX = k => geom.dX + (k + 1) * geom.outDx;
+        const nodePos = (s, id) => {
           const o = s.output.indexOf(id);
-          if (o !== -1) return { area: 'output', idx: o };
-          if (s.popped === id) return { area: 'front', row: LIST_OF(id) };
+          if (o !== -1) return { x: outX(o), y: geom.outCy };
+          return { x: geom.listX0 + COL_OF(id) * geom.dx, y: rowY(LIST_OF(id)) };
+        };
+        const slotPos = j => {
+          const h = geom.heap;
+          if (j === 0) return { x: h.cx, y: h.rootY };
+          return { x: h.cx + (j === 1 ? -h.childDx : h.childDx), y: h.childY };
+        };
+        // Where a heap entry (or the just-popped root) sits in a state, if anywhere.
+        const entryPos = (s, id) => {
+          if (!s) return null;
+          if (s.heap && s.heap.includes(id)) return slotPos(s.heap.indexOf(id));
+          if (s.ghost === id) return { x: geom.heap.ghostX, y: geom.heap.rootY };
           return null;
         };
-        const posOf = loc => {
-          if (!loc) return null;
-          if (loc.area === 'front') return { x: cellCenterX(), y: rowCY(loc.row) };
-          if (loc.area === 'rest') return { x: chainX(loc.row, loc.idx), y: rowCY(loc.row) };
-          return { x: outX(loc.idx), y: geom.outCy };
-        };
 
-        function arrowPath(from, to) {
-          const dx = to.x - from.x, dy = to.y - from.y;
-          const len = Math.hypot(dx, dy) || 1;
-          const ux = dx / len, uy = dy / len;
-          return `M ${from.x + ux * (geom.nodeR + 3)} ${from.y + uy * (geom.nodeR + 3)} L ${to.x - ux * (geom.nodeR + 6)} ${to.y - uy * (geom.nodeR + 6)}`;
+        function arrowPath(from, to, gapA = geom.nodeR + 3, gapB = geom.nodeR + 6) {
+          const ddx = to.x - from.x, ddy = to.y - from.y;
+          const len = Math.hypot(ddx, ddy) || 1;
+          const ux = ddx / len, uy = ddy / len;
+          return `M ${from.x + ux * gapA} ${from.y + uy * gapA} L ${to.x - ux * gapB} ${to.y - uy * gapB}`;
         }
 
         function draw(state, t = 1, from = null) {
           if (!geom.width || !state) return;
           const lerp = (a, b) => a + (b - a) * t;
           const presence = (was, is) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
-          const minRow = minRowOf(state);
-          const fromMin = from ? minRowOf(from) : minRow;
+          const g = geom;
+          const h = g.heap;
+          const small = g.compact ? 9 : 9.5;
+          const livePos = id => {
+            const to = nodePos(state, id);
+            const was = from ? nodePos(from, id) : to;
+            return { x: lerp(was.x, to.x), y: lerp(was.y, to.y) };
+          };
 
           scene.update(({ path, text, circle }) => {
             const chip = (id, x, y, label) => {
@@ -549,130 +597,134 @@
               path(`${id}-box`, { d: rectPath(x - w / 2, y, w, 15, 2), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.1 });
               text(`${id}-label`, { x, y: y + 11, 'text-anchor': 'middle', 'font-size': 10, fill: '#272727', 'font-family': MONO }, label);
             };
-            text('heap-title', { x: cellCenterX(), y: geom.heapTop - 9, 'text-anchor': 'middle', 'font-size': geom.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, 'heap');
 
-            const listLabelX = chainX(0, 2) + geom.nodeR + (geom.compact ? 10 : 16);
-            state.rows.forEach((row, i) => {
-              const cy = rowCY(i);
-              text(`list-label-${i}`, { x: listLabelX, y: cy + 3.5, 'font-size': geom.compact ? 10 : 11, fill: '#555', 'font-family': MONO }, `lists[${i}]`);
-              const wasDone = Boolean(from && from.rows[i].done);
-              const cellOp = presence(!wasDone, !row.done);
-              const noneOp = presence(wasDone, row.done);
-              if (noneOp > 0) {
-                text(`none-${i}`, { x: cellCenterX(), y: cy + 3.5, 'text-anchor': 'middle', 'font-size': geom.compact ? 10.5 : 11.5, fill: '#555', 'font-family': MONO, opacity: noneOp }, 'None');
-              }
-              if (cellOp > 0) path(`cell-${i}`, {
-                d: rectPath(geom.cellX, cy - geom.cellH / 2, geom.cellW, geom.cellH, 5),
-                fill: 'none', stroke: '#999', 'stroke-width': 1.2,
-                'stroke-dasharray': row.front ? 'none' : '4 3',
-                opacity: cellOp
+            // ---- lists: row names, remaining nodes, stored links between them ----
+            LISTS.forEach((ids, i) => {
+              const y = rowY(i);
+              text(`list-label-${i}`, { x: 4, y: y + 4, 'font-size': g.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, `lists[${i}]`);
+              ids.forEach((id, k) => {
+                if (!k) return;
+                const prev = ids[k - 1];
+                const inList = s => s && !s.output.includes(prev) && !s.output.includes(id);
+                const op = presence(Boolean(from ? inList(from) : inList(state)), inList(state));
+                if (op > 0) path(`arr-l-${id}`, { d: (inList(state) ? arrowPath(livePos(prev), livePos(id)) : arrowPath(nodePos(from || state, prev), nodePos(from || state, id))), fill: 'none', stroke: '#333', 'stroke-width': 1.7, 'marker-end': 'url(#cb-node-arrow)', opacity: op });
               });
-              if (row.front && row.rest.length) {
-                const was = Boolean(from && from.rows[i] && from.rows[i].front === row.front && from.rows[i].rest[0] === row.rest[0]);
-                const op = presence(was, true);
-                if (op > 0) path(`arr-f-${i}`, { d: arrowPath({ x: cellCenterX(), y: cy }, { x: chainX(i, 0), y: cy }), fill: 'none', stroke: '#333', 'stroke-width': 1.7, 'marker-end': 'url(#cb-node-arrow)', opacity: op });
+              const empty = s => ids.every(id => s.output.includes(id));
+              const eOp = presence(Boolean(from ? empty(from) : empty(state)), empty(state));
+              if (eOp > 0) {
+                text(`exhausted-${i}`, { x: g.listX0 - g.nodeR, y: y + 4, 'font-size': g.compact ? 10.5 : 11.5, fill: '#555', 'font-family': MONO, opacity: eOp }, '已耗尽');
               }
-              row.rest.forEach((id, k) => {
-                if (k > 0) {
-                  const was = Boolean(from && locate(from, id) && locate(from, row.rest[k - 1]) && locate(from, id).area === 'rest' && locate(from, row.rest[k - 1]).area === 'rest' && locate(from, id).row === i && locate(from, row.rest[k - 1]).row === i);
-                  const op = presence(was, true);
-                  if (op > 0) path(`arr-r-${i}-${k}`, { d: arrowPath({ x: chainX(i, k - 1), y: cy }, { x: chainX(i, k), y: cy }), fill: 'none', stroke: '#333', 'stroke-width': 1.7, 'marker-end': 'url(#cb-node-arrow)', opacity: op });
-                }
-              });
+              if (state.exhausted === i) {
+                const w = g.compact ? 50 : 56;
+                path(`exhausted-box-${i}`, { d: rectPath(g.listX0 - g.nodeR - 6, y - 12, w + 12, 23, 3), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', opacity: presence(Boolean(from && from.exhausted === i), true) });
+              }
             });
 
             for (const id of ORDER) {
-              const locTo = locate(state, id);
-              const locFrom = locate(from, id);
-              const op = presence(Boolean(locFrom), Boolean(locTo));
-              if (!op || !locTo) continue;
-              const to = posOf(locTo);
-              const fromPos = locFrom ? posOf(locFrom) : to;
+              const to = nodePos(state, id);
+              const fromPos = from ? nodePos(from, id) : to;
               const x = lerp(fromPos.x, to.x);
               const y = lerp(fromPos.y, to.y);
-              circle(`node-${id}`, { cx: x, cy: y, r: geom.nodeR, fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.8, opacity: op });
-              text(`value-${id}`, { x, y: y + (geom.compact ? 4.2 : 5), 'text-anchor': 'middle', 'font-size': geom.compact ? 12.5 : 15, fill: '#272727', 'font-family': SANS, opacity: op }, String(VAL[id]));
-              if (state.popped === id) {
-                const cOp = presence(Boolean(from && from.popped === id), true);
-                const r = geom.nodeR - 3;
-                path(`cross-${id}-a`, { d: `M ${x - r} ${y - r} L ${x + r} ${y + r}`, stroke: '#555', 'stroke-width': 1.6, opacity: cOp * op });
-                path(`cross-${id}-b`, { d: `M ${x - r} ${y + r} L ${x + r} ${y - r}`, stroke: '#555', 'stroke-width': 1.6, opacity: cOp * op });
+              circle(`node-${id}`, { cx: x, cy: y, r: g.nodeR, fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.8 });
+              text(`value-${id}`, { x, y: y + (g.compact ? 4.2 : 5), 'text-anchor': 'middle', 'font-size': g.compact ? 12.5 : 15, fill: '#272727', 'font-family': SANS }, String(VAL[id]));
+              // heap[j] under a node = the heap entry that refers to it.
+              const inHeap = s => Boolean(s && s.heap && s.heap.includes(id));
+              const hOp = presence(from ? inHeap(from) : inHeap(state), inHeap(state));
+              if (hOp > 0) {
+                const s = inHeap(state) ? state : from;
+                text(`heapref-${id}`, { x, y: y + g.nodeR + 12, 'text-anchor': 'middle', 'font-size': small, fill: '#555', 'font-family': MONO, opacity: hOp }, `heap[${s.heap.indexOf(id)}]`);
               }
             }
 
             // smallest_node keeps referring to the popped node until the next pop.
-            const tagOffset = loc => (loc.area === 'front' ? geom.cellH / 2 + 11 : geom.nodeR + 13);
             if (state.smallest) {
-              const locTo = locate(state, state.smallest);
-              const locFrom = from && from.smallest === state.smallest ? locate(from, state.smallest) : null;
-              if (locTo) {
-                const to = posOf(locTo);
-                const fromPos = locFrom ? posOf(locFrom) : to;
-                const offFrom = locFrom ? tagOffset(locFrom) : tagOffset(locTo);
-                const tOp = presence(Boolean(locFrom), true);
-                text('smallest-tag', { x: Math.min(geom.width - 42, lerp(fromPos.x, to.x)), y: lerp(fromPos.y + offFrom, to.y + tagOffset(locTo)), 'text-anchor': 'middle', 'font-size': 9.5, fill: '#555', 'font-family': MONO, opacity: tOp }, 'smallest_node');
-              }
+              const keep = Boolean(from && from.smallest === state.smallest);
+              const to = nodePos(state, state.smallest);
+              const fromPos = keep ? nodePos(from, state.smallest) : to;
+              const w = 13 * 5.8;
+              const x = Math.max(w / 2 + 2, Math.min(g.width - w / 2 - 2, lerp(fromPos.x, to.x)));
+              text('smallest-tag', { x, y: lerp(fromPos.y, to.y) + g.nodeR + 12, 'text-anchor': 'middle', 'font-size': small, fill: '#555', 'font-family': MONO, opacity: presence(keep, true) }, 'smallest_node');
             }
 
-            // One line under the heap that makes the comparison of heappop visible.
-            let note = '';
-            if (state.popped) {
-              const vals = state.rows.map(r => (r.list === LIST_OF(state.popped) ? state.popped : r.front)).filter(Boolean).map(id => VAL[id]);
-              note = `heappop：min(${vals.join(', ')}) = ${VAL[state.popped]}，来自 lists[${LIST_OF(state.popped)}]`;
-            } else if (state.hasDummy && state.rows.every(r => r.done)) {
-              note = 'heap = []';
+            // ---- heap: a binary tree of node references; heap[0] is the root ----
+            text('heap-title', { x: h.cx, y: h.titleY, 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12, fill: '#272727', 'font-family': MONO }, state.heap ? 'heap · 小顶堆（存节点引用，根最小）' : 'heap（尚未创建）');
+            if (state.heap) {
+              const size = state.heap.length;
+              const fromSize = from && from.heap ? from.heap.length : size;
+              [1, 2].forEach(j => {
+                const op = presence(fromSize > j, size > j);
+                if (op <= 0) return;
+                const a = slotPos(0), b = slotPos(j);
+                path(`tree-edge-${j}`, { d: `M ${a.x + (b.x - a.x) * 0.22} ${a.y + g.slotH / 2} L ${b.x - (b.x - a.x) * 0.12} ${b.y - g.slotH / 2}`, stroke: '#b7b7b1', 'stroke-width': 1.2, fill: 'none', opacity: op });
+              });
+              [0, 1, 2].forEach(j => {
+                const op = presence(fromSize > j, size > j);
+                if (op <= 0) return;
+                const p = slotPos(j);
+                text(`slot-index-${j}`, { x: p.x - g.slotW / 2 - 5, y: p.y + 4, 'text-anchor': 'end', 'font-size': small, fill: '#555', 'font-family': MONO, opacity: op }, `[${j}]`);
+              });
+              const emptyOp = presence(Boolean(from && from.heap && !from.heap.length), !size);
+              if (emptyOp > 0) text('heap-empty', { x: h.cx, y: h.rootY + 4, 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12, fill: '#555', 'font-family': MONO, opacity: emptyOp }, 'heap = []');
             }
-            if (note) text('heap-note', { x: geom.compact ? 4 : geom.cellX - 30, y: geom.noteY, 'font-size': geom.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, note);
+            const entryIds = new Set([...(state.heap || []), ...(from && from.heap ? from.heap : []), state.ghost, from && from.ghost].filter(Boolean));
+            for (const id of entryIds) {
+              const to = entryPos(state, id);
+              const was = from ? entryPos(from, id) : to;
+              const op = presence(Boolean(was), Boolean(to));
+              if (op <= 0) continue;
+              const a = was || to, b = to || was;
+              const x = lerp(a.x, b.x), y = lerp(a.y, b.y);
+              const ghost = state.ghost === id && to;
+              path(`entry-${id}`, { d: rectPath(x - g.slotW / 2, y - g.slotH / 2, g.slotW, g.slotH, 4), fill: '#fffdf8', stroke: ghost ? '#999' : '#555', 'stroke-width': 1.2, 'stroke-dasharray': ghost ? '4 3' : 'none', opacity: op });
+              text(`entry-val-${id}`, { x, y: y + (g.compact ? 4.5 : 5), 'text-anchor': 'middle', 'font-size': g.compact ? 13 : 15, fill: '#272727', 'font-family': SANS, opacity: op }, String(VAL[id]));
+              text(`entry-src-${id}`, { x, y: y + g.slotH / 2 + 11, 'text-anchor': 'middle', 'font-size': small, fill: '#555', 'font-family': MONO, opacity: op }, `lists[${LIST_OF(id)}]`);
+              if (ghost) text(`entry-out-${id}`, { x, y: y - g.slotH / 2 - 5, 'text-anchor': 'middle', 'font-size': small, fill: '#555', 'font-family': MONO, opacity: presence(Boolean(from && from.ghost === id), true) }, '弹出');
+            }
+            state.note.forEach((line, k) => {
+              text(`heap-note-${k}`, { x: h.noteX, y: h.noteY + k * (g.compact ? 15 : 17), 'text-anchor': h.noteAnchor, 'font-size': g.compact ? 10.5 : 11.5, fill: '#272727', 'font-family': MONO }, line);
+            });
 
+            // ---- output: dummy D → attached nodes, with dummy / curr ----
+            text('out-label', { x: 4, y: g.outLabelY, 'font-size': g.compact ? 10.5 : 12, fill: state.hasDummy ? '#272727' : '#555', 'font-family': MONO }, state.hasDummy ? 'output' : 'output（dummy 尚未创建）');
             const dOp = presence(Boolean(from && from.hasDummy), state.hasDummy);
             if (dOp > 0) {
-              circle('dummy-node', { cx: geom.dX, cy: geom.outCy, r: geom.nodeR, fill: '#fffdf8', stroke: '#777', 'stroke-width': 1.5, 'stroke-dasharray': '5 3', opacity: dOp });
-              text('dummy-value', { x: geom.dX, y: geom.outCy + (geom.compact ? 4 : 5), 'text-anchor': 'middle', 'font-size': geom.compact ? 12 : 14, fill: '#555', 'font-family': SANS, opacity: dOp }, 'D');
+              circle('dummy-node', { cx: g.dX, cy: g.outCy, r: g.nodeR, fill: '#fffdf8', stroke: '#777', 'stroke-width': 1.5, 'stroke-dasharray': '5 3', opacity: dOp });
+              text('dummy-value', { x: g.dX, y: g.outCy + (g.compact ? 4 : 5), 'text-anchor': 'middle', 'font-size': g.compact ? 12 : 14, fill: '#555', 'font-family': SANS, opacity: dOp }, 'D');
             }
-            if (state.hasDummy) {
-              text('out-label', { x: geom.compact ? 4 : 6, y: geom.compact ? geom.outLabelY : geom.outCy + 4, 'text-anchor': 'start', 'font-size': geom.compact ? 10 : 11.5, fill: '#555', 'font-family': MONO }, 'output:');
-            }
-
             state.output.forEach((id, k) => {
-              if (k > 0) {
-                const was = Boolean(from && from.output.includes(id) && from.output.includes(state.output[k - 1]));
-                const op = presence(was, true);
-                if (op > 0) path(`arr-o-${k}`, { d: arrowPath({ x: outX(k - 1), y: geom.outCy }, { x: outX(k), y: geom.outCy }), fill: 'none', stroke: '#333', 'stroke-width': 1.7, 'marker-end': 'url(#cb-node-arrow)', opacity: op });
-              }
+              const prev = k ? { x: outX(k - 1), y: g.outCy } : { x: g.dX, y: g.outCy };
+              const was = Boolean(from && from.output.length > k);
+              const op = presence(was, true);
+              const to = { x: outX(k), y: g.outCy };
+              // The link is drawn to where the node is right now, so it follows the node in.
+              const live = was ? to : nodePos(from || state, id);
+              const tip = { x: lerp(live.x, to.x), y: lerp(live.y, to.y) };
+              path(`arr-o-${k}`, { d: arrowPath(prev, tip), fill: 'none', stroke: '#333', 'stroke-width': 1.7, 'marker-end': 'url(#cb-node-arrow)', opacity: op });
             });
-            const firstOp = presence(Boolean(from && from.output.length), state.output.length > 0);
-            if (firstOp > 0) path('arr-o-first', { d: arrowPath({ x: geom.dX, y: geom.outCy }, { x: outX(0), y: geom.outCy }), fill: 'none', stroke: '#333', 'stroke-width': 1.7, 'marker-end': 'url(#cb-node-arrow)', opacity: firstOp });
 
             if (state.hasDummy) {
               const dummyW = 5 * 6.2 + 12;
               const currW = 4 * 6.2 + 12;
-              const dummyX = Math.max(dummyW / 2 + 3, geom.dX - 30);
-              chip('dummy-chip', dummyX, geom.chipY, 'dummy');
-              path('dummy-chip-arrow', { d: `M ${dummyX} ${geom.chipY + 15} L ${geom.dX} ${geom.outCy - geom.nodeR - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#cb-label-arrow)' });
-
-              const chipXFor = s => {
-                if (s.curr === -1) return dummyX + dummyW / 2 + currW / 2 + 8;
-                return outX(s.curr);
-              };
-              const targetX = state.curr === -1 ? geom.dX : outX(state.curr);
-              const fromChipX = from && from.hasDummy ? chipXFor(from) : chipXFor(state);
-              const cx = Math.max(currW / 2 + 3, Math.min(geom.width - currW / 2 - 3, lerp(fromChipX, chipXFor(state))));
-              chip('curr-chip', cx, geom.chipY, 'curr');
-              path('curr-chip-arrow', { d: `M ${cx} ${geom.chipY + 15} L ${targetX} ${geom.outCy - geom.nodeR - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#cb-label-arrow)' });
+              const dummyX = Math.max(dummyW / 2 + 3, g.dX - (g.compact ? 4 : 22));
+              chip('dummy-chip', dummyX, g.chipY, 'dummy');
+              path('dummy-chip-arrow', { d: `M ${dummyX} ${g.chipY + 15} L ${g.dX} ${g.outCy - g.nodeR - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#cb-label-arrow)' });
             }
-
-            const minOp = presence(fromMin !== null && Boolean(from), minRow !== null);
-            if (minOp > 0 && minRow !== null) {
-              const fromY = fromMin !== null ? rowCY(fromMin) : rowCY(minRow);
-              const y = lerp(fromY, rowCY(minRow));
-              path('min-chip-box', { d: rectPath(2, y - 9, 32, 18, 3), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.1, opacity: minOp });
-              text('min-chip-label', { x: 18, y: y + 3.5, 'text-anchor': 'middle', 'font-size': 10, fill: '#272727', 'font-family': MONO, opacity: minOp }, 'min');
-              path('min-chip-arrow', { d: `M 36 ${y} L ${geom.cellX - 5} ${y}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#cb-label-arrow)', opacity: minOp });
+            if (state.hasCurr) {
+              const dummyW = 5 * 6.2 + 12;
+              const currW = 4 * 6.2 + 12;
+              const dummyX = Math.max(dummyW / 2 + 3, g.dX - (g.compact ? 4 : 22));
+              const chipXFor = s => (s.curr === -1 ? dummyX + dummyW / 2 + currW / 2 + 8 : outX(s.curr));
+              const targetFor = s => (s.curr === -1 ? g.dX : outX(s.curr));
+              const keep = Boolean(from && from.hasCurr);
+              const cx = Math.max(currW / 2 + 3, Math.min(g.width - currW / 2 - 3, lerp(chipXFor(keep ? from : state), chipXFor(state))));
+              const tx = lerp(targetFor(keep ? from : state), targetFor(state));
+              chip('curr-chip', cx, g.chipY, 'curr');
+              path('curr-chip-arrow', { d: `M ${cx} ${g.chipY + 15} L ${tx} ${g.outCy - g.nodeR - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#cb-label-arrow)' });
             }
 
             if (state.done) {
-              circle('return-ring', { cx: outX(0), cy: geom.outCy, r: geom.nodeR + 5.5, fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
-              text('return-tag', { x: outX(0), y: geom.outCy + geom.nodeR + 14, 'text-anchor': 'middle', 'font-size': 9.5, fill: '#555', 'font-family': MONO }, 'dummy.next');
+              circle('return-ring', { cx: outX(0), cy: g.outCy, r: g.nodeR + 5.5, fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
+              text('return-tag', { x: Math.max(30, outX(0)), y: g.outCy + g.nodeR + 14, 'text-anchor': 'middle', 'font-size': small, fill: '#555', 'font-family': MONO }, 'dummy.next');
             }
           });
         }
@@ -680,11 +732,10 @@
         function render({ frame, state, step, frames }) {
           phaseEl.textContent = frame.stepLabel;
           invariantEl.textContent = frame.invariant;
-          const heapSize = state.rows.filter(row => row.front && row.front !== state.popped).length;
-          mHeap.textContent = String(heapSize);
+          mHeap.textContent = state.heap ? String(state.heap.length) : '—';
           mOut.textContent = `${state.output.length} / 7`;
           mSmallest.textContent = state.smallest ? `节点 ${VAL[state.smallest]}（lists[${LIST_OF(state.smallest)}]）` : '—';
-          mCurr.textContent = state.curr === -1 ? 'D' : `节点 ${VAL[state.output[state.curr]]}`;
+          mCurr.textContent = !state.hasCurr ? '—' : state.curr === -1 ? 'D' : `节点 ${VAL[state.output[state.curr]]}`;
           expressionEl.textContent = frame.line;
           explanationEl.textContent = frame.en;
           explanationZhEl.textContent = frame.zh;
@@ -694,9 +745,9 @@
 
         const cloneState = s => ({
           ...s,
-          popped: s.popped,
+          heap: s.heap && [...s.heap],
           output: [...s.output],
-          rows: s.rows.map(row => ({ ...row, rest: [...row.rest] }))
+          note: [...s.note]
         });
         const trace = core.createTrace({
           root,

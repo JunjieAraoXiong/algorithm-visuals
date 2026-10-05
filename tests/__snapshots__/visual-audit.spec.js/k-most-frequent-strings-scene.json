@@ -19,6 +19,65 @@
       "tag": "div",
       "attributes": [
         [
+          "aria-label",
+          "选择解法 / Choose solution"
+        ],
+        [
+          "class",
+          "modes"
+        ],
+        [
+          "role",
+          "group"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "true"
+            ],
+            [
+              "class",
+              "mode"
+            ],
+            [
+              "data-mode",
+              "max"
+            ]
+          ],
+          "children": [
+            "解法一 · 大顶堆 / Max-heap"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "class",
+              "mode"
+            ],
+            [
+              "data-mode",
+              "min"
+            ]
+          ],
+          "children": [
+            "解法二 · 大小为 k 的小顶堆 / Size-k min-heap"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
           "class",
           "controls"
         ]
@@ -49,7 +108,7 @@
             ]
           ],
           "children": [
-            "步骤 1 / 15"
+            "步骤 1 / 9"
           ]
         },
         {
@@ -120,7 +179,7 @@
                     ]
                   ],
                   "children": [
-                    "heapify · O(n) 建大顶堆"
+                    "建 Pair 列表 · freqs.items() 顺序"
                   ]
                 },
                 {
@@ -132,7 +191,7 @@
                     ]
                   ],
                   "children": [
-                    "pop 堆顶 → res = [go]"
+                    "heapify i = 1 · (coding, 1) 不动"
                   ]
                 },
                 {
@@ -144,7 +203,7 @@
                     ]
                   ],
                   "children": [
-                    "pop 堆顶 → res = [go, byte]"
+                    "heapify i = 0 · (go, 3) 不动"
                   ]
                 },
                 {
@@ -156,7 +215,7 @@
                     ]
                   ],
                   "children": [
-                    "换小顶堆 · min_heap = []"
+                    "pop #1 · (go, 3) → res"
                   ]
                 },
                 {
@@ -168,7 +227,7 @@
                     ]
                   ],
                   "children": [
-                    "push (go, 3)"
+                    "pop #1 · 下沉 → (byte, 2) 成堆顶"
                   ]
                 },
                 {
@@ -180,7 +239,7 @@
                     ]
                   ],
                   "children": [
-                    "push (coding, 1)"
+                    "pop #2 · (byte, 2) → res"
                   ]
                 },
                 {
@@ -192,7 +251,7 @@
                     ]
                   ],
                   "children": [
-                    "push (byte, 2) · len 3 > k"
+                    "pop #2 · 下沉 → (coding, 1) 成堆顶"
                   ]
                 },
                 {
@@ -204,79 +263,7 @@
                     ]
                   ],
                   "children": [
-                    "heappop → 丢弃 (coding, 1)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "9"
-                    ]
-                  ],
-                  "children": [
-                    "push (interview, 1) · len 3 > k"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "10"
-                    ]
-                  ],
-                  "children": [
-                    "heappop → 丢弃 (interview, 1)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "11"
-                    ]
-                  ],
-                  "children": [
-                    "取出 pop #1 → res = [byte]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "12"
-                    ]
-                  ],
-                  "children": [
-                    "取出 pop #2 → res = [byte, go]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "13"
-                    ]
-                  ],
-                  "children": [
-                    "res.reverse()"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "14"
-                    ]
-                  ],
-                  "children": [
-                    "return res → [\"go\", \"byte\"]"
+                    "return → [\"go\", \"byte\"]"
                   ]
                 }
               ]
@@ -313,7 +300,7 @@
       "attributes": [
         [
           "aria-label",
-          "前 K 个高频字符串演示：第 1 / 15 步。先用 Counter 统计频率：go 出现 3 次，byte 2 次，coding、interview 各 1 次。"
+          "前 K 个高频字符串演示（大顶堆）：第 1 / 9 步。先用 Counter 统计频率：go 出现 3 次，byte 2 次，coding、interview 各 1 次。"
         ],
         [
           "class",
@@ -1203,7 +1190,7 @@
                 ]
               ],
               "children": [
-                "freqs 的键是字符串、值是出现次数；两种堆方案都只用这 4 个 (str, freq) 对。"
+                "freqs 的键是字符串、值是出现次数；之后堆里只放这 4 个 (str, freq) 对。"
               ]
             }
           ]

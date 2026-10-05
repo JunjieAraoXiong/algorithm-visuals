@@ -10,6 +10,9 @@
     <style>
       .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
       .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .modes { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 9px; }
+      .mode { border: 1px solid #777; border-radius: 2px; padding: 5px 9px; background: transparent; cursor: pointer; }
+      .mode[aria-pressed="true"] { border-color: #272727; background: #f5f2e9; }
       .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
       .step-picker { margin-left: auto; }
       @media (max-width: 700px) {
@@ -55,6 +58,10 @@
 
       <div class="learning-layout" data-learning-layout>
         <section class="animation-panel" data-animation-panel aria-label="前 K 个高频字符串堆演示 / k most frequent strings heap trace">
+          <div class="modes" role="group" aria-label="选择解法 / Choose solution">
+            <button class="mode" type="button" data-mode="max" aria-pressed="true">解法一 · 大顶堆 / Max-heap</button>
+            <button class="mode" type="button" data-mode="min" aria-pressed="false">解法二 · 大小为 k 的小顶堆 / Size-k min-heap</button>
+          </div>
           <div class="controls">
             <button type="button" data-action="previous">← 上一步</button>
             <output data-count></output>
@@ -77,7 +84,7 @@
         </section>
 
         <aside class="code-panel" data-code-panel aria-labelledby="kfreq-code-title">
-          <h2 id="kfreq-code-title">完整 Python 代码</h2>
+          <h2 id="kfreq-code-title">完整 Python 代码 · <span data-code-title>大顶堆</span></h2>
           <p class="code-status" data-code-status></p>
           <pre data-code-scroll tabindex="0"><code></code></pre>
           <p class="note">两个实现共用同一组名字：<code>Pair</code>、<code>freqs</code>、<code>res</code>。小顶堆的 <code>Pair.__lt__</code> 把不等号全部反转，让优先级完全倒过来。</p>
@@ -97,10 +104,13 @@
         <h2 id="kfreq-maxheap">解法一：大顶堆 · O(n + k log n)</h2>
         <p class="section-intro">每次拿走当前最频繁的一个字符串，剩下的堆顶自然变成下一个——连续 <code>pop</code> <code>k</code> 次就得到答案。建堆不必逐个 <code>push</code>（<code>O(n log n)</code>），用 <code>heapify</code> 对所有 <code>(str, freq)</code> 对一次性自底向上调整，只要 <code>O(n)</code>。</p>
         <div class="case-grid">
-          <article class="paper-card"><strong>heapify · O(n) 建堆</strong><p><code>heapq.heapify(max_heap)</code> 直接在数组上自底向上交换，把最大的频率换到堆顶。这一步只比较交换，不额外分配新的节点。</p></article>
+          <article class="paper-card"><strong>heapify · O(n) 建堆</strong><p><code>heapq.heapify(max_heap)</code> 从最后一个父节点 <code>i = n // 2 - 1</code> 往上到 <code>0</code>，把每个父节点与它更优先的孩子比较，需要时下沉。例中 <code>freqs.items()</code> 的顺序恰好已满足堆性质，所以一次也没交换。</p></article>
           <article class="paper-card"><strong>自定义比较器 / Pair.__lt__</strong><p><code>return self.freq &gt; other.freq</code>：频率高者"更小"、排在堆顶；<code>self.freq == other.freq</code> 时 <code>return self.str &lt; other.str</code>：字典序小者优先。比如 <code>(coding, 1)</code> 与 <code>(interview, 1)</code> 并列时，<code>coding</code> 胜出。</p></article>
         </div>
-        <p class="small">之后 <code>pop</code> <code>k</code> 次，每次 <code>O(log n)</code>：总计 <code>O(n) + k · O(log n) = O(n + k log n)</code>。</p>
+        <div class="case-grid">
+          <article class="paper-card"><strong>一次 heappop 做了什么</strong><p>取下堆顶 <code>[0]</code> 作为返回值；把最后一个叶子移到 <code>[0]</code>；再让它沿“更优先的孩子”一路下沉，直到不比孩子差。下沉最多走树高 <code>O(log n)</code> 层。</p></article>
+          <article class="paper-card"><strong>正好 k 次</strong><p><code>for _ in range(k)</code> 只循环 <code>k</code> 次，堆里剩下的 <code>n - k</code> 个 Pair 不再参与。总计 <code>O(n) + k · O(log n) = O(n + k log n)</code>。</p></article>
+        </div>
       </section>
 
       <section class="section" aria-labelledby="kfreq-minheap">
@@ -109,7 +119,7 @@
         <div class="case-grid">
           <article class="paper-card"><strong>为什么弹出是安全的 / Safe to evict</strong><p>被弹出的那一刻，堆里剩下的 <code>k</code> 个字符串频率都不比它小；继续扫描只会让这些频率增大，所以它们最终也不比它小——这个字符串注定进不了前 <code>k</code>。</p></article>
           <article class="paper-card"><strong>比较器反转 / Inverted comparator</strong><p>小顶堆的 <code>__lt__</code> 把不等号全部反转：<code>self.freq &lt; other.freq</code>，并列时 <code>self.str &gt; other.str</code>。频率相等时，字典序大的反而排在堆顶、先被弹出，留下的都是字典序小者。</p></article>
-          <article class="paper-card"><strong>取出后要 reverse</strong><p>小顶堆先弹出的是第 <code>k</code> 频繁、最后弹出的才是第 1 频繁，所以 <code>res</code> 里是反的，返回前执行 <code>res.reverse()</code>。</p></article>
+          <article class="paper-card"><strong>取出后要 reverse</strong><p>小顶堆先弹出的是第 <code>k</code> 频繁、最后弹出的才是第 1 频繁，所以 <code>res</code> 里是反的，返回前执行 <code>res.reverse()</code>。例中弹出 <code>[byte, go]</code>（freq 2 → 3），反转后才是 <code>[go, byte]</code>。</p></article>
           <article class="paper-card"><strong>为什么不能用大顶堆做同样的事</strong><p>要丢弃"当前最小"就必须能读到它：大顶堆只能访问最频繁者，拿不到最不需保留的那个，所以只能改用维护小顶堆。</p></article>
         </div>
       </section>
@@ -142,6 +152,9 @@
     <script src="../assets/core.js"></script>
     <script>
       (() => {
+        // ===== shared =====
+        // Data, heap primitives, code-panel rendering, geometry, drawing primitives and the
+        // text/metrics renderer used by both cases. Case-specific code lives in the case blocks below.
         const core = window.AlgorithmVisualCore;
         const root = document.getElementById('kfreq-lab');
         const stage = root.querySelector('[data-stage]');
@@ -153,6 +166,8 @@
         const expressionEl = root.querySelector('[data-expression]');
         const explanationEl = root.querySelector('[data-explanation]');
         const explanationZhEl = root.querySelector('[data-explanation-zh]');
+        const codeCode = root.querySelector('[data-code-scroll] code');
+        const codeTitleEl = root.querySelector('[data-code-title]');
 
         const STRS = ['go', 'coding', 'byte', 'byte', 'go', 'interview', 'go'];
         const K = 2;
@@ -162,8 +177,7 @@
         for (const s of STRS) seen.set(s, (seen.get(s) || 0) + 1);
         for (const [str, freq] of seen) ITEMS.push({ str, freq });
 
-        const ltMax = (a, b) => a.freq > b.freq || (a.freq === b.freq && a.str < b.str);
-        const ltMin = (a, b) => a.freq < b.freq || (a.freq === b.freq && a.str > b.str);
+        // heapq primitives, parameterised by the case's Pair.__lt__ (lt).
         function siftdown(heap, startpos, pos, lt) {
           const newitem = heap[pos];
           while (pos > startpos) {
@@ -207,198 +221,22 @@
           for (let i = heap.length >> 1; i >= 0; i--) siftup(heap, i, lt);
         }
 
-        const CODE = [
-          { text: 'class Pair:' },
-          { text: '    def __init__(self, str, freq):' },
-          { text: '        self.str = str' },
-          { text: '        self.freq = freq' },
-          { text: ' ' },
-          { text: '    # Define a custom comparator.' },
-          { text: '    def __lt__(self, other):' },
-          { text: '        # Prioritize lexicographical order for strings with equal' },
-          { text: '        # frequencies.' },
-          { text: '        if self.freq == other.freq:' },
-          { text: '            return self.str < other.str' },
-          { text: '        # Otherwise, prioritize strings with higher frequencies.' },
-          { text: '        return self.freq > other.freq' },
-          { text: ' ' },
-          { text: 'def k_most_frequent_strings_max_heap(strs: List[str],' },
-          { text: '                                     k: int) -> List[str]:' },
-          { text: "    # We use 'Counter' to create a hash map that counts the frequency" },
-          { text: '    # of each string.' },
-          { text: '    freqs = Counter(strs)', key: 'mh-counter' },
-          { text: '    # Create the max heap by performing heapify on all string-frequency' },
-          { text: '    # pairs.' },
-          { text: '    max_heap = [Pair(str, freq) for str, freq in freqs.items()]', key: 'mh-build' },
-          { text: '    heapq.heapify(max_heap)', key: 'mh-heapify' },
-          { text: "    # Pop the most frequent string off the heap 'k' times and return" },
-          { text: "    # these 'k' most frequent strings." },
-          { text: '    return [heapq.heappop(max_heap).str for _ in range(k)]', key: 'mh-return' },
-          { text: ' ' },
-          { text: '# Min-heap implementation:', head: true },
-          { text: ' ' },
-          { text: 'class Pair:' },
-          { text: '    def __init__(self, str, freq):' },
-          { text: '        self.str = str' },
-          { text: '        self.freq = freq' },
-          { text: ' ' },
-          { text: '    # Since this is a min-heap comparator, we can use the same' },
-          { text: '    # comparator as the one used in the max-heap, but reversing the' },
-          { text: '    # inequality signs to invert the priority.' },
-          { text: '    def __lt__(self, other):' },
-          { text: '        if self.freq == other.freq:' },
-          { text: '            return self.str > other.str' },
-          { text: '        return self.freq < other.freq' },
-          { text: ' ' },
-          { text: 'def k_most_frequent_strings_min_heap(strs: List[str],' },
-          { text: '                                     k: int) -> List[str]:' },
-          { text: '    freqs = Counter(strs)', key: 'nh-counter' },
-          { text: '    min_heap = []', key: 'nh-init' },
-          { text: '    for str, freq in freqs.items():', key: 'nh-for' },
-          { text: '        heapq.heappush(min_heap, Pair(str, freq))', key: 'nh-push' },
-          { text: "        # If heap size exceeds 'k', pop the lowest frequency string to" },
-          { text: "        # ensure the heap only contains the 'k' most frequent words so" },
-          { text: '        # far.' },
-          { text: '        if len(min_heap) > k:', key: 'nh-if' },
-          { text: '            heapq.heappop(min_heap)', key: 'nh-pop' },
-          { text: "    # Return the 'k' most frequent strings by popping the remaining 'k'" },
-          { text: '    # strings from the heap. Since we\'re using a min-heap, we need to' },
-          { text: '    # reverse the result after popping the elements to ensure the most' },
-          { text: '    # frequent strings are listed first.' },
-          { text: '    res = [heapq.heappop(min_heap).str for _ in range(k)]', key: 'nh-res' },
-          { text: '    res.reverse()', key: 'nh-reverse' },
-          { text: '    return res', key: 'nh-return' }
-        ];
-        const codeCode = root.querySelector('[data-code-scroll] code');
-        for (const line of CODE) {
-          const span = document.createElement('span');
-          span.className = 'code-line';
-          if (line.key) span.dataset.sourceKey = line.key;
-          if (line.head) span.style.color = '#555';
-          span.textContent = line.text;
-          codeCode.append(span);
+        // Code panel: each case owns its CODE array; this only renders it.
+        function renderCode(lines) {
+          codeCode.replaceChildren(...lines.map(line => {
+            const span = document.createElement('span');
+            span.className = 'code-line';
+            if (line.key) span.dataset.sourceKey = line.key;
+            span.textContent = line.text;
+            return span;
+          }));
         }
 
         const itemOf = key => ITEMS.find(it => it.str === key);
         const snapKeys = heap => heap.map(p => p.str);
         const fr = (stepLabel, anim, sourceKeys, line, en, zh, invariant, state) =>
           ({ stepLabel, anim, sourceKeys, line, en, zh, invariant, state });
-
-        const base = (phase) => ({ phase, strs: false, heap: null, res: [], pushKey: null, evictKey: null, evicted: [], collectKey: null, done: false });
-        const FRAMES = [];
-
-        FRAMES.push(fr(
-          '读入 strs · Counter 计数', 'none', ['mh-counter'], 'freqs = Counter(strs)',
-          'Count occurrences with a hash map: go ×3, byte ×2, coding ×1, interview ×1.',
-          '先用 Counter 统计频率：go 出现 3 次，byte 2 次，coding、interview 各 1 次。',
-          'freqs 的键是字符串、值是出现次数；两种堆方案都只用这 4 个 (str, freq) 对。',
-          { ...base('max'), strs: true }
-        ));
-
-        const maxHeap = ITEMS.map(p => ({ ...p }));
-        heapify(maxHeap, ltMax);
-        FRAMES.push(fr(
-          'heapify · O(n) 建大顶堆', 'heapify', ['mh-build', 'mh-heapify'], 'heapq.heapify(max_heap)',
-          'Build all four Pairs and heapify at once — O(n), faster than pushing one by one. The root (go, 3) is the most frequent string; (coding, 1) sits above (interview, 1) because their frequencies tie and "coding" < "interview".',
-          '把 4 个 (str, freq) 对一次性建好再 heapify，O(n) 完成建堆；堆顶 (go, 3) 就是最频繁的字符串。(coding, 1) 与 (interview, 1) 频率并列，"coding" 字典序更小，所以当父节点。',
-          '大顶堆堆顶 max: 永远是优先级最高的 Pair：频率大者胜出，并列时字典序小者胜出。',
-          { ...base('max'), heap: snapKeys(maxHeap) }
-        ));
-
-        const pop1 = heappop(maxHeap, ltMax);
-        FRAMES.push(fr(
-          'pop 堆顶 → res = [go]', 'collect', ['mh-return'], 'heapq.heappop(max_heap).str  # 第 1 次 pop',
-          'Pop the root and append its string to res; (byte, 2) floats up as the new root.',
-          '弹出堆顶 (go, 3)，把 "go" 加入 res；(byte, 2) 升为新的堆顶。',
-          '每次 pop 拿走当前最频繁的字符串，剩下的堆顶就是下一个。',
-          { ...base('max'), heap: snapKeys(maxHeap), res: [pop1.str], collectKey: pop1.str }
-        ));
-        const pop2 = heappop(maxHeap, ltMax);
-        FRAMES.push(fr(
-          'pop 堆顶 → res = [go, byte]', 'collect', ['mh-return'], 'heapq.heappop(max_heap).str  # 第 2 次 pop',
-          'Pop again to get "byte". Two pops for k = 2 — the max-heap solution is done: ["go", "byte"].',
-          '再弹出 (byte, 2)。k = 2 只需 pop 两次，大顶堆方案完成，得到 ["go", "byte"]。',
-          'pop 满 k 次，res 就是按频率降序（并列按字典序）的前 k 个字符串。',
-          { ...base('max'), heap: snapKeys(maxHeap), res: [pop1.str, pop2.str], collectKey: pop2.str }
-        ));
-
-        FRAMES.push(fr(
-          '换小顶堆 · min_heap = []', 'none', ['nh-counter', 'nh-init'], 'min_heap = []',
-          'The min-heap solution recomputes freqs and starts with an empty min_heap that will hold at most k items.',
-          '小顶堆方案同样先计数；min_heap 从空开始，最多只保留 k 个候选。',
-          '换用小顶堆：堆里只保留目前出现最多的 k 个，堆空间降到 O(k)。',
-          { ...base('min'), heap: [] }
-        ));
-
-        const minHeap = [];
-        const evicted = [];
-        for (const it of ITEMS) {
-          heappush(minHeap, { ...it }, ltMin);
-          const size = minHeap.length;
-          if (size > K) {
-            const root = minHeap[0];
-            const others = minHeap.slice(1).map(p => `(${p.str}, ${p.freq})`).join('、');
-            FRAMES.push(fr(
-              `push (${it.str}, ${it.freq}) · len ${size} > k`, 'push', ['nh-for', 'nh-push', 'nh-if'],
-              `heapq.heappush(min_heap, Pair(str, freq))  # len(min_heap) = ${size} > ${K}`,
-              `Push (${it.str}, ${it.freq}): the heap now holds ${size} > k pairs. The min-heap root (${root.str}, ${root.freq}) has the lowest frequency of the ${size}, so it is next to go.`,
-              `push (${it.str}, ${it.freq}) 后堆里有 ${size} 个 > k = ${K}。小顶堆的堆顶是这 ${size} 个中频率最低的 (${root.str}, ${root.freq})：${others} 的频率都比它高。`,
-              '大小一旦超过 k，堆顶就是目前第 k+1 频繁的字符串——它注定进不了前 k。',
-              { ...base('min'), heap: snapKeys(minHeap), pushKey: it.str, evicted: [...evicted] }
-            ));
-            const ev = heappop(minHeap, ltMin);
-            evicted.push(ev.str);
-            FRAMES.push(fr(
-              `heappop → 丢弃 (${ev.str}, ${ev.freq})`, 'evict', ['nh-pop'],
-              `heapq.heappop(min_heap)  # 丢弃 (${ev.str}, ${ev.freq})`,
-              `Pop the root (${ev.str}, ${ev.freq}): ${K} pairs with higher frequency are still in the heap, so it can never be in the top ${K}. The heap is back to k = ${K}.`,
-              `弹出堆顶 (${ev.str}, ${ev.freq})：堆里还有 ${K} 个频率比它高的，它不可能是前 ${K} 名。堆大小回到 k = ${K}。`,
-              '被丢弃的字符串放在“已弹出”区：以后不会再回到堆里。',
-              { ...base('min'), heap: snapKeys(minHeap), evictKey: ev.str, evicted: [...evicted] }
-            ));
-          } else {
-            FRAMES.push(fr(
-              `push (${it.str}, ${it.freq})`, 'push', ['nh-for', 'nh-push', 'nh-if'],
-              `heapq.heappush(min_heap, Pair(str, freq))  # len(min_heap) = ${size} ≤ ${K}`,
-              `Push (${it.str}, ${it.freq}); heap size ${size} ≤ k, so nothing is popped.`,
-              `push (${it.str}, ${it.freq})，堆大小 ${size} ≤ k = ${K}，if 不成立，无需弹出。`,
-              '堆的大小 ≤ k：候选还不够 k 个，谁都还不能丢。',
-              { ...base('min'), heap: snapKeys(minHeap), pushKey: it.str, evicted: [...evicted] }
-            ));
-          }
-        }
-
-        const minPop1 = heappop(minHeap, ltMin);
-        FRAMES.push(fr(
-          '取出 pop #1 → res = [byte]', 'collect', ['nh-res'], 'heapq.heappop(min_heap).str  # 第 1 次 pop',
-          'All strings processed; the heap holds exactly the top 2. Pop the root (byte, 2) into res.',
-          '全部处理完，堆里正好是前 2 名。弹出堆顶 (byte, 2) 放入 res。',
-          '扫描结束后，堆里剩下的 k 个就是 top-k；小顶堆先弹出其中最不频繁的。',
-          { ...base('min'), evicted: [...evicted], heap: snapKeys(minHeap), res: [minPop1.str], collectKey: minPop1.str }
-        ));
-        const minPop2 = heappop(minHeap, ltMin);
-        FRAMES.push(fr(
-          '取出 pop #2 → res = [byte, go]', 'collect', ['nh-res'], 'heapq.heappop(min_heap).str  # 第 2 次 pop',
-          'Pop (go, 3) — the most frequent string comes out last in a min-heap.',
-          '再弹出 (go, 3)——小顶堆里频率最高的最后才出来。',
-          '取出顺序是第 k 频繁 → 第 1 频繁，与题目要求的顺序相反。',
-          { ...base('min'), evicted: [...evicted], heap: snapKeys(minHeap), res: [minPop1.str, minPop2.str], collectKey: minPop2.str }
-        ));
-
-        FRAMES.push(fr(
-          'res.reverse()', 'reverse', ['nh-reverse'], 'res.reverse()',
-          'res is [byte, go] — retrieved least-frequent-first, so reverse it.',
-          '取出顺序是 [byte, go]（先低后高），执行 res.reverse() 调转顺序。',
-          'reverse 只反转结果数组，O(k)，不改变任何频率信息。',
-          { ...base('min'), evicted: [...evicted], heap: [], res: [minPop2.str, minPop1.str] }
-        ));
-        FRAMES.push(fr(
-          'return res → ["go", "byte"]', 'none', ['nh-return'], 'return res  # ["go", "byte"]',
-          'Return ["go", "byte"]: sorted by frequency descending, ties by lexicographical order.',
-          '返回 ["go", "byte"]：按频率降序排列，频率相同再按字典序。',
-          '两种方法得到同一个答案；小顶堆在 k 远小于 n 时更快、更省空间。',
-          { ...base('min'), evicted: [...evicted], heap: [], res: [minPop2.str, minPop1.str], done: true }
-        ));
+        const baseState = () => ({ strs: false, heap: null, res: [], pushKey: null, evictKey: null, evicted: [], collectKey: null, done: false });
 
         const scene = core.createSvgScene(svg);
         scene.defineMarker('kf-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
@@ -448,6 +286,7 @@
         };
         const freqsPos = key => ({ x: geom.fx + geom.colStrW / 2, y: rowCenter(ITEMS.findIndex(it => it.str === key)) });
         const resTokenPos = i => ({ x: geom.heapCx - (geom.compact ? 26 : 30) + i * (geom.compact ? 56 : 62), y: geom.resY });
+        // discardPos is shared geometry because tokens in the 'gone' zone are placed by drawTokens.
         const discardPos = i => (geom.compact
           ? { x: geom.discardX + geom.discardW / 2, y: geom.hy + 8 + geom.tokenH / 2 + i * (geom.tokenH + 6) }
           : { x: geom.discardX + geom.discardW / 2, y: geom.rootY + i * (geom.tokenH + 8) });
@@ -455,6 +294,9 @@
 
         const ease = core.smoothstep;
         const lerpP = (a, b, u) => ({ x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u });
+        const mono = (size, fill = '#555', anchor = 'middle') => ({ 'text-anchor': anchor, 'font-size': size, fill, 'font-family': MONO });
+        const rect = (x, y, w, h) => `M ${x - w / 2} ${y - h / 2} h ${w} v ${h} h ${-w} Z`;
+        const isActive = (frame, from, progress) => !!(frame && frame.anim && frame.anim !== 'none' && from && progress < 1);
 
         function zoneOf(state, key) {
           if (!state) return null;
@@ -468,221 +310,672 @@
         }
         const zonePos = z => (z.zone === 'heap' ? slotPos(z.idx) : z.zone === 'res' ? resTokenPos(z.idx) : discardPos(z.idx));
 
+        // freqs hash map (stable left column), with the dashed row cue for state.pushKey.
+        function drawFreqs({ path, text }, state) {
+          const g = geom;
+          text('freqs-title', { x: g.fx + g.tableW / 2, y: g.hy - 7, ...mono(g.compact ? 12 : 13.5, '#272727'), 'font-weight': 500 }, 'freqs');
+          path('freqs-box', {
+            d: `M ${g.fx} ${g.hy} h ${g.tableW} v ${g.headerH + 4 * g.rowH + 8} h ${-g.tableW} Z`,
+            fill: 'none', stroke: '#555', 'stroke-width': 1.3
+          });
+          path('freqs-div', { d: `M ${g.fx + g.colStrW} ${g.hy} v ${g.headerH + 4 * g.rowH + 8}`, stroke: '#999', 'stroke-width': 1, fill: 'none' });
+          text('freqs-h1', { x: g.fx + g.colStrW / 2, y: g.hy + 14, ...mono(g.compact ? 9.5 : 10.5, '#777') }, 'str');
+          text('freqs-h2', { x: g.fx + g.colStrW + (g.tableW - g.colStrW) / 2, y: g.hy + 14, ...mono(g.compact ? 9.5 : 10.5, '#777') }, 'freq');
+          ITEMS.forEach((it, i) => {
+            text(`freqs-str-${i}`, { x: g.fx + 9, y: rowCenter(i) + 4, ...mono(g.compact ? 11.5 : 13, '#272727', 'start') }, it.str);
+            text(`freqs-frq-${i}`, { x: g.fx + g.tableW - 9, y: rowCenter(i) + 4, ...mono(g.compact ? 11.5 : 13, '#272727', 'end') }, String(it.freq));
+          });
+          if (state.pushKey) {
+            const i = ITEMS.findIndex(it => it.str === state.pushKey);
+            path('freqs-hl', {
+              d: `M ${g.fx + 3} ${g.hy + g.headerH + i * g.rowH + 3} h ${g.tableW - 6} v ${g.rowH - 6} h ${-(g.tableW - 6)} Z`,
+              fill: 'none', stroke: '#777', 'stroke-width': 1.2, 'stroke-dasharray': '4 3'
+            });
+          }
+        }
+
+        // input strs chips + Counter arrow (frames with state.strs only)
+        function drawStrs({ path, text }, state) {
+          if (!state.strs) return;
+          const g = geom;
+          const perRow = g.compact ? 4 : (g.width >= 860 ? 7 : 4);
+          const chipW = g.compact ? Math.min(74, (g.width - 16) / 4 - 6) : 78;
+          const chipH = g.compact ? 26 : 30;
+          const chipY0 = g.compact ? g.freqsBottom + 52 : g.rootY - 16;
+          if (g.compact) {
+            const ax = g.fx + g.tableW / 2;
+            path('strs-arrow', {
+              d: `M ${ax} ${chipY0 - chipH / 2 - 5} L ${ax} ${g.freqsBottom + 5}`,
+              fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+            });
+            text('strs-caption', { x: ax + 8, y: g.freqsBottom + 22, ...mono(9.5, '#555', 'start') }, 'strs（7 个）· Counter 计数');
+          } else {
+            text('strs-caption', { x: g.fx + g.tableW + 46, y: g.rootY - 54, ...mono(11.5, '#555', 'start') },
+              g.width >= 860
+                ? 'strs = [ "go", "coding", "byte", "byte", "go", "interview", "go" ] · Counter 统计次数'
+                : 'Counter 统计每个字符串的次数');
+            path('strs-arrow', {
+              d: `M ${g.fx + g.tableW + 40} ${g.rootY - 2} L ${g.fx + g.tableW + 6} ${g.rootY - 2}`,
+              fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+            });
+          }
+          STRS.forEach((s, i) => {
+            const col = i % perRow;
+            const rowI = (i / perRow) | 0;
+            const x0 = g.compact ? (g.width - (perRow * chipW + (perRow - 1) * 6)) / 2 : g.fx + g.tableW + 46;
+            const x = x0 + col * (chipW + 6) + chipW / 2 + (rowI === 1 ? (chipW + 6) / 2 : 0);
+            const y = chipY0 + rowI * (chipH + 8);
+            path(`strs-chip-${i}`, { d: rect(x, y, chipW, chipH), fill: '#fffdf8', stroke: '#777', 'stroke-width': 1.2 });
+            text(`strs-txt-${i}`, { x, y: y + 4, ...mono(g.compact ? 10 : 12, '#272727') }, `"${s}"`);
+          });
+        }
+
+        // heap label + parent-child edges (edges follow array indices). label is the case's full caption.
+        function drawHeapFrame({ path, text }, state, label) {
+          if (state.heap === null) return;
+          const g = geom;
+          const n = state.heap.length;
+          text('heap-label', { x: g.heapCx, y: g.rootY - (g.compact ? 30 : 34), ...mono(g.compact ? 11 : 12.5, '#272727') }, label);
+          for (let i = 1; i < n; i++) {
+            const p = slotPos((i - 1) >> 1);
+            const c = slotPos(i);
+            path(`heap-edge-${i}`, {
+              d: `M ${p.x} ${p.y + g.tokenH / 2} L ${c.x} ${c.y - g.tokenH / 2}`,
+              fill: 'none', stroke: '#999', 'stroke-width': 1.1
+            });
+          }
+        }
+
+        // rest-state arrow: pop heap root → res box
+        function drawCollectArrow({ path, text }) {
+          const g = geom;
+          const chipLeft = g.heapCx - g.tokenW / 2 - 12 - (g.compact ? 40 : 46) - 2;
+          const rx = g.heapCx - g.treeLeft - 14;
+          const resLeft = g.heapCx - (g.compact ? 95 : 108) - 3;
+          path('collect-arrow', {
+            d: `M ${chipLeft} ${g.rootY} L ${rx} ${g.rootY} L ${rx} ${g.resY} L ${resLeft} ${g.resY}`,
+            fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+          });
+          text('collect-arrow-label', { x: rx + 6, y: g.rootY + 2 * g.levelH + 4, ...mono(g.compact ? 10 : 11, '#555', 'start') }, 'pop 堆顶 → res');
+        }
+
+        // tie-break made visible: a parent and child with equal freq are ordered by str.
+        // lt is the case's comparator; sign is the str comparison it uses ('<' or '>').
+        function drawTieNotes({ text }, state, lt, sign) {
+          if (!state.heap) return;
+          const g = geom;
+          for (let i = 1; i < state.heap.length; i++) {
+            const pk = state.heap[(i - 1) >> 1];
+            const ck = state.heap[i];
+            const pi = itemOf(pk);
+            const ci = itemOf(ck);
+            if (pi.freq !== ci.freq || !lt(pi, ci)) continue;
+            const c = slotPos(i);
+            const lx = c.x + g.tokenW / 2 + 8;
+            const fs = g.compact ? 9.5 : 10.5;
+            if (g.compact) {
+              // three short lines so the note stays inside a 320px stage
+              text(`tie-a-${i}`, { x: lx, y: c.y - fs + 1, ...mono(fs, '#555', 'start') }, `并列 freq ${pi.freq} = ${ci.freq}`);
+              text(`tie-b-${i}`, { x: lx, y: c.y + 3, ...mono(fs, '#272727', 'start') }, `比 str："${pk}"`);
+              text(`tie-c-${i}`, { x: lx, y: c.y + fs + 5, ...mono(fs, '#272727', 'start') }, `${sign} "${ck}" → 父`);
+            } else {
+              text(`tie-a-${i}`, { x: lx, y: c.y - 3, ...mono(fs, '#555', 'start') }, `并列 freq ${pi.freq} = ${ci.freq}，比 str：`);
+              text(`tie-b-${i}`, { x: lx, y: c.y + fs + 1, ...mono(fs, '#272727', 'start') }, `"${pk}" ${sign} "${ck}" → 父`);
+            }
+          }
+        }
+
+        // tokens: heap slots, res entries, evicted entries; chip is the root marker text ('max:' / 'min:').
+        function drawTokens({ path, text }, state, { from, progress, active, chip }) {
+          const g = geom;
+          const keys = new Set();
+          for (const it of ITEMS) {
+            if (zoneOf(state, it.str) || (active && zoneOf(from, it.str))) keys.add(it.str);
+          }
+          for (const k of keys) {
+            const to = zoneOf(state, k);
+            const was = active ? zoneOf(from, k) : null;
+            let pos;
+            let opacity = 1;
+            const rec = to || was;
+            if (!active) pos = zonePos(to);
+            else if (!to) { pos = zonePos(was); opacity = 1 - progress; }
+            else pos = lerpP(was ? zonePos(was) : freqsPos(k), zonePos(to), ease(progress));
+            const isRes = rec.zone === 'res';
+            const gone = rec.zone === 'gone';
+            const isRoot = !active && rec.zone === 'heap' && rec.idx === 0;
+            const pushed = !active && rec.zone === 'heap' && k === state.pushKey;
+            const w = isRes ? (g.compact ? 56 : 62) : g.tokenW;
+            const h = g.tokenH;
+            path(`item-box-${k}`, {
+              d: rect(pos.x, pos.y, w, h),
+              fill: '#fffdf8',
+              stroke: isRoot ? '#272727' : gone ? '#999' : '#555',
+              'stroke-width': isRoot ? 1.8 : 1.2,
+              'stroke-dasharray': pushed ? '5 3' : gone ? '4 3' : null,
+              opacity
+            });
+            text(`item-txt-${k}`, {
+              x: pos.x, y: pos.y + (g.compact ? 3.8 : 4.5),
+              ...mono(isRes ? (g.compact ? 10.5 : 12) : (g.compact ? 10.5 : 12), gone ? '#777' : '#272727'),
+              opacity
+            }, isRes ? k : pairText(k));
+            if (!active && rec.zone === 'heap') {
+              text(`item-idx-${k}`, { x: pos.x - w / 2, y: pos.y - h / 2 - 4, ...mono(g.compact ? 9 : 9.5, '#777', 'start') },
+                pushed ? `[${rec.idx}] push` : `[${rec.idx}]`);
+            }
+            if (isRoot) {
+              const cw = g.compact ? 40 : 46;
+              const ch = g.compact ? 20 : 22;
+              const cx = pos.x - w / 2 - 12 - cw / 2;
+              path(`item-chip-${k}`, { d: rect(cx, pos.y, cw, ch), fill: '#f5f2e9', stroke: '#555', 'stroke-width': 1.2 });
+              text(`item-chip-txt-${k}`, { x: cx, y: pos.y + 3.5, ...mono(g.compact ? 9.5 : 10.5, '#272727') }, chip);
+            }
+          }
+        }
+
+        // res box (bold + "answer" label once state.done)
+        function drawRes({ path, text }, state) {
+          const g = geom;
+          const resBoxW = g.compact ? 190 : 216;
+          path('res-box', {
+            d: `M ${g.heapCx - resBoxW / 2} ${g.resY - (g.compact ? 18 : 21)} h ${resBoxW} v ${g.compact ? 36 : 42} h ${-resBoxW} Z`,
+            fill: 'none', stroke: state.done ? '#272727' : '#999',
+            'stroke-width': state.done ? 1.8 : 1.2, 'stroke-dasharray': '5 4'
+          });
+          text('res-label', { x: g.heapCx - resBoxW / 2 + 10, y: g.resY + 4, ...mono(g.compact ? 10.5 : 12, '#555', 'start') }, 'res =');
+          text('res-close', { x: g.heapCx + resBoxW / 2 - 10, y: g.resY + 4, ...mono(g.compact ? 10.5 : 12, '#555', 'end') }, ']');
+          if (state.done) {
+            // above the box's right edge so it never runs off a 320px stage
+            text('res-answer', { x: g.heapCx + resBoxW / 2, y: g.resY - (g.compact ? 25 : 29), ...mono(g.compact ? 9.5 : 11, '#272727', 'end') }, 'answer · 答案');
+          }
+        }
+
+        // ===== max-heap case =====
+        // Owned by the max-heap case: CODE_MAX, ltMax, buildMaxFrames(), drawMax(). Edit freely without touching the min-heap block.
+        const ltMax = (a, b) => a.freq > b.freq || (a.freq === b.freq && a.str < b.str);
+        const CODE_MAX = [
+          { text: 'class Pair:', key: 'mh-class' },
+          { text: '    def __init__(self, str, freq):', key: 'mh-init-def' },
+          { text: '        self.str = str', key: 'mh-init-str' },
+          { text: '        self.freq = freq', key: 'mh-init-freq' },
+          { text: ' ' },
+          { text: '    # Define a custom comparator.' },
+          { text: '    def __lt__(self, other):', key: 'mh-lt' },
+          { text: '        # Prioritize lexicographical order for strings with equal' },
+          { text: '        # frequencies.' },
+          { text: '        if self.freq == other.freq:', key: 'mh-lt-tie' },
+          { text: '            return self.str < other.str', key: 'mh-lt-str' },
+          { text: '        # Otherwise, prioritize strings with higher frequencies.' },
+          { text: '        return self.freq > other.freq', key: 'mh-lt-freq' },
+          { text: ' ' },
+          { text: 'def k_most_frequent_strings_max_heap(strs: List[str],', key: 'mh-def' },
+          { text: '                                     k: int) -> List[str]:' },
+          { text: "    # We use 'Counter' to create a hash map that counts the frequency" },
+          { text: '    # of each string.' },
+          { text: '    freqs = Counter(strs)', key: 'mh-counter' },
+          { text: '    # Create the max heap by performing heapify on all string-frequency' },
+          { text: '    # pairs.' },
+          { text: '    max_heap = [Pair(str, freq) for str, freq in freqs.items()]', key: 'mh-build' },
+          { text: '    heapq.heapify(max_heap)', key: 'mh-heapify' },
+          { text: "    # Pop the most frequent string off the heap 'k' times and return" },
+          { text: "    # these 'k' most frequent strings." },
+          { text: '    return [heapq.heappop(max_heap).str for _ in range(k)]', key: 'mh-return' }
+        ];
+
+        // Max-only frame state on top of baseState():
+        //   chip  – root marker text: 'max:' once the root is verified, '待调整' while the heap property is unchecked/broken
+        //   hl    – heap indices outlined as "being compared" in this step
+        //   note  – short lines drawn in the free bottom-right of the tree (next to what they describe)
+        //   ghost – { idx } vacated slot after heappop moved the last leaf to [0]
+        //   loop  – label above res for the k-times loop
+        //   collect – draw the root → res arrow (heappop just returned the root)
+        const maxState = extra => ({ ...baseState(), chip: 'max:', hl: [], note: null, ghost: null, loop: null, collect: false, ...extra });
+        const pt = p => `(${p.str}, ${p.freq})`;
+        // Which rule of Pair.__lt__ decides a vs b: the code lines and a short reason.
+        const ltRule = (a, b) => (a.freq === b.freq
+          ? { keys: ['mh-lt-tie', 'mh-lt-str'], why: `freq 并列 ${a.freq} = ${b.freq}，比 str：` }
+          : { keys: ['mh-lt-freq'], why: `freq ${Math.max(a.freq, b.freq)} > ${Math.min(a.freq, b.freq)}` });
+
+        function buildMaxFrames() {
+          const frames = [];
+          frames.push(fr(
+            '读入 strs · Counter 计数', 'none', ['mh-counter'], 'freqs = Counter(strs)',
+            'Count occurrences with a hash map: go ×3, byte ×2, coding ×1, interview ×1.',
+            '先用 Counter 统计频率：go 出现 3 次，byte 2 次，coding、interview 各 1 次。',
+            'freqs 的键是字符串、值是出现次数；之后堆里只放这 4 个 (str, freq) 对。',
+            { ...maxState(), strs: true }
+          ));
+
+          // max_heap = [Pair(str, freq) for ...]: plain list in freqs.items() order, heap property not yet checked.
+          const heap = ITEMS.map(p => ({ ...p }));
+          frames.push(fr(
+            '建 Pair 列表 · freqs.items() 顺序', 'build', ['mh-build', 'mh-init-str', 'mh-init-freq'],
+            'max_heap = [Pair(str, freq) for str, freq in freqs.items()]',
+            `Each (str, freq) entry of freqs becomes a Pair, placed in insertion order: ${heap.map(pt).join(', ')}. It is still a plain list; the tree just shows which index is whose child.`,
+            `freqs 的每一项变成一个 Pair，按 freqs.items() 的顺序放进 [0]…[${heap.length - 1}]。现在只是普通列表，还没做 heapify；树形只是把下标 i 的孩子画在 2i+1、2i+2。`,
+            '数组下标与树的位置一一对应：[i] 的子节点是 [2i+1] 和 [2i+2]。',
+            { ...maxState(), heap: snapKeys(heap), chip: '待调整', note: ['按 freqs.items() 顺序', '放入 [0] → [3]'] }
+          ));
+
+          // heapq.heapify: for i in reversed(range(n // 2)) → i = 1, then i = 0. Record each check.
+          for (let i = (heap.length >> 1) - 1; i >= 0; i--) {
+            const l = 2 * i + 1;
+            const r = l + 1;
+            const c = r < heap.length && ltMax(heap[r], heap[l]) ? r : l;
+            const p = heap[i];
+            const child = heap[c];
+            const before = snapKeys(heap);
+            siftup(heap, i, ltMax);
+            const swapped = before.join() !== snapKeys(heap).join();
+            const parentWins = ltMax(p, child);
+            const rule = ltRule(p, child);
+            const sibling = c !== l ? heap[l] : (r < heap.length ? heap[r] : null);
+            const strLine = p.freq === child.freq ? `"${parentWins ? p.str : child.str}" < "${parentWins ? child.str : p.str}"` : rule.why;
+            const note = [
+              `i = ${i}：[${i}] 与${sibling ? '较优' : ''}子 [${c}] 比`,
+              ...(p.freq === child.freq ? [rule.why] : []),
+              `${strLine} → ${parentWins ? '不换' : '交换'}`
+            ];
+            const last = i === 0;
+            frames.push(fr(
+              `heapify i = ${i} · ${parentWins ? `${pt(p)} 不动` : `交换`}`, 'none', ['mh-heapify', 'mh-lt', ...rule.keys],
+              `heapq.heapify(max_heap)  # i = ${i}: ${pt(p)} vs ${pt(child)}`,
+              `heapify checks parents from the last one up: i = ${i}. ${sibling ? `Of its children, ${pt(child)} beats ${pt(sibling)}. ` : ''}${pt(p)} ${parentWins ? 'already comes first' : 'loses'} by Pair.__lt__ (${p.freq === child.freq ? 'equal freq, so the smaller str wins' : 'higher freq wins'})${parentWins ? ', so nothing moves' : ', so they swap'}.${last && !swapped ? ' The list was already a valid max-heap, so heapify made no swaps here.' : ''}`,
+              `heapify 从最后一个父节点往上检查：现在 i = ${i}。${sibling ? `两个孩子里 ${pt(child)} 比 ${pt(sibling)} 优先；` : ''}按 Pair.__lt__，${p.freq === child.freq ? '频率并列时字典序小者优先' : '频率高者优先'}，${pt(p)} ${parentWins ? '已经排在前面，不用交换' : '排在后面，需要交换'}。${last && !swapped ? '这组输入恰好本来就满足堆性质，heapify 一次也没交换。' : ''}`,
+              last ? '大顶堆堆顶 max: 是优先级最高的 Pair：频率大者胜出，并列时字典序小者胜出。' : '每个父节点都不比它的孩子“小”（按 __lt__），堆顶就是全局最优先的 Pair。',
+              { ...maxState(), heap: snapKeys(heap), chip: last ? 'max:' : '待调整', hl: [i, c], note }
+            ));
+          }
+
+          // return [heapq.heappop(max_heap).str for _ in range(k)]: k iterations, each = take root, move last leaf up, sift down.
+          const res = [];
+          for (let t = 0; t < K; t++) {
+            const top = heap[0];
+            const lastIdx = heap.length - 1;
+            const lastelt = heap.pop();
+            heap[0] = lastelt;
+            res.push(top.str);
+            const loop = `range(k) 第 ${t + 1} / ${K} 次 · _ = ${t}`;
+            frames.push(fr(
+              `pop #${t + 1} · ${pt(top)} → res`, 'collect', ['mh-return'],
+              `heapq.heappop(max_heap).str  # _ = ${t}`,
+              `heappop takes the root ${pt(top)}; its .str "${top.str}" goes into the result. The last leaf ${pt(lastelt)} at [${lastIdx}] is moved into [0], which may break the heap order.`,
+              `heappop 取下堆顶 ${pt(top)}，它的 .str "${top.str}" 放进结果列表。最后一个叶子 ${pt(lastelt)} 从 [${lastIdx}] 移到 [0] 补位——它未必最优先，堆性质暂时被破坏。`,
+              '结果列表按 pop 的先后排列：先出来的频率最高。',
+              { ...maxState(), heap: snapKeys(heap), res: [...res], chip: '待调整', hl: [0], ghost: { idx: lastIdx }, loop, collect: true,
+                note: [`${pt(top)} 出堆 → res`, `末尾 [${lastIdx}] 补到 [0]`] }
+            ));
+            // sift-down of the moved leaf (same heappop call)
+            const l = 1;
+            const r = 2;
+            const c = r < heap.length && ltMax(heap[r], heap[l]) ? r : l;
+            const child = heap[c];
+            const sibling = c !== l ? heap[l] : (r < heap.length ? heap[r] : null);
+            const rule = ltRule(lastelt, child);
+            const moves = ltMax(child, lastelt);
+            siftup(heap, 0, ltMax);
+            const reason = lastelt.freq === child.freq ? `"${child.str}" < "${lastelt.str}"` : rule.why;
+            frames.push(fr(
+              `pop #${t + 1} · 下沉 → ${pt(heap[0])} 成堆顶`, 'swap', ['mh-return', 'mh-lt', ...rule.keys],
+              `heapq.heappop(max_heap).str  # 下沉 ${pt(lastelt)}`,
+              `Still inside heappop: sift ${pt(lastelt)} down. ${sibling ? `Of the children, ${pt(child)} beats ${pt(sibling)}; ` : `Its only child is ${pt(child)}; `}${pt(child)} comes first by Pair.__lt__ (${lastelt.freq === child.freq ? 'tie on freq, smaller str wins' : 'higher freq wins'}), so they ${moves ? 'swap' : 'stay'}. ${pt(heap[0])} is the new root.`,
+              `仍在这次 heappop 里：把 ${pt(lastelt)} 下沉。${sibling ? `两个孩子里 ${pt(child)} 比 ${pt(sibling)} 优先；` : `它只有一个孩子 ${pt(child)}；`}按 __lt__${lastelt.freq === child.freq ? '，频率并列比字典序' : '，频率高者优先'}，${pt(child)} ${moves ? '更优先，两者交换' : '不比它优先，不用交换'}。新的堆顶是 ${pt(heap[0])}。`,
+              '下沉后堆性质恢复：堆顶又是剩下元素里最优先的，下一次 pop 直接拿它。',
+              { ...maxState(), heap: snapKeys(heap), res: [...res], hl: [0, c], loop,
+                note: [sibling ? `子节点 ${pt(child)} 更优先` : `只有子 [${c}]${lastelt.freq === child.freq ? '，freq 并列' : ''}`, `${reason} → ${moves ? '交换' : '不换'}`] }
+            ));
+          }
+
+          frames.push(fr(
+            'return → ["go", "byte"]', 'none', ['mh-return'], `return [heapq.heappop(max_heap).str for _ in range(k)]  # ${JSON.stringify(res)}`,
+            `range(k) ran exactly ${K} times, so exactly ${K} pops. Return ${JSON.stringify(res)}: the max-heap pops come out most frequent first, so no reverse is needed.`,
+            `range(k) 正好循环 ${K} 次、pop ${K} 次。返回 ${JSON.stringify(res)}：大顶堆先弹出频率最高的，顺序已经正确，不需要 reverse。`,
+            '堆里剩下的 (coding, 1)、(interview, 1) 不会被用到；答案按频率降序、并列按字典序。',
+            { ...maxState(), heap: snapKeys(heap), res: [...res], done: true, loop: `range(k) 已跑满 ${K} 次` }
+          ));
+          return frames;
+        }
+
+        // root → res elbow arrow without the shared bottom-left label (that spot holds the vacated-slot ghost).
+        function drawMaxCollectArrow({ path }) {
+          const g = geom;
+          const chipLeft = g.heapCx - g.tokenW / 2 - 12 - (g.compact ? 40 : 46) - 2;
+          const rx = g.heapCx - g.treeLeft - 14;
+          const resLeft = g.heapCx - (g.compact ? 95 : 108) - 3;
+          path('mh-collect-arrow', {
+            d: `M ${chipLeft} ${g.rootY} L ${rx} ${g.rootY} L ${rx} ${g.resY} L ${resLeft} ${g.resY}`,
+            fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+          });
+        }
+
+        // dashed outlines around compared heap slots, the vacated slot, the step note and the loop label
+        function drawMaxMarks({ path, text }, state) {
+          const g = geom;
+          const fs = g.compact ? 9.5 : 10.5;
+          for (const i of state.hl) {
+            const c = slotPos(i);
+            // dashed frame with a gap at the top-left so the [i] index label stays readable
+            const x0 = c.x - g.tokenW / 2 - 5;
+            const x1 = c.x + g.tokenW / 2 + 5;
+            const y0 = c.y - g.tokenH / 2 - 5;
+            const y1 = c.y + g.tokenH / 2 + 5;
+            path(`mh-hl-${i}`, { d: `M ${x0 + 30} ${y0} H ${x1} V ${y1} H ${x0} V ${y0}`, fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '3 3' });
+          }
+          if (state.ghost) {
+            const c = slotPos(state.ghost.idx);
+            path('mh-ghost', { d: rect(c.x, c.y, g.tokenW, g.tokenH), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            text('mh-ghost-txt', { x: c.x, y: c.y + 4, ...mono(fs, '#777') }, `↑ 已移到 [0]`);
+          }
+          if (state.note) {
+            // free area: bottom row, right of slot [3]
+            const lx = slotPos(3).x + g.tokenW / 2 + 12;
+            const lh = fs + 3;
+            const y0 = g.rootY + 2 * g.levelH - (state.note.length - 1) * lh / 2 + 3;
+            state.note.forEach((line, j) => {
+              text(`mh-note-${j}`, { x: lx, y: y0 + j * lh, ...mono(fs, j === state.note.length - 1 ? '#272727' : '#555', 'start') }, line);
+            });
+          }
+          if (state.loop) {
+            const resBoxW = g.compact ? 190 : 216;
+            text('mh-loop', { x: g.heapCx - resBoxW / 2, y: g.resY - (g.compact ? 25 : 29), ...mono(fs, '#555', 'start') }, state.loop);
+          }
+        }
+
+        function drawMax(state, progress = 1, from = null, frame = null) {
+          const active = isActive(frame, from, progress);
+          scene.update(api => {
+            drawFreqs(api, state);
+            drawStrs(api, state);
+            if (state.heap !== null) drawHeapFrame(api, state, state.heap.length === 0 ? 'max_heap = []' : 'max_heap');
+            if (!active) {
+              if (state.collect) drawMaxCollectArrow(api);
+              drawMaxMarks(api, state);
+              if (!state.note && !state.ghost) drawTieNotes(api, state, ltMax, '<');
+            }
+            drawTokens(api, state, { from, progress, active, chip: state.chip || 'max:' });
+            drawRes(api, state);
+          });
+        }
+
+        // ===== min-heap case =====
+        // Owned by the size-k min-heap case: CODE_MIN, ltMin, buildMinFrames(), drawMin() and its discard/evict/reverse helpers. Edit freely without touching the max-heap block.
+        const ltMin = (a, b) => a.freq < b.freq || (a.freq === b.freq && a.str > b.str);
+        const CODE_MIN = [
+          { text: 'class Pair:', key: 'nh-class' },
+          { text: '    def __init__(self, str, freq):', key: 'nh-init-def' },
+          { text: '        self.str = str', key: 'nh-init-str' },
+          { text: '        self.freq = freq', key: 'nh-init-freq' },
+          { text: ' ' },
+          { text: '    # Since this is a min-heap comparator, we can use the same' },
+          { text: '    # comparator as the one used in the max-heap, but reversing the' },
+          { text: '    # inequality signs to invert the priority.' },
+          { text: '    def __lt__(self, other):', key: 'nh-lt' },
+          { text: '        if self.freq == other.freq:', key: 'nh-lt-tie' },
+          { text: '            return self.str > other.str', key: 'nh-lt-str' },
+          { text: '        return self.freq < other.freq', key: 'nh-lt-freq' },
+          { text: ' ' },
+          { text: 'def k_most_frequent_strings_min_heap(strs: List[str],', key: 'nh-def' },
+          { text: '                                     k: int) -> List[str]:' },
+          { text: '    freqs = Counter(strs)', key: 'nh-counter' },
+          { text: '    min_heap = []', key: 'nh-init' },
+          { text: '    for str, freq in freqs.items():', key: 'nh-for' },
+          { text: '        heapq.heappush(min_heap, Pair(str, freq))', key: 'nh-push' },
+          { text: "        # If heap size exceeds 'k', pop the lowest frequency string to" },
+          { text: "        # ensure the heap only contains the 'k' most frequent words so" },
+          { text: '        # far.' },
+          { text: '        if len(min_heap) > k:', key: 'nh-if' },
+          { text: '            heapq.heappop(min_heap)', key: 'nh-pop' },
+          { text: "    # Return the 'k' most frequent strings by popping the remaining 'k'" },
+          { text: '    # strings from the heap. Since we\'re using a min-heap, we need to' },
+          { text: '    # reverse the result after popping the elements to ensure the most' },
+          { text: '    # frequent strings are listed first.' },
+          { text: '    res = [heapq.heappop(min_heap).str for _ in range(k)]', key: 'nh-res' },
+          { text: '    res.reverse()', key: 'nh-reverse' },
+          { text: '    return res', key: 'nh-return' }
+        ];
+
+        function buildMinFrames() {
+          const frames = [];
+          frames.push(fr(
+            '读入 strs · Counter 计数', 'none', ['nh-counter'], 'freqs = Counter(strs)',
+            'Count occurrences with a hash map: go ×3, byte ×2, coding ×1, interview ×1.',
+            '先用 Counter 统计频率：go 出现 3 次，byte 2 次，coding、interview 各 1 次。',
+            'freqs 的键是字符串、值是出现次数；之后只需在这 4 个 (str, freq) 对里挑出前 k 个。',
+            { ...baseState(), strs: true }
+          ));
+          frames.push(fr(
+            'min_heap = []', 'none', ['nh-init'], 'min_heap = []',
+            'Start with an empty min_heap that will hold at most k items.',
+            'min_heap 从空开始，最多只保留 k 个候选。',
+            '小顶堆里只保留目前出现最多的 k 个，堆空间降到 O(k)。',
+            { ...baseState(), heap: [] }
+          ));
+
+          const heap = [];
+          const evicted = [];
+          for (const it of ITEMS) {
+            heappush(heap, { ...it }, ltMin);
+            const size = heap.length;
+            if (size > K) {
+              const top = heap[0];
+              const others = heap.slice(1).map(p => `(${p.str}, ${p.freq})`).join('、');
+              frames.push(fr(
+                `push (${it.str}, ${it.freq}) · len ${size} > k`, 'push', ['nh-for', 'nh-push', 'nh-if'],
+                `heapq.heappush(min_heap, Pair(str, freq))  # len(min_heap) = ${size} > ${K}`,
+                `Push (${it.str}, ${it.freq}): the heap now holds ${size} > k pairs. The min-heap root (${top.str}, ${top.freq}) has the lowest frequency of the ${size}, so it is next to go.`,
+                `push (${it.str}, ${it.freq}) 后堆里有 ${size} 个 > k = ${K}。小顶堆的堆顶是这 ${size} 个中频率最低的 (${top.str}, ${top.freq})：${others} 的频率都比它高。`,
+                '大小一旦超过 k，堆顶就是目前第 k+1 频繁的字符串——它注定进不了前 k。',
+                { ...baseState(), heap: snapKeys(heap), pushKey: it.str, evicted: [...evicted] }
+              ));
+              const ev = heappop(heap, ltMin);
+              evicted.push(ev.str);
+              frames.push(fr(
+                `heappop → 丢弃 (${ev.str}, ${ev.freq})`, 'evict', ['nh-pop'],
+                `heapq.heappop(min_heap)  # 丢弃 (${ev.str}, ${ev.freq})`,
+                `Pop the root (${ev.str}, ${ev.freq}): ${K} pairs with higher frequency are still in the heap, so it can never be in the top ${K}. The heap is back to k = ${K}.`,
+                `弹出堆顶 (${ev.str}, ${ev.freq})：堆里还有 ${K} 个频率比它高的，它不可能是前 ${K} 名。堆大小回到 k = ${K}。`,
+                '被丢弃的字符串放在“已弹出”区：以后不会再回到堆里。',
+                { ...baseState(), heap: snapKeys(heap), evictKey: ev.str, evicted: [...evicted] }
+              ));
+            } else {
+              frames.push(fr(
+                `push (${it.str}, ${it.freq})`, 'push', ['nh-for', 'nh-push', 'nh-if'],
+                `heapq.heappush(min_heap, Pair(str, freq))  # len(min_heap) = ${size} ≤ ${K}`,
+                `Push (${it.str}, ${it.freq}); heap size ${size} ≤ k, so nothing is popped.`,
+                `push (${it.str}, ${it.freq})，堆大小 ${size} ≤ k = ${K}，if 不成立，无需弹出。`,
+                '堆的大小 ≤ k：候选还不够 k 个，谁都还不能丢。',
+                { ...baseState(), heap: snapKeys(heap), pushKey: it.str, evicted: [...evicted] }
+              ));
+            }
+          }
+
+          const pop1 = heappop(heap, ltMin);
+          frames.push(fr(
+            '取出 pop #1 → res = [byte]', 'collect', ['nh-res'], 'heapq.heappop(min_heap).str  # 第 1 次 pop',
+            'All strings processed; the heap holds exactly the top 2. Pop the root (byte, 2) — the lower-priority of the two — into res.',
+            '全部处理完，堆里正好是前 2 名。先弹出堆顶 (byte, 2)——两者中 freq 较低的那个——放入 res[0]。',
+            '扫描结束后，堆里剩下的 k 个就是 top-k；小顶堆每次弹出其中 freq 最低的。',
+            { ...baseState(), evicted: [...evicted], heap: snapKeys(heap), res: [pop1.str], collectKey: pop1.str }
+          ));
+          const pop2 = heappop(heap, ltMin);
+          const popOrder = [pop1.str, pop2.str];
+          frames.push(fr(
+            '取出 pop #2 → res = [byte, go]', 'collect', ['nh-res'], 'heapq.heappop(min_heap).str  # 第 2 次 pop',
+            'Pop (go, 3) into res[1] — the most frequent string comes out last, so res is in ascending frequency: 2, 3.',
+            '再弹出 (go, 3) 放入 res[1]——频率最高的最后才出来。res 上方的 freq 是 2、3：升序。',
+            '小顶堆按 freq 从低到高弹出：取出顺序是第 k 频繁 → 第 1 频繁，与题目要求相反。',
+            { ...baseState(), evicted: [...evicted], heap: snapKeys(heap), res: [...popOrder], collectKey: pop2.str }
+          ));
+          frames.push(fr(
+            'res.reverse() → [go, byte]', 'reverse', ['nh-reverse'], 'res.reverse()  # [byte, go] → [go, byte]',
+            'res came out as [byte, go] (freq 2, then 3). Reversing turns ascending into descending: [go, byte].',
+            '弹出顺序是 [byte, go]（freq 2 → 3，升序）。res.reverse() 把 res[0] 与 res[1] 对调，变成降序 [go, byte]。',
+            'reverse 只调换 res 里的位置，O(k)；它把小顶堆的“低→高”弹出顺序翻成题目要的“高→低”。',
+            { ...baseState(), evicted: [...evicted], heap: [], res: [...popOrder].reverse(), popOrder }
+          ));
+          frames.push(fr(
+            'return res → ["go", "byte"]', 'none', ['nh-return'], 'return res  # ["go", "byte"]',
+            'Return ["go", "byte"]: frequency descending (3, then 2); equal frequencies would be in lexicographical order.',
+            '返回 ["go", "byte"]：freq 3 在前、2 在后，按频率降序；若频率相同则按字典序。',
+            '整个过程中 min_heap 最多只有 k + 1 个元素：时间 O(n log k)，堆空间 O(k)。',
+            { ...baseState(), evicted: [...evicted], heap: [], res: [...popOrder].reverse(), popOrder, done: true }
+          ));
+          return frames;
+        }
+
+        // dashed "已弹出" box for evicted strings
+        function drawDiscardBox({ path, text }) {
+          const g = geom;
+          const top = discardPos(0).y - g.tokenH / 2 - 7;
+          const boxH = 2 * (g.tokenH + (g.compact ? 6 : 8)) + 6;
+          path('discard-box', {
+            d: `M ${g.discardX} ${top} h ${g.discardW} v ${boxH} h ${-g.discardW} Z`,
+            fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3'
+          });
+          text('discard-label', { x: g.discardX + g.discardW / 2, y: top - 6, ...mono(g.compact ? 9.5 : 10.5, '#555') }, '已弹出 · 不会进 top-k');
+        }
+
+        // rest-state arrow: heap root → newest discard slot
+        function drawEvictArrow({ path, text }, state) {
+          const g = geom;
+          const start = { x: g.heapCx + g.tokenW / 2 + 4, y: g.rootY };
+          const end = discardPos(state.evicted.length - 1);
+          if (g.compact) {
+            const bottom = discardPos(1).y + g.tokenH / 2 + 10;
+            path('evict-arrow', {
+              d: `M ${start.x} ${start.y} L ${end.x} ${start.y} L ${end.x} ${bottom}`,
+              fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 3', 'marker-end': 'url(#kf-arrow)'
+            });
+            text('evict-arrow-label', { x: end.x - 6, y: (start.y + bottom) / 2 + 4, ...mono(10, '#555', 'end') }, 'heappop');
+          } else {
+            const ex = g.discardX - 5;
+            path('evict-arrow', {
+              d: `M ${start.x} ${start.y} C ${start.x + 40} ${start.y}, ${ex - 40} ${end.y}, ${ex} ${end.y}`,
+              fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 3', 'marker-end': 'url(#kf-arrow)'
+            });
+            text('evict-arrow-label', { x: (start.x + ex) / 2, y: g.rootY - 10, ...mono(11, '#555') }, 'heappop');
+          }
+        }
+
+        // min-only: rest-state arrow heap root → res. When the heap is now empty, a light dashed
+        // outline marks the vacated root slot so the arrow starts where the popped Pair was.
+        function drawPopArrow({ path, text }, state) {
+          const g = geom;
+          const resLeft = g.heapCx - (g.compact ? 95 : 108) - 3;
+          const rx = resLeft - 16;
+          let start = g.heapCx - g.tokenW / 2 - 12 - (g.compact ? 40 : 46) - 2;
+          if (state.heap.length === 0) {
+            path('pop-vacated', { d: rect(g.heapCx, g.rootY, g.tokenW, g.tokenH), fill: 'none', stroke: '#b7b7b1', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            start = g.heapCx - g.tokenW / 2 - 4;
+          }
+          path('pop-arrow', {
+            d: `M ${start} ${g.rootY} L ${rx} ${g.rootY} L ${rx} ${g.resY} L ${resLeft} ${g.resY}`,
+            fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+          });
+          text('pop-arrow-label', { x: rx + 6, y: g.rootY + 2 * g.levelH + 4, ...mono(g.compact ? 10 : 11, '#555', 'start') }, 'pop 堆顶 → res');
+        }
+
+        // min-only: freq of each collected string above its res slot (pop frames) — makes the ascending pop order visible.
+        function drawResFreqs({ text }, state) {
+          const g = geom;
+          state.res.forEach((k, i) => {
+            const p = resTokenPos(i);
+            text(`res-freq-${i}`, { x: p.x, y: g.resY - (g.compact ? 24 : 28), ...mono(g.compact ? 9.5 : 10.5, '#555') }, `freq ${itemOf(k).freq}`);
+          });
+        }
+
+        // min-only: "next pop is the root" note while len(min_heap) > k
+        function drawRootNote({ text }) {
+          const g = geom;
+          const x = g.heapCx + g.tokenW / 2 + 8;
+          const fs = g.compact ? 9.5 : 10.5;
+          text('root-note-a', { x, y: g.rootY - 2, ...mono(fs, '#272727', 'start') }, 'freq 最低');
+          text('root-note-b', { x, y: g.rootY + fs + 2, ...mono(fs, '#555', 'start') }, '→ 下一行弹出');
+        }
+
+        // min-only: res before reverse (the pop order) drawn as its own row between heap and res,
+        // with crossing arrows res[0] → res[1] and res[1] → res[0] on the reverse step.
+        function drawPopOrder({ path, text }, state, { strong, arrows }) {
+          const g = geom;
+          const y = g.rootY + g.levelH;
+          const ink = strong ? '#555' : '#999';
+          const fs = g.compact ? 9.5 : 10.5;
+          text('order-caption', { x: g.heapCx, y: y - g.tokenH / 2 - (g.compact ? 18 : 20), ...mono(fs, ink) }, 'reverse 前 · 弹出顺序 freq 升序');
+          state.popOrder.forEach((k, i) => {
+            const x = g.heapCx + (i === 0 ? -g.sibDx : g.sibDx);
+            path(`order-box-${i}`, { d: rect(x, y, g.tokenW, g.tokenH), fill: 'none', stroke: strong ? '#777' : '#b7b7b1', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            text(`order-txt-${i}`, { x, y: y + (g.compact ? 3.8 : 4.5), ...mono(g.compact ? 10.5 : 12, strong ? '#555' : '#777') }, pairText(k));
+            text(`order-idx-${i}`, { x: x - g.tokenW / 2, y: y - g.tokenH / 2 - 4, ...mono(g.compact ? 9 : 9.5, '#777', 'start') }, `res[${i}]`);
+          });
+          if (!arrows) return;
+          const y1 = y + g.tokenH / 2 + 3;
+          const y2 = g.resY - (g.compact ? 18 : 21) - 3;
+          state.popOrder.forEach((k, i) => {
+            const x1 = g.heapCx + (i === 0 ? -g.sibDx : g.sibDx);
+            const to = resTokenPos(state.popOrder.length - 1 - i);
+            path(`order-arrow-${i}`, {
+              d: `M ${x1} ${y1} L ${to.x} ${y2}`,
+              fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'marker-end': 'url(#kf-arrow)'
+            });
+          });
+          text('order-arrow-label', { x: g.heapCx + (g.compact ? 26 : 30), y: (y1 + y2) / 2 + 4, ...mono(g.compact ? 10 : 11, '#272727', 'start') }, 'res.reverse()');
+        }
+
+        // min-only variant of drawRes: the "answer" label sits above the box's left edge so it never clips at 320px.
+        function drawResMin({ path, text }, state) {
+          const g = geom;
+          const resBoxW = g.compact ? 190 : 216;
+          path('res-box', {
+            d: `M ${g.heapCx - resBoxW / 2} ${g.resY - (g.compact ? 18 : 21)} h ${resBoxW} v ${g.compact ? 36 : 42} h ${-resBoxW} Z`,
+            fill: 'none', stroke: state.done ? '#272727' : '#999',
+            'stroke-width': state.done ? 1.8 : 1.2, 'stroke-dasharray': '5 4'
+          });
+          text('res-label', { x: g.heapCx - resBoxW / 2 + 10, y: g.resY + 4, ...mono(g.compact ? 10.5 : 12, '#555', 'start') }, 'res =');
+          text('res-close', { x: g.heapCx + resBoxW / 2 - 10, y: g.resY + 4, ...mono(g.compact ? 10.5 : 12, '#555', 'end') }, ']');
+          if (state.done) {
+            text('res-answer', { x: g.heapCx - resBoxW / 2, y: g.resY - (g.compact ? 25 : 29), ...mono(g.compact ? 9.5 : 11, '#272727', 'start') }, 'answer · 答案 · freq 降序');
+          }
+        }
+
+        function drawMin(state, progress = 1, from = null, frame = null) {
+          const active = isActive(frame, from, progress);
+          scene.update(api => {
+            drawFreqs(api, state);
+            drawStrs(api, state);
+            if (state.heap !== null) {
+              const n = state.heap.length;
+              drawHeapFrame(api, state, n === 0 ? 'min_heap = []' : `min_heap${n > K ? ` · len ${n} > k` : ''}`);
+            }
+            drawDiscardBox(api);
+            if (state.popOrder) drawPopOrder(api, state, { strong: !state.done, arrows: !state.done && !active });
+            if (!active && frame) {
+              if (frame.anim === 'collect') { drawPopArrow(api, state); drawResFreqs(api, state); }
+              if (frame.anim === 'evict') drawEvictArrow(api, state);
+              if (frame.anim === 'push' && state.heap.length > K) drawRootNote(api);
+            }
+            if (!active) drawTieNotes(api, state, ltMin, '>');
+            drawTokens(api, state, { from, progress, active, chip: 'min:' });
+            drawResMin(api, state);
+          });
+        }
+
+        // ===== dispatcher + mode wiring =====
+        const MODES = {
+          max: { code: CODE_MAX, title: '大顶堆', build: buildMaxFrames, draw: drawMax },
+          min: { code: CODE_MIN, title: '大小为 k 的小顶堆', build: buildMinFrames, draw: drawMin }
+        };
+        // Old combined trace: steps 0–3 were max-heap (count, heapify, pop, pop),
+        // 4 (counter + min_heap = []) onward were min-heap.
+        const LEGACY_MAX_STEPS = [0, 3, 5, 7]; // same operations in the split max trace
+        const LEGACY_MAX_LAST = LEGACY_MAX_STEPS.length - 1;
+        const LEGACY_MIN_OFFSET = 3; // old step n ≥ 4 → min step n − 3
+        const MODE_STORAGE_KEY = `algorithm-visuals:mode:${location.pathname}`;
+        let mode = 'max';
+
         function draw(state, progress = 1, from = null, frame = null) {
           if (!geom.width || !state) return;
-          const g = geom;
-          const active = !!(frame && frame.anim && frame.anim !== 'none' && from && progress < 1);
-          const phase = state.phase;
-          const chip = phase === 'max' ? 'max:' : 'min:';
-          const heapLabel = phase === 'max' ? 'max_heap' : 'min_heap';
-          const lt = phase === 'max' ? ltMax : ltMin;
-          const mono = (size, fill = '#555', anchor = 'middle') => ({ 'text-anchor': anchor, 'font-size': size, fill, 'font-family': MONO });
-          const rect = (x, y, w, h) => `M ${x - w / 2} ${y - h / 2} h ${w} v ${h} h ${-w} Z`;
-
-          scene.update(({ path, text }) => {
-            // freqs hash map (stable left column)
-            text('freqs-title', { x: g.fx + g.tableW / 2, y: g.hy - 7, ...mono(g.compact ? 12 : 13.5, '#272727'), 'font-weight': 500 }, 'freqs');
-            path('freqs-box', {
-              d: `M ${g.fx} ${g.hy} h ${g.tableW} v ${g.headerH + 4 * g.rowH + 8} h ${-g.tableW} Z`,
-              fill: 'none', stroke: '#555', 'stroke-width': 1.3
-            });
-            path('freqs-div', { d: `M ${g.fx + g.colStrW} ${g.hy} v ${g.headerH + 4 * g.rowH + 8}`, stroke: '#999', 'stroke-width': 1, fill: 'none' });
-            text('freqs-h1', { x: g.fx + g.colStrW / 2, y: g.hy + 14, ...mono(g.compact ? 9.5 : 10.5, '#777') }, 'str');
-            text('freqs-h2', { x: g.fx + g.colStrW + (g.tableW - g.colStrW) / 2, y: g.hy + 14, ...mono(g.compact ? 9.5 : 10.5, '#777') }, 'freq');
-            ITEMS.forEach((it, i) => {
-              text(`freqs-str-${i}`, { x: g.fx + 9, y: rowCenter(i) + 4, ...mono(g.compact ? 11.5 : 13, '#272727', 'start') }, it.str);
-              text(`freqs-frq-${i}`, { x: g.fx + g.tableW - 9, y: rowCenter(i) + 4, ...mono(g.compact ? 11.5 : 13, '#272727', 'end') }, String(it.freq));
-            });
-            if (state.pushKey) {
-              const i = ITEMS.findIndex(it => it.str === state.pushKey);
-              path('freqs-hl', {
-                d: `M ${g.fx + 3} ${g.hy + g.headerH + i * g.rowH + 3} h ${g.tableW - 6} v ${g.rowH - 6} h ${-(g.tableW - 6)} Z`,
-                fill: 'none', stroke: '#777', 'stroke-width': 1.2, 'stroke-dasharray': '4 3'
-              });
-            }
-
-            // input strs row (setup frame only)
-            if (state.strs) {
-              const perRow = g.compact ? 4 : (g.width >= 860 ? 7 : 4);
-              const chipW = g.compact ? Math.min(74, (g.width - 16) / 4 - 6) : 78;
-              const chipH = g.compact ? 26 : 30;
-              const chipY0 = g.compact ? g.freqsBottom + 52 : g.rootY - 16;
-              if (g.compact) {
-                const ax = g.fx + g.tableW / 2;
-                path('strs-arrow', {
-                  d: `M ${ax} ${chipY0 - chipH / 2 - 5} L ${ax} ${g.freqsBottom + 5}`,
-                  fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
-                });
-                text('strs-caption', { x: ax + 8, y: g.freqsBottom + 22, ...mono(9.5, '#555', 'start') }, 'strs（7 个）· Counter 计数');
-              } else {
-                text('strs-caption', { x: g.fx + g.tableW + 46, y: g.rootY - 54, ...mono(11.5, '#555', 'start') },
-                  g.width >= 860
-                    ? 'strs = [ "go", "coding", "byte", "byte", "go", "interview", "go" ] · Counter 统计次数'
-                    : 'Counter 统计每个字符串的次数');
-                path('strs-arrow', {
-                  d: `M ${g.fx + g.tableW + 40} ${g.rootY - 2} L ${g.fx + g.tableW + 6} ${g.rootY - 2}`,
-                  fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
-                });
-              }
-              STRS.forEach((s, i) => {
-                const col = i % perRow;
-                const rowI = (i / perRow) | 0;
-                const x0 = g.compact ? (g.width - (perRow * chipW + (perRow - 1) * 6)) / 2 : g.fx + g.tableW + 46;
-                const x = x0 + col * (chipW + 6) + chipW / 2 + (rowI === 1 ? (chipW + 6) / 2 : 0);
-                const y = chipY0 + rowI * (chipH + 8);
-                path(`strs-chip-${i}`, { d: rect(x, y, chipW, chipH), fill: '#fffdf8', stroke: '#777', 'stroke-width': 1.2 });
-                text(`strs-txt-${i}`, { x, y: y + 4, ...mono(g.compact ? 10 : 12, '#272727') }, `"${s}"`);
-              });
-            }
-
-            // heap as a binary tree: parent-child lines follow array indices
-            const n = state.heap ? state.heap.length : 0;
-            if (state.heap !== null) {
-              const over = phase === 'min' && n > K ? ` · len ${n} > k` : '';
-              text('heap-label', { x: g.heapCx, y: g.rootY - (g.compact ? 30 : 34), ...mono(g.compact ? 11 : 12.5, '#272727') },
-                n === 0 ? `${heapLabel} = []` : `${heapLabel}${over}`);
-              for (let i = 1; i < n; i++) {
-                const p = slotPos((i - 1) >> 1);
-                const c = slotPos(i);
-                path(`heap-edge-${i}`, {
-                  d: `M ${p.x} ${p.y + g.tokenH / 2} L ${c.x} ${c.y - g.tokenH / 2}`,
-                  fill: 'none', stroke: '#999', 'stroke-width': 1.1
-                });
-              }
-            }
-
-            // evicted strings (size-k min-heap only)
-            if (phase === 'min') {
-              const top = discardPos(0).y - g.tokenH / 2 - 7;
-              const boxH = 2 * (g.tokenH + (g.compact ? 6 : 8)) + 6;
-              path('discard-box', {
-                d: `M ${g.discardX} ${top} h ${g.discardW} v ${boxH} h ${-g.discardW} Z`,
-                fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3'
-              });
-              text('discard-label', { x: g.discardX + g.discardW / 2, y: top - 6, ...mono(g.compact ? 9.5 : 10.5, '#555') }, '已弹出 · 不会进 top-k');
-            }
-
-            // operation arrows (rest states)
-            if (!active && frame) {
-              if (frame.anim === 'collect') {
-                const chipLeft = g.heapCx - g.tokenW / 2 - 12 - (g.compact ? 40 : 46) - 2;
-                const rx = g.heapCx - g.treeLeft - 14;
-                const resLeft = g.heapCx - (g.compact ? 95 : 108) - 3;
-                path('collect-arrow', {
-                  d: `M ${chipLeft} ${g.rootY} L ${rx} ${g.rootY} L ${rx} ${g.resY} L ${resLeft} ${g.resY}`,
-                  fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
-                });
-                text('collect-arrow-label', { x: rx + 6, y: g.rootY + 2 * g.levelH + 4, ...mono(g.compact ? 10 : 11, '#555', 'start') }, 'pop 堆顶 → res');
-              }
-              if (frame.anim === 'evict') {
-                const start = { x: g.heapCx + g.tokenW / 2 + 4, y: g.rootY };
-                const end = discardPos(state.evicted.length - 1);
-                if (g.compact) {
-                  const bottom = discardPos(1).y + g.tokenH / 2 + 10;
-                  path('evict-arrow', {
-                    d: `M ${start.x} ${start.y} L ${end.x} ${start.y} L ${end.x} ${bottom}`,
-                    fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 3', 'marker-end': 'url(#kf-arrow)'
-                  });
-                  text('evict-arrow-label', { x: end.x - 6, y: (start.y + bottom) / 2 + 4, ...mono(10, '#555', 'end') }, 'heappop');
-                } else {
-                  const ex = g.discardX - 5;
-                  path('evict-arrow', {
-                    d: `M ${start.x} ${start.y} C ${start.x + 40} ${start.y}, ${ex - 40} ${end.y}, ${ex} ${end.y}`,
-                    fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 3', 'marker-end': 'url(#kf-arrow)'
-                  });
-                  text('evict-arrow-label', { x: (start.x + ex) / 2, y: g.rootY - 10, ...mono(11, '#555') }, 'heappop');
-                }
-              }
-              if (frame.anim === 'reverse') {
-                const a = resTokenPos(0);
-                const b = resTokenPos(1);
-                path('swap-a', {
-                  d: `M ${a.x - 24} ${a.y - 24} C ${a.x - 44} ${a.y - 40}, ${b.x - 44} ${b.y - 40}, ${b.x - 24} ${b.y - 24}`,
-                  fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'marker-end': 'url(#kf-arrow)'
-                });
-                path('swap-b', {
-                  d: `M ${b.x + 24} ${b.y + 24} C ${b.x + 44} ${b.y + 40}, ${a.x + 44} ${a.y + 40}, ${a.x + 24} ${a.y + 24}`,
-                  fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'marker-end': 'url(#kf-arrow)'
-                });
-              }
-            }
-
-            // tie-break made visible: a parent and child with equal freq are ordered by str
-            if (!active && state.heap) {
-              for (let i = 1; i < n; i++) {
-                const pk = state.heap[(i - 1) >> 1];
-                const ck = state.heap[i];
-                const pi = itemOf(pk);
-                const ci = itemOf(ck);
-                if (pi.freq !== ci.freq || !lt(pi, ci)) continue;
-                const c = slotPos(i);
-                const lx = c.x + g.tokenW / 2 + 8;
-                const fs = g.compact ? 9.5 : 10.5;
-                text(`tie-a-${i}`, { x: lx, y: c.y - 3, ...mono(fs, '#555', 'start') }, `并列 freq ${pi.freq} = ${ci.freq}，比 str：`);
-                text(`tie-b-${i}`, { x: lx, y: c.y + fs + 1, ...mono(fs, '#272727', 'start') },
-                  `"${pk}" ${phase === 'max' ? '<' : '>'} "${ck}" → 父`);
-              }
-            }
-
-            // tokens: heap slots, res entries, evicted entries
-            const keys = new Set();
-            for (const it of ITEMS) {
-              if (zoneOf(state, it.str) || (active && zoneOf(from, it.str))) keys.add(it.str);
-            }
-            for (const k of keys) {
-              const to = zoneOf(state, k);
-              const was = active ? zoneOf(from, k) : null;
-              let pos;
-              let opacity = 1;
-              const rec = to || was;
-              if (!active) pos = zonePos(to);
-              else if (!to) { pos = zonePos(was); opacity = 1 - progress; }
-              else pos = lerpP(was ? zonePos(was) : freqsPos(k), zonePos(to), ease(progress));
-              const isRes = rec.zone === 'res';
-              const gone = rec.zone === 'gone';
-              const isRoot = !active && rec.zone === 'heap' && rec.idx === 0;
-              const pushed = !active && rec.zone === 'heap' && k === state.pushKey;
-              const w = isRes ? (g.compact ? 56 : 62) : g.tokenW;
-              const h = g.tokenH;
-              path(`item-box-${k}`, {
-                d: rect(pos.x, pos.y, w, h),
-                fill: '#fffdf8',
-                stroke: isRoot ? '#272727' : gone ? '#999' : '#555',
-                'stroke-width': isRoot ? 1.8 : 1.2,
-                'stroke-dasharray': pushed ? '5 3' : gone ? '4 3' : null,
-                opacity
-              });
-              text(`item-txt-${k}`, {
-                x: pos.x, y: pos.y + (g.compact ? 3.8 : 4.5),
-                ...mono(isRes ? (g.compact ? 10.5 : 12) : (g.compact ? 10.5 : 12), gone ? '#777' : '#272727'),
-                opacity
-              }, isRes ? k : pairText(k));
-              if (!active && rec.zone === 'heap') {
-                text(`item-idx-${k}`, { x: pos.x - w / 2, y: pos.y - h / 2 - 4, ...mono(g.compact ? 9 : 9.5, '#777', 'start') },
-                  pushed ? `[${rec.idx}] push` : `[${rec.idx}]`);
-              }
-              if (isRoot) {
-                const cw = g.compact ? 40 : 46;
-                const ch = g.compact ? 20 : 22;
-                const cx = pos.x - w / 2 - 12 - cw / 2;
-                path(`item-chip-${k}`, { d: rect(cx, pos.y, cw, ch), fill: '#f5f2e9', stroke: '#555', 'stroke-width': 1.2 });
-                text(`item-chip-txt-${k}`, { x: cx, y: pos.y + 3.5, ...mono(g.compact ? 9.5 : 10.5, '#272727') }, chip);
-              }
-            }
-
-            // res box
-            const resBoxW = g.compact ? 190 : 216;
-            path('res-box', {
-              d: `M ${g.heapCx - resBoxW / 2} ${g.resY - (g.compact ? 18 : 21)} h ${resBoxW} v ${g.compact ? 36 : 42} h ${-resBoxW} Z`,
-              fill: 'none', stroke: state.done ? '#272727' : '#999',
-              'stroke-width': state.done ? 1.8 : 1.2, 'stroke-dasharray': '5 4'
-            });
-            text('res-label', { x: g.heapCx - resBoxW / 2 + 10, y: g.resY + 4, ...mono(g.compact ? 10.5 : 12, '#555', 'start') }, 'res =');
-            text('res-close', { x: g.heapCx + resBoxW / 2 - 10, y: g.resY + 4, ...mono(g.compact ? 10.5 : 12, '#555', 'end') }, ']');
-            if (state.done) {
-              text('res-answer', { x: g.heapCx + resBoxW / 2 + 8, y: g.resY - 26, ...mono(g.compact ? 9.5 : 11, '#272727', 'start') }, 'answer · 答案');
-            }
-          });
+          MODES[mode].draw(state, progress, from, frame);
         }
 
         function fmtHeap(heap) {
@@ -699,7 +992,7 @@
           expressionEl.textContent = frame.line;
           explanationEl.textContent = frame.en;
           explanationZhEl.textContent = frame.zh;
-          stage.setAttribute('aria-label', `前 K 个高频字符串演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          stage.setAttribute('aria-label', `前 K 个高频字符串演示（${MODES[mode].title}）：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
           draw(state, 1, null, frame);
         }
 
@@ -709,6 +1002,39 @@
           res: [...s.res],
           evicted: [...s.evicted]
         });
+
+        // Mode lives in the query string (?mode=min) because core rewrites the hash to `step=N`
+        // on every step and in its copy-link; the query survives both. `#mode=min&step=N` is accepted on load.
+        function hashParams() { return new URLSearchParams(location.hash.slice(1)); }
+        function validMode(value) { return value === 'max' || value === 'min' ? value : null; }
+        function hashStep() {
+          const v = hashParams().get('step');
+          return v !== null && /^\d+$/.test(v) ? Number(v) : null;
+        }
+        function writeModeUrl() {
+          const url = new URL(location.href);
+          url.searchParams.set('mode', mode);
+          const hp = hashParams();
+          if (hp.has('mode')) { hp.delete('mode'); url.hash = hp.toString(); }
+          if (url.href !== location.href) history.replaceState(history.state, '', url.href);
+          try { localStorage.setItem(MODE_STORAGE_KEY, mode); } catch { /* storage can be disabled in embeds */ }
+        }
+        function storedMode() {
+          try { return validMode(localStorage.getItem(MODE_STORAGE_KEY)); } catch { return null; }
+        }
+
+        function applyMode(nextMode, initialStep) {
+          mode = nextMode;
+          motion.cancel();
+          transitionFrom = null;
+          root.querySelectorAll('[data-mode]').forEach(btn =>
+            btn.setAttribute('aria-pressed', btn.dataset.mode === mode ? 'true' : 'false'));
+          codeTitleEl.textContent = MODES[mode].title;
+          renderCode(MODES[mode].code);
+          trace.setFrames(MODES[mode].build(), Number.isInteger(initialStep) ? { initialStep } : {});
+          writeModeUrl();
+        }
+
         const trace = core.createTrace({
           root,
           cloneState,
@@ -728,9 +1054,28 @@
           formatStepOption: frame => frame.stepLabel
         });
 
+        root.querySelectorAll('[data-mode]').forEach(btn =>
+          btn.addEventListener('click', () => { if (btn.dataset.mode !== mode) applyMode(btn.dataset.mode, 0); }));
+        window.addEventListener('hashchange', () => {
+          const requested = validMode(hashParams().get('mode'));
+          if (requested && requested !== mode) applyMode(requested, hashStep() ?? 0);
+          else if (requested) writeModeUrl();
+        });
+
         layout();
         new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null, trace.frame); }).observe(stage);
-        trace.setFrames(FRAMES);
+
+        {
+          const urlMode = validMode(hashParams().get('mode')) || validMode(new URLSearchParams(location.search).get('mode'));
+          const step = hashStep();
+          const remembered = storedMode();
+          if (urlMode) applyMode(urlMode, step ?? (remembered && remembered !== urlMode ? 0 : undefined));
+          else if (step !== null) {
+            // legacy #step=N from the combined trace
+            if (step <= LEGACY_MAX_LAST) applyMode('max', LEGACY_MAX_STEPS[step]);
+            else applyMode('min', step - LEGACY_MIN_OFFSET);
+          } else applyMode(remembered || 'max');
+        }
       })();
     </script>
   </body>
