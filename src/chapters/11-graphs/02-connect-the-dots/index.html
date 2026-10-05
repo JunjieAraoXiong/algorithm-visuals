@@ -22,7 +22,7 @@
       .metrics dt { color: var(--quiet); }
       .metrics dd { margin: 0; text-align: right; }
       .table-cap { margin: 10px 3px 0; color: var(--quiet); font: 11px/1.4 monospace; }
-      .edge-table { width: 100%; margin: 4px 3px 0; border-collapse: collapse; font: 12px/1.35 monospace; }
+      .edge-table { width: auto; min-width: min(100% - 6px, 340px); margin: 4px 3px 0; border-collapse: collapse; font: 12px/1.35 monospace; }
       .edge-table th, .edge-table td { padding: 3px 8px; border: 1px solid var(--rule); text-align: left; white-space: nowrap; }
       .edge-table thead th { color: var(--quiet); font-weight: 500; background: #f8f6f0; }
       .edge-table td.num { text-align: right; }
@@ -65,28 +65,27 @@
           <div class="stage" data-stage tabindex="0" aria-label="连接所有点演示">
             <svg class="lines" data-lines aria-hidden="true"></svg>
           </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
           <div class="state-grid">
             <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
             <dl class="metrics">
               <div><dt><code>total_cost</code></dt><dd data-m-total></dd></div>
-              <div><dt><code>edges_added</code></dt><dd data-m-added></dd></div>
+              <div><dt><code>edges_added</code> / n−1</dt><dd data-m-added></dd></div>
               <div><dt>连通分量</dt><dd data-m-comp></dd></div>
               <div><dt>当前边</dt><dd data-m-edge></dd></div>
             </dl>
           </div>
           <p class="table-cap" data-table-cap></p>
-          <table class="edge-table" data-edge-table aria-label="edges 排序表" hidden>
-            <thead><tr><th>#</th><th>边 (i, j)</th><th>代价</th><th>结果</th></tr></thead>
+          <table class="edge-table" data-edge-table aria-label="edges 列表" hidden>
+            <thead><tr><th>#</th><th>(cost, i, j)</th><th>结果</th></tr></thead>
             <tbody data-edge-rows></tbody>
           </table>
-          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
         </section>
 
         <aside class="code-panel" data-code-panel aria-labelledby="dots-code-title">
           <h2 id="dots-code-title">完整 Python 代码</h2>
           <p class="code-status" data-code-status></p>
-          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func-def">def connect_the_dots(points: List[List[int]]) -&gt; int:</span><span class="code-line" data-source-key="n">    n = len(points)</span><span class="code-line">    # Create and populate an array containing all possible edges.</span><span class="code-line" data-source-key="edges-init">    edges = []</span><span class="code-line" data-source-key="for-i">    for i in range(n):</span><span class="code-line" data-source-key="for-j">        for j in range(i + 1, n):</span><span class="code-line">            # Manhattan distance.</span><span class="code-line" data-source-key="cost">            cost = (abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]))</span><span class="code-line" data-source-key="append">            edges.append((cost, i, j))</span><span class="code-line">    # Sort the edges by their cost in ascending order.</span><span class="code-line" data-source-key="sort">    edges.sort()</span><span class="code-line" data-source-key="uf-init">    uf = UnionFind(n)</span><span class="code-line" data-source-key="total-init">    total_cost = 0</span><span class="code-line" data-source-key="added-init">    edges_added = 0</span><span class="code-line">    # Use Kruskal's algorithm to create the MST and identify its minimum cost.</span><span class="code-line" data-source-key="for-edge">    for cost, p1, p2 in edges:</span><span class="code-line">        # If the points are not already connected (i.e., their representatives</span><span class="code-line">        # are not the same), connect them, and add the cost to the total cost.</span><span class="code-line" data-source-key="union-if">        if uf.union(p1, p2):</span><span class="code-line" data-source-key="add-cost">            total_cost += cost</span><span class="code-line" data-source-key="add-count">            edges_added += 1</span><span class="code-line">        # If n - 1 edges have been added to the MST, the MST is complete.</span><span class="code-line" data-source-key="done-if">        if edges_added == n - 1:</span><span class="code-line" data-source-key="return">            return total_cost</span><span class="code-line"></span><span class="code-line" data-source-key="class">class UnionFind:</span><span class="code-line" data-source-key="init-def">    def __init__(self, size):</span><span class="code-line" data-source-key="parent-init">        self.parent = [i for i in range(size)]</span><span class="code-line" data-source-key="size-init">        self.size = [1] * size</span><span class="code-line"></span><span class="code-line" data-source-key="union-def">    def union(self, x, y) -&gt; bool:</span><span class="code-line" data-source-key="find-call">        rep_x, rep_y = self.find(x), self.find(y)</span><span class="code-line" data-source-key="rep-if">        if rep_x != rep_y:</span><span class="code-line" data-source-key="size-if">            if self.size[rep_x] &gt; self.size[rep_y]:</span><span class="code-line" data-source-key="attach-x">                self.parent[rep_y] = rep_x</span><span class="code-line" data-source-key="size-x">                self.size[rep_x] += self.size[rep_y]</span><span class="code-line">            else:</span><span class="code-line" data-source-key="attach-y">                self.parent[rep_x] = rep_y</span><span class="code-line" data-source-key="size-y">                self.size[rep_y] += self.size[rep_x]</span><span class="code-line">            # Return True if both groups were merged.</span><span class="code-line" data-source-key="union-true">            return True</span><span class="code-line">        # Return False if the points belong to the same group.</span><span class="code-line" data-source-key="union-false">        return False</span><span class="code-line"></span><span class="code-line" data-source-key="find-def">    def find(self, x) -&gt; int:</span><span class="code-line" data-source-key="find-if">        if x == self.parent[x]:</span><span class="code-line" data-source-key="find-return">            return x</span><span class="code-line" data-source-key="find-recurse">        self.parent[x] = self.find(self.parent[x])</span><span class="code-line" data-source-key="find-done">        return self.parent[x]</span></code></pre>
-          <p class="note">上图：散点 + 已采用的 MST 边（实线）；当前候选边（虚线）；被跳过的边短暂出现为灰色虚线并标注「成环」。下方是 <code>parent</code> / <code>size</code> 数组与 find 的挂接箭头。表格为排序后的 <code>edges</code>。</p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func-def">def connect_the_dots(points: List[List[int]]) -&gt; int:</span><span class="code-line" data-source-key="n">    n = len(points)</span><span class="code-line">    # Create and populate an array containing all possible edges.</span><span class="code-line" data-source-key="edges-init">    edges = []</span><span class="code-line" data-source-key="for-i">    for i in range(n):</span><span class="code-line" data-source-key="for-j">        for j in range(i + 1, n):</span><span class="code-line">            # Manhattan distance.</span><span class="code-line" data-source-key="cost">            cost = (abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]))</span><span class="code-line" data-source-key="append">            edges.append((cost, i, j))</span><span class="code-line">    # Sort the edges by their cost in ascending order.</span><span class="code-line" data-source-key="sort">    edges.sort()</span><span class="code-line" data-source-key="uf-init">    uf = UnionFind(n)</span><span class="code-line" data-source-key="total-init">    total_cost = 0</span><span class="code-line" data-source-key="added-init">    edges_added = 0</span><span class="code-line">    # Use Kruskal's algorithm to create the MST and identify its minimum cost.</span><span class="code-line" data-source-key="for-edge">    for cost, p1, p2 in edges:</span><span class="code-line">        # If the points are not already connected (i.e., their representatives</span><span class="code-line">        # are not the same), connect them, and add the cost to the total cost.</span><span class="code-line" data-source-key="union-if">        if uf.union(p1, p2):</span><span class="code-line" data-source-key="add-cost">            total_cost += cost</span><span class="code-line" data-source-key="add-count">            edges_added += 1</span><span class="code-line">        # If n - 1 edges have been added to the MST, the MST is complete.</span><span class="code-line" data-source-key="done-if">        if edges_added == n - 1:</span><span class="code-line" data-source-key="return">            return total_cost</span><span class="code-line"></span><span class="code-line" data-source-key="class">class UnionFind:</span><span class="code-line" data-source-key="init-def">    def __init__(self, size):</span><span class="code-line" data-source-key="parent-init">        self.parent = [i for i in range(size)]</span><span class="code-line" data-source-key="size-init">        self.size = [1] * size</span><span class="code-line"></span><span class="code-line" data-source-key="union-def">    def union(self, x, y) -&gt; bool:</span><span class="code-line" data-source-key="find-call">        rep_x, rep_y = self.find(x), self.find(y)</span><span class="code-line" data-source-key="rep-if">        if rep_x != rep_y:</span><span class="code-line" data-source-key="size-if">            if self.size[rep_x] &gt; self.size[rep_y]:</span><span class="code-line" data-source-key="attach-x">                self.parent[rep_y] = rep_x</span><span class="code-line" data-source-key="size-x">                self.size[rep_x] += self.size[rep_y]</span><span class="code-line" data-source-key="else">            else:</span><span class="code-line" data-source-key="attach-y">                self.parent[rep_x] = rep_y</span><span class="code-line" data-source-key="size-y">                self.size[rep_y] += self.size[rep_x]</span><span class="code-line">            # Return True if both groups were merged.</span><span class="code-line" data-source-key="union-true">            return True</span><span class="code-line">        # Return False if the points belong to the same group.</span><span class="code-line" data-source-key="union-false">        return False</span><span class="code-line"></span><span class="code-line" data-source-key="find-def">    def find(self, x) -&gt; int:</span><span class="code-line" data-source-key="find-if">        if x == self.parent[x]:</span><span class="code-line" data-source-key="find-return">            return x</span><span class="code-line" data-source-key="find-recurse">        self.parent[x] = self.find(self.parent[x])</span><span class="code-line" data-source-key="find-done">        return self.parent[x]</span></code></pre>
         </aside>
       </div>
 
@@ -117,7 +116,7 @@
         <h2 id="dots-edge">边界情况 / Edge cases</h2>
         <div class="edge-grid">
           <article class="paper-card"><strong>只有 2 个点</strong><p>唯一的一条边就是答案：<code>edges_added == 1 == n-1</code>，直接返回它的 Manhattan 距离。</p></article>
-          <article class="paper-card"><strong>多点共线 / 距离相等</strong><p>共线不影响距离公式；代价相等时 Python 的 <code>sort</code> 与 JS 的 <code>Array.sort</code> 都是稳定排序，同代价边保持「i 小优先、再 j 小」的生成顺序，两种实现结果一致（本页仿真已与原 Python 逐事件对拍）。</p></article>
+          <article class="paper-card"><strong>多点共线 / 距离相等</strong><p>共线不影响距离公式；代价相等时 <code>edges.sort()</code> 继续比较元组 <code>(cost, i, j)</code> 的后两项，先比 i 再比 j。本页仿真按同样的顺序排序，与原 Python 逐事件一致。</p></article>
           <article class="paper-card"><strong>提前返回</strong><p>选满 <code>n-1</code> 条边后立即 <code>return</code>，剩余边不再处理——书例中 (3,4)、(0,1)、(0,4)、(1,4) 四条边永远不会被检查。</p></article>
           <article class="paper-card"><strong>n 较大时</strong><p><code>n²</code> 条边全部生成再排序是瓶颈；Prim 算法配合堆可以把时间降到 <code>O(n² log n)</code> 以下（稠密图可 <code>O(n²)</code>），代价是失去「逐条边贪心」的直观。</p></article>
         </div>
@@ -148,14 +147,18 @@
         const mComp = root.querySelector('[data-m-comp]');
         const mEdge = root.querySelector('[data-m-edge]');
         const tableCap = root.querySelector('[data-table-cap]');
+        const edgeTable = root.querySelector('[data-edge-table]');
         const edgeRows = root.querySelector('[data-edge-rows]');
         const expressionEl = root.querySelector('[data-expression]');
         const explanationEl = root.querySelector('[data-explanation]');
 
         const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const SVG_NS = 'http://www.w3.org/2000/svg';
 
 // ==== simulation ====
-        // Verbatim JavaScript translation of the reference Python implementation.
+        // JavaScript translation of the reference Python implementation. The
+        // only additions record what the trace draws: the parent pointers each
+        // find walks, and the arrays before/after the finds and the union.
         function UnionFindSim(size) {
           this.parent = Array.from({ length: size }, (_, i) => i);
           this.size = Array(size).fill(1);
@@ -182,6 +185,14 @@
           }
           return false;
         };
+        function walkToRoot(parent, x) {
+          const path = [x];
+          while (parent[x] !== x) {
+            x = parent[x];
+            path.push(x);
+          }
+          return path;
+        }
         function simulateConnectTheDots(points) {
           const n = points.length;
           const edges = [];
@@ -192,30 +203,32 @@
             }
           }
           const generated = edges.map(e => [e.i, e.j, e.cost]);
-          edges.sort((a, b) => a.cost - b.cost);
+          // Python compares the tuples (cost, i, j) element by element.
+          edges.sort((a, b) => (a.cost - b.cost) || (a.i - b.i) || (a.j - b.j));
           const sorted = edges.map(e => [e.i, e.j, e.cost]);
           const uf = new UnionFindSim(n);
           const events = [];
           let total_cost = 0;
           let edges_added = 0;
           for (const { cost, i, j } of edges) {
+            const before = [...uf.parent];
+            const sizeBefore = [...uf.size];
+            // union() evaluates find(x) and then find(y); record each walk.
+            const pathX = walkToRoot(uf.parent, i);
             const rep_x = uf.find(i);
+            const pathY = walkToRoot(uf.parent, j);
             const rep_y = uf.find(j);
+            const afterFind = [...uf.parent];
             const accepted = uf.union(i, j);
             if (accepted) {
               total_cost += cost;
               edges_added += 1;
             }
             events.push({
-              edge: [i, j],
-              cost,
-              rep_x,
-              rep_y,
-              accepted,
-              parent: [...uf.parent],
-              size: [...uf.size],
-              total_cost,
-              edges_added
+              edge: [i, j], cost, rep_x, rep_y, pathX, pathY,
+              before, sizeBefore, afterFind, accepted,
+              parent: [...uf.parent], size: [...uf.size],
+              total_cost, edges_added
             });
             if (edges_added === n - 1) {
               break;
@@ -227,17 +240,33 @@
 
         const BOOK = [[1, 1], [2, 6], [3, 2], [4, 3], [7, 1]];
         const sim = simulateConnectTheDots(BOOK);
+        const N = sim.n;
+        const INIT_PARENT = Array.from({ length: N }, (_, i) => i);
+        const INIT_SIZE = Array(N).fill(1);
+        const SORT_RANK = new Map(sim.sorted.map(([i, j], k) => [`${i}-${j}`, k]));
+        const FINAL_MST = sim.events.filter(ev => ev.accepted).map(ev => ev.edge);
+        const pname = i => `${i}(${BOOK[i][0]},${BOOK[i][1]})`;
 
         const st = (over = {}) => ({
           edges: [],
           sorted: false,
           showTable: false,
           showAll: false,
-          manhattan: null,
+          route: null,
+          caption: null,
           current: null,
-          parent: [0, 1, 2, 3, 4],
-          size: [1, 1, 1, 1, 1],
-          hl: { nodes: [], changed: null },
+          cycle: null,
+          ufReady: false,
+          parent: INIT_PARENT,
+          size: INIT_SIZE,
+          ends: [],
+          findPaths: [],
+          reps: null,
+          hotParent: [],
+          hotSize: [],
+          changedParent: null,
+          changedSize: null,
+          newLink: null,
           totalCost: 0,
           edgesAdded: 0,
           done: false,
@@ -246,330 +275,642 @@
 
         const fr = (stepLabel, phase, sourceKeys, line, explanation, invariant, state) =>
           ({ stepLabel, phase, sourceKeys, line, explanation, invariant, state });
-
         const mkEdges = (list, statusOf) => list.map(([i, j, cost], k) => ({ i, j, cost, status: statusOf ? statusOf(k) : 'pending' }));
+        const statusAt = (k, own) => m => (m < k ? (sim.events[m].accepted ? 'accepted' : 'rejected') : m === k ? own : 'pending');
+
+        function mstPath(from, to, k) {
+          const adj = Array.from({ length: N }, () => []);
+          for (let m = 0; m < k; m += 1) {
+            if (!sim.events[m].accepted) continue;
+            const [a, b] = sim.events[m].edge;
+            adj[a].push(b);
+            adj[b].push(a);
+          }
+          const prev = Array(N).fill(-1);
+          const queue = [from];
+          prev[from] = from;
+          while (queue.length) {
+            const u = queue.shift();
+            for (const v of adj[u]) if (prev[v] < 0) { prev[v] = u; queue.push(v); }
+          }
+          const path = [to];
+          while (path[0] !== from) path.unshift(prev[path[0]]);
+          return path;
+        }
 
         const FRAMES = [];
         FRAMES.push(fr(
-          '题面：5 个散点', '题面', ['func-def', 'n'],
-          'def connect_the_dots(points)  # points = [[1,1],[2,6],[3,2],[4,3],[7,1]]',
-          '平面上 5 个点：0(1,1)、1(2,6)、2(3,2)、3(4,3)、4(7,1)。目标：选一些点对把它们全部连通，总代价（Manhattan 距离之和）最小。',
-          '任意两点之间都允许连边，代价 = |Δx| + |Δy|。',
-          st({ manhattan: null })
+          '题面：5 个点', '题面', ['func-def', 'n'],
+          'n = len(points)  # points = [[1,1],[2,6],[3,2],[4,3],[7,1]]，n = 5',
+          '平面上 5 个点：0(1,1)、1(2,6)、2(3,2)、3(4,3)、4(7,1)。选若干点对连线，让所有点连通，并使总代价最小。',
+          '任意两点都可以直接连线，代价是两点的 Manhattan 距离。',
+          st()
         ));
         FRAMES.push(fr(
-          '连接代价 = |Δx| + |Δy|', '题面 · 距离', ['cost'],
-          'cost = abs(x1 - x2) + abs(y1 - y2)',
-          '以点 0(1,1) 和点 3(4,3) 为例：横向差 |1-4| = 3，纵向差 |1-3| = 2，代价 = 3 + 2 = 5。虚线走的就是“先横后竖”的 Manhattan 路径。',
-          '代价与路径形状无关，只与坐标差有关；对角捷径不存在。',
-          st({ manhattan: { a: 0, b: 3 } })
+          '代价 = |Δx| + |Δy|', '题面 · 代价', ['cost'],
+          'cost = abs(1 - 4) + abs(1 - 3) = 3 + 2 = 5  # i = 0, j = 3',
+          'Manhattan 距离只沿网格横、竖走：点 0(1,1) 到点 3(4,3) 横走 |1−4| = 3，竖走 |1−3| = 2，代价 3 + 2 = 5。先竖后横也是 5。之后两点间的直线只表示“连了这条边”，长度按虚线折线算。',
+          '代价只取决于坐标差，与先横还是先竖无关。',
+          st({ route: { a: 0, b: 3 }, caption: ['(0,3) 的代价', '3 + 2 = 5'] })
         ));
         FRAMES.push(fr(
-          '建模：完全图，10 条候选边', '建模', ['edges-init', 'for-i', 'for-j'],
-          'edges = []  # 之后双重循环枚举所有 i < j 的点对',
-          '把每个点看作节点、每对点的 Manhattan 距离看作边权——5 个点构成完全图，共 5×4/2 = 10 条候选边（图中细灰线）。要连通所有点且总代价最小，就是求这张图的最小生成树（MST）。',
-          '连通 n 个点且无环至少需要 n-1 = 4 条边；最优解可取成一棵树。',
-          st({ showAll: true, edges: mkEdges(sim.generated) })
-        ));
-        FRAMES.push(fr(
-          '生成 edges 数组（未排序）', '生成边', ['cost', 'append'],
-          'edges.append((cost, i, j))',
-          '双重循环 i < j 枚举全部 10 个点对，计算代价后以 (cost, i, j) 追加进 edges。下表按生成顺序（i 小的在前）列出，注意此刻还未排序。',
-          '每条边只生成一次：i < j 避免了重复和自环。',
+          '生成 10 条候选边', '生成边', ['edges-init', 'for-i', 'for-j', 'cost', 'append'],
+          'edges.append((cost, i, j))  # 对每一对 i < j',
+          '双重循环枚举每一对 i < j，算出代价后追加元组 (cost, i, j)。5 个点两两相连共 5×4/2 = 10 条候选边（细灰线，数字是代价）。问题变成：在这张完全图里选出能连通所有点、总代价最小的边——最小生成树（MST）。',
+          '每对点只生成一次：j 从 i + 1 开始，没有重复也没有自环。',
           st({ showAll: true, showTable: true, sorted: false, edges: mkEdges(sim.generated) })
         ));
         FRAMES.push(fr(
           'edges.sort()：按代价升序', '排序', ['sort'],
-          'edges.sort()  # 稳定排序：同代价保持生成顺序',
-          '按代价从小到大排序。代价相等的边保持原顺序（稳定排序）：(0,3)、(1,2)、(1,3)、(2,4)、(3,4) 同为 5，仍按 i 从小到大排列。Kruskal 接下来从小到大逐条尝试。',
-          '排序后，靠前的边永远是当前“最便宜的可选连接”。',
+          'edges.sort()  # 元组比较：先比 cost，相同再比 i、j',
+          '元组排序先比 cost，cost 相同再比 i、j。五条代价为 5 的边因此排成 (0,3)、(1,2)、(1,3)、(2,4)、(3,4)。Kruskal 接下来从上往下逐条尝试。',
+          '排在前面的边永远是剩下的边里最便宜的。',
           st({ showAll: true, showTable: true, sorted: true, edges: mkEdges(sim.sorted) })
         ));
         FRAMES.push(fr(
           '初始化并查集与计数器', '初始化', ['uf-init', 'class', 'init-def', 'parent-init', 'size-init', 'total-init', 'added-init'],
-          'uf = UnionFind(n)；total_cost = 0；edges_added = 0',
-          '并查集初始：每个点的 parent 指向自己（各自成组），size 全为 1。total_cost 与 edges_added 从零开始。下方 parent 行第 i 格的值就是 parent[i]。',
-          '初始时每个点自成一个组；n 个点共 n 个组。',
-          st({ showTable: true, sorted: true, edges: mkEdges(sim.sorted) })
+          'uf = UnionFind(5)；total_cost = 0；edges_added = 0',
+          'parent[i] = i：每个点指向自己，是 5 棵单点树的根；size 全为 1。total_cost 与 edges_added 从 0 开始。',
+          '根满足 parent[r] == r；一开始 5 个点各自成组。',
+          st({ showTable: true, sorted: true, ufReady: true, edges: mkEdges(sim.sorted) })
         ));
 
         sim.events.forEach((ev, k) => {
-          const preParent = k === 0 ? [0, 1, 2, 3, 4] : sim.events[k - 1].parent;
-          const preSize = k === 0 ? [1, 1, 1, 1, 1] : sim.events[k - 1].size;
           const [i, j] = ev.edge;
-          const total = sim.sorted.length;
-          const findKeys = ['find-def', 'find-if', 'find-return', 'find-recurse', 'find-done'];
+          const [xi, yi] = BOOK[i];
+          const [xj, yj] = BOOK[j];
+          const dx = Math.abs(xi - xj);
+          const dy = Math.abs(yi - yj);
+          const prevTotal = k ? sim.events[k - 1].total_cost : 0;
+          const prevAdded = k ? sim.events[k - 1].edges_added : 0;
+          const tag = `边 ${k + 1}/${sim.sorted.length} (${i},${j})`;
+          const common = {
+            showTable: true, sorted: true, ufReady: true, current: k,
+            route: { a: i, b: j }, caption: [`(${i},${j}) 的代价`, `${dx} + ${dy} = ${ev.cost}`],
+            totalCost: prevTotal, edgesAdded: prevAdded
+          };
+          const reps = { x: ev.rep_x, y: ev.rep_y };
+
           FRAMES.push(fr(
-            `边 ${k + 1}/${total}：(${i},${j}) 代价 ${ev.cost}，find 找代表`, 'Kruskal · 取边', findKeys,
-            `if uf.union(p1, p2):  # union(${i}, ${j})：find(${i}) → ${ev.rep_x}，find(${j}) → ${ev.rep_y}`,
-            `取出排序后第 ${k + 1} 条边：(${i}, ${j})，代价 ${ev.cost}（图中加粗虚线）。union 先对两端 find：find(${i}) → ${ev.rep_x}，find(${j}) → ${ev.rep_y}。下方高亮格与箭头就是这个查找过程。`,
-            'find 沿 parent 指针走到根；根就是该点所在组的代表。',
+            `${tag}：取边，代价 ${ev.cost}`, 'Kruskal · 取边', ['for-edge', 'union-if'],
+            `cost, p1, p2 = (${ev.cost}, ${i}, ${j})；if uf.union(${i}, ${j}):`,
+            `排序后第 ${k + 1} 条边连 ${pname(i)} 与 ${pname(j)}。代价沿网格量：横 |${xi}−${xj}| = ${dx}，竖 |${yi}−${yj}| = ${dy}，共 ${ev.cost}。接着 uf.union 判断两点是否已连通。`,
+            'edges 已按代价升序：比它便宜的边都已处理完。',
+            st({ ...common, edges: mkEdges(sim.sorted, statusAt(k, 'current')), parent: ev.before, size: ev.sizeBefore, ends: [i, j] })
+          ));
+
+          const recursed = ev.pathX.length > 1 || ev.pathY.length > 1;
+          const findKeys = recursed
+            ? ['find-def', 'find-if', 'find-return', 'find-recurse', 'find-done']
+            : ['find-def', 'find-if', 'find-return'];
+          const walk = (x, path) => (path.length === 1
+            ? `find(${x})：parent[${x}] == ${x}，${x} 本身是根`
+            : `find(${x})：${path.join(' → ')}，根是 ${path[path.length - 1]}`);
+          const longest = Math.max(ev.pathX.length, ev.pathY.length);
+          const compression = !recursed ? ''
+            : longest > 2 ? '递归返回时把沿途节点的 parent 直接改成根（路径压缩）。'
+            : '递归返回时执行 parent[x] = 根（路径压缩）；这里本来就直接指向根，数组不变。';
+          FRAMES.push(fr(
+            `${tag}：find → ${ev.rep_x}, ${ev.rep_y}`, 'union · find', findKeys,
+            `self.find(${i}) → ${ev.rep_x}；self.find(${j}) → ${ev.rep_y}`,
+            `find 沿 parent 指针往上走到根（parent[r] == r）。${walk(i, ev.pathX)}；${walk(j, ev.pathY)}。${compression}`,
+            '同一棵树里的点 find 到同一个根；根就是这一组的代表。',
             st({
-              showTable: true, sorted: true,
-              edges: mkEdges(sim.sorted, m => (m < k ? (sim.events[m].accepted ? 'accepted' : 'rejected') : m === k ? 'current' : 'pending')),
-              current: k, parent: preParent, size: preSize,
-              hl: { nodes: [i, j, ev.rep_x, ev.rep_y], changed: null },
-              totalCost: ev.accepted ? ev.total_cost - ev.cost : ev.total_cost,
-              edgesAdded: ev.accepted ? ev.edges_added - 1 : ev.edges_added
+              ...common, edges: mkEdges(sim.sorted, statusAt(k, 'current')), parent: ev.afterFind, size: ev.sizeBefore,
+              ends: [i, j], findPaths: [ev.pathX, ev.pathY], reps,
+              hotParent: [...new Set([...ev.pathX, ...ev.pathY])]
             })
           ));
-          let changed = null;
-          for (let x = 0; x < sim.n; x += 1) if (preParent[x] !== ev.parent[x]) changed = x;
+
           if (ev.accepted) {
-            const attachX = preSize[ev.rep_x] > preSize[ev.rep_y];
-            const branch = attachX
-              ? `size[${ev.rep_x}] = ${preSize[ev.rep_x]} > size[${ev.rep_y}] = ${preSize[ev.rep_y]}，把 ${ev.rep_y} 挂到 ${ev.rep_x} 下：parent[${ev.rep_y}] = ${ev.rep_x}`
-              : `size[${ev.rep_x}] = ${preSize[ev.rep_x]} ≤ size[${ev.rep_y}] = ${preSize[ev.rep_y]}，把 ${ev.rep_x} 挂到 ${ev.rep_y} 下：parent[${ev.rep_x}] = ${ev.rep_y}`;
-            const isLast = ev.edges_added === sim.n - 1;
+            const sx = ev.sizeBefore[ev.rep_x];
+            const sy = ev.sizeBefore[ev.rep_y];
+            const attachX = sx > sy;
+            const child = attachX ? ev.rep_y : ev.rep_x;
+            const top = attachX ? ev.rep_x : ev.rep_y;
+            const merged = ev.size[top];
+            const why = attachX
+              ? `size[${ev.rep_x}] = ${sx} > size[${ev.rep_y}] = ${sy}，rep_y 的树更小：把根 ${child} 挂到 ${top} 下。`
+              : sx === sy
+                ? `size[${ev.rep_x}] = size[${ev.rep_y}] = ${sx}，条件 > 不成立，走 else：把 rep_x = ${child} 挂到 rep_y = ${top} 下。`
+                : `size[${ev.rep_x}] = ${sx} < size[${ev.rep_y}] = ${sy}，走 else：把小树的根 ${child} 挂到 ${top} 下。`;
             FRAMES.push(fr(
-              `采用 (${i},${j})：total_cost = ${ev.total_cost}`, 'Kruskal · 采用', ['for-edge', 'union-if', 'add-cost', 'add-count', 'done-if'],
-              `total_cost += cost；edges_added += 1  # total_cost = ${ev.total_cost}，edges_added = ${ev.edges_added}`,
-              `两个代表不同（${ev.rep_x} ≠ ${ev.rep_y}），合并成功（union 返回 True）：${branch}，size[${attachX ? ev.rep_x : ev.rep_y}] 更新为 ${ev.size[attachX ? ev.rep_x : ev.rep_y]}。采用这条边（实线），total_cost = ${ev.total_cost}，edges_added = ${ev.edges_added}。${isLast ? `已选满 n-1 = ${sim.n - 1} 条边，MST 完成，可以返回 total_cost。` : `还没到 n-1 = ${sim.n - 1} 条，继续下一条。`}`,
-              `已选的 ${ev.edges_added} 条边无环；已采用边的代价之和 = total_cost。`,
+              `${tag}：合并，${child} 挂到 ${top} 下`, 'union · 合并',
+              ['find-call', 'rep-if', 'size-if', ...(attachX ? ['attach-x', 'size-x'] : ['else', 'attach-y', 'size-y']), 'union-true'],
+              `rep_x, rep_y = ${ev.rep_x}, ${ev.rep_y}；${sx} > ${sy} ${attachX ? '成立' : '不成立'} → parent[${child}] = ${top}；size[${top}] = ${sx} + ${sy} = ${merged}`,
+              `rep_x = ${ev.rep_x} ≠ rep_y = ${ev.rep_y}：两点还不连通，可以合并。${why}只改了 parent[${child}] 和 size[${top}]。union 返回 True，边 (${i},${j}) 进入 MST（实线）。`,
+              '按 size 合并：小树挂到大树的根下，树高不超过 O(log n)。',
               st({
-                showTable: true, sorted: true,
-                edges: mkEdges(sim.sorted, m => (m < k ? (sim.events[m].accepted ? 'accepted' : 'rejected') : m === k ? 'accepted' : 'pending')),
-                current: k, parent: ev.parent, size: ev.size,
-                hl: { nodes: [i, j, ev.rep_x, ev.rep_y], changed },
+                ...common, edges: mkEdges(sim.sorted, statusAt(k, 'accepted')), parent: ev.parent, size: ev.size,
+                reps, hotSize: [ev.rep_x, ev.rep_y], changedParent: child, changedSize: top, newLink: child
+              })
+            ));
+            const isLast = ev.edges_added === N - 1;
+            FRAMES.push(fr(
+              `${tag}：total_cost = ${ev.total_cost}`, 'Kruskal · 累加',
+              isLast ? ['add-cost', 'add-count'] : ['add-cost', 'add-count', 'done-if'],
+              `total_cost += ${ev.cost} → ${ev.total_cost}；edges_added += 1 → ${ev.edges_added}${isLast ? '' : `；${ev.edges_added} == ${N - 1} 不成立`}`,
+              `union 返回 True，累加这条边：total_cost = ${prevTotal} + ${ev.cost} = ${ev.total_cost}，edges_added = ${ev.edges_added}。${isLast ? `已有 ${ev.edges_added} = n − 1 条边。` : `还没到 n − 1 = ${N - 1} 条，继续取下一条边。`}`,
+              'total_cost 等于已采用边的代价之和；已采用的边无环。',
+              st({
+                ...common, caption: ['total_cost', `${prevTotal} + ${ev.cost} = ${ev.total_cost}`],
+                edges: mkEdges(sim.sorted, statusAt(k, 'accepted')), parent: ev.parent, size: ev.size,
                 totalCost: ev.total_cost, edgesAdded: ev.edges_added
               })
             ));
           } else {
+            const path = mstPath(i, j, k);
             FRAMES.push(fr(
-              `跳过 (${i},${j})：同组，成环`, 'Kruskal · 跳过', ['rep-if', 'union-false'],
-              `return False  # (${i},${j}) 的代表都是 ${ev.rep_x}，同组`,
-              `find(${i}) 和 find(${j}) 走到同一个根 ${ev.rep_x}——两点早已连通。加入这条边会成环（灰虚线），union 返回 False，直接跳过：total_cost 保持 ${ev.total_cost}，edges_added 保持 ${ev.edges_added}。`,
-              '同一组内的两点再加边必成环；跳过不影响连通性，也不会更优。',
+              `${tag}：同根 ${ev.rep_x}，跳过`, 'union · 同根',
+              ['find-call', 'rep-if', 'union-false'],
+              `rep_x, rep_y = ${ev.rep_x}, ${ev.rep_y}；${ev.rep_x} != ${ev.rep_y} 不成立 → return False`,
+              `rep_x = rep_y = ${ev.rep_x}：两点在同一棵树里，早已连通——平面上 ${path.join('–')} 已由 MST 边接起来（加粗）。再连 (${i},${j}) 会成环，union 返回 False，跳过：total_cost 仍为 ${ev.total_cost}，edges_added 仍为 ${ev.edges_added}。`,
+              '两点同根 ⇔ 已连通；再加边只会成环，不会更优。',
               st({
-                showTable: true, sorted: true,
-                edges: mkEdges(sim.sorted, m => (m < k ? (sim.events[m].accepted ? 'accepted' : 'rejected') : m === k ? 'rejected' : 'pending')),
-                current: k, parent: ev.parent, size: ev.size,
-                hl: { nodes: [i, j, ev.rep_x, ev.rep_y], changed: null },
-                totalCost: ev.total_cost, edgesAdded: ev.edges_added
+                ...common, route: null, caption: [`已连通 ${path.join('–')}`, `(${i},${j}) 成环`],
+                edges: mkEdges(sim.sorted, statusAt(k, 'rejected')), parent: ev.parent, size: ev.size,
+                cycle: { i, j, path }, reps
               })
             ));
           }
         });
+
+        const last = sim.events[sim.events.length - 1];
+        const mstCosts = sim.events.filter(ev => ev.accepted).map(ev => ev.cost);
+        const unchecked = sim.sorted.slice(sim.events.length).map(([i, j]) => `(${i},${j})`);
         FRAMES.push(fr(
-          `edges_added == n-1，返回 ${sim.result}`, '返回', ['done-if', 'return'],
-          `return total_cost  # edges_added = ${sim.n - 1} = n - 1，返回 ${sim.result}`,
-          `edges_added = ${sim.n - 1} = n - 1，MST 完成，立即 return total_cost = ${sim.result}。函数在此结束——表中剩下 4 条边（(1,3) 之后未处理的 (3,4)、(0,1)、(0,4)、(1,4)）永远不会被检查。`,
-          'n 个点、n-1 条边且无环 ⇒ 所有点连通，这就是 MST。',
+          `edges_added == n−1，返回 ${sim.result}`, '返回', ['done-if', 'return'],
+          `if edges_added == n - 1: return total_cost  # ${N - 1} == ${N - 1} → 返回 ${sim.result}`,
+          `已采用 ${N - 1} = n − 1 条边，5 个点连成一棵树；并查集里也只剩一个根 ${last.rep_x === last.parent[last.rep_x] ? last.rep_x : last.rep_y}。立即返回 total_cost = ${mstCosts.join(' + ')} = ${sim.result}。${unchecked.length ? `表中剩下的 ${unchecked.join('、')} 不再检查。` : ''}`,
+          'n 个点、n − 1 条边且无环 ⇒ 全部连通，这就是 MST。',
           st({
-            showTable: true, sorted: true, done: true,
+            showTable: true, sorted: true, done: true, ufReady: true,
             edges: mkEdges(sim.sorted, m => (sim.events[m] ? (sim.events[m].accepted ? 'accepted' : 'rejected') : 'unprocessed')),
-            current: null, parent: sim.events[sim.events.length - 1].parent, size: sim.events[sim.events.length - 1].size,
-            hl: { nodes: [], changed: null },
-            totalCost: sim.result, edgesAdded: sim.n - 1
+            caption: [`MST：${N - 1} 条边`, `${mstCosts.join(' + ')} = ${sim.result}`],
+            parent: last.parent, size: last.size, totalCost: sim.result, edgesAdded: N - 1
           })
         ));
 
-        const scene = core.createSvgScene(svg);
-        scene.defineMarker('d-arrow', { fill: '#555', markerWidth: 6.4, markerHeight: 6.4, refX: 5.4, refY: 3.2 });
+        const depthOf = (P, i) => {
+          let d = 0;
+          let x = i;
+          while (P[x] !== x && d < N) { x = P[x]; d += 1; }
+          return d;
+        };
+        const MAX_DEPTH = Math.max(1, ...FRAMES.map(f => Math.max(...f.state.parent.map((_, i) => depthOf(f.state.parent, i)))));
+
+        // Three retained layers keep z-order stable: lines under nodes, labels
+        // (with a paper halo) above both, whatever order elements first appear.
+        core.createSvgScene(svg).defineMarker('link-arrow', { fill: '#333', markerWidth: 6, markerHeight: 6, refX: 6.4, refY: 4 });
+        core.createSvgScene(svg).defineMarker('ref-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 6.4, refY: 4 });
+        const layerNames = ['under', 'nodes', 'labels'];
+        const layers = layerNames.map(() => {
+          const group = document.createElementNS(SVG_NS, 'g');
+          svg.append(group);
+          return core.createSvgScene(group);
+        });
         const motion = core.createMotionController();
         let geom = null;
         let transitionFrom = null;
 
         function layout() {
           const W = stage.clientWidth;
+          const side = W >= 640;
           const narrow = W < 460;
-          const pad = narrow ? 8 : 16;
-          const planeTarget = narrow ? 208 : 300;
-          const s = Math.min((W - pad * 2 - 22) / 8.4, (planeTarget - 26) / 7.4);
+          const pad = narrow ? 6 : 12;
+          const axisL = 18;
+          const capR = 14;
+          const oy = 18;
+          const plotAreaW = side ? Math.round(W * 0.54) : W;
+          const s = Math.min((plotAreaW - pad * 2 - axisL - capR) / 8, side ? 46 : 34);
           const plotW = 8 * s;
           const plotH = 7 * s;
-          const ox = pad + 20 + Math.max(0, (W - pad * 2 - 20 - plotW) / 2);
-          const oy = 8;
-          const ufLabelW = narrow ? 30 : 46;
-          const cellGap = narrow ? 5 : 10;
-          const cellW = Math.min(64, (W - pad * 2 - ufLabelW - cellGap) / 5 - cellGap);
-          const cellX = i => pad + ufLabelW + cellGap + i * (cellW + cellGap);
-          const headerH = 14;
-          const parentH = narrow ? 26 : 30;
-          const arrowZone = 18;
+          const ox = pad + axisL + (side ? 0 : Math.max(0, (W - pad * 2 - axisL - capR - plotW) / 2));
+          const plotBottom = oy + plotH + 18;
+          const labelCol = narrow ? 42 : 50;
+          const areaL = side ? ox + plotW + capR + 22 : pad;
+          const colW = Math.min(76, (W - pad - areaL - labelCol) / N);
+          const ufL = areaL + Math.max(0, (W - pad - areaL - labelCol - colW * N) / 2);
+          const ufR = ufL + labelCol + colW * N;
+          const ufT = side ? 2 : plotBottom + 10;
+          const rf = narrow ? 11 : 13;
+          const rowGap = side ? 58 : 50;
+          const laneTop = ufT + 20;
+          const row0 = laneTop + 30 + rf;
+          const idxBase = row0 + MAX_DEPTH * rowGap + rf + 17;
+          const cellH = narrow ? 24 : 26;
           const sizeH = narrow ? 20 : 22;
-          const ufTitleH = 15;
-          const xLabelH = 15;
-          const ufTop = oy + plotH + xLabelH + 14 + ufTitleH;
-          const stageH = ufTop + headerH + parentH + arrowZone + sizeH + 12;
+          const parentTop = idxBase + 5;
+          const sizeTop = parentTop + cellH + 6;
+          const H = Math.ceil(Math.max(plotBottom, sizeTop + sizeH) + 8);
           geom = {
-            W, narrow, pad, s, ox, oy, plotW, plotH,
+            W, H, side, narrow, pad, s, ox, oy, plotW, plotH, capR,
             mapX: v => ox + v * s,
             mapY: v => oy + (7 - v) * s,
-            ufLabelW, cellGap, cellW, cellX,
-            headerY: ufTop, parentY: ufTop + headerH,
-            sizeY: ufTop + headerH + parentH + arrowZone,
-            fs: narrow ? 10 : 11.5, smallFs: narrow ? 8.5 : 9.5,
-            r: narrow ? 11.5 : 14
+            fs: narrow ? 10 : 11, smallFs: narrow ? 9 : 10, r: narrow ? 11 : 13,
+            ufL, ufR, ufT, labelCol, colW, rf, rowGap, laneTop,
+            cx: i => ufL + labelCol + (i + 0.5) * colW,
+            rowY: d => row0 + d * rowGap,
+            idxBase, parentTop, sizeTop, cellH, sizeH,
+            cellW: Math.min(colW - 8, 56)
           };
-          svg.setAttribute('viewBox', `0 0 ${W} ${stageH}`);
-          stage.style.height = `${Math.ceil(stageH)}px`;
+          svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+          stage.style.height = `${H}px`;
         }
 
         const blend = (was, is, t) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
+        const lerp = (a, b, t) => a + (b - a) * t;
+        const CJK = /[⺀-鿿　-〿＀-￯]/;
+        const textW = (str, fs) => [...str].reduce((w, ch) => w + (CJK.test(ch) ? fs : fs * 0.62), 0);
+        const boxAt = (x, cy, w, h, anchor) => {
+          const l = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+          return { l, r: l + w, t: cy - h / 2, b: cy + h / 2 };
+        };
+        const overlap = (a, b) => {
+          if (b.circle) {
+            const d = Math.hypot(Math.max(a.l - b.x, 0, b.x - a.r), Math.max(a.t - b.y, 0, b.y - a.b));
+            return d < b.rad ? (b.rad - d) * 10 : 0;
+          }
+          return Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l)) * Math.max(0, Math.min(a.b, b.b) - Math.max(a.t, b.t));
+        };
+        const area = b => (b.r - b.l) * (b.b - b.t);
+        function choose(cands, obstacles, bounds) {
+          let best = null;
+          for (const c of cands) {
+            let pen = 0;
+            for (const o of obstacles) pen += overlap(c.box, o);
+            if (bounds) pen += (area(c.box) - overlap(c.box, bounds)) * 3;
+            if (!best || pen < best.pen - 0.5) best = { ...c, pen };
+            if (pen === 0) break;
+          }
+          return best;
+        }
+        function rectD(x, y, w, h, r) {
+          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
+        }
+        function trimmed(a, b, ra, rb) {
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const len = Math.hypot(dx, dy) || 1;
+          return { x1: a.x + dx / len * ra, y1: a.y + dy / len * ra, x2: b.x - dx / len * rb, y2: b.y - dy / len * rb, len };
+        }
+
+        // Fixed side for each point's coordinate label, chosen where no route,
+        // MST edge, or axis tick of this example passes.
+        const COORD_SIDE = ['below', 'above', 'left', 'right', 'below'];
 
         function draw(state, t = 1, from = null) {
           if (!geom || !state) return;
           const g = geom;
-          const P = state.parent;
+          const ops = { under: [], nodes: [], labels: [] };
+          // Retained elements keep attributes a later frame omits, so every
+          // optional attribute is reset unless the frame sets it.
+          const RESET = {
+            path: { fill: 'none', 'stroke-dasharray': null, opacity: null, 'marker-end': null },
+            circle: { stroke: null, 'stroke-width': null, 'stroke-dasharray': null, opacity: null },
+            text: { 'text-anchor': null, opacity: null, stroke: null, 'stroke-width': null, 'stroke-linejoin': null, 'paint-order': null }
+          };
+          const put = (layer, kind, id, attrs, value) => ops[layer].push([kind, id, { ...RESET[kind], ...attrs }, value]);
+          const halo = { stroke: '#fffdf8', 'stroke-width': 3, 'stroke-linejoin': 'round', 'paint-order': 'stroke' };
+          const label = (id, x, cy, str, { fs = g.smallFs, fill = '#555', anchor = 'middle', opacity = null } = {}) =>
+            put('labels', 'text', id, { x, y: cy + fs * 0.35, 'text-anchor': anchor, 'font-size': fs, fill, 'font-family': MONO, ...halo, opacity }, str);
+          const textBox = (x, cy, str, fs, anchor) => boxAt(x, cy, textW(str, fs) + 2, fs + 3, anchor);
           const pt = i => ({ x: g.mapX(BOOK[i][0]), y: g.mapY(BOOK[i][1]) });
 
-          scene.update(({ path, text, circle }) => {
-            // coordinate plane
-            for (let v = 0; v <= 8; v += 1) {
-              const x = g.mapX(v);
-              path(`gx-${v}`, { d: `M ${x} ${g.mapY(0)} L ${x} ${g.mapY(7)}`, stroke: '#e7e3d8', 'stroke-width': 1 });
-              if (v <= 7) text(`gxlab-${v}`, { x, y: g.mapY(0) + 13, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, String(v));
-            }
-            for (let v = 0; v <= 7; v += 1) {
-              const y = g.mapY(v);
-              path(`gy-${v}`, { d: `M ${g.mapX(0)} ${y} L ${g.mapX(8)} ${y}`, stroke: '#e7e3d8', 'stroke-width': 1 });
-              text(`gylab-${v}`, { x: g.mapX(0) - 5, y: y + 3, 'text-anchor': 'end', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, String(v));
-            }
-            path('ax-x', { d: `M ${g.mapX(0)} ${g.mapY(0)} L ${g.mapX(8)} ${g.mapY(0)}`, stroke: '#555', 'stroke-width': 1.2 });
-            path('ax-y', { d: `M ${g.mapX(0)} ${g.mapY(0)} L ${g.mapX(0)} ${g.mapY(7)}`, stroke: '#555', 'stroke-width': 1.2 });
-            text('ax-x-cap', { x: g.mapX(8) + 2, y: g.mapY(0) + 3, 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, 'x');
-            text('ax-y-cap', { x: g.mapX(0) - 3, y: g.mapY(7) - 4, 'text-anchor': 'end', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, 'y');
+          // ---- coordinate plane ----
+          for (let v = 0; v <= 8; v += 1) {
+            const x = g.mapX(v);
+            put('under', 'path', `gx-${v}`, { d: `M ${x} ${g.mapY(0)} L ${x} ${g.mapY(7)}`, stroke: '#e7e3d8', 'stroke-width': 1 });
+            if (v >= 1 && v <= 7) put('labels', 'text', `gxlab-${v}`, { x, y: g.mapY(0) + 13, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, String(v));
+          }
+          for (let v = 0; v <= 7; v += 1) {
+            const y = g.mapY(v);
+            put('under', 'path', `gy-${v}`, { d: `M ${g.mapX(0)} ${y} L ${g.mapX(8)} ${y}`, stroke: '#e7e3d8', 'stroke-width': 1 });
+            if (v >= 1) put('labels', 'text', `gylab-${v}`, { x: g.mapX(0) - 5, y: y + 3.5, 'text-anchor': 'end', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, String(v));
+          }
+          put('labels', 'text', 'g-origin', { x: g.mapX(0) - 4, y: g.mapY(0) + 13, 'text-anchor': 'end', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, '0');
+          put('under', 'path', 'ax-x', { d: `M ${g.mapX(0)} ${g.mapY(0)} L ${g.mapX(8)} ${g.mapY(0)}`, stroke: '#555', 'stroke-width': 1.2 });
+          put('under', 'path', 'ax-y', { d: `M ${g.mapX(0)} ${g.mapY(0)} L ${g.mapX(0)} ${g.mapY(7)}`, stroke: '#555', 'stroke-width': 1.2 });
+          put('labels', 'text', 'ax-x-cap', { x: g.mapX(8) + 4, y: g.mapY(0) + 3.5, 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, 'x');
+          put('labels', 'text', 'ax-y-cap', { x: g.mapX(0), y: g.mapY(7) - 6, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, 'y');
 
-            // edges
-            const edgeLabelPos = (a, b, i, j, tt, dist) => {
-              const dx = b.x - a.x;
-              const dy = b.y - a.y;
-              const len = Math.hypot(dx, dy) || 1;
-              const nx = -dy / len;
-              const ny = dx / len;
-              const bx = a.x + dx * tt;
-              const by = a.y + dy * tt;
-              let best = null;
-              for (const side of [1, -1]) {
-                const c = { x: bx + nx * dist * side, y: by + ny * dist * side };
-                let minD = Infinity;
-                for (let q = 0; q < BOOK.length; q += 1) {
-                  if (q === i || q === j) continue;
-                  const p = pt(q);
-                  minD = Math.min(minD, Math.hypot(p.x - c.x, p.y - c.y));
-                }
-                if (!best || minD > best.minD) best = { minD, c };
-              }
-              return best.c;
-            };
-            state.edges.forEach((e, k) => {
-              const a = pt(e.i);
-              const b = pt(e.j);
-              const wasE = from ? from.edges[k] : null;
-              const was = wasE ? wasE.status : null;
-              const is = e.status;
-              if (state.showAll && is === 'pending') {
-                const L = edgeLabelPos(a, b, e.i, e.j, 0.5, 11);
-                path(`pe-${k}`, { d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, stroke: '#c9c5ba', 'stroke-width': 1.1, 'stroke-dasharray': null });
-                text(`pe-c-${k}`, { x: L.x, y: L.y + 3, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#8a8a85', 'font-family': MONO }, String(e.cost));
-                return;
-              }
-              if (is === 'accepted') {
-                const op = blend(was === 'accepted', true, t);
-                const L = edgeLabelPos(a, b, e.i, e.j, 0.5, 12);
-                path(`pe-${k}`, { d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, stroke: '#333', 'stroke-width': 1.9, 'stroke-dasharray': null, opacity: op });
-                text(`pe-c-${k}`, { x: L.x, y: L.y + 3, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#555', 'font-family': MONO, opacity: op }, String(e.cost));
-              } else if (is === 'current') {
-                const op = blend(was === 'current', true, t);
-                const L = edgeLabelPos(a, b, e.i, e.j, 0.5, 13);
-                path(`pe-${k}`, { d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, stroke: '#272727', 'stroke-width': 2.2, 'stroke-dasharray': '6 4', opacity: op });
-                text(`pe-c-${k}`, { x: L.x, y: L.y + 3, 'text-anchor': 'middle', 'font-size': g.smallFs + 0.5, fill: '#272727', 'font-family': MONO, opacity: op }, `${e.cost}`);
-              } else if (is === 'rejected') {
-                const show = state.current === k;
-                const wasShow = Boolean(from && from.current !== null && from.edges[k] && from.edges[k].status === 'rejected' && from.current === k);
-                const op = blend(wasShow, show, t);
-                if (op > 0.01) {
-                  const L = edgeLabelPos(a, b, e.i, e.j, 0.3, 12);
-                  path(`pe-${k}`, { d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, stroke: '#8a8a85', 'stroke-width': 1.3, 'stroke-dasharray': '4 4', opacity: op });
-                  text(`pe-c-${k}`, { x: L.x, y: L.y + 3, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#8a8a85', 'font-family': MONO, opacity: op }, '成环');
-                }
-              }
-            });
+          const bounds = { l: g.mapX(0) + 2, r: g.mapX(8) + g.capR - 2, t: g.mapY(7) - 2, b: g.mapY(0) - 2 };
+          const nodeBoxes = BOOK.map((_, i) => { const c = pt(i); return { circle: true, x: c.x, y: c.y, rad: g.r + 2, l: c.x - g.r - 2, r: c.x + g.r + 2, t: c.y - g.r - 2, b: c.y + g.r + 2 }; });
+          const obstacles = [...nodeBoxes];
 
-            // manhattan demo path (frame 2)
-            if (state.manhattan) {
-              const a = pt(state.manhattan.a);
-              const b = pt(state.manhattan.b);
-              const corner = { x: b.x, y: a.y };
-              path('mh-1', { d: `M ${a.x} ${a.y} L ${corner.x} ${corner.y}`, stroke: '#555', 'stroke-width': 1.4, 'stroke-dasharray': '6 4' });
-              path('mh-2', { d: `M ${corner.x} ${corner.y} L ${b.x} ${b.y}`, stroke: '#555', 'stroke-width': 1.4, 'stroke-dasharray': '6 4' });
-              circle('mh-dot', { cx: corner.x, cy: corner.y, r: 2.4, fill: '#555' });
-              text('mh-lab-1', { x: (a.x + corner.x) / 2, y: corner.y + (a.y > b.y ? 14 : -6), 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '|Δx| = 3');
-              text('mh-lab-2', { x: corner.x + (g.narrow ? 4 : 8), y: (corner.y + b.y) / 2 + 3, 'text-anchor': 'start', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, '|Δy| = 2');
-              text('mh-lab-3', { x: b.x + g.r + 6, y: b.y - 10, 'text-anchor': 'start', 'font-size': g.fs + 1, fill: '#272727', 'font-family': MONO }, '= 3 + 2 = 5');
-            }
-
-            // points
-            BOOK.forEach((p, i) => {
-              const c = pt(i);
-              circle(`pt-${i}`, { cx: c.x, cy: c.y, r: g.r, fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.6 });
-              text(`pt-v-${i}`, { x: c.x, y: c.y + (g.narrow ? 3.8 : 4.6), 'text-anchor': 'middle', 'font-size': g.narrow ? 11 : 13, fill: '#272727', 'font-family': MONO }, String(i));
-              const labels = [
-                { x: c.x - g.r - 6, y: c.y + 4, anchor: 'end' },
-                { x: c.x, y: c.y - g.r - 7, anchor: 'middle' },
-                { x: c.x, y: c.y + g.r + 13, anchor: 'middle' },
-                { x: c.x, y: c.y - g.r - 7, anchor: 'middle' },
-                { x: c.x + g.r + 6, y: c.y + 4, anchor: 'start' }
-              ];
-              const L = labels[i];
-              text(`pt-l-${i}`, { x: L.x, y: L.y, 'text-anchor': L.anchor, 'font-size': g.smallFs, fill: '#555', 'font-family': MONO }, `(${p[0]},${p[1]})`);
-            });
-
-            // Union-Find panel
-            text('uf-title', { x: g.pad, y: g.headerY + 2, 'font-size': g.smallFs + 0.5, fill: '#555', 'font-family': MONO }, g.narrow ? '' : 'Union-Find');
-            text('uf-p-label', { x: g.pad + (g.narrow ? 0 : 6), y: g.parentY + parentMid(g) + 4, 'font-size': g.smallFs + 0.5, fill: '#555', 'font-family': MONO }, 'parent');
-            text('uf-s-label', { x: g.pad + (g.narrow ? 4 : 10), y: g.sizeY + sizeMid(g) + 3, 'font-size': g.smallFs + 0.5, fill: '#555', 'font-family': MONO }, 'size');
-            for (let i = 0; i < BOOK.length; i += 1) {
-              const cx = g.cellX(i) + g.cellW / 2;
-              text(`uf-h-${i}`, { x: cx, y: g.headerY + 2, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, `点${i}`);
-              const isRoot = P[i] === i;
-              const hot = state.hl.nodes.includes(i);
-              const changed = state.hl.changed === i;
-              path(`uf-p-${i}`, {
-                d: rectD(g.cellX(i), g.parentY, g.cellW, parentH(g), 3),
-                fill: changed ? '#e9e5d9' : '#fffdf8',
-                stroke: changed ? '#272727' : isRoot ? '#272727' : '#777',
-                'stroke-width': changed ? 1.8 : isRoot ? 1.5 : 1.1,
-                'stroke-dasharray': hot && !changed ? '4 3' : null
-              });
-              text(`uf-pv-${i}`, { x: cx, y: g.parentY + parentMid(g) + 4, 'text-anchor': 'middle', 'font-size': g.fs + 1, fill: '#272727', 'font-family': MONO }, String(P[i]));
-              path(`uf-s-${i}`, { d: rectD(g.cellX(i), g.sizeY, g.cellW, sizeH(g), 3), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1 });
-              text(`uf-sv-${i}`, { x: cx, y: g.sizeY + sizeMid(g) + 3.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, String(state.size[i]));
-            }
-            // find arrows: endpoint -> parent chain
-            const drawn = new Set();
-            state.hl.nodes.forEach(node => {
-              let x = node;
-              let guard = 0;
-              while (P[x] !== x && guard < 8) {
-                const key = `${x}->${P[x]}`;
-                if (!drawn.has(key)) {
-                  drawn.add(key);
-                  const x1 = g.cellX(x) + g.cellW / 2;
-                  const x2 = g.cellX(P[x]) + g.cellW / 2;
-                  const y1 = g.parentY + parentH(g);
-                  const y2 = g.parentY + parentH(g);
-                  const my = y1 + (g.narrow ? 10 : 13);
-                  path(`uf-a-${key}`, { d: `M ${x1} ${y1 - 1} Q ${(x1 + x2) / 2} ${my} ${x2} ${y2 - 1}`, stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#d-arrow)' });
-                }
-                x = P[x];
-                guard += 1;
-              }
-            });
+          // coordinate labels
+          BOOK.forEach((p, i) => {
+            const c = pt(i);
+            const str = `(${p[0]},${p[1]})`;
+            const h = g.smallFs + 3;
+            const side = COORD_SIDE[i];
+            const spot = side === 'below' ? { x: c.x, cy: c.y + g.r + 3 + h / 2, anchor: 'middle' }
+              : side === 'above' ? { x: c.x, cy: c.y - g.r - 3 - h / 2, anchor: 'middle' }
+              : side === 'left' ? { x: c.x - g.r - 5, cy: c.y, anchor: 'end' }
+              : { x: c.x + g.r + 5, cy: c.y, anchor: 'start' };
+            label(`pt-l-${i}`, spot.x, spot.cy, str, { anchor: spot.anchor });
+            obstacles.push(textBox(spot.x, spot.cy, str, g.smallFs, spot.anchor));
           });
+          const staticObstacles = [...obstacles];
+
+          // edge-cost labels next to a straight edge
+          // Edge-cost labels: beside their own line and clear of every other
+          // line, so near-parallel edges (0–2, 0–3) don't swap numbers. MST
+          // labels always reckon with the final MST so they never jump.
+          const segDist = (p, a, b) => {
+            const vx = b.x - a.x;
+            const vy = b.y - a.y;
+            const u = Math.max(0, Math.min(1, ((p.x - a.x) * vx + (p.y - a.y) * vy) / (vx * vx + vy * vy || 1)));
+            return Math.hypot(p.x - (a.x + vx * u), p.y - (a.y + vy * u));
+          };
+          const lineSet = state.showAll
+            ? state.edges.map(e => [e.i, e.j])
+            : FINAL_MST;
+          const edgeLabel = (a, b, str, fs, against, own) => {
+            const L = trimmed(a, b, 0, 0);
+            const nx = -(b.y - a.y) / L.len;
+            const ny = (b.x - a.x) / L.len;
+            const off = fs / 2 + 5;
+            const others = lineSet.filter(([i, j]) => !(i === own[0] && j === own[1])).map(([i, j]) => [pt(i), pt(j)]);
+            const cands = [];
+            for (const f of [0.5, 0.4, 0.6, 0.3, 0.7, 0.22, 0.78]) {
+              for (const sgn of [1, -1]) {
+                const x = a.x + (b.x - a.x) * f + nx * off * sgn;
+                const cy = a.y + (b.y - a.y) * f + ny * off * sgn;
+                cands.push({ x, cy, box: textBox(x, cy, str, fs, 'middle') });
+              }
+            }
+            let best = null;
+            for (const c of cands) {
+              let pen = choose([c], against, bounds).pen;
+              for (const [p, q] of others) {
+                const dd = segDist({ x: c.x, y: c.cy }, p, q);
+                if (dd < off + 3) pen += (off + 3 - dd) * 30;
+              }
+              if (!best || pen < best.pen - 0.5) best = { ...c, pen };
+              if (pen === 0) break;
+            }
+            against.push(best.box);
+            return best;
+          };
+
+          // straight edges: complete graph and MST
+          const placed = [...staticObstacles];
+          const order = state.edges.map((e, k) => k).sort((p, q) => SORT_RANK.get(`${state.edges[p].i}-${state.edges[p].j}`) - SORT_RANK.get(`${state.edges[q].i}-${state.edges[q].j}`));
+          const onCycle = (e) => {
+            if (!state.cycle) return false;
+            const p = state.cycle.path;
+            for (let q = 0; q + 1 < p.length; q += 1) {
+              if ((p[q] === e.i && p[q + 1] === e.j) || (p[q] === e.j && p[q + 1] === e.i)) return true;
+            }
+            return false;
+          };
+          let cycleEdge = null;
+          order.forEach(k => {
+            const e = state.edges[k];
+            const a = pt(e.i);
+            const b = pt(e.j);
+            const seg = trimmed(a, b, g.r, g.r);
+            const d = `M ${seg.x1} ${seg.y1} L ${seg.x2} ${seg.y2}`;
+            const was = from && from.edges[k] ? from.edges[k].status : null;
+            if (state.showAll && e.status === 'pending') {
+              put('under', 'path', `pe-${k}`, { d, stroke: '#c9c5ba', 'stroke-width': 1.1 });
+              const L = edgeLabel(a, b, String(e.cost), g.smallFs, placed, [e.i, e.j]);
+              label(`pe-c-${k}`, L.x, L.cy, String(e.cost), { fill: '#8a8a85' });
+            } else if (e.status === 'accepted') {
+              const op = blend(was === 'accepted', true, t);
+              put('under', 'path', `pe-${k}`, { d, stroke: '#333', 'stroke-width': onCycle(e) ? 3.4 : 1.9, opacity: op });
+              const L = edgeLabel(a, b, String(e.cost), g.smallFs, placed, [e.i, e.j]);
+              const routeShown = state.route && state.current === k;
+              if (!routeShown) label(`pe-c-${k}`, L.x, L.cy, String(e.cost), { fill: '#555', opacity: op });
+            } else if (e.status === 'rejected' && state.current === k) {
+              const wasShown = Boolean(from && from.current === k && was === 'rejected');
+              cycleEdge = { k, a, b, op: blend(wasShown, true, t) };
+            }
+          });
+
+          // caption in the plot's empty top-right corner
+          if (state.caption) {
+            const [l1, l2] = state.caption;
+            const x = g.mapX(8) - 3;
+            const cy1 = g.mapY(7) + 4 + g.smallFs / 2 + 1;
+            const cy2 = cy1 + g.smallFs / 2 + g.fs / 2 + 5;
+            label('cap-1', x, cy1, l1, { anchor: 'end' });
+            label('cap-2', x, cy2, l2, { anchor: 'end', fs: g.fs + 1, fill: '#272727' });
+            placed.push(textBox(x, cy1, l1, g.smallFs, 'end'), textBox(x, cy2, l2, g.fs + 1, 'end'));
+          }
+
+          // The skipped edge bows away from the MST path it would close, so
+          // the cycle reads as a loop instead of a line on top of that path.
+          if (cycleEdge) {
+            const { k, a, b, op } = cycleEdge;
+            const L = trimmed(a, b, 0, 0);
+            let nx = -(b.y - a.y) / L.len;
+            let ny = (b.x - a.x) / L.len;
+            const inner = state.cycle.path.slice(1, -1).map(pt);
+            const side = inner.reduce((acc, p) => acc + (p.x - a.x) * nx + (p.y - a.y) * ny, 0);
+            if (side > 0) { nx = -nx; ny = -ny; }
+            const bow = Math.max(26, L.len * 0.24);
+            const ctrl = { x: (a.x + b.x) / 2 + nx * bow * 2, y: (a.y + b.y) / 2 + ny * bow * 2 };
+            const s1 = trimmed(a, ctrl, g.r, 0);
+            const s2 = trimmed(b, ctrl, g.r, 0);
+            put('under', 'path', `pe-${k}`, { d: `M ${s1.x1} ${s1.y1} Q ${ctrl.x} ${ctrl.y} ${s2.x1} ${s2.y1}`, stroke: '#555', 'stroke-width': 1.6, 'stroke-dasharray': '5 4', opacity: op });
+            const apex = { x: (a.x + b.x) / 2 + nx * bow, y: (a.y + b.y) / 2 + ny * bow };
+            const h = g.smallFs + 3;
+            const cands = [8 + h / 2, 4 + h / 2, -(6 + h / 2)].map(o => {
+              const x = apex.x + nx * o;
+              const cy = apex.y + ny * o;
+              return { x, cy, box: textBox(x, cy, '成环', g.smallFs, 'middle') };
+            });
+            const best = choose(cands, placed, bounds);
+            placed.push(best.box);
+            label(`pe-c-${k}`, best.x, best.cy, '成环', { fill: '#272727', opacity: op });
+          }
+
+          // Manhattan route: an L along the grid, legs labelled |Δx| and |Δy|
+          if (state.route) {
+            const { a: ia, b: ib } = state.route;
+            const a = pt(ia);
+            const b = pt(ib);
+            const dxv = Math.abs(BOOK[ia][0] - BOOK[ib][0]);
+            const dyv = Math.abs(BOOK[ia][1] - BOOK[ib][1]);
+            const wasRoute = Boolean(from && from.route && from.route.a === ia && from.route.b === ib);
+            const op = blend(wasRoute, true, t);
+            const legBox = (p, q) => ({ l: Math.min(p.x, q.x) - 2, r: Math.max(p.x, q.x) + 2, t: Math.min(p.y, q.y) - 2, b: Math.max(p.y, q.y) + 2 });
+            const corners = [{ x: b.x, y: a.y }, { x: a.x, y: b.y }];
+            let corner = corners[0];
+            let bestPen = Infinity;
+            corners.forEach(c => {
+              const others = nodeBoxes.filter((_, q) => q !== ia && q !== ib);
+              let pen = 0;
+              for (const o of [...others, ...staticObstacles.slice(N)]) pen += overlap(legBox(a, c), o) + overlap(legBox(c, b), o);
+              if (pen < bestPen - 0.5) { bestPen = pen; corner = c; }
+            });
+            const legs = [
+              { p: a, q: corner, rp: g.r, rq: 0, node: a },
+              { p: corner, q: b, rp: 0, rq: g.r, node: b }
+            ].filter(leg => Math.hypot(leg.q.x - leg.p.x, leg.q.y - leg.p.y) > 0.5).map(leg => {
+              const horizontal = Math.abs(leg.p.y - leg.q.y) < 0.5;
+              return { ...leg, horizontal, id: horizontal ? 'h' : 'v', str: horizontal ? `|Δx|=${dxv}` : `|Δy|=${dyv}` };
+            });
+            legs.forEach(leg => {
+              const seg = trimmed(leg.p, leg.q, leg.rp, leg.rq);
+              put('under', 'path', `mh-${leg.id}`, { d: `M ${seg.x1} ${seg.y1} L ${seg.x2} ${seg.y2}`, stroke: '#272727', 'stroke-width': 1.7, 'stroke-dasharray': '5 4', opacity: op });
+              placed.push(legBox({ x: seg.x1, y: seg.y1 }, { x: seg.x2, y: seg.y2 }));
+            });
+            if (legs.length === 2) put('nodes', 'circle', 'mh-dot', { cx: corner.x, cy: corner.y, r: 2.4, fill: '#555', opacity: op });
+            legs.forEach(leg => {
+              const seg = trimmed(leg.p, leg.q, leg.rp, leg.rq);
+              const cands = [];
+              const h = g.fs + 3;
+              // Try the outside of the L first (away from the opposite
+              // endpoint), so each label stays against its own leg and clear
+              // of the straight edge inside the L.
+              const far = leg.node === a ? b : a;
+              const outward = leg.horizontal ? (far.y < corner.y ? 1 : -1) : (far.x < corner.x ? 1 : -1);
+              const out = leg.horizontal ? (corner.x > leg.node.x ? 1 : -1) : (corner.y > leg.node.y ? 1 : -1);
+              [outward, -outward].forEach(sgn => {
+                for (const f of [0.5, 0.65, 0.35, 0.8]) {
+                  const mx = lerp(seg.x1, seg.x2, f);
+                  const my = lerp(seg.y1, seg.y2, f);
+                  const sp = leg.horizontal
+                    ? { x: mx, cy: my + sgn * (4 + h / 2), anchor: 'middle' }
+                    : { x: mx + sgn * 6, cy: my, anchor: sgn > 0 ? 'start' : 'end' };
+                  cands.push({ ...sp, box: textBox(sp.x, sp.cy, leg.str, g.fs, sp.anchor) });
+                }
+              });
+              // A leg shorter than its label: continue the leg past the corner.
+              const tail = leg.horizontal
+                ? { x: corner.x + out * 6, cy: corner.y, anchor: out > 0 ? 'start' : 'end' }
+                : { x: corner.x, cy: corner.y + out * (h / 2 + 5), anchor: 'middle' };
+              cands.push({ ...tail, box: textBox(tail.x, tail.cy, leg.str, g.fs, tail.anchor) });
+              const best = choose(cands, placed, bounds);
+              placed.push(best.box);
+              label(`mh-l-${leg.id}`, best.x, best.cy, leg.str, { fs: g.fs, fill: '#272727', anchor: best.anchor, opacity: op });
+            });
+          }
+
+          // points on top of every line
+          BOOK.forEach((p, i) => {
+            const c = pt(i);
+            put('nodes', 'circle', `pt-${i}`, { cx: c.x, cy: c.y, r: g.r, fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.6 });
+            put('nodes', 'text', `pt-v-${i}`, { x: c.x, y: c.y + (g.narrow ? 3.8 : 4.4), 'text-anchor': 'middle', 'font-size': g.narrow ? 11 : 13, fill: '#272727', 'font-family': MONO }, String(i));
+          });
+
+          // ---- union-find: parent pointers drawn as a forest above the arrays ----
+          const midX = (g.ufL + g.ufR) / 2;
+          if (!state.ufReady) {
+            put('labels', 'text', 'uf-cap', { x: midX, y: (g.ufT + g.parentTop + g.cellH) / 2, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, 'uf = UnionFind(n) 尚未执行');
+          } else {
+            const P = state.parent;
+            const fromP = from && from.ufReady ? from.parent : P;
+            const nodeY = i => lerp(g.rowY(depthOf(fromP, i)), g.rowY(depthOf(P, i)), t);
+            const pos = i => ({ x: g.cx(i), y: nodeY(i) });
+            put('labels', 'text', 'uf-cap', { x: g.ufL, y: g.ufT + 11, 'font-size': g.smallFs, fill: '#555', 'font-family': MONO }, 'uf：箭头 x → parent[x]');
+            put('labels', 'text', 'uf-root-l', { x: g.ufL, y: g.rowY(0) + 3.5, 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, '根');
+
+            const onPath = new Set();
+            state.findPaths.forEach(path => { for (let q = 0; q + 1 < path.length; q += 1) onPath.add(path[q]); });
+            const links = new Set();
+            P.forEach((p, i) => { if (p !== i) links.add(i); });
+            if (from && from.ufReady) from.parent.forEach((p, i) => { if (p !== i && p === P[i]) links.add(i); else if (p !== i && P[i] === i) links.add(i); });
+            links.forEach(i => {
+              const has = P[i] !== i;
+              const had = Boolean(from && from.ufReady && from.parent[i] !== i);
+              const target = has ? P[i] : from.parent[i];
+              const op = from ? blend(had, has, t) : 1;
+              if (op <= 0.01) return;
+              const a = pos(i);
+              const b = pos(target);
+              const seg = trimmed(a, b, g.rf, g.rf + 1.5);
+              let d = `M ${seg.x1} ${seg.y1} L ${seg.x2} ${seg.y2}`;
+              if (Math.abs(i - target) >= 2) {
+                let nx = -(seg.y2 - seg.y1) / seg.len;
+                let ny = (seg.x2 - seg.x1) / seg.len;
+                if (ny > 0) { nx = -nx; ny = -ny; }
+                // Bow long pointers upward: enough to clear a child-row node
+                // they pass over, not so much that they reach the root row.
+                const bow = Math.min(g.rowGap * 0.45, seg.len * 0.2);
+                d = `M ${seg.x1} ${seg.y1} Q ${(seg.x1 + seg.x2) / 2 + nx * bow} ${(seg.y1 + seg.y2) / 2 + ny * bow} ${seg.x2} ${seg.y2}`;
+              }
+              const strong = onPath.has(i) || state.newLink === i;
+              put('under', 'path', `uf-link-${i}`, { d, fill: 'none', stroke: strong ? '#272727' : '#333', 'stroke-width': strong ? 2.3 : 1.3, 'marker-end': 'url(#link-arrow)', opacity: op });
+            });
+
+            for (let i = 0; i < N; i += 1) {
+              const c = pos(i);
+              put('nodes', 'circle', `uf-n-${i}`, { cx: c.x, cy: c.y, r: g.rf, fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.5 });
+              put('nodes', 'text', `uf-nv-${i}`, { x: c.x, y: c.y + (g.narrow ? 3.8 : 4.3), 'text-anchor': 'middle', 'font-size': g.narrow ? 11 : 12, fill: '#272727', 'font-family': MONO }, String(i));
+              if (state.ends.includes(i)) {
+                const wasEnd = Boolean(from && from.ends.includes(i));
+                put('nodes', 'circle', `uf-end-${i}`, { cx: c.x, cy: c.y, r: g.rf + 4, fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '3 3', opacity: blend(wasEnd, true, t) });
+              }
+            }
+
+            // rep_x / rep_y: variable labels in a lane above the roots
+            const repSpots = s => {
+              if (!s.reps) return [];
+              const w = textW('rep_x', g.smallFs) + 10;
+              const clampX = x => Math.max(g.ufL + g.labelCol + w / 2, Math.min(g.ufR - w / 2, x));
+              if (s.reps.x === s.reps.y) {
+                return [
+                  { name: 'rep_x', node: s.reps.x, x: clampX(g.cx(s.reps.x) - w / 2 - 2), w },
+                  { name: 'rep_y', node: s.reps.y, x: clampX(g.cx(s.reps.y) + w / 2 + 2), w }
+                ];
+              }
+              return [{ name: 'rep_x', node: s.reps.x, x: clampX(g.cx(s.reps.x)), w }, { name: 'rep_y', node: s.reps.y, x: clampX(g.cx(s.reps.y)), w }];
+            };
+            const fromSpots = from ? repSpots(from) : [];
+            repSpots(state).forEach(sp => {
+              const prev = fromSpots.find(o => o.name === sp.name);
+              const x = prev ? lerp(prev.x, sp.x, t) : sp.x;
+              const op = prev ? 1 : t;
+              const h = 17;
+              const top = g.laneTop;
+              put('labels', 'path', `uf-var-box-${sp.name}`, { d: rectD(x - sp.w / 2, top, sp.w, h, 3), fill: '#fffdf8', stroke: '#555', 'stroke-width': 1, opacity: op });
+              put('labels', 'text', `uf-var-${sp.name}`, { x, y: top + h / 2 + g.smallFs * 0.35, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#272727', 'font-family': MONO, opacity: op }, sp.name);
+              const target = pos(sp.node);
+              const ref = trimmed({ x, y: top + h }, target, 0, g.rf + 2);
+              put('labels', 'path', `uf-var-ref-${sp.name}`, { d: `M ${x} ${top + h} L ${ref.x2} ${ref.y2}`, stroke: '#555', 'stroke-width': 1, fill: 'none', 'marker-end': 'url(#ref-arrow)', opacity: op });
+            });
+
+            // arrays aligned with the forest columns
+            put('labels', 'text', 'uf-i-l', { x: g.ufL, y: g.idxBase, 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, 'i');
+            put('labels', 'text', 'uf-p-l', { x: g.ufL, y: g.parentTop + g.cellH / 2 + 3.5, 'font-size': g.smallFs, fill: '#555', 'font-family': MONO }, 'parent');
+            put('labels', 'text', 'uf-s-l', { x: g.ufL, y: g.sizeTop + g.sizeH / 2 + 3.5, 'font-size': g.smallFs, fill: '#555', 'font-family': MONO }, 'size');
+            for (let i = 0; i < N; i += 1) {
+              const x = g.cx(i);
+              const cl = x - g.cellW / 2;
+              put('labels', 'text', `uf-i-${i}`, { x, y: g.idxBase, 'text-anchor': 'middle', 'font-size': g.smallFs, fill: '#999', 'font-family': MONO }, String(i));
+              const pChanged = state.changedParent === i;
+              const pHot = state.hotParent.includes(i);
+              put('under', 'path', `uf-p-${i}`, {
+                d: rectD(cl, g.parentTop, g.cellW, g.cellH, 3),
+                fill: pChanged ? '#e9e5d9' : '#fffdf8',
+                stroke: pChanged || pHot ? '#272727' : '#999',
+                'stroke-width': pChanged ? 1.7 : pHot ? 1.3 : 1,
+                'stroke-dasharray': pHot && !pChanged ? '4 3' : null
+              });
+              put('labels', 'text', `uf-pv-${i}`, { x, y: g.parentTop + g.cellH / 2 + g.fs * 0.38, 'text-anchor': 'middle', 'font-size': g.fs + 1, fill: '#272727', 'font-family': MONO }, String(P[i]));
+              const sChanged = state.changedSize === i;
+              const sHot = state.hotSize.includes(i);
+              put('under', 'path', `uf-s-${i}`, {
+                d: rectD(cl, g.sizeTop, g.cellW, g.sizeH, 3),
+                fill: sChanged ? '#e9e5d9' : '#fffdf8',
+                stroke: sChanged || sHot ? '#272727' : '#999',
+                'stroke-width': sChanged ? 1.7 : sHot ? 1.3 : 1,
+                'stroke-dasharray': sHot && !sChanged ? '4 3' : null
+              });
+              put('labels', 'text', `uf-sv-${i}`, { x, y: g.sizeTop + g.sizeH / 2 + g.fs * 0.36, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO }, String(state.size[i]));
+            }
+          }
+
+          layerNames.forEach((name, n) => layers[n].update(api => {
+            for (const [kind, id, attrs, value] of ops[name]) api[kind](id, attrs, value);
+          }));
         }
 
-        const parentH = g => g.narrow ? 26 : 30;
-        const sizeH = g => g.narrow ? 20 : 22;
-        const parentMid = g => parentH(g) / 2;
-        const sizeMid = g => sizeH(g) / 2;
-        function rectD(x, y, w, h, r) {
-          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
-        }
-
-        const STATUS_TEXT = { pending: '', current: '处理中…', accepted: '✓ 采用', rejected: '✗ 成环', unprocessed: '未处理' };
-        const edgeTable = root.querySelector('[data-edge-table]');
+        const STATUS_TEXT = { pending: '', current: '处理中', accepted: '✓ 采用', rejected: '✗ 成环', unprocessed: '未检查' };
         function updateTable(state) {
           edgeTable.hidden = !state.showTable;
           if (!state.showTable) {
@@ -578,11 +919,14 @@
             return;
           }
           tableCap.textContent = state.sorted
-            ? 'edges（按代价升序；同代价保持生成顺序 i<j）'
-            : 'edges（生成顺序 i<j，尚未排序）';
+            ? 'edges：元组 (cost, i, j)，已按代价升序'
+            : 'edges：元组 (cost, i, j)，生成顺序，尚未排序';
           edgeRows.replaceChildren(...state.edges.map((e, k) => {
             const tr = document.createElement('tr');
-            tr.className = e.status === 'current' ? 'current' : e.status === 'rejected' ? 'rejected' : e.status === 'unprocessed' ? 'unprocessed' : e.status === 'accepted' ? 'accepted' : '';
+            const classes = [];
+            if (k === state.current) classes.push('current');
+            if (e.status === 'rejected' || e.status === 'unprocessed') classes.push(e.status);
+            tr.className = classes.join(' ');
             const td = (cls, value) => {
               const cell = document.createElement('td');
               if (cls) cell.className = cls;
@@ -591,8 +935,7 @@
             };
             tr.append(
               td('num', String(k + 1)),
-              td('', `(${e.i}, ${e.j})`),
-              td('num', String(e.cost)),
+              td('', `(${e.cost}, ${e.i}, ${e.j})`),
               td(e.status === 'accepted' ? 'st-ok' : e.status === 'rejected' ? 'st-no' : '', STATUS_TEXT[e.status])
             );
             return tr;
@@ -603,8 +946,8 @@
           phaseEl.textContent = frame.phase;
           invariantEl.textContent = frame.invariant;
           mTotal.textContent = String(state.totalCost);
-          mAdded.textContent = `${state.edgesAdded} / ${sim.n - 1}`;
-          mComp.textContent = String(sim.n - state.edgesAdded);
+          mAdded.textContent = `${state.edgesAdded} / ${N - 1}`;
+          mComp.textContent = state.ufReady ? String(N - state.edgesAdded) : '—';
           const cur = state.current !== null ? state.edges[state.current] : null;
           mEdge.textContent = cur ? `(${cur.i}, ${cur.j}) · ${cur.cost}` : '—';
           expressionEl.textContent = frame.line;
@@ -615,14 +958,7 @@
           draw(state, 1, null);
         }
 
-        const cloneState = s => ({
-          ...s,
-          edges: s.edges.map(e => ({ ...e })),
-          parent: [...s.parent],
-          size: [...s.size],
-          hl: { nodes: [...s.hl.nodes], changed: s.hl.changed },
-          manhattan: s.manhattan ? { ...s.manhattan } : null
-        });
+        const cloneState = s => JSON.parse(JSON.stringify(s));
         const trace = core.createTrace({
           root,
           cloneState,
@@ -632,7 +968,7 @@
           onTransition: ({ state }) => {
             const from = transitionFrom;
             transitionFrom = null;
-            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            if (!from || motion.reduced) { draw(state, 1, null); return; }
             motion.tween({
               duration: 380,
               update: eased => draw(state, eased, from),
