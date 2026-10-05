@@ -104,10 +104,13 @@
         <h2 id="kfreq-maxheap">解法一：大顶堆 · O(n + k log n)</h2>
         <p class="section-intro">每次拿走当前最频繁的一个字符串，剩下的堆顶自然变成下一个——连续 <code>pop</code> <code>k</code> 次就得到答案。建堆不必逐个 <code>push</code>（<code>O(n log n)</code>），用 <code>heapify</code> 对所有 <code>(str, freq)</code> 对一次性自底向上调整，只要 <code>O(n)</code>。</p>
         <div class="case-grid">
-          <article class="paper-card"><strong>heapify · O(n) 建堆</strong><p><code>heapq.heapify(max_heap)</code> 直接在数组上自底向上交换，把最大的频率换到堆顶。这一步只比较交换，不额外分配新的节点。</p></article>
+          <article class="paper-card"><strong>heapify · O(n) 建堆</strong><p><code>heapq.heapify(max_heap)</code> 从最后一个父节点 <code>i = n // 2 - 1</code> 往上到 <code>0</code>，把每个父节点与它更优先的孩子比较，需要时下沉。例中 <code>freqs.items()</code> 的顺序恰好已满足堆性质，所以一次也没交换。</p></article>
           <article class="paper-card"><strong>自定义比较器 / Pair.__lt__</strong><p><code>return self.freq &gt; other.freq</code>：频率高者"更小"、排在堆顶；<code>self.freq == other.freq</code> 时 <code>return self.str &lt; other.str</code>：字典序小者优先。比如 <code>(coding, 1)</code> 与 <code>(interview, 1)</code> 并列时，<code>coding</code> 胜出。</p></article>
         </div>
-        <p class="small">之后 <code>pop</code> <code>k</code> 次，每次 <code>O(log n)</code>：总计 <code>O(n) + k · O(log n) = O(n + k log n)</code>。</p>
+        <div class="case-grid">
+          <article class="paper-card"><strong>一次 heappop 做了什么</strong><p>取下堆顶 <code>[0]</code> 作为返回值；把最后一个叶子移到 <code>[0]</code>；再让它沿“更优先的孩子”一路下沉，直到不比孩子差。下沉最多走树高 <code>O(log n)</code> 层。</p></article>
+          <article class="paper-card"><strong>正好 k 次</strong><p><code>for _ in range(k)</code> 只循环 <code>k</code> 次，堆里剩下的 <code>n - k</code> 个 Pair 不再参与。总计 <code>O(n) + k · O(log n) = O(n + k log n)</code>。</p></article>
+        </div>
       </section>
 
       <section class="section" aria-labelledby="kfreq-minheap">
@@ -512,6 +515,20 @@
           { text: '    return [heapq.heappop(max_heap).str for _ in range(k)]', key: 'mh-return' }
         ];
 
+        // Max-only frame state on top of baseState():
+        //   chip  – root marker text: 'max:' once the root is verified, '待调整' while the heap property is unchecked/broken
+        //   hl    – heap indices outlined as "being compared" in this step
+        //   note  – short lines drawn in the free bottom-right of the tree (next to what they describe)
+        //   ghost – { idx } vacated slot after heappop moved the last leaf to [0]
+        //   loop  – label above res for the k-times loop
+        //   collect – draw the root → res arrow (heappop just returned the root)
+        const maxState = extra => ({ ...baseState(), chip: 'max:', hl: [], note: null, ghost: null, loop: null, collect: false, ...extra });
+        const pt = p => `(${p.str}, ${p.freq})`;
+        // Which rule of Pair.__lt__ decides a vs b: the code lines and a short reason.
+        const ltRule = (a, b) => (a.freq === b.freq
+          ? { keys: ['mh-lt-tie', 'mh-lt-str'], why: `freq 并列 ${a.freq} = ${b.freq}，比 str：` }
+          : { keys: ['mh-lt-freq'], why: `freq ${Math.max(a.freq, b.freq)} > ${Math.min(a.freq, b.freq)}` });
+
         function buildMaxFrames() {
           const frames = [];
           frames.push(fr(
@@ -519,43 +536,142 @@
             'Count occurrences with a hash map: go ×3, byte ×2, coding ×1, interview ×1.',
             '先用 Counter 统计频率：go 出现 3 次，byte 2 次，coding、interview 各 1 次。',
             'freqs 的键是字符串、值是出现次数；之后堆里只放这 4 个 (str, freq) 对。',
-            { ...baseState(), strs: true }
+            { ...maxState(), strs: true }
           ));
 
+          // max_heap = [Pair(str, freq) for ...]: plain list in freqs.items() order, heap property not yet checked.
           const heap = ITEMS.map(p => ({ ...p }));
-          heapify(heap, ltMax);
           frames.push(fr(
-            'heapify · O(n) 建大顶堆', 'heapify', ['mh-build', 'mh-heapify'], 'heapq.heapify(max_heap)',
-            'Build all four Pairs and heapify at once — O(n), faster than pushing one by one. The root (go, 3) is the most frequent string; (coding, 1) sits above (interview, 1) because their frequencies tie and "coding" < "interview".',
-            '把 4 个 (str, freq) 对一次性建好再 heapify，O(n) 完成建堆；堆顶 (go, 3) 就是最频繁的字符串。(coding, 1) 与 (interview, 1) 频率并列，"coding" 字典序更小，所以当父节点。',
-            '大顶堆堆顶 max: 永远是优先级最高的 Pair：频率大者胜出，并列时字典序小者胜出。',
-            { ...baseState(), heap: snapKeys(heap) }
+            '建 Pair 列表 · freqs.items() 顺序', 'build', ['mh-build', 'mh-init-str', 'mh-init-freq'],
+            'max_heap = [Pair(str, freq) for str, freq in freqs.items()]',
+            `Each (str, freq) entry of freqs becomes a Pair, placed in insertion order: ${heap.map(pt).join(', ')}. It is still a plain list; the tree just shows which index is whose child.`,
+            `freqs 的每一项变成一个 Pair，按 freqs.items() 的顺序放进 [0]…[${heap.length - 1}]。现在只是普通列表，还没做 heapify；树形只是把下标 i 的孩子画在 2i+1、2i+2。`,
+            '数组下标与树的位置一一对应：[i] 的子节点是 [2i+1] 和 [2i+2]。',
+            { ...maxState(), heap: snapKeys(heap), chip: '待调整', note: ['按 freqs.items() 顺序', '放入 [0] → [3]'] }
           ));
 
-          const pop1 = heappop(heap, ltMax);
+          // heapq.heapify: for i in reversed(range(n // 2)) → i = 1, then i = 0. Record each check.
+          for (let i = (heap.length >> 1) - 1; i >= 0; i--) {
+            const l = 2 * i + 1;
+            const r = l + 1;
+            const c = r < heap.length && ltMax(heap[r], heap[l]) ? r : l;
+            const p = heap[i];
+            const child = heap[c];
+            const before = snapKeys(heap);
+            siftup(heap, i, ltMax);
+            const swapped = before.join() !== snapKeys(heap).join();
+            const parentWins = ltMax(p, child);
+            const rule = ltRule(p, child);
+            const sibling = c !== l ? heap[l] : (r < heap.length ? heap[r] : null);
+            const strLine = p.freq === child.freq ? `"${parentWins ? p.str : child.str}" < "${parentWins ? child.str : p.str}"` : rule.why;
+            const note = [
+              `i = ${i}：[${i}] 与${sibling ? '较优' : ''}子 [${c}] 比`,
+              ...(p.freq === child.freq ? [rule.why] : []),
+              `${strLine} → ${parentWins ? '不换' : '交换'}`
+            ];
+            const last = i === 0;
+            frames.push(fr(
+              `heapify i = ${i} · ${parentWins ? `${pt(p)} 不动` : `交换`}`, 'none', ['mh-heapify', 'mh-lt', ...rule.keys],
+              `heapq.heapify(max_heap)  # i = ${i}: ${pt(p)} vs ${pt(child)}`,
+              `heapify checks parents from the last one up: i = ${i}. ${sibling ? `Of its children, ${pt(child)} beats ${pt(sibling)}. ` : ''}${pt(p)} ${parentWins ? 'already comes first' : 'loses'} by Pair.__lt__ (${p.freq === child.freq ? 'equal freq, so the smaller str wins' : 'higher freq wins'})${parentWins ? ', so nothing moves' : ', so they swap'}.${last && !swapped ? ' The list was already a valid max-heap, so heapify made no swaps here.' : ''}`,
+              `heapify 从最后一个父节点往上检查：现在 i = ${i}。${sibling ? `两个孩子里 ${pt(child)} 比 ${pt(sibling)} 优先；` : ''}按 Pair.__lt__，${p.freq === child.freq ? '频率并列时字典序小者优先' : '频率高者优先'}，${pt(p)} ${parentWins ? '已经排在前面，不用交换' : '排在后面，需要交换'}。${last && !swapped ? '这组输入恰好本来就满足堆性质，heapify 一次也没交换。' : ''}`,
+              last ? '大顶堆堆顶 max: 是优先级最高的 Pair：频率大者胜出，并列时字典序小者胜出。' : '每个父节点都不比它的孩子“小”（按 __lt__），堆顶就是全局最优先的 Pair。',
+              { ...maxState(), heap: snapKeys(heap), chip: last ? 'max:' : '待调整', hl: [i, c], note }
+            ));
+          }
+
+          // return [heapq.heappop(max_heap).str for _ in range(k)]: k iterations, each = take root, move last leaf up, sift down.
+          const res = [];
+          for (let t = 0; t < K; t++) {
+            const top = heap[0];
+            const lastIdx = heap.length - 1;
+            const lastelt = heap.pop();
+            heap[0] = lastelt;
+            res.push(top.str);
+            const loop = `range(k) 第 ${t + 1} / ${K} 次 · _ = ${t}`;
+            frames.push(fr(
+              `pop #${t + 1} · ${pt(top)} → res`, 'collect', ['mh-return'],
+              `heapq.heappop(max_heap).str  # _ = ${t}`,
+              `heappop takes the root ${pt(top)}; its .str "${top.str}" goes into the result. The last leaf ${pt(lastelt)} at [${lastIdx}] is moved into [0], which may break the heap order.`,
+              `heappop 取下堆顶 ${pt(top)}，它的 .str "${top.str}" 放进结果列表。最后一个叶子 ${pt(lastelt)} 从 [${lastIdx}] 移到 [0] 补位——它未必最优先，堆性质暂时被破坏。`,
+              '结果列表按 pop 的先后排列：先出来的频率最高。',
+              { ...maxState(), heap: snapKeys(heap), res: [...res], chip: '待调整', hl: [0], ghost: { idx: lastIdx }, loop, collect: true,
+                note: [`${pt(top)} 出堆 → res`, `末尾 [${lastIdx}] 补到 [0]`] }
+            ));
+            // sift-down of the moved leaf (same heappop call)
+            const l = 1;
+            const r = 2;
+            const c = r < heap.length && ltMax(heap[r], heap[l]) ? r : l;
+            const child = heap[c];
+            const sibling = c !== l ? heap[l] : (r < heap.length ? heap[r] : null);
+            const rule = ltRule(lastelt, child);
+            const moves = ltMax(child, lastelt);
+            siftup(heap, 0, ltMax);
+            const reason = lastelt.freq === child.freq ? `"${child.str}" < "${lastelt.str}"` : rule.why;
+            frames.push(fr(
+              `pop #${t + 1} · 下沉 → ${pt(heap[0])} 成堆顶`, 'swap', ['mh-return', 'mh-lt', ...rule.keys],
+              `heapq.heappop(max_heap).str  # 下沉 ${pt(lastelt)}`,
+              `Still inside heappop: sift ${pt(lastelt)} down. ${sibling ? `Of the children, ${pt(child)} beats ${pt(sibling)}; ` : `Its only child is ${pt(child)}; `}${pt(child)} comes first by Pair.__lt__ (${lastelt.freq === child.freq ? 'tie on freq, smaller str wins' : 'higher freq wins'}), so they ${moves ? 'swap' : 'stay'}. ${pt(heap[0])} is the new root.`,
+              `仍在这次 heappop 里：把 ${pt(lastelt)} 下沉。${sibling ? `两个孩子里 ${pt(child)} 比 ${pt(sibling)} 优先；` : `它只有一个孩子 ${pt(child)}；`}按 __lt__${lastelt.freq === child.freq ? '，频率并列比字典序' : '，频率高者优先'}，${pt(child)} ${moves ? '更优先，两者交换' : '不比它优先，不用交换'}。新的堆顶是 ${pt(heap[0])}。`,
+              '下沉后堆性质恢复：堆顶又是剩下元素里最优先的，下一次 pop 直接拿它。',
+              { ...maxState(), heap: snapKeys(heap), res: [...res], hl: [0, c], loop,
+                note: [sibling ? `子节点 ${pt(child)} 更优先` : `只有子 [${c}]${lastelt.freq === child.freq ? '，freq 并列' : ''}`, `${reason} → ${moves ? '交换' : '不换'}`] }
+            ));
+          }
+
           frames.push(fr(
-            'pop 堆顶 → res = [go]', 'collect', ['mh-return'], 'heapq.heappop(max_heap).str  # 第 1 次 pop',
-            'Pop the root and append its string to res; (byte, 2) floats up as the new root.',
-            '弹出堆顶 (go, 3)，把 "go" 加入 res；(byte, 2) 升为新的堆顶。',
-            '每次 pop 拿走当前最频繁的字符串，剩下的堆顶就是下一个。',
-            { ...baseState(), heap: snapKeys(heap), res: [pop1.str], collectKey: pop1.str }
-          ));
-          const pop2 = heappop(heap, ltMax);
-          frames.push(fr(
-            'pop 堆顶 → res = [go, byte]', 'collect', ['mh-return'], 'heapq.heappop(max_heap).str  # 第 2 次 pop',
-            'Pop again to get "byte". Two pops for k = 2 — the max-heap solution is done: ["go", "byte"].',
-            '再弹出 (byte, 2)。k = 2 只需 pop 两次，大顶堆方案完成，得到 ["go", "byte"]。',
-            'pop 满 k 次，res 就是按频率降序（并列按字典序）的前 k 个字符串。',
-            { ...baseState(), heap: snapKeys(heap), res: [pop1.str, pop2.str], collectKey: pop2.str }
-          ));
-          frames.push(fr(
-            'return → ["go", "byte"]', 'none', ['mh-return'], 'return [heapq.heappop(max_heap).str for _ in range(k)]  # ["go", "byte"]',
-            'Return ["go", "byte"]: the max-heap pops come out most frequent first, so no reverse is needed.',
-            '返回 ["go", "byte"]：大顶堆先弹出频率最高的，顺序已经正确，不需要 reverse。',
+            'return → ["go", "byte"]', 'none', ['mh-return'], `return [heapq.heappop(max_heap).str for _ in range(k)]  # ${JSON.stringify(res)}`,
+            `range(k) ran exactly ${K} times, so exactly ${K} pops. Return ${JSON.stringify(res)}: the max-heap pops come out most frequent first, so no reverse is needed.`,
+            `range(k) 正好循环 ${K} 次、pop ${K} 次。返回 ${JSON.stringify(res)}：大顶堆先弹出频率最高的，顺序已经正确，不需要 reverse。`,
             '堆里剩下的 (coding, 1)、(interview, 1) 不会被用到；答案按频率降序、并列按字典序。',
-            { ...baseState(), heap: snapKeys(heap), res: [pop1.str, pop2.str], done: true }
+            { ...maxState(), heap: snapKeys(heap), res: [...res], done: true, loop: `range(k) 已跑满 ${K} 次` }
           ));
           return frames;
+        }
+
+        // root → res elbow arrow without the shared bottom-left label (that spot holds the vacated-slot ghost).
+        function drawMaxCollectArrow({ path }) {
+          const g = geom;
+          const chipLeft = g.heapCx - g.tokenW / 2 - 12 - (g.compact ? 40 : 46) - 2;
+          const rx = g.heapCx - g.treeLeft - 14;
+          const resLeft = g.heapCx - (g.compact ? 95 : 108) - 3;
+          path('mh-collect-arrow', {
+            d: `M ${chipLeft} ${g.rootY} L ${rx} ${g.rootY} L ${rx} ${g.resY} L ${resLeft} ${g.resY}`,
+            fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
+          });
+        }
+
+        // dashed outlines around compared heap slots, the vacated slot, the step note and the loop label
+        function drawMaxMarks({ path, text }, state) {
+          const g = geom;
+          const fs = g.compact ? 9.5 : 10.5;
+          for (const i of state.hl) {
+            const c = slotPos(i);
+            // dashed frame with a gap at the top-left so the [i] index label stays readable
+            const x0 = c.x - g.tokenW / 2 - 5;
+            const x1 = c.x + g.tokenW / 2 + 5;
+            const y0 = c.y - g.tokenH / 2 - 5;
+            const y1 = c.y + g.tokenH / 2 + 5;
+            path(`mh-hl-${i}`, { d: `M ${x0 + 30} ${y0} H ${x1} V ${y1} H ${x0} V ${y0}`, fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '3 3' });
+          }
+          if (state.ghost) {
+            const c = slotPos(state.ghost.idx);
+            path('mh-ghost', { d: rect(c.x, c.y, g.tokenW, g.tokenH), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            text('mh-ghost-txt', { x: c.x, y: c.y + 4, ...mono(fs, '#777') }, `↑ 已移到 [0]`);
+          }
+          if (state.note) {
+            // free area: bottom row, right of slot [3]
+            const lx = slotPos(3).x + g.tokenW / 2 + 12;
+            const lh = fs + 3;
+            const y0 = g.rootY + 2 * g.levelH - (state.note.length - 1) * lh / 2 + 3;
+            state.note.forEach((line, j) => {
+              text(`mh-note-${j}`, { x: lx, y: y0 + j * lh, ...mono(fs, j === state.note.length - 1 ? '#272727' : '#555', 'start') }, line);
+            });
+          }
+          if (state.loop) {
+            const resBoxW = g.compact ? 190 : 216;
+            text('mh-loop', { x: g.heapCx - resBoxW / 2, y: g.resY - (g.compact ? 25 : 29), ...mono(fs, '#555', 'start') }, state.loop);
+          }
         }
 
         function drawMax(state, progress = 1, from = null, frame = null) {
@@ -564,9 +680,12 @@
             drawFreqs(api, state);
             drawStrs(api, state);
             if (state.heap !== null) drawHeapFrame(api, state, state.heap.length === 0 ? 'max_heap = []' : 'max_heap');
-            if (!active && frame && frame.anim === 'collect') drawCollectArrow(api);
-            if (!active) drawTieNotes(api, state, ltMax, '<');
-            drawTokens(api, state, { from, progress, active, chip: 'max:' });
+            if (!active) {
+              if (state.collect) drawMaxCollectArrow(api);
+              drawMaxMarks(api, state);
+              if (!state.note && !state.ghost) drawTieNotes(api, state, ltMax, '<');
+            }
+            drawTokens(api, state, { from, progress, active, chip: state.chip || 'max:' });
             drawRes(api, state);
           });
         }
