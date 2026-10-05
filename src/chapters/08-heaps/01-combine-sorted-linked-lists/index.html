@@ -376,9 +376,9 @@
             'curr 始终指向输出链表的最后一个节点。',
             st([{ front: null, rest: [] }, { front: 'b6', rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6'], true, 4)),
           fr('next 为 None，不压入', ['if-next'], 'if smallest_node.next:  # None，跳过 push',
-            'The popped 6 has no successor; lists[0] is exhausted and its row leaves the heap.',
-            '刚弹出的 6 的 next 是 None：lists[0] 已耗尽，从图中移除，不再压入。候选只剩 6、7。',
-            '堆仍覆盖每条未耗尽的链表；耗尽的链表直接消失。',
+            'The popped 6 has no successor; lists[0] is exhausted, so nothing is pushed and its row shows None.',
+            '刚弹出的 6 的 next 是 None：lists[0] 已耗尽（图中该行变成 None），不再压入。候选只剩 6、7。',
+            '堆仍覆盖每条未耗尽的链表；耗尽的链表不再有候选。',
             st([{ front: 'b6', rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6'], true, 4)),
           fr('弹出堆顶最小 6', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 6（lists[1] 的候选头）',
             'Pop 6, the last node of lists[1]. The only remaining candidate is 7.',
@@ -397,7 +397,7 @@
             st([{ front: null, rest: [] }, { front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6'], true, 5)),
           fr('next 为 None，不压入', ['if-next'], 'if smallest_node.next:  # None，跳过 push',
             'The popped 6 has no successor; lists[1] is exhausted, only the 7 of lists[2] remains.',
-            '6 的 next 是 None，lists[1] 耗尽移除。只剩 lists[2] 的候选 7。',
+            '6 的 next 是 None，lists[1] 也耗尽，不再压入。只剩 lists[2] 的候选 7。',
             '堆仍覆盖每条未耗尽的链表。',
             st([{ front: 'c7', rest: [] }], null, ['a1', 'b1', 'c3', 'b4', 'a6', 'b6'], true, 5)),
           fr('弹出堆顶最小 7', ['loop', 'pop'], 'smallest_node = heapq.heappop(heap)  # 弹出 7（lists[2] 的候选头）',
@@ -433,6 +433,27 @@
         ];
         FRAMES[FRAMES.length - 1].state.done = true;
 
+        // Give every list a fixed row (rows never shift when a list runs out) and
+        // keep the node that smallest_node refers to after the pop frame.
+        const LIST_OF = id => ({ a: 0, b: 1, c: 2 })[id[0]];
+        const normalizeRows = (rows, smallest) => {
+          if (rows.length === 3) return rows.map((row, i) => ({ ...row, list: i, done: false }));
+          const fixed = [0, 1, 2].map(i => ({ front: null, rest: [], list: i, done: true }));
+          rows.forEach(row => {
+            const ids = [row.front, ...row.rest].filter(Boolean);
+            const list = LIST_OF(ids.length ? ids[0] : smallest);
+            fixed[list] = { ...row, list, done: false };
+          });
+          return fixed;
+        };
+        let lastPopped = null;
+        FRAMES.forEach(frame => {
+          const s = frame.state;
+          if (s.popped) lastPopped = s.popped;
+          s.smallest = lastPopped;
+          s.rows = normalizeRows(s.rows, lastPopped);
+        });
+
         const scene = core.createSvgScene(svg);
         scene.defineMarker('cb-node-arrow', { fill: '#333' });
         scene.defineMarker('cb-label-arrow', { markerWidth: 6.4, markerHeight: 6.4, refX: 5.6, refY: 3.2, fill: '#555' });
@@ -442,6 +463,7 @@
         let transitionFrom = null;
 
         function minRowOf(s) {
+          if (s.popped) return LIST_OF(s.popped);
           let best = null;
           s.rows.forEach((row, i) => {
             if (!row.front || row.front === s.popped) return;
@@ -463,20 +485,21 @@
           const cellH = compact ? 38 : 44;
           const cellX = compact ? 42 : 68;
           const heapTop = 30;
-          const rowGap = compact ? 10 : 14;
+          const rowGap = 14;
           const rowPitch = cellH + rowGap;
           const chainGap = compact ? 24 : 30;
           let chainDx = compact ? 46 : 56;
           chainDx = Math.min(chainDx, (width - 14) / 8);
           const rowsBottom = heapTop + 3 * rowPitch - rowGap;
-          const outLabelY = rowsBottom + (compact ? 28 : 32);
+          const noteY = rowsBottom + 20;
+          const outLabelY = rowsBottom + (compact ? 42 : 32);
           const chipY = outLabelY + (compact ? 20 : 24);
           const outCy = chipY + (compact ? 40 : 46);
           const dX = compact
-            ? Math.max(10, (width - 8 * chainDx) / 2)
+            ? Math.max(nodeR + 4, (width - 8 * chainDx) / 2)
             : 92;
           const stageH = outCy + nodeR + (compact ? 22 : 26);
-          geom = { width, compact, nodeR, cellW, cellH, cellX, heapTop, rowPitch, chainGap, chainDx, rowsBottom, outLabelY, chipY, outCy, dX, stageH };
+          geom = { width, compact, nodeR, cellW, cellH, cellX, heapTop, rowPitch, chainGap, chainDx, rowsBottom, noteY, outLabelY, chipY, outCy, dX, stageH };
           svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
           stage.style.height = `${Math.ceil(stageH)}px`;
         }
@@ -496,11 +519,7 @@
           }
           const o = s.output.indexOf(id);
           if (o !== -1) return { area: 'output', idx: o };
-          if (s.popped === id) {
-            for (let i = 0; i < s.rows.length; i += 1) {
-              if (s.rows[i].front === null) return { area: 'front', row: i };
-            }
-          }
+          if (s.popped === id) return { area: 'front', row: LIST_OF(id) };
           return null;
         };
         const posOf = loc => {
@@ -532,22 +551,20 @@
             };
             text('heap-title', { x: cellCenterX(), y: geom.heapTop - 9, 'text-anchor': 'middle', 'font-size': geom.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, 'heap');
 
-            const wasEmpty = Boolean(from && from.hasDummy && from.rows.length === 0);
-            const isEmpty = state.hasDummy && state.rows.length === 0;
-            const eOp = presence(wasEmpty, isEmpty);
-            if (eOp > 0) {
-              path('heap-empty-cell', { d: rectPath(geom.cellX, rowCY(0) - geom.cellH / 2, geom.cellW, geom.cellH, 5), fill: 'none', stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', opacity: eOp });
-              text('heap-empty-text', { x: cellCenterX(), y: rowCY(0) + 3.5, 'text-anchor': 'middle', 'font-size': 10.5, fill: '#777', 'font-family': MONO, opacity: eOp }, '空');
-            }
-
+            const listLabelX = chainX(0, 2) + geom.nodeR + (geom.compact ? 10 : 16);
             state.rows.forEach((row, i) => {
-              const cellOp = presence(from ? from.rows[i] !== undefined : true, true);
-              if (!cellOp) return;
               const cy = rowCY(i);
-              path(`cell-${i}`, {
+              text(`list-label-${i}`, { x: listLabelX, y: cy + 3.5, 'font-size': geom.compact ? 10 : 11, fill: '#555', 'font-family': MONO }, `lists[${i}]`);
+              const wasDone = Boolean(from && from.rows[i].done);
+              const cellOp = presence(!wasDone, !row.done);
+              const noneOp = presence(wasDone, row.done);
+              if (noneOp > 0) {
+                text(`none-${i}`, { x: cellCenterX(), y: cy + 3.5, 'text-anchor': 'middle', 'font-size': geom.compact ? 10.5 : 11.5, fill: '#555', 'font-family': MONO, opacity: noneOp }, 'None');
+              }
+              if (cellOp > 0) path(`cell-${i}`, {
                 d: rectPath(geom.cellX, cy - geom.cellH / 2, geom.cellW, geom.cellH, 5),
                 fill: 'none', stroke: '#999', 'stroke-width': 1.2,
-                ...(row.front ? {} : { 'stroke-dasharray': '4 3' }),
+                'stroke-dasharray': row.front ? 'none' : '4 3',
                 opacity: cellOp
               });
               if (row.front && row.rest.length) {
@@ -583,15 +600,29 @@
               }
             }
 
-            let traveling = state.popped;
-            if (!traveling && from && from.popped && state.output.includes(from.popped)) traveling = from.popped;
-            if (traveling) {
-              const loc = locate(state, traveling);
-              if (loc) {
-                const p = posOf(loc);
-                text('smallest-tag', { x: p.x, y: p.y + geom.nodeR + 13, 'text-anchor': 'middle', 'font-size': 9.5, fill: '#555', 'font-family': MONO }, 'smallest_node');
+            // smallest_node keeps referring to the popped node until the next pop.
+            const tagOffset = loc => (loc.area === 'front' ? geom.cellH / 2 + 11 : geom.nodeR + 13);
+            if (state.smallest) {
+              const locTo = locate(state, state.smallest);
+              const locFrom = from && from.smallest === state.smallest ? locate(from, state.smallest) : null;
+              if (locTo) {
+                const to = posOf(locTo);
+                const fromPos = locFrom ? posOf(locFrom) : to;
+                const offFrom = locFrom ? tagOffset(locFrom) : tagOffset(locTo);
+                const tOp = presence(Boolean(locFrom), true);
+                text('smallest-tag', { x: Math.min(geom.width - 42, lerp(fromPos.x, to.x)), y: lerp(fromPos.y + offFrom, to.y + tagOffset(locTo)), 'text-anchor': 'middle', 'font-size': 9.5, fill: '#555', 'font-family': MONO, opacity: tOp }, 'smallest_node');
               }
             }
+
+            // One line under the heap that makes the comparison of heappop visible.
+            let note = '';
+            if (state.popped) {
+              const vals = state.rows.map(r => (r.list === LIST_OF(state.popped) ? state.popped : r.front)).filter(Boolean).map(id => VAL[id]);
+              note = `heappop：min(${vals.join(', ')}) = ${VAL[state.popped]}，来自 lists[${LIST_OF(state.popped)}]`;
+            } else if (state.hasDummy && state.rows.every(r => r.done)) {
+              note = 'heap = []';
+            }
+            if (note) text('heap-note', { x: geom.compact ? 4 : geom.cellX - 30, y: geom.noteY, 'font-size': geom.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, note);
 
             const dOp = presence(Boolean(from && from.hasDummy), state.hasDummy);
             if (dOp > 0) {
@@ -599,7 +630,7 @@
               text('dummy-value', { x: geom.dX, y: geom.outCy + (geom.compact ? 4 : 5), 'text-anchor': 'middle', 'font-size': geom.compact ? 12 : 14, fill: '#555', 'font-family': SANS, opacity: dOp }, 'D');
             }
             if (state.hasDummy) {
-              text('out-label', { x: geom.compact ? geom.width / 2 : 6, y: geom.compact ? geom.outLabelY : geom.outCy + 4, 'text-anchor': geom.compact ? 'middle' : 'start', 'font-size': geom.compact ? 10 : 11.5, fill: '#555', 'font-family': MONO }, 'output:');
+              text('out-label', { x: geom.compact ? 4 : 6, y: geom.compact ? geom.outLabelY : geom.outCy + 4, 'text-anchor': 'start', 'font-size': geom.compact ? 10 : 11.5, fill: '#555', 'font-family': MONO }, 'output:');
             }
 
             state.output.forEach((id, k) => {
@@ -649,10 +680,10 @@
         function render({ frame, state, step, frames }) {
           phaseEl.textContent = frame.stepLabel;
           invariantEl.textContent = frame.invariant;
-          const heapSize = state.rows.filter(row => row.front).length;
+          const heapSize = state.rows.filter(row => row.front && row.front !== state.popped).length;
           mHeap.textContent = String(heapSize);
           mOut.textContent = `${state.output.length} / 7`;
-          mSmallest.textContent = state.popped ? `节点 ${VAL[state.popped]}` : '—';
+          mSmallest.textContent = state.smallest ? `节点 ${VAL[state.smallest]}（lists[${LIST_OF(state.smallest)}]）` : '—';
           mCurr.textContent = state.curr === -1 ? 'D' : `节点 ${VAL[state.output[state.curr]]}`;
           expressionEl.textContent = frame.line;
           explanationEl.textContent = frame.en;
@@ -665,7 +696,7 @@
           ...s,
           popped: s.popped,
           output: [...s.output],
-          rows: s.rows.map(row => ({ front: row.front, rest: [...row.rest] }))
+          rows: s.rows.map(row => ({ ...row, rest: [...row.rest] }))
         });
         const trace = core.createTrace({
           root,

@@ -358,6 +358,18 @@
           { ...base(), nums: [1, 4, 5, 7, 9, 10], heap: [], insertIndex: 6, i: null })
       ];
 
+      // readEnd: last input index already read into the heap; written: cells already overwritten with final values.
+      {
+        let readEnd = -1;
+        for (const frame of FRAMES) {
+          if (frame.kind === 'copy') readEnd = 2;
+          if (frame.kind === 'push') readEnd = frame.state.i;
+          const ins = frame.state.insertIndex;
+          frame.state.readEnd = readEnd;
+          frame.state.written = ins === null ? 0 : ins + (frame.kind === 'pop' || frame.kind === 'drain-pop' ? 1 : 0);
+        }
+      }
+
       const scene = core.createSvgScene(svg);
       scene.defineMarker('ksort-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
       const motion = core.createMotionController();
@@ -382,18 +394,19 @@
         const chipH = compact ? 18 : 20;
         const insChipW = compact ? 96 : 122;
         const iChipW = compact ? 46 : 56;
-        const iChipY = idxY + (compact ? 21 : 19);
-        const ghostY = iChipY + chipH + (compact ? 16 : 18);
+        const zoneY = idxY + (compact ? 8 : 10);
+        const iChipY = zoneY + (compact ? 22 : 24);
+        const ghostY = iChipY + chipH + (compact ? 18 : 18);
         const arrW = N * cellW + (N - 1) * gap;
-        const heapCx = compact ? width - 60 : Math.min(width - 170, numsX + arrW + 200);
+        const heapCx = compact ? width - 62 : Math.min(width - 170, numsX + arrW + 200);
         const rootY = compact ? 58 : 68;
-        const spread = compact ? 25 : 46;
-        const rowH = compact ? 28 : 34;
+        const spread = compact ? 44 : 70;
+        const rowH = compact ? 38 : 46;
         const heapCellW = compact ? 30 : 44;
         const stageH = Math.max(ghostY + cellH + (compact ? 14 : 26), rootY + rowH + cellH + 54);
         geom = {
           width, compact, cellW, gap, cellH, numsX, numsY, idxY, chipH,
-          insChipW, iChipW, iChipY, ghostY, arrW, heapCx, rootY, spread, rowH,
+          insChipW, iChipW, zoneY, iChipY, ghostY, arrW, heapCx, rootY, spread, rowH,
           heapCellW, stageH
         };
         svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
@@ -434,18 +447,21 @@
           for (let idx = 0; idx < state.nums.length; idx += 1) {
             const x = numsCellX(idx);
             const y = g.numsY;
-            const isPrefix = state.insertIndex !== null && idx < state.insertIndex;
             const justWritten = (frame.kind === 'pop' || frame.kind === 'drain-pop') && state.insertIndex === idx;
+            const isPrefix = idx < state.written && !justWritten;
+            // Read into the heap but not yet overwritten: the cell only holds a stale copy.
+            const isStale = idx >= state.written && idx <= state.readEnd;
             const isReadSource = frame.kind === 'push' && state.i === idx;
             path(`nums-cell-${idx}`, {
               d: rectPath(x, y, g.cellW, g.cellH, 3),
               fill: isPrefix || justWritten ? '#f5f2e9' : '#fffdf8',
-              stroke: justWritten ? '#272727' : isPrefix ? '#555' : '#333',
-              'stroke-width': justWritten ? 1.8 : 1.3
+              stroke: justWritten ? '#272727' : isPrefix ? '#555' : isStale ? '#999' : '#333',
+              'stroke-width': justWritten ? 1.8 : 1.3,
+              'stroke-dasharray': isStale ? '4 3' : 'none'
             });
             text(`nums-val-${idx}`, {
               x: x + g.cellW / 2, y: y + g.cellH / 2 + (g.compact ? 4 : 4.8),
-              'text-anchor': 'middle', 'font-size': valFs, fill: '#272727', 'font-family': MONO
+              'text-anchor': 'middle', 'font-size': valFs, fill: isStale ? '#999' : '#272727', 'font-family': MONO
             }, String(state.nums[idx]));
             text(`nums-idx-${idx}`, {
               x: x + g.cellW / 2, y: g.idxY, 'text-anchor': 'middle', 'font-size': idxFs, fill: '#777', 'font-family': MONO
@@ -459,7 +475,8 @@
           if (state.insertIndex !== null) {
             const ci = Math.min(state.insertIndex, N - 1);
             const targetX = numsCenter(ci).x;
-            const cx = Math.max(g.insChipW / 2 + 3, targetX);
+            // Keep the chip over the array so it never runs into the heap's min chip.
+            const cx = Math.max(g.insChipW / 2 + 3, Math.min(targetX, g.numsX + g.arrW - g.insChipW / 2));
             const chipY = g.compact ? 16 : 20;
             path('ins-chip', { d: rectPath(cx - g.insChipW / 2, chipY, g.insChipW, g.chipH, 2), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.2 });
             text('ins-chip-text', {
@@ -484,6 +501,34 @@
             }
           }
 
+          // Zone row under the indexes: final prefix | read into heap, awaiting overwrite.
+          const zone = (id, from, to, label) => {
+            if (from > to) return;
+            const x0 = numsCellX(from) + 2;
+            const x1 = numsCellX(to) + g.cellW - 2;
+            path(`zone-${id}`, { d: `M ${x0} ${g.zoneY - 4} v 4 H ${x1} v -4`, fill: 'none', stroke: '#999', 'stroke-width': 1 });
+            // A one-cell zone at the right end would push its label into the heap drawing.
+            const half = label.length * idxFs * 0.5;
+            text(`zone-${id}-label`, {
+              x: Math.min((x0 + x1) / 2, g.numsX + g.arrW - half), y: g.zoneY + (g.compact ? 10 : 12), 'text-anchor': 'middle',
+              'font-size': idxFs, fill: '#555', 'font-family': MONO
+            }, label);
+          };
+          zone('final', 0, Math.min(state.written, N) - 1, frame.kind === 'done' ? '✓ 有序' : '已定型');
+          zone('stale', state.written, state.readEnd, g.compact ? '已读·待写' : '已读入堆 · 待覆写');
+
+          // Why the heap top is safe to write: every unread value is more than k cells from insert_index.
+          if (frame.kind === 'pop' && state.readEnd < N - 1) {
+            const x0 = numsCellX(state.readEnd + 1) + 2;
+            const x1 = numsCellX(N - 1) + g.cellW - 2;
+            const by = g.numsY - 7;
+            path('unread-bracket', { d: `M ${x0} ${by + 5} v -5 H ${x1} v 5`, fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            text('unread-label', {
+              x: (x0 + x1) / 2, y: by - 6, 'text-anchor': 'middle',
+              'font-size': g.compact ? 8.5 : 10, fill: '#555', 'font-family': MONO
+            }, g.compact ? `未读·离 ${state.insertIndex} > k` : `未读：离 index ${state.insertIndex} 至少 k+1 格`);
+          }
+
           // i chip (below the array) with a thin gray reference arrow.
           if (state.i !== null) {
             const targetX = numsCenter(state.i).x;
@@ -495,16 +540,16 @@
               'font-size': g.compact ? 9 : 10.5, fill: '#272727', 'font-family': MONO
             }, `i = ${state.i}`);
             path('i-arrow', {
-              d: `M ${cx} ${chipY - 2} L ${targetX} ${g.numsY + g.cellH + 14}`,
+              d: `M ${cx} ${chipY - 2} L ${targetX} ${g.idxY + 4}`,
               stroke: '#555', 'stroke-width': 1.1, fill: 'none', 'marker-end': 'url(#ksort-arrow)'
             });
           }
 
           // Ghosted sorted reference row (initial frame only).
           if (state.ghost) {
-            const ghostX0 = g.compact ? g.numsX + 74 : g.numsX;
+            const ghostX0 = g.numsX;
             if (g.compact) {
-              text('ghost-caption', { x: g.numsX, y: g.ghostY + g.cellH / 2 + 3.5, 'font-size': idxFs, fill: '#777', 'font-family': MONO }, '排序后·参考');
+              text('ghost-caption', { x: g.numsX + g.arrW + 6, y: g.ghostY + g.cellH / 2 + 3, 'font-size': idxFs, fill: '#777', 'font-family': MONO }, '排序后·参考（未知）');
             } else {
               text('ghost-caption', { x: 8, y: g.ghostY + g.cellH + 13, 'font-size': idxFs, fill: '#777', 'font-family': MONO }, '排序后·参考（未知）');
             }
@@ -532,7 +577,7 @@
               fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3'
             });
             text('ghost-target-idx', {
-              x: b.x, y: g.ghostY + g.cellH + 11, 'text-anchor': 'middle',
+              x: b.x, y: g.ghostY + g.cellH + (g.compact ? 13 : 16), 'text-anchor': 'middle',
               'font-size': idxFs, fill: '#555', 'font-family': MONO
             }, 'index 2 · 距离 2 ≤ k');
           }
@@ -554,7 +599,7 @@
           const rows = heapLen ? Math.ceil(Math.log2(heapLen + 1)) : 1;
           const topY = g.rootY - 8;
           const bottomY = g.rootY + (rows - 1) * g.rowH + g.cellH + 9;
-          const bottomHalf = Math.max(g.spread + g.heapCellW / 2 + 10, g.heapCellW / 2 + 12);
+          const bottomHalf = g.spread / 2 + g.heapCellW / 2 + (g.compact ? 20 : 28);
           path('heap-trap', {
             d: `M ${g.heapCx - (g.heapCellW / 2 + 10)} ${topY} L ${g.heapCx + (g.heapCellW / 2 + 10)} ${topY} L ${g.heapCx + bottomHalf} ${bottomY} L ${g.heapCx - bottomHalf} ${bottomY} Z`,
             fill: 'none', stroke: '#777', 'stroke-width': 1.2
@@ -573,8 +618,27 @@
             'font-size': g.compact ? 9 : 10.5, fill: '#272727', 'font-family': MONO
           }, heapLen ? `min: ${state.heap[0]}` : 'min: None');
           path('heap-min-link', { d: `M ${g.heapCx} ${minChipY + g.chipH} L ${g.heapCx} ${g.rootY - 2}`, stroke: '#555', 'stroke-width': 1, fill: 'none' });
-          if (frame.kind === 'pop' || frame.kind === 'drain-pop' || frame.kind === 'check') {
+          if (frame.kind === 'check') {
             path('heap-min-ring', { d: rectPath(g.heapCx - minChipW / 2 - 4, minChipY - 4, minChipW + 8, g.chipH + 8, 3), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+          }
+
+          // What the current line did to the heap, readable without the motion.
+          let heapOp = '';
+          if (frame.kind === 'heapify') heapOp = `最小值 ${state.heap[0]} 上到堆顶`;
+          if (frame.kind === 'pop' || frame.kind === 'drain-pop') heapOp = `弹出 ${state.nums[state.insertIndex]} → nums[${state.insertIndex}]`;
+          if (frame.kind === 'push') heapOp = `读入 nums[${state.i}] = ${state.nums[state.i]}`;
+          if (heapOp) {
+            text('heap-op', {
+              x: g.heapCx, y: minChipY - (g.compact ? 6 : 8), 'text-anchor': 'middle',
+              'font-size': g.compact ? 9 : 10.5, fill: '#272727', 'font-family': MONO
+            }, heapOp);
+          }
+
+          // Tree edges between heap slots (parent above, children below).
+          for (let idx = 1; idx < heapLen; idx += 1) {
+            const c = heapSlot(idx);
+            const p = heapSlot(Math.floor((idx - 1) / 2));
+            path(`heap-edge-${idx}`, { d: `M ${p.x} ${p.y + g.cellH} L ${c.x} ${c.y}`, stroke: '#999', 'stroke-width': 1, fill: 'none', opacity: active ? 0 : 1 });
           }
 
           // Heap tokens, interpolated by value across the transition.
@@ -676,21 +740,6 @@
               x: chipPos.x, y: chipPos.y + (g.compact ? 3.5 : 4.2), 'text-anchor': 'middle',
               'font-size': g.compact ? 10.5 : 12.5, fill: '#272727', 'font-family': MONO, opacity: Math.max(0, chipOpacity)
             }, String(pushedValue));
-          }
-
-          // Final state tag.
-          if (frame.kind === 'done') {
-            if (g.compact) {
-              text('done-tag', {
-                x: g.numsX + g.arrW / 2, y: g.iChipY + g.chipH / 2 + 4, 'text-anchor': 'middle',
-                'font-size': 9, fill: '#272727', 'font-family': MONO
-              }, '✓ 有序');
-            } else {
-              text('done-tag', {
-                x: numsCellX(N - 1) + g.cellW + 10, y: g.numsY + g.cellH / 2 + 4,
-                'text-anchor': 'start', 'font-size': 11, fill: '#272727', 'font-family': MONO
-              }, '✓ 有序');
-            }
           }
         });
       }
