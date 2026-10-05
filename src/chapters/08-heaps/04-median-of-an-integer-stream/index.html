@@ -278,20 +278,30 @@
           '先和左堆顶比：num ≤ max(left_half)（或左堆为空）→ 进左堆；否则进右堆。',
           { left: [], right: [], num: 3, target: 'left' }),
         fr('add(3) · 入堆 left_half', 'push', ['push-left'], 'heapq.heappush(self.left_half, -num)  # 推入 -3',
-          "Push the negated value -3 into left_half — Python's heapq is a min-heap, so storing negatives mimics a max-heap. Sizes 1 vs 0: no rebalance.",
-          '把取负后的 -3 放进 left_half——Python 的堆默认是小顶堆，存入取负的数就能模拟大顶堆。大小 1 比 0，无需再平衡。',
-          '大小 1 : 0，左堆最多比右堆多 1，满足规则 2。',
+          "Push the negated value -3 into left_half — Python's heapq is a min-heap, so storing negatives mimics a max-heap.",
+          '把取负后的 -3 放进 left_half——Python 的堆默认是小顶堆，存入取负的数就能模拟大顶堆。',
+          'left_half 存 -3：小顶堆的堆顶取负，就是左半边的最大值 3。',
           { left: [-3], right: [], num: 3, target: 'left' }),
+        fr('add(3) · 尺寸检查', 'check', ['reb-left-if'], 'if len(self.left_half) > len(self.right_half) + 1:  # 1 > 1 → False',
+          'Size check: 1 > 0 + 1 is False — the left half may hold one extra value, so nothing moves.',
+          '检查尺寸：1 &gt; 0 + 1 不成立，左堆最多可以多 1 个，不用转移。',
+          '规则 2：两堆大小相等，或左堆恰好多 1；条件不成立就什么都不动。',
+          { left: [-3], right: [], num: 3 }),
         fr('add(6) · 判断归属', 'judge', ['add-if'], 'if not self.left_half or num <= -self.left_half[0]:  # 6 <= 3? False',
           'add(6): 6 <= max(left_half) = 3 is False, so 6 belongs to the right half.',
           'add(6)：6 ≤ 3 不成立，6 归入右半边。',
           'num 比左堆顶大 → 进右堆。右堆是小顶堆，堆顶始终是右半边最小值。',
           { left: [-3], right: [], num: 6, target: 'right' }),
         fr('add(6) · 入堆 right_half', 'push', ['add-else', 'push-right'], 'heapq.heappush(self.right_half, num)  # 推入 6',
-          'Push 6 into right_half as-is. Sizes 1 : 1, rule 2 holds.',
-          '把 6 原样推进 right_half。大小 1 比 1，保持平衡。',
-          '大小 1 : 1，两堆相等，满足规则 2。',
+          'Push 6 into right_half as-is; it is now the minimum of the right half.',
+          '把 6 原样推进 right_half，它就是右半边的最小值。',
+          '值规则：max(左) = 3 ≤ min(右) = 6。',
           { left: [-3], right: [6], num: 6, target: 'right' }),
+        fr('add(6) · 尺寸检查', 'check', ['reb-right-if'], 'if len(self.left_half) < len(self.right_half):  # 1 < 1 → False',
+          'Size check: 1 < 1 is False — the heaps are the same size, so nothing moves.',
+          '检查尺寸：1 &lt; 1 不成立，两堆一样大，不用转移。',
+          '规则 2：两堆大小相等，或左堆恰好多 1；条件不成立就什么都不动。',
+          { left: [-3], right: [6], num: 6 }),
         fr('get_median() → 4.5', 'median', ['median-if', 'median-even'], 'return (-self.left_half[0] + self.right_half[0]) / 2.0  # (3 + 6) / 2 = 4.5',
           'Sizes are equal (1 : 1), so the median is the average of the two heap tops: (-(-3) + 6) / 2 = 4.5.',
           '两堆大小相等（1 比 1），中位数取两个堆顶的平均：(-(-3) + 6) / 2 = 4.5。',
@@ -303,10 +313,15 @@
           'num ≤ max(left_half) → 进左堆，且仍满足 max(左) ≤ min(右)。',
           { left: [-3], right: [6], num: 1, target: 'left' }),
         fr('add(1) · 入堆 left_half', 'push', ['push-left'], 'heapq.heappush(self.left_half, -num)  # 推入 -1',
-          'Push -1 into left_half; the top is still -3, i.e. max = 3. Sizes 2 : 1, within the limit.',
-          '把 -1 推进 left_half，堆顶仍是 -3（最大值 3）。大小 2 比 1，符合规则 2。',
-          '大小 2 : 1，左堆比右堆恰好多 1，满足规则 2。',
+          'Push -1 into left_half; the top is still -3, i.e. max = 3.',
+          '把 -1 推进 left_half，堆顶仍是 -3（最大值 3）。',
+          '-1 比堆顶 -3 大，留在下层；max(左) 仍是 3。',
           { left: [-3, -1], right: [6], num: 1, target: 'left' }),
+        fr('add(1) · 尺寸检查', 'check', ['reb-left-if'], 'if len(self.left_half) > len(self.right_half) + 1:  # 2 > 2 → False',
+          'Size check: 2 > 1 + 1 is False — left has exactly one extra, which rule 2 allows.',
+          '检查尺寸：2 &gt; 1 + 1 不成立，左堆恰好多 1 个，规则 2 允许。',
+          '规则 2：两堆大小相等，或左堆恰好多 1；条件不成立就什么都不动。',
+          { left: [-3, -1], right: [6], num: 1 }),
         fr('get_median() → 3.0', 'median', ['median-if', 'median-odd'], 'return -self.left_half[0]  # -(-3) = 3.0',
           'Sizes differ (2 vs 1), so the median is the top of left_half: -(-3) = 3.0 — the middle of [1, 3, 6].',
           '两堆大小不同（2 比 1），中位数就是左堆顶：-(-3) = 3.0，正是 [1, 3, 6] 的中间值。',
@@ -318,10 +333,15 @@
           'num 更大 → 进右堆，右堆顶仍是两半的分界线。',
           { left: [-3, -1], right: [6], num: 8, target: 'right' }),
         fr('add(8) · 入堆 right_half', 'push', ['add-else', 'push-right'], 'heapq.heappush(self.right_half, num)  # 推入 8',
-          'Push 8 into right_half. Sizes 2 : 2, balanced.',
-          '把 8 推进 right_half。大小 2 比 2，保持平衡。',
-          '大小 2 : 2，两堆相等，满足规则 2。',
+          'Push 8 into right_half; 8 is larger than the top 6, so the top stays 6.',
+          '把 8 推进 right_half：8 比堆顶 6 大，堆顶仍是 6。',
+          '小顶堆只保证父 ≤ 子；新值留在下层，堆顶不变。',
           { left: [-3, -1], right: [6, 8], num: 8, target: 'right' }),
+        fr('add(8) · 尺寸检查', 'check', ['reb-right-if'], 'if len(self.left_half) < len(self.right_half):  # 2 < 2 → False',
+          'Size check: 2 < 2 is False — equal sizes, so nothing moves.',
+          '检查尺寸：2 &lt; 2 不成立，两堆一样大，不用转移。',
+          '规则 2：两堆大小相等，或左堆恰好多 1；条件不成立就什么都不动。',
+          { left: [-3, -1], right: [6, 8], num: 8 }),
         fr('add(9) · 判断归属', 'judge', ['add-if'], 'if not self.left_half or num <= -self.left_half[0]:  # 9 <= 3? False',
           'add(9): 9 <= 3 is False, so 9 belongs to the right half.',
           'add(9)：9 ≤ 3 不成立，9 归入右半边。',
@@ -338,55 +358,60 @@
           '规则 2：两堆大小相等，或左堆恰好多 1；右堆更大时必须转移堆顶。',
           { left: [-3, -1], right: [6, 8, 9], num: 9 }),
         fr('add(9) · 转移堆顶 6', 'transfer', ['reb-right-do'], 'heapq.heappush(self.left_half, -heapq.heappop(self.right_half))  # 移动 6',
-          "Pop right_half's top 6 and push its negation -6 into left_half. Sizes restore to 3 : 2, and max(left) = 6 <= min(right) = 8.",
-          '弹出 right_half 的堆顶 6，取负后推进 left_half。两堆恢复 3 比 2，且 max(左) = 6 ≤ min(右) = 8。',
+          "Pop right_half's top 6 and push its negation -6 into left_half, where -6 < -3 sifts it up to the root. Sizes restore to 3 : 2, and max(left) = 6 <= min(right) = 8.",
+          '弹出 right_half 的堆顶 6，取负后推进 left_half；-6 比原堆顶 -3 小，上浮成为新堆顶。两堆恢复 3 比 2，且 max(左) = 6 ≤ min(右) = 8。',
           '搬走右堆的最小值后，值规则与尺寸规则同时恢复。',
-          { left: [-6, -3, -1], right: [8, 9], num: 9, move: { from: 'right', stored: -6, value: 6 } }),
+          { left: [-6, -1, -3], right: [8, 9], num: 9, move: { from: 'right', stored: -6, value: 6 } }),
         fr('get_median() → 6.0', 'median', ['median-if', 'median-odd'], 'return -self.left_half[0]  # -(-6) = 6.0',
           'Sizes differ (3 vs 2), so the median is the top of left_half: -(-6) = 6.0 — the middle of [1, 3, 6, 8, 9].',
           '大小 3 比 2，中位数是左堆顶：-(-6) = 6.0，正是 [1, 3, 6, 8, 9] 的中间值。',
           '大小不等（左比右多 1）→ median = max(左)。',
-          { left: [-6, -3, -1], right: [8, 9], median: 6.0 }),
+          { left: [-6, -1, -3], right: [8, 9], median: 6.0 }),
         fr('add(0) · 判断归属', 'judge', ['add-if'], 'if not self.left_half or num <= -self.left_half[0]:  # 0 <= 6? True',
           'add(0): 0 <= max(left_half) = 6 is True, so 0 belongs to the left half.',
           'add(0)：0 ≤ 6 成立，0 归入左半边。',
           '左堆顶是 6（不是 3）——读堆顶要先取负：max = -left_half[0]。',
-          { left: [-6, -3, -1], right: [8, 9], num: 0, target: 'left' }),
+          { left: [-6, -1, -3], right: [8, 9], num: 0, target: 'left' }),
         fr('add(0) · 入堆 left_half', 'push', ['push-left'], 'heapq.heappush(self.left_half, -num)  # 推入 0',
           'Push 0 into left_half — the stored value is -0 = 0. Now left has 4 values vs 2 on the right.',
           '把 0 推进 left_half（存的是 0 本身），现在左堆 4 个、右堆 2 个，规则 2 即将被破坏。',
           '左堆 4 个、右堆 2 个：左堆多出 2 个，超过规则 2 允许的 1 个。',
-          { left: [-6, -3, -1, 0], right: [8, 9], num: 0, target: 'left' }),
+          { left: [-6, -1, -3, 0], right: [8, 9], num: 0, target: 'left' }),
         fr('add(0) · 尺寸检查', 'check', ['reb-left-if'], 'if len(self.left_half) > len(self.right_half) + 1:  # 4 > 3 → True',
           'Rule 2 is violated: left_half has 4 values, which is more than len(right_half) + 1 = 3, so the heaps must be rebalanced.',
           '检查尺寸：4 &gt; 2 + 1 成立，左堆比右堆多出 2 个，超过规则 2 的限度，需要再平衡。',
           '规则 2：左堆最多比右堆多 1 个；多 2 个时必须转移堆顶。',
-          { left: [-6, -3, -1, 0], right: [8, 9], num: 0 }),
+          { left: [-6, -1, -3, 0], right: [8, 9], num: 0 }),
         fr('add(0) · 转移堆顶 6', 'transfer', ['reb-left-do'], 'heapq.heappush(self.right_half, -heapq.heappop(self.left_half))  # 移动 6',
-          "Pop left_half's top -6, negate it back to 6, and push it into right_half. Sizes restore to 3 : 3, and max(left) = 3 <= min(right) = 6.",
-          '弹出 left_half 的堆顶 -6，取负还原为 6 推进 right_half。两堆恢复 3 比 3，且 max(左) = 3 ≤ min(右) = 6。',
+          "Pop left_half's top -6, negate it back to 6, and push it into right_half, where 6 < 8 sifts it up to the root. Sizes restore to 3 : 3, and max(left) = 3 <= min(right) = 6.",
+          '弹出 left_half 的堆顶 -6，取负还原为 6 推进 right_half；6 比原堆顶 8 小，上浮成为新堆顶。两堆恢复 3 比 3，且 max(左) = 3 ≤ min(右) = 6。',
           '搬走左堆的最大值后，值规则与尺寸规则同时恢复。',
-          { left: [-3, -1, 0], right: [6, 8, 9], num: 0, move: { from: 'left', stored: -6, value: 6 } }),
+          { left: [-3, -1, 0], right: [6, 9, 8], num: 0, move: { from: 'left', stored: -6, value: 6 } }),
         fr('get_median() → 4.5', 'median', ['median-if', 'median-even'], 'return (-self.left_half[0] + self.right_half[0]) / 2.0  # (3 + 6) / 2 = 4.5',
           'Sizes are equal (3 : 3), so the median is the average of the two tops: (-(-3) + 6) / 2 = 4.5 — the middle of [0, 1, 3, 6, 8, 9].',
           '大小 3 比 3，中位数取两堆顶平均：(-(-3) + 6) / 2 = 4.5，正是 [0, 1, 3, 6, 8, 9] 的中间。',
           '大小相等 → median = (max(左) + min(右)) / 2。',
-          { left: [-3, -1, 0], right: [6, 8, 9], median: 4.5 }),
+          { left: [-3, -1, 0], right: [6, 9, 8], median: 4.5 }),
         fr('add(2) · 判断归属', 'judge', ['add-if'], 'if not self.left_half or num <= -self.left_half[0]:  # 2 <= 3? True',
           'add(2): 2 <= max(left_half) = 3 is True, so 2 belongs to the left half.',
           'add(2)：2 ≤ 3 成立，2 归入左半边。',
           'num ≤ max(left_half) → 进左堆。',
-          { left: [-3, -1, 0], right: [6, 8, 9], num: 2, target: 'left' }),
+          { left: [-3, -1, 0], right: [6, 9, 8], num: 2, target: 'left' }),
         fr('add(2) · 入堆 left_half', 'push', ['push-left'], 'heapq.heappush(self.left_half, -num)  # 推入 -2',
-          'Push -2 into left_half. Sizes 4 : 3 — 4 > 3 + 1 is False, so no rebalance is needed.',
-          '把 -2 推进 left_half。大小 4 比 3，4 &gt; 3 + 1 不成立，无需再平衡。',
-          '大小 4 : 3，左堆只多 1 个，满足规则 2。',
-          { left: [-3, -2, 0, -1], right: [6, 8, 9], num: 2, target: 'left' }),
+          'Push -2 into left_half: -2 is smaller than its parent -1, so it sifts up one level; the top stays -3.',
+          '把 -2 推进 left_half：-2 比父节点 -1 小，上浮一层；堆顶仍是 -3。',
+          '堆顶仍是 -3：max(左) = 3。',
+          { left: [-3, -2, 0, -1], right: [6, 9, 8], num: 2, target: 'left' }),
+        fr('add(2) · 尺寸检查', 'check', ['reb-left-if'], 'if len(self.left_half) > len(self.right_half) + 1:  # 4 > 4 → False',
+          'Size check: 4 > 3 + 1 is False — left has exactly one extra, so nothing moves.',
+          '检查尺寸：4 &gt; 3 + 1 不成立，左堆只多 1 个，不用转移。',
+          '规则 2：两堆大小相等，或左堆恰好多 1；条件不成立就什么都不动。',
+          { left: [-3, -2, 0, -1], right: [6, 9, 8], num: 2 }),
         fr('get_median() → 3.0', 'median', ['median-if', 'median-odd'], 'return -self.left_half[0]  # -(-3) = 3.0',
           'Sizes differ (4 vs 3), so the median is the top of left_half: -(-3) = 3.0 — the middle of [0, 1, 2, 3, 6, 8, 9].',
           '大小 4 比 3，中位数是左堆顶：-(-3) = 3.0，正是 [0, 1, 2, 3, 6, 8, 9] 的中间值。',
           '大小不等（左比右多 1）→ median = max(左)。get_median 只读堆顶，O(1)。',
-          { left: [-3, -2, 0, -1], right: [6, 8, 9], median: 3.0 })
+          { left: [-3, -2, 0, -1], right: [6, 9, 8], median: 3.0 })
       ];
 
       const scene = core.createSvgScene(svg);
@@ -513,7 +538,7 @@
         const sizeY = bottomY + (g.compact ? 15 : 17);
         text(`${side}-size`, { x: cx, y: sizeY, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 11, fill: '#272727', 'font-family': MONO }, `size = ${values.length}`);
         if (isLeft) {
-          text('left-note', { x: cx, y: sizeY + (g.compact ? 12 : 14), 'text-anchor': 'middle', 'font-size': g.compact ? 8 : 9, fill: '#777', 'font-family': MONO }, '存的是 -num');
+          text('left-note', { x: cx, y: sizeY + (g.compact ? 15 : 16), 'text-anchor': 'middle', 'font-size': g.compact ? 8 : 9, fill: '#777', 'font-family': MONO }, '存的是 -num');
         }
         if (frame.kind === 'check') {
           path(`${side}-size-ring`, { d: rectPath(cx - 33, sizeY - (g.compact ? 10 : 12), 66, g.compact ? 14 : 16, 2), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
@@ -547,8 +572,8 @@
               const L = state.left.length;
               const R = state.right.length;
               note = frame.sourceKeys.includes('reb-left-if')
-                ? `${L} > ${R} + 1 → 左堆多 2 个`
-                : `${L} < ${R} → 右堆更大`;
+                ? `${L} > ${R} + 1 ? ${L > R + 1 ? '是 → 左堆多 2 个' : '否 → 不转移'}`
+                : `${L} < ${R} ? ${L < R ? '是 → 右堆更大' : '否 → 不转移'}`;
             }
             if (note) {
               text('num-note', { x: 8 + cardW + 10, y: 8 + cardH / 2 + (g.compact ? 3.5 : 4), 'font-size': g.compact ? 10 : 11.5, fill: '#272727', 'font-family': MONO }, note);
@@ -587,6 +612,14 @@
             const chipOpacity = t > 0.92 ? (1 - t) / 0.08 : 1;
             path('transfer-chip', { d: rectPath(chipPos.x - chipW / 2, chipPos.y - chipH / 2, chipW, chipH, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.4, opacity: Math.max(0, chipOpacity) });
             text('transfer-chip-text', { x: chipPos.x, y: chipPos.y + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12.5, fill: '#272727', 'font-family': MONO, opacity: Math.max(0, chipOpacity) }, String(state.move.stored));
+            // Ring the moved value where it landed (the new top of the other heap).
+            const destSide = state.move.from === 'left' ? 'right' : 'left';
+            const destIndex = state[destSide].indexOf(destSide === 'left' ? state.move.stored : state.move.value);
+            if (destIndex >= 0) {
+              const slot = cellSlot(destSide === 'left' ? g.cxL : g.cxR, destIndex);
+              path('moved-ring', { d: rectPath(slot.x - g.cellW / 2 - 4, slot.y - 4, g.cellW + 8, g.cellH + 8, 4), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', opacity: t });
+              text('moved-label', { x: slot.x + g.cellW / 2 + 8, y: slot.y + g.cellH / 2 + 3.5, 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO, stroke: '#fffdf8', 'stroke-width': 3, 'paint-order': 'stroke', opacity: t }, g.compact ? '移入' : '移入 · 新堆顶');
+            }
             text('transfer-caption', { x: midX, y: startY - lift - (g.compact ? 4 : 6), 'text-anchor': 'middle', 'font-size': g.compact ? 9 : 10, fill: '#555', 'font-family': MONO }, '转移堆顶');
           }
 
@@ -598,7 +631,13 @@
               : `median = ${fmtMedian(state.median)}`;
             const boxW = g.compact ? 124 : 150;
             const boxH = g.compact ? 22 : 24;
-            const boxX = g.width - boxW - 8;
+            const boxX = (g.width - boxW) / 2;
+            const boxBottom = 8 + boxH;
+            const inset = g.chipW / 2 - 10;
+            path('median-ref-left', { d: `M ${g.cxL + inset} ${g.chipY - 3} C ${g.cxL + inset} ${boxBottom + 18}, ${boxX + 18} ${boxBottom + 18}, ${boxX + 18} ${boxBottom + 3}`, fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'marker-end': 'url(#median-arrow)' });
+            if (even) {
+              path('median-ref-right', { d: `M ${g.cxR - inset} ${g.chipY - 3} C ${g.cxR - inset} ${boxBottom + 18}, ${boxX + boxW - 18} ${boxBottom + 18}, ${boxX + boxW - 18} ${boxBottom + 3}`, fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'marker-end': 'url(#median-arrow)' });
+            }
             path('median-card', { d: rectPath(boxX, 8, boxW, boxH, 3), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3, 'stroke-dasharray': '4 3' });
             text('median-card-text', { x: boxX + boxW / 2, y: 8 + boxH / 2 + (g.compact ? 3.5 : 4), 'text-anchor': 'middle', 'font-size': g.compact ? 10.5 : 12, fill: '#272727', 'font-family': MONO }, label);
           }
