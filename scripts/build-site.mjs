@@ -80,11 +80,28 @@ for (const question of questions) {
   }
 }
 
-const trackedSourcePages = execFileSync(
-  'git',
-  ['ls-files', '--', 'src/chapters/*/*/index.html'],
-  { cwd: repositoryRoot, encoding: 'utf8' }
-).split(/\r?\n/).filter(Boolean);
+// Hosts that build from a plain checkout (e.g. Vercel previews) may not ship
+// git metadata; fall back to the source pages on disk there.
+function listSourcePages() {
+  try {
+    return execFileSync(
+      'git',
+      ['ls-files', '--', 'src/chapters/*/*/index.html'],
+      { cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+    ).split(/\r?\n/).filter(Boolean);
+  } catch {
+    const chaptersRoot = path.join(sourceRoot, 'chapters');
+    return fs.readdirSync(chaptersRoot, { withFileTypes: true })
+      .filter((chapter) => chapter.isDirectory())
+      .flatMap((chapter) => fs.readdirSync(path.join(chaptersRoot, chapter.name), { withFileTypes: true })
+        .filter((question) => question.isDirectory())
+        .map((question) => path.join(chaptersRoot, chapter.name, question.name, 'index.html')))
+      .filter((page) => fs.existsSync(page))
+      .map((page) => path.relative(repositoryRoot, page));
+  }
+}
+
+const trackedSourcePages = listSourcePages();
 const registeredSourcePages = questions.map((question) => path.relative(
   repositoryRoot,
   path.join(question.sourceDirectory, 'index.html')
