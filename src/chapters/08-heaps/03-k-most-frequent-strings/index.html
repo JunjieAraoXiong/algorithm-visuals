@@ -413,8 +413,15 @@
             const c = slotPos(i);
             const lx = c.x + g.tokenW / 2 + 8;
             const fs = g.compact ? 9.5 : 10.5;
-            text(`tie-a-${i}`, { x: lx, y: c.y - 3, ...mono(fs, '#555', 'start') }, `并列 freq ${pi.freq} = ${ci.freq}，比 str：`);
-            text(`tie-b-${i}`, { x: lx, y: c.y + fs + 1, ...mono(fs, '#272727', 'start') }, `"${pk}" ${sign} "${ck}" → 父`);
+            if (g.compact) {
+              // three short lines so the note stays inside a 320px stage
+              text(`tie-a-${i}`, { x: lx, y: c.y - fs + 1, ...mono(fs, '#555', 'start') }, `并列 freq ${pi.freq} = ${ci.freq}`);
+              text(`tie-b-${i}`, { x: lx, y: c.y + 3, ...mono(fs, '#272727', 'start') }, `比 str："${pk}"`);
+              text(`tie-c-${i}`, { x: lx, y: c.y + fs + 5, ...mono(fs, '#272727', 'start') }, `${sign} "${ck}" → 父`);
+            } else {
+              text(`tie-a-${i}`, { x: lx, y: c.y - 3, ...mono(fs, '#555', 'start') }, `并列 freq ${pi.freq} = ${ci.freq}，比 str：`);
+              text(`tie-b-${i}`, { x: lx, y: c.y + fs + 1, ...mono(fs, '#272727', 'start') }, `"${pk}" ${sign} "${ck}" → 父`);
+            }
           }
         }
 
@@ -479,7 +486,8 @@
           text('res-label', { x: g.heapCx - resBoxW / 2 + 10, y: g.resY + 4, ...mono(g.compact ? 10.5 : 12, '#555', 'start') }, 'res =');
           text('res-close', { x: g.heapCx + resBoxW / 2 - 10, y: g.resY + 4, ...mono(g.compact ? 10.5 : 12, '#555', 'end') }, ']');
           if (state.done) {
-            text('res-answer', { x: g.heapCx + resBoxW / 2 + 8, y: g.resY - 26, ...mono(g.compact ? 9.5 : 11, '#272727', 'start') }, 'answer · 答案');
+            // above the box's right edge so it never runs off a 320px stage
+            text('res-answer', { x: g.heapCx + resBoxW / 2, y: g.resY - (g.compact ? 25 : 29), ...mono(g.compact ? 9.5 : 11, '#272727', 'end') }, 'answer · 答案');
           }
         }
 
@@ -957,8 +965,10 @@
           max: { code: CODE_MAX, title: '大顶堆', build: buildMaxFrames, draw: drawMax },
           min: { code: CODE_MIN, title: '大小为 k 的小顶堆', build: buildMinFrames, draw: drawMin }
         };
-        // Old combined trace: steps 0–3 were max-heap, 4 (counter + min_heap = []) onward were min-heap.
-        const LEGACY_MAX_LAST = 3;
+        // Old combined trace: steps 0–3 were max-heap (count, heapify, pop, pop),
+        // 4 (counter + min_heap = []) onward were min-heap.
+        const LEGACY_MAX_STEPS = [0, 3, 5, 7]; // same operations in the split max trace
+        const LEGACY_MAX_LAST = LEGACY_MAX_STEPS.length - 1;
         const LEGACY_MIN_OFFSET = 3; // old step n ≥ 4 → min step n − 3
         const MODE_STORAGE_KEY = `algorithm-visuals:mode:${location.pathname}`;
         let mode = 'max';
@@ -1062,7 +1072,7 @@
           if (urlMode) applyMode(urlMode, step ?? (remembered && remembered !== urlMode ? 0 : undefined));
           else if (step !== null) {
             // legacy #step=N from the combined trace
-            if (step <= LEGACY_MAX_LAST) applyMode('max', step);
+            if (step <= LEGACY_MAX_LAST) applyMode('max', LEGACY_MAX_STEPS[step]);
             else applyMode('min', step - LEGACY_MIN_OFFSET);
           } else applyMode(remembered || 'max');
         }
