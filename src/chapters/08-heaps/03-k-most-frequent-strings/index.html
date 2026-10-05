@@ -116,7 +116,7 @@
         <div class="case-grid">
           <article class="paper-card"><strong>为什么弹出是安全的 / Safe to evict</strong><p>被弹出的那一刻，堆里剩下的 <code>k</code> 个字符串频率都不比它小；继续扫描只会让这些频率增大，所以它们最终也不比它小——这个字符串注定进不了前 <code>k</code>。</p></article>
           <article class="paper-card"><strong>比较器反转 / Inverted comparator</strong><p>小顶堆的 <code>__lt__</code> 把不等号全部反转：<code>self.freq &lt; other.freq</code>，并列时 <code>self.str &gt; other.str</code>。频率相等时，字典序大的反而排在堆顶、先被弹出，留下的都是字典序小者。</p></article>
-          <article class="paper-card"><strong>取出后要 reverse</strong><p>小顶堆先弹出的是第 <code>k</code> 频繁、最后弹出的才是第 1 频繁，所以 <code>res</code> 里是反的，返回前执行 <code>res.reverse()</code>。</p></article>
+          <article class="paper-card"><strong>取出后要 reverse</strong><p>小顶堆先弹出的是第 <code>k</code> 频繁、最后弹出的才是第 1 频繁，所以 <code>res</code> 里是反的，返回前执行 <code>res.reverse()</code>。例中弹出 <code>[byte, go]</code>（freq 2 → 3），反转后才是 <code>[go, byte]</code>。</p></article>
           <article class="paper-card"><strong>为什么不能用大顶堆做同样的事</strong><p>要丢弃"当前最小"就必须能读到它：大顶堆只能访问最频繁者，拿不到最不需保留的那个，所以只能改用维护小顶堆。</p></article>
         </div>
       </section>
@@ -666,32 +666,33 @@
           const pop1 = heappop(heap, ltMin);
           frames.push(fr(
             '取出 pop #1 → res = [byte]', 'collect', ['nh-res'], 'heapq.heappop(min_heap).str  # 第 1 次 pop',
-            'All strings processed; the heap holds exactly the top 2. Pop the root (byte, 2) into res.',
-            '全部处理完，堆里正好是前 2 名。弹出堆顶 (byte, 2) 放入 res。',
-            '扫描结束后，堆里剩下的 k 个就是 top-k；小顶堆先弹出其中最不频繁的。',
+            'All strings processed; the heap holds exactly the top 2. Pop the root (byte, 2) — the lower-priority of the two — into res.',
+            '全部处理完，堆里正好是前 2 名。先弹出堆顶 (byte, 2)——两者中 freq 较低的那个——放入 res[0]。',
+            '扫描结束后，堆里剩下的 k 个就是 top-k；小顶堆每次弹出其中 freq 最低的。',
             { ...baseState(), evicted: [...evicted], heap: snapKeys(heap), res: [pop1.str], collectKey: pop1.str }
           ));
           const pop2 = heappop(heap, ltMin);
+          const popOrder = [pop1.str, pop2.str];
           frames.push(fr(
             '取出 pop #2 → res = [byte, go]', 'collect', ['nh-res'], 'heapq.heappop(min_heap).str  # 第 2 次 pop',
-            'Pop (go, 3) — the most frequent string comes out last in a min-heap.',
-            '再弹出 (go, 3)——小顶堆里频率最高的最后才出来。',
-            '取出顺序是第 k 频繁 → 第 1 频繁，与题目要求的顺序相反。',
-            { ...baseState(), evicted: [...evicted], heap: snapKeys(heap), res: [pop1.str, pop2.str], collectKey: pop2.str }
+            'Pop (go, 3) into res[1] — the most frequent string comes out last, so res is in ascending frequency: 2, 3.',
+            '再弹出 (go, 3) 放入 res[1]——频率最高的最后才出来。res 上方的 freq 是 2、3：升序。',
+            '小顶堆按 freq 从低到高弹出：取出顺序是第 k 频繁 → 第 1 频繁，与题目要求相反。',
+            { ...baseState(), evicted: [...evicted], heap: snapKeys(heap), res: [...popOrder], collectKey: pop2.str }
           ));
           frames.push(fr(
-            'res.reverse()', 'reverse', ['nh-reverse'], 'res.reverse()',
-            'res is [byte, go] — retrieved least-frequent-first, so reverse it.',
-            '取出顺序是 [byte, go]（先低后高），执行 res.reverse() 调转顺序。',
-            'reverse 只反转结果数组，O(k)，不改变任何频率信息。',
-            { ...baseState(), evicted: [...evicted], heap: [], res: [pop2.str, pop1.str] }
+            'res.reverse() → [go, byte]', 'reverse', ['nh-reverse'], 'res.reverse()  # [byte, go] → [go, byte]',
+            'res came out as [byte, go] (freq 2, then 3). Reversing turns ascending into descending: [go, byte].',
+            '弹出顺序是 [byte, go]（freq 2 → 3，升序）。res.reverse() 把 res[0] 与 res[1] 对调，变成降序 [go, byte]。',
+            'reverse 只调换 res 里的位置，O(k)；它把小顶堆的“低→高”弹出顺序翻成题目要的“高→低”。',
+            { ...baseState(), evicted: [...evicted], heap: [], res: [...popOrder].reverse(), popOrder }
           ));
           frames.push(fr(
             'return res → ["go", "byte"]', 'none', ['nh-return'], 'return res  # ["go", "byte"]',
-            'Return ["go", "byte"]: sorted by frequency descending, ties by lexicographical order.',
-            '返回 ["go", "byte"]：按频率降序排列，频率相同再按字典序。',
-            '两种方法得到同一个答案；小顶堆在 k 远小于 n 时更快、更省空间。',
-            { ...baseState(), evicted: [...evicted], heap: [], res: [pop2.str, pop1.str], done: true }
+            'Return ["go", "byte"]: frequency descending (3, then 2); equal frequencies would be in lexicographical order.',
+            '返回 ["go", "byte"]：freq 3 在前、2 在后，按频率降序；若频率相同则按字典序。',
+            '整个过程中 min_heap 最多只有 k + 1 个元素：时间 O(n log k)，堆空间 O(k)。',
+            { ...baseState(), evicted: [...evicted], heap: [], res: [...popOrder].reverse(), popOrder, done: true }
           ));
           return frames;
         }
@@ -730,18 +731,84 @@
           }
         }
 
-        // rest-state swap arcs between res[0] and res[1]
-        function drawReverseArrows({ path }) {
-          const a = resTokenPos(0);
-          const b = resTokenPos(1);
-          path('swap-a', {
-            d: `M ${a.x - 24} ${a.y - 24} C ${a.x - 44} ${a.y - 40}, ${b.x - 44} ${b.y - 40}, ${b.x - 24} ${b.y - 24}`,
-            fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'marker-end': 'url(#kf-arrow)'
+        // min-only: rest-state arrow heap root → res. When the heap is now empty, a light dashed
+        // outline marks the vacated root slot so the arrow starts where the popped Pair was.
+        function drawPopArrow({ path, text }, state) {
+          const g = geom;
+          const resLeft = g.heapCx - (g.compact ? 95 : 108) - 3;
+          const rx = resLeft - 16;
+          let start = g.heapCx - g.tokenW / 2 - 12 - (g.compact ? 40 : 46) - 2;
+          if (state.heap.length === 0) {
+            path('pop-vacated', { d: rect(g.heapCx, g.rootY, g.tokenW, g.tokenH), fill: 'none', stroke: '#b7b7b1', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            start = g.heapCx - g.tokenW / 2 - 4;
+          }
+          path('pop-arrow', {
+            d: `M ${start} ${g.rootY} L ${rx} ${g.rootY} L ${rx} ${g.resY} L ${resLeft} ${g.resY}`,
+            fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#kf-arrow)'
           });
-          path('swap-b', {
-            d: `M ${b.x + 24} ${b.y + 24} C ${b.x + 44} ${b.y + 40}, ${a.x + 44} ${a.y + 40}, ${a.x + 24} ${a.y + 24}`,
-            fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'marker-end': 'url(#kf-arrow)'
+          text('pop-arrow-label', { x: rx + 6, y: g.rootY + 2 * g.levelH + 4, ...mono(g.compact ? 10 : 11, '#555', 'start') }, 'pop 堆顶 → res');
+        }
+
+        // min-only: freq of each collected string above its res slot (pop frames) — makes the ascending pop order visible.
+        function drawResFreqs({ text }, state) {
+          const g = geom;
+          state.res.forEach((k, i) => {
+            const p = resTokenPos(i);
+            text(`res-freq-${i}`, { x: p.x, y: g.resY - (g.compact ? 24 : 28), ...mono(g.compact ? 9.5 : 10.5, '#555') }, `freq ${itemOf(k).freq}`);
           });
+        }
+
+        // min-only: "next pop is the root" note while len(min_heap) > k
+        function drawRootNote({ text }) {
+          const g = geom;
+          const x = g.heapCx + g.tokenW / 2 + 8;
+          const fs = g.compact ? 9.5 : 10.5;
+          text('root-note-a', { x, y: g.rootY - 2, ...mono(fs, '#272727', 'start') }, 'freq 最低');
+          text('root-note-b', { x, y: g.rootY + fs + 2, ...mono(fs, '#555', 'start') }, '→ 下一行弹出');
+        }
+
+        // min-only: res before reverse (the pop order) drawn as its own row between heap and res,
+        // with crossing arrows res[0] → res[1] and res[1] → res[0] on the reverse step.
+        function drawPopOrder({ path, text }, state, { strong, arrows }) {
+          const g = geom;
+          const y = g.rootY + g.levelH;
+          const ink = strong ? '#555' : '#999';
+          const fs = g.compact ? 9.5 : 10.5;
+          text('order-caption', { x: g.heapCx, y: y - g.tokenH / 2 - (g.compact ? 18 : 20), ...mono(fs, ink) }, 'reverse 前 · 弹出顺序 freq 升序');
+          state.popOrder.forEach((k, i) => {
+            const x = g.heapCx + (i === 0 ? -g.sibDx : g.sibDx);
+            path(`order-box-${i}`, { d: rect(x, y, g.tokenW, g.tokenH), fill: 'none', stroke: strong ? '#777' : '#b7b7b1', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' });
+            text(`order-txt-${i}`, { x, y: y + (g.compact ? 3.8 : 4.5), ...mono(g.compact ? 10.5 : 12, strong ? '#555' : '#777') }, pairText(k));
+            text(`order-idx-${i}`, { x: x - g.tokenW / 2, y: y - g.tokenH / 2 - 4, ...mono(g.compact ? 9 : 9.5, '#777', 'start') }, `res[${i}]`);
+          });
+          if (!arrows) return;
+          const y1 = y + g.tokenH / 2 + 3;
+          const y2 = g.resY - (g.compact ? 18 : 21) - 3;
+          state.popOrder.forEach((k, i) => {
+            const x1 = g.heapCx + (i === 0 ? -g.sibDx : g.sibDx);
+            const to = resTokenPos(state.popOrder.length - 1 - i);
+            path(`order-arrow-${i}`, {
+              d: `M ${x1} ${y1} L ${to.x} ${y2}`,
+              fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'marker-end': 'url(#kf-arrow)'
+            });
+          });
+          text('order-arrow-label', { x: g.heapCx + (g.compact ? 26 : 30), y: (y1 + y2) / 2 + 4, ...mono(g.compact ? 10 : 11, '#272727', 'start') }, 'res.reverse()');
+        }
+
+        // min-only variant of drawRes: the "answer" label sits above the box's left edge so it never clips at 320px.
+        function drawResMin({ path, text }, state) {
+          const g = geom;
+          const resBoxW = g.compact ? 190 : 216;
+          path('res-box', {
+            d: `M ${g.heapCx - resBoxW / 2} ${g.resY - (g.compact ? 18 : 21)} h ${resBoxW} v ${g.compact ? 36 : 42} h ${-resBoxW} Z`,
+            fill: 'none', stroke: state.done ? '#272727' : '#999',
+            'stroke-width': state.done ? 1.8 : 1.2, 'stroke-dasharray': '5 4'
+          });
+          text('res-label', { x: g.heapCx - resBoxW / 2 + 10, y: g.resY + 4, ...mono(g.compact ? 10.5 : 12, '#555', 'start') }, 'res =');
+          text('res-close', { x: g.heapCx + resBoxW / 2 - 10, y: g.resY + 4, ...mono(g.compact ? 10.5 : 12, '#555', 'end') }, ']');
+          if (state.done) {
+            text('res-answer', { x: g.heapCx - resBoxW / 2, y: g.resY - (g.compact ? 25 : 29), ...mono(g.compact ? 9.5 : 11, '#272727', 'start') }, 'answer · 答案 · freq 降序');
+          }
         }
 
         function drawMin(state, progress = 1, from = null, frame = null) {
@@ -754,14 +821,15 @@
               drawHeapFrame(api, state, n === 0 ? 'min_heap = []' : `min_heap${n > K ? ` · len ${n} > k` : ''}`);
             }
             drawDiscardBox(api);
+            if (state.popOrder) drawPopOrder(api, state, { strong: !state.done, arrows: !state.done && !active });
             if (!active && frame) {
-              if (frame.anim === 'collect') drawCollectArrow(api);
+              if (frame.anim === 'collect') { drawPopArrow(api, state); drawResFreqs(api, state); }
               if (frame.anim === 'evict') drawEvictArrow(api, state);
-              if (frame.anim === 'reverse') drawReverseArrows(api);
+              if (frame.anim === 'push' && state.heap.length > K) drawRootNote(api);
             }
             if (!active) drawTieNotes(api, state, ltMin, '>');
             drawTokens(api, state, { from, progress, active, chip: 'min:' });
-            drawRes(api, state);
+            drawResMin(api, state);
           });
         }
 
