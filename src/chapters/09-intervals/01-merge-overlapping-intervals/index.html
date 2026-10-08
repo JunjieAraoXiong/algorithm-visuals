@@ -18,14 +18,14 @@
       .example-io code { display: block; font: 12px/1.6 monospace; overflow-wrap: anywhere; }
       .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 24px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
       .stage { height: 274px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
-      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 10px; margin: 12px 3px; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 244px; gap: 10px; margin: 12px 3px; }
       .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
       .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
       .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
       .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
       .metrics div { display: flex; justify-content: space-between; gap: 10px; }
-      .metrics dt { color: var(--quiet); }
-      .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+      .metrics dt { color: var(--quiet); white-space: nowrap; }
+      .metrics dd { margin: 0; text-align: right; white-space: nowrap; }
       .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
       .section h2 { margin: 0 0 8px; font-size: 20px; }
       .section-intro { max-width: 900px; color: var(--quiet); }
@@ -69,7 +69,7 @@
               <div><dt><code>A</code></dt><dd data-m-a></dd></div>
               <div><dt><code>B</code></dt><dd data-m-b></dd></div>
               <div><dt><code>merged</code></dt><dd data-m-merged></dd></div>
-              <div><dt>A.end ≥ B.start</dt><dd data-m-cond></dd></div>
+              <div><dt>A.end &lt; B.start</dt><dd data-m-cond></dd></div>
             </dl>
           </div>
           <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
@@ -176,112 +176,124 @@
 
         const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
         const INPUT = [[3, 4], [7, 8], [2, 5], [6, 7], [1, 4]];
-        const SORTED = [...INPUT].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-        // Fixed staggered rows for the input bars (book layout, stable across steps).
-        const DISPLAY = [
-          { iv: [3, 4], row: 0 },
-          { iv: [7, 8], row: 0 },
-          { iv: [2, 5], row: 1 },
-          { iv: [6, 7], row: 1 },
-          { iv: [1, 4], row: 2 }
-        ];
+        // ORDER[i] = input index of the interval that sorts to position i.
+        const ORDER = INPUT.map((iv, k) => k).sort((a, b) => INPUT[a][0] - INPUT[b][0] || INPUT[a][1] - INPUT[b][1]);
+        const SORTED = ORDER.map(k => INPUT[k]);
+        const SORTED_POS = [];
+        ORDER.forEach((k, i) => { SORTED_POS[k] = i; });
+        const sortedIndexOf = iv => SORTED.findIndex(s => s[0] === iv[0] && s[1] === iv[1]);
         const fmt = iv => `[${iv[0]}, ${iv[1]}]`;
         const fmtList = list => `[${list.map(fmt).join(', ')}]`;
         const clone = value => JSON.parse(JSON.stringify(value));
 
         // ---- Simulate the real algorithm to build every frame ----
         const FRAMES = [];
-        const baseState = { list: 'sorted', note: false, merged: [], B: null, A: null, decision: null, transition: null, appendDrop: null, done: false };
+        const baseState = { list: 'sorted', focus: null, merged: [], B: null, A: null, aRow: -1, decision: null, transition: null, appendDrop: null, end: false, done: false };
         const add = (stepLabel, sourceKeys, line, en, zh, invariant, state) =>
           FRAMES.push({ stepLabel, sourceKeys, line, en, zh, invariant, state: { ...baseState, ...state } });
 
         add('初始输入 5 个区间', ['func', 'signature'],
           'def merge_overlapping_intervals(intervals)  # 输入 5 个区间',
-          'Five intervals arrive in arbitrary order. The task: merge overlapping pairs until no two intervals overlap.',
-          '5 个区间任意顺序给出；把重叠的逐个合并，直到任意两个区间都不重叠。',
+          'Five intervals arrive in arbitrary order, one row each. The task: merge overlapping pairs until no two intervals overlap.',
+          '5 个区间按输入顺序各占一行；把重叠的逐个合并，直到任意两个区间都不重叠。',
           '输入至少一个区间，且每个区间满足 start ≤ end。',
-          { list: 'input', merged: [] });
+          { list: 'input', focus: 'input' });
 
         add('按 start 排序', ['sort'],
           'intervals.sort(key=lambda x: x.start)',
-          'Sort by start value. Now, for any two neighbors, the left one starts first; the starts 1, 2, 3, 6, 7 are underlined.',
-          '按 start 升序排序：之后任意相邻区间都是左边先开始（下划线标出各 start）。',
+          'Sort by start value: the rows reorder so the starts 1, 2, 3, 6, 7 (underlined) step rightward down the list.',
+          '按 start 升序排序：各行重新排列，下划线标出的 start 1, 2, 3, 6, 7 自上而下逐行右移。',
           '排序后任意 i < j 都有 start_i ≤ start_j，先开始的在前。',
-          { note: true, merged: [] });
+          { focus: 'sort' });
 
         const merged = [SORTED[0].slice()];
+        // Python's A keeps its last binding until the next `A = merged[-1]`.
+        let curA = null;
+        let curARow = -1;
         add('merged = [[1, 4]]', ['init'],
           `merged = [intervals[0]]  # merged = ${fmtList(merged)}`,
           `The first sorted interval ${fmt(merged[0])} has no earlier neighbor to overlap, so it seeds merged.`,
           `排序后第一个区间 ${fmt(merged[0])} 直接作为 merged 的起点。`,
           'merged 初始只含排序后的第一个区间。',
-          { merged: clone(merged) });
+          { merged: clone(merged), focus: 'init' });
 
         for (let i = 1; i < SORTED.length; i++) {
           const B = SORTED[i].slice();
           add(`B = ${fmt(B)}`, ['loop'],
             `for B in intervals[1:]:  # B = ${fmt(B)}`,
-            `B takes the next interval from the sorted input: ${fmt(B)}.`,
-            `B 取排序后输入的下一个区间 ${fmt(B)}，每个区间只处理一次。`,
+            `B moves to the next row of the sorted list: ${fmt(B)}. Rows above it are already processed.`,
+            `B 移到排序后的下一行 ${fmt(B)}；它上方的行都已处理，每个区间只处理一次。`,
             'B 依次遍历 intervals[1:]；已处理过的区间不会回头。',
-            { merged: clone(merged), B });
+            { merged: clone(merged), A: curA && curA.slice(), aRow: curARow, B, focus: 'B' });
 
           const A = merged[merged.length - 1].slice();
+          curA = A.slice();
+          curARow = merged.length - 1;
           add(`A = merged[-1] = ${fmt(A)}`, ['a-ref'],
             `A = merged[-1]  # A = ${fmt(A)}`,
-            `A is the last interval of merged, ${fmt(A)}; sorting guarantees A.start ≤ B.start.`,
-            `A 是 merged 的最后一个区间 ${fmt(A)}；排序保证了 A.start ≤ B.start。`,
+            `A now refers to the last interval of merged, ${fmt(A)}; sorting guarantees A.start ≤ B.start.`,
+            `A 指向 merged 的最后一个区间 ${fmt(A)}；排序保证了 A.start ≤ B.start。`,
             'A = merged[-1]，且 A.start ≤ B.start。',
-            { merged: clone(merged), A, B });
+            { merged: clone(merged), A, aRow: curARow, B, focus: 'A' });
 
           const gap = A[1] < B[0];
-          add(gap ? `判定 ${A[1]} < ${B[0]} → 不重叠` : `判定 ${A[1]} ≥ ${B[0]} → 重叠`, ['check'],
+          const decision = gap ? 'gap' : A[1] === B[0] ? 'touch' : 'overlap';
+          add(`判定 ${A[1]} < ${B[0]} → ${gap ? 'True（不重叠）' : 'False（重叠）'}`, ['check'],
             `if A.end < B.start:  # ${A[1]} < ${B[0]} → ${gap ? 'True（不重叠）' : 'False（重叠）'}`,
             gap
-              ? `A.end = ${A[1]} is less than B.start = ${B[0]}, so B misses A and starts a new group.`
-              : `A.end = ${A[1]} is not less than B.start = ${B[0]}, so A and B overlap.`,
+              ? `A.end = ${A[1]} is less than B.start = ${B[0]}: a gap separates them on the number line, so B starts a new group.`
+              : decision === 'touch'
+                ? `A.end = ${A[1]} equals B.start = ${B[0]}, so A.end < B.start is False: touching endpoints share one point and count as overlap.`
+                : `A.end = ${A[1]} is not less than B.start = ${B[0]}: the thick segment ${B[0]}..${Math.min(A[1], B[1])} on the number line is shared, so they overlap.`,
             gap
-              ? `A.end = ${A[1]} < B.start = ${B[0]}，B 接不上 A，自成一组。`
-              : `A.end = ${A[1]} 不小于 B.start = ${B[0]}，两区间重叠。`,
+              ? `A.end = ${A[1]} < B.start = ${B[0]}：数轴上二者之间有空隙，B 接不上 A，自成一组。`
+              : decision === 'touch'
+                ? `A.end = ${A[1]} 等于 B.start = ${B[0]}，条件为 False：端点相接共享一个点，也算重叠。`
+                : `A.end = ${A[1]} 不小于 B.start = ${B[0]}：数轴上加粗的 ${B[0]}..${Math.min(A[1], B[1])} 是共享部分，两区间重叠。`,
             '重叠判定只需比较 A.end 与 B.start 一个条件。',
-            { merged: clone(merged), A, B, decision: gap ? 'gap' : 'overlap' });
+            { merged: clone(merged), A, aRow: curARow, B, decision, focus: 'check' });
 
           if (gap) {
             merged.push(B.slice());
             add(`merged.append(B) → ${fmtList(merged)}`, ['append'],
               `merged.append(B)  # merged = ${fmtList(merged)}`,
-              `No overlap: append ${fmt(B)} to merged as a new interval; the dashed lines drop it into the merged row.`,
-              `无重叠：把 ${fmt(B)} 作为新区间追加进 merged，虚线表示它落到 merged 行。`,
+              `No overlap: append ${fmt(B)} to merged as a new interval; the dashed lines drop it into a new merged row. A still refers to ${fmt(A)}.`,
+              `无重叠：把 ${fmt(B)} 作为新区间追加进 merged，虚线表示它落到 merged 的新一行；A 仍指向 ${fmt(A)}。`,
               '不重叠时 B 与 merged 中所有区间都 disjoint，直接追加。',
-              { merged: clone(merged), A, B, appendDrop: B.slice() });
+              { merged: clone(merged), A, aRow: curARow, B, appendDrop: B.slice(), focus: 'append' });
           } else {
-            const prevMerged = clone(merged);
             const oldA = A.slice();
             const newA = [A[0], Math.max(A[1], B[1])];
             merged[merged.length - 1] = newA;
             const which = A[1] >= B[1] ? 'A.end' : 'B.end';
             add(`合并 → ${fmt(newA)}`, ['else', 'merge'],
               `merged[-1] = Interval(${A[0]}, max(${A[1]}, ${B[1]}))  # ${fmt(newA)}`,
-              `Keep A.start = ${A[0]} and extend the end to max(${A[1]}, ${B[1]}) = ${newA[1]}; merged[-1] becomes ${fmt(newA)}.`,
-              `保留 A.start = ${A[0]}，终点延伸到 max(${A[1]}, ${B[1]}) = ${newA[1]}，merged[-1] 更新为 ${fmt(newA)}。`,
+              which === 'A.end'
+                ? `Keep A.start = ${A[0]}; max(${A[1]}, ${B[1]}) = ${newA[1]} is A's own end, so B lies inside A and merged[-1] stays ${fmt(newA)}.`
+                : `Keep A.start = ${A[0]} and extend the end to max(${A[1]}, ${B[1]}) = ${newA[1]}; merged[-1] becomes ${fmt(newA)}.`,
+              which === 'A.end'
+                ? `保留 A.start = ${A[0]}；max(${A[1]}, ${B[1]}) = ${newA[1]} 仍是 A 的终点，B 完全在 A 内，merged[-1] 不变，仍为 ${fmt(newA)}。`
+                : `保留 A.start = ${A[0]}，终点延伸到 max(${A[1]}, ${B[1]}) = ${newA[1]}，merged[-1] 更新为 ${fmt(newA)}。`,
               '合并：起点取 A.start，终点取 max(A.end, B.end)。',
-              { merged: clone(merged), A, B, transition: { prevMerged, oldA, newA: newA.slice(), which } });
+              { merged: clone(merged), A, aRow: curARow, B, transition: { oldA, newA: newA.slice(), which }, focus: 'merge' });
           }
         }
 
         add('所有区间处理完毕', ['loop'],
           'for B in intervals[1:]:  # 迭代结束',
-          'No more intervals to process; the loop ends.',
-          '所有区间处理完毕，循环结束。',
+          'Every row has been processed; intervals[1:] is exhausted and the loop ends.',
+          '每一行都已处理，intervals[1:] 遍历完毕，循环结束。',
           'merged 中的区间两两不重叠，且按 start 有序。',
-          { merged: clone(merged) });
+          { merged: clone(merged), A: curA && curA.slice(), aRow: curARow, end: true, focus: 'end' });
 
         add(`return ${fmtList(merged)}`, ['return'],
           `return merged  # ${fmtList(merged)}`,
-          `Return merged = ${fmtList(merged)}; no two intervals overlap, and their union covers the input.`,
-          `返回 merged = ${fmtList(merged)}：任意两个区间互不重叠，并集覆盖整个输入。`,
+          `Return merged = ${fmtList(merged)}; no two intervals overlap, and the dashed guides show every input row lies inside one of them.`,
+          `返回 merged = ${fmtList(merged)}：任意两个区间互不重叠；虚线显示每个输入区间都落在其中一个之内。`,
           'merged 覆盖原输入的并集，且无重叠。',
-          { merged: clone(merged), done: true });
+          { merged: clone(merged), done: true, focus: 'return' });
+
+        const MAX_MERGED = Math.max(1, ...FRAMES.map(f => f.state.merged.length));
 
         const scene = core.createSvgScene(svg);
         scene.defineMarker('mi-arrow', { fill: '#333', markerWidth: 7, markerHeight: 7, refX: 5.4, refY: 3.5 });
@@ -292,171 +304,228 @@
         let transitionFrom = null;
 
         function rectPath(x, y, w, h) { return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`; }
+        function roundRect(x, y, w, h, r = 3) {
+          return `M ${x + r} ${y} H ${x + w - r} A ${r} ${r} 0 0 1 ${x + w} ${y + r} V ${y + h - r} A ${r} ${r} 0 0 1 ${x + w - r} ${y + h} H ${x + r} A ${r} ${r} 0 0 1 ${x} ${y + h - r} V ${y + r} A ${r} ${r} 0 0 1 ${x + r} ${y} Z`;
+        }
         function barPath(x0, x1, y, cap) { return `M ${x0} ${y} H ${x1} M ${x0} ${y - cap} V ${y + cap} M ${x1} ${y - cap} V ${y + cap}`; }
 
         function layout() {
           const width = stage.clientWidth;
           const compact = width < 520;
-          const pad = compact ? 8 : 16;
-          const labelW = compact ? 56 : 70;
-          const axisLeft = pad + labelW;
-          const axisRight = width - (compact ? 12 : 22);
+          const pitch = compact ? 22 : 26;
+          const fs = compact ? 10.5 : 12;
+          const tfs = compact ? 10 : 11;
+          const charW = fs * 0.6;
+          const box = compact ? { x: 3, w: 16, h: 16 } : { x: 8, w: 22, h: 18 };
+          const valueX = compact ? 41 : 52;
+          const valueW = charW * 6;
+          const axisLeft = valueX + valueW + (compact ? 14 : 20);
+          const axisRight = Math.min(width - (compact ? 24 : 30), axisLeft + 7 * 84);
           const unit = (axisRight - axisLeft) / 7;
           const x = v => axisLeft + (v - 1) * unit;
-          const inTop = compact ? 60 : 68;
-          const rowStep = compact ? 19 : 23;
-          const inRows = [inTop, inTop + rowStep, inTop + rowStep * 2];
-          const NL = inRows[2] + (compact ? 26 : 32);
-          const mRow1 = NL + (compact ? 34 : 40);
-          const mRow2 = mRow1 + (compact ? 30 : 34);
-          const stageH = mRow2 + (compact ? 46 : 54);
-          geom = { width, compact, pad, labelW, axisLeft, axisRight, unit, x, inRows, NL, mRow1, mRow2, stageH };
+          const top = compact ? 40 : 46;
+          const rowY = i => top + pitch * i;
+          const NL = rowY(SORTED.length - 1) + (compact ? 32 : 36);
+          const tickY = NL + (compact ? 14 : 15);
+          const m0 = NL + (compact ? 48 : 54);
+          const mY = j => m0 + pitch * j;
+          const stageH = mY(MAX_MERGED - 1) + (compact ? 25 : 28);
+          geom = { width, compact, pitch, fs, tfs, charW, box, valueX, valueW, axisLeft, axisRight, unit, x, rowY, NL, tickY, mY, stageH };
           svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
           stage.style.height = `${Math.ceil(stageH)}px`;
         }
 
-        function bRowOf(B) {
-          const d = DISPLAY.find(dd => dd.iv[0] === B[0] && dd.iv[1] === B[1]);
-          return geom.inRows[d ? d.row : 2];
+        // Which sorted rows are processed / current / pending in this state.
+        function rowStatus(state) {
+          let cur = -1;
+          let consumed = 0;
+          if (state.B) { cur = sortedIndexOf(state.B); consumed = cur; }
+          else if (state.end || state.done) consumed = SORTED.length;
+          else if (state.merged.length) consumed = 1;
+          return i => (i === cur ? 'current' : i < consumed ? 'done' : 'pending');
         }
+        // merged row that A refers to (after an append, A is still merged[-2]).
+        const aIndex = state => (state && state.A ? state.aRow : -1);
+        // Row position of input interval k under a given list order.
+        const rowOfInput = (list, k) => (list === 'input' ? k : SORTED_POS[k]);
 
         function draw(state, t = 1, from = null) {
           if (!geom.x || !state) return;
           const g = geom;
           const lerp = (a, b) => a + (b - a) * t;
-          const presence = (was, is) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
-          const trans = state.transition;
-          const fs = g.compact ? 9.5 : 11;
+          const status = rowStatus(state);
+          const baseline = y => y + g.fs * 0.36;
 
-          scene.update(({ path, text }) => {
-            // ---- strip A: input list / sorted list / decision box ----
-            // These occupy the same strip, so they snap instead of crossfading.
-            const snap = is => (is ? 1 : 0);
-            const inOp = snap(state.list === 'input');
-            if (inOp) {
-              const charW = g.compact ? 6.05 : 7.25;
-              const gap = g.compact ? 9 : 14;
-              let cursor = g.axisLeft;
-              INPUT.forEach((iv, i) => {
-                text(`inlist-${i}`, { x: cursor, y: g.compact ? 30 : 33, 'text-anchor': 'start', 'font-size': g.compact ? 10 : 12, fill: '#272727', 'font-family': MONO, opacity: inOp }, fmt(iv));
-                cursor += fmt(iv).length * charW + gap;
+          scene.update(({ path, text, circle }) => {
+            // Vertical guide that skips the tick-label band so it never strikes a numeral.
+            // `avoid` lists extra [top, bottom] bands to leave open (e.g. other rows' bars).
+            const vline = (id, xv, y1, y2, attrs, avoid = []) => {
+              const lo = Math.min(y1, y2);
+              const hi = Math.max(y1, y2);
+              const bands = [[g.NL + 5, g.tickY + 4], ...avoid].sort((p, q) => p[0] - q[0]);
+              const parts = [];
+              let cur = lo;
+              bands.forEach(([a, b]) => {
+                if (b <= cur || a >= hi) return;
+                if (a > cur) parts.push([cur, a]);
+                cur = Math.max(cur, b);
               });
-            }
-            const sortedShown = state.list === 'sorted' && !state.decision;
-            const sortedOp = snap(sortedShown);
-            if (sortedOp) {
-              const charW = g.compact ? 6.05 : 7.25;
-              const gap = g.compact ? 9 : 14;
-              let cursor = g.axisLeft;
-              const fill = state.note ? '#272727' : '#8a8a84';
-              SORTED.forEach((iv, i) => {
-                text(`slist-${i}`, { x: cursor, y: g.compact ? 30 : 33, 'text-anchor': 'start', 'font-size': g.compact ? 10 : 12, fill, 'font-family': MONO, opacity: sortedOp }, fmt(iv));
-                const ux = cursor + charW;
-                path(`slist-ul-${i}`, { d: `M ${ux} ${(g.compact ? 30 : 33) + 2.5} h ${charW} v 1.4 h ${-charW} Z`, fill: state.note ? '#272727' : '#8a8a84', opacity: sortedOp });
-                cursor += fmt(iv).length * charW + gap;
-              });
-            }
-            const noteOp = snap(Boolean(state.note));
-            if (noteOp) text('sort-note', { x: g.axisLeft, y: g.compact ? 13 : 14, 'text-anchor': 'start', 'font-size': g.compact ? 9.5 : 10.5, fill: '#555', 'font-family': MONO, opacity: noteOp }, '↓ sort by start');
-            const decOp = snap(Boolean(state.decision));
-            if (decOp && state.decision) {
-              const bw = g.compact ? 186 : 208;
-              const bh = g.compact ? 38 : 42;
-              const bx = g.axisLeft;
-              const by = g.compact ? 3 : 5;
-              path('dec-box', { d: rectPath(bx, by, bw, bh), fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '5 3', opacity: decOp });
-              const l1 = state.decision === 'gap' ? 'A.end < B.start (no overlap)' : 'A.end ≥ B.start (overlap)';
-              const l2 = state.decision === 'gap' ? '⟶ add B to merged list' : '⟶ merge A and B';
-              text('dec-l1', { x: bx + 8, y: by + (g.compact ? 15 : 17), 'text-anchor': 'start', 'font-size': g.compact ? 10 : 11.5, fill: '#272727', 'font-weight': 600, 'font-family': MONO, opacity: decOp }, l1);
-              text('dec-l2', { x: bx + 8, y: by + (g.compact ? 30 : 34), 'text-anchor': 'start', 'font-size': g.compact ? 10 : 11.5, fill: '#272727', 'font-family': MONO, opacity: decOp }, l2);
-            }
+              if (cur < hi) parts.push([cur, hi]);
+              if (y1 > y2) parts.reverse().forEach(p => p.reverse());
+              const d = parts.map(([p, q]) => `M ${xv} ${p} V ${q}`).join(' ');
+              path(id, { d, fill: 'none', ...attrs });
+            };
+            const label = (id, attrs, value) => text(id, { 'font-size': g.fs, 'font-family': MONO, fill: '#272727', ...attrs }, value);
+            const varLabel = (id, name, cy, op, emph) => {
+              const { x, w, h } = g.box;
+              path(`${id}-box`, { d: roundRect(x, cy - h / 2, w, h, 3), fill: '#fffdf8', stroke: emph ? '#272727' : '#777', 'stroke-width': emph ? 2 : 1, opacity: op });
+              text(`${id}-name`, { x: x + w / 2, y: cy + (g.compact ? 3.8 : 4.2), 'text-anchor': 'middle', 'font-size': g.compact ? 11 : 12, 'font-family': MONO, fill: '#272727', opacity: op }, name);
+              path(`${id}-ref`, { d: `M ${x + w + 1} ${cy} H ${g.valueX - 7}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#mi-arrowq)', opacity: op });
+            };
+            const cellBox = (id, y) => path(id, { d: rectPath(g.valueX - 3, y - g.fs * 0.72, g.valueW + 6, g.fs * 1.44), fill: 'none', stroke: '#555', 'stroke-width': 1, 'stroke-dasharray': '3 2' });
+            const lastRow = g.mY(MAX_MERGED - 1);
+            const rowsAt = (xv, skip) => SORTED.map((iv, i) => [iv, i])
+              .filter(([iv, i]) => i !== skip && g.x(iv[0]) - 4 <= xv && xv <= g.x(iv[1]) + 4)
+              .map(([, i]) => [g.rowY(i) - 7, g.rowY(i) + 7]);
 
-            // ---- input rows ----
-            text('in-label', { x: g.pad, y: g.inRows[1] + 3.5, 'text-anchor': 'start', 'font-size': fs, fill: '#555', 'font-family': MONO }, 'intervals:');
-            DISPLAY.forEach((d, i) => {
-              const y = g.inRows[d.row];
-              const isB = Boolean(state.B) && d.iv[0] === state.B[0] && d.iv[1] === state.B[1];
-              path(`in-bar-${i}`, { d: barPath(g.x(d.iv[0]), g.x(d.iv[1]), y, isB ? 5 : 3.5), stroke: isB ? '#272727' : '#999', 'stroke-width': isB ? 3.2 : 1.4, fill: 'none' });
-            });
-            if (state.B) {
-              const [s, e] = state.B;
-              const y = bRowOf(state.B);
-              const bOp = presence(Boolean(from && from.B), true);
-              const wide = e - s >= 2;
-              if (!state.appendDrop) {
-                text('b-start', { x: g.x(s), y: y - 8, 'text-anchor': 'middle', 'font-size': fs, 'font-weight': 600, 'font-family': MONO, fill: '#272727', opacity: bOp }, 'B.start');
+            // ---- faint integer grid shared by both lists ----
+            for (let v = 1; v <= 8; v++) vline(`grid-${v}`, g.x(v), g.rowY(0) - 11, lastRow + 10, { stroke: '#eaeae5', 'stroke-width': 0.8 });
+
+            // ---- captions ----
+            text('cap-intervals', { x: g.box.x, y: g.rowY(0) - (g.compact ? 22 : 26), 'font-size': g.compact ? 10.5 : 11, fill: '#555', 'font-family': MONO }, 'intervals');
+            text('cap-merged', { x: g.box.x, y: g.mY(0) - (g.compact ? 19 : 22), 'font-size': g.compact ? 10.5 : 11, fill: '#555', 'font-family': MONO }, 'merged');
+
+            // ---- input list: one row per interval; rows move only when sort() reorders them ----
+            INPUT.forEach((iv, k) => {
+              const pos = rowOfInput(state.list, k);
+              const fromPos = from ? rowOfInput(from.list, k) : pos;
+              // Stagger the sort slightly (by destination row) so crossing rows stay legible.
+              const tk = fromPos === pos ? 1 : Math.min(1, Math.max(0, (t - 0.08 * pos) / 0.68));
+              const y = g.rowY(fromPos) + (g.rowY(pos) - g.rowY(fromPos)) * tk;
+              const st = state.list === 'input' ? 'pending' : status(SORTED_POS[k]);
+              const style = st === 'current'
+                ? { stroke: '#272727', w: 3, cap: 5, dash: null, ink: '#272727' }
+                : st === 'done'
+                  ? { stroke: '#b7b7b1', w: 1.2, cap: 3, dash: '3 3', ink: '#8a8a84' }
+                  : { stroke: '#555', w: 1.6, cap: 3.5, dash: null, ink: '#555' };
+              text(`in-val-${k}`, { x: g.valueX, y: baseline(y), 'font-size': g.fs, fill: style.ink, 'font-family': MONO }, fmt(iv));
+              path(`in-bar-${k}`, { d: barPath(g.x(iv[0]), g.x(iv[1]), y, style.cap), stroke: style.stroke, 'stroke-width': style.w, 'stroke-dasharray': style.dash, fill: 'none' });
+              if (state.focus === 'sort') {
+                path(`in-ul-${k}`, { d: rectPath(g.valueX + g.charW, baseline(y) + 2.5, g.charW, 1.3), fill: '#272727' });
               }
-              let bx; let bAnchor;
-              if (wide) { bx = (g.x(s) + g.x(e)) / 2; bAnchor = 'middle'; }
-              else if (g.x(e) + 16 < g.width - 6) { bx = g.x(e) + 8; bAnchor = 'start'; }
-              else { bx = g.x(s) - 8; bAnchor = 'end'; }
-              text('b-label', { x: bx, y: wide ? y - 8 : y + 4, 'text-anchor': bAnchor, 'font-size': fs, 'font-weight': 600, 'font-family': MONO, fill: '#272727', opacity: bOp }, 'B');
+            });
+
+            // ---- B: variable label in the left lane, sliding row to row ----
+            if (state.B) {
+              const bi = sortedIndexOf(state.B);
+              const fbi = from && from.B ? sortedIndexOf(from.B) : -1;
+              const y = fbi >= 0 ? lerp(g.rowY(fbi), g.rowY(bi)) : g.rowY(bi);
+              varLabel('b', 'B', y, fbi >= 0 ? 1 : t, state.focus === 'B');
             }
 
             // ---- number line ----
-            path('axis', { d: `M ${g.axisLeft - 6} ${g.NL} H ${g.axisRight + 6}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none', 'marker-start': 'url(#mi-arrow)', 'marker-end': 'url(#mi-arrow)' });
+            path('axis', { d: `M ${g.axisLeft - 10} ${g.NL} H ${g.axisRight + 15}`, stroke: '#333', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#mi-arrow)' });
             for (let v = 1; v <= 8; v++) {
               path(`tick-${v}`, { d: `M ${g.x(v)} ${g.NL - 3.5} V ${g.NL + 3.5}`, stroke: '#555', 'stroke-width': 1, fill: 'none' });
-              text(`tick-label-${v}`, { x: g.x(v), y: g.NL + 15, 'text-anchor': 'middle', 'font-size': g.compact ? 9.5 : 10.5, fill: '#555', 'font-family': MONO }, String(v));
+              text(`tick-label-${v}`, { x: g.x(v), y: g.tickY, 'text-anchor': 'middle', 'font-size': g.tfs, fill: '#555', 'font-family': MONO }, String(v));
             }
 
-            // ---- merged rows ----
-            text('m-label-1', { x: g.pad, y: g.mRow1 + 4, 'text-anchor': 'start', 'font-size': fs, fill: '#555', 'font-family': MONO }, 'merged:');
-            const row1 = trans ? trans.prevMerged : state.merged;
-            const grew = Boolean(from && from.merged && from.merged.length < state.merged.length && !trans);
-            if (!row1.length) {
-              text('m-empty', { x: g.axisLeft + 2, y: g.mRow1 + 4, 'text-anchor': 'start', 'font-size': fs + 1, fill: '#8a8a84', 'font-family': MONO }, '∅');
+            // ---- merged list rows ----
+            const trans = state.transition;
+            const grew = Boolean(from && from.merged.length < state.merged.length);
+            if (!state.merged.length) {
+              text('m-empty', { x: g.valueX, y: baseline(g.mY(0)), 'font-size': g.fs + 1, fill: '#8a8a84', 'font-family': MONO }, '∅');
             }
-            row1.forEach((iv, i) => {
-              const op = grew && i === row1.length - 1 ? t : 1;
-              path(`m1-bar-${i}`, { d: barPath(g.x(iv[0]), g.x(iv[1]), g.mRow1, 5), stroke: '#272727', 'stroke-width': 3, fill: 'none', opacity: op });
+            state.merged.forEach((iv, j) => {
+              const y = g.mY(j);
+              const isLast = j === state.merged.length - 1;
+              const op = grew && isLast ? t : 1;
+              let x1 = g.x(iv[1]);
+              if (trans && isLast && from && !from.transition) x1 = lerp(g.x(trans.oldA[1]), g.x(iv[1]));
+              // Thick ink only for the row this line writes; settled rows drop to a medium weight.
+              const hot = state.done || (isLast && (state.focus === 'init' || state.appendDrop || (trans && trans.newA[1] !== trans.oldA[1])));
+              label(`m-val-${j}`, { x: g.valueX, y: baseline(y), opacity: op }, fmt(iv));
+              path(`m-bar-${j}`, { d: barPath(g.x(iv[0]), x1, y, hot ? 5 : 4), stroke: hot ? '#272727' : '#555', 'stroke-width': hot ? 3 : 1.8, fill: 'none', opacity: op });
             });
-            if (trans) {
-              const tOp = presence(Boolean(from && from.transition), true);
-              text('m-label-2', { x: g.pad, y: g.mRow2 + 4, 'text-anchor': 'start', 'font-size': fs, fill: '#555', 'font-family': MONO, opacity: tOp }, 'merged:');
-              path('m-arrow', { d: `M ${g.pad + g.labelW * 0.45} ${g.mRow1 + 11} V ${g.mRow2 - 11}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#mi-arrowq)', opacity: tOp });
-              state.merged.forEach((iv, i) => {
-                const isNew = i === state.merged.length - 1;
-                const x1 = isNew ? lerp(g.x(trans.oldA[1]), g.x(iv[1]), t) : g.x(iv[1]);
-                path(`m2-bar-${i}`, { d: barPath(g.x(iv[0]), x1, g.mRow2, 5), stroke: '#272727', 'stroke-width': 3, fill: 'none', opacity: tOp });
-              });
-              text('a-label-ghost', { x: (g.x(trans.oldA[0]) + g.x(trans.oldA[1])) / 2, y: g.mRow1 - 8, 'text-anchor': 'middle', 'font-size': fs, 'font-weight': 600, 'font-family': MONO, fill: '#272727', opacity: tOp }, 'A');
-              const dropXs = [trans.newA[0], trans.oldA[1], trans.newA[1]];
-              dropXs.forEach((dv, k) => {
-                path(`drop-${k}`, { d: `M ${g.x(dv)} ${g.mRow1 + 8} V ${g.mRow2 - 9}`, stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none', 'marker-end': 'url(#mi-arrowq)', opacity: tOp });
-              });
-              const fs2 = g.compact ? 9.5 : 11;
-              const maxLabel = `max(A.end, B.end) = ${trans.which}`;
-              const maxW = maxLabel.length * fs2 * 0.62;
-              const rawCenter = (g.x(trans.oldA[1]) + g.x(trans.newA[1])) / 2;
-              const center = Math.max(maxW / 2 + 6, Math.min(g.width - maxW / 2 - 6, rawCenter));
-              const collide = Math.abs(g.x(trans.newA[0]) - center) < (maxW + 52) / 2 + 8;
-              text('drop-start-label', { x: g.x(trans.newA[0]), y: g.mRow2 + (g.compact ? 15 : 17), 'text-anchor': 'middle', 'font-size': fs2, 'font-weight': 600, 'font-family': MONO, fill: '#272727', opacity: tOp }, 'A.start');
-              text('drop-max-label', { x: center, y: g.mRow2 + (collide ? (g.compact ? 28 : 31) : (g.compact ? 15 : 17)), 'text-anchor': 'middle', 'font-size': fs2, 'font-family': MONO, fill: '#272727', opacity: tOp }, maxLabel);
-            }
 
-            // ---- A labels on the merged row (non-transition frames) ----
-            if (!trans && state.A && state.merged.length) {
-              const aIv = state.appendDrop ? state.merged[state.merged.length - 2] : state.merged[state.merged.length - 1];
-              if (aIv) {
-                text('a-label', { x: (g.x(aIv[0]) + g.x(aIv[1])) / 2, y: g.mRow1 - 8, 'text-anchor': 'middle', 'font-size': fs, 'font-weight': 600, 'font-family': MONO, fill: '#272727' }, 'A');
-                if (!state.appendDrop) {
-                  text('a-end', { x: g.x(aIv[1]), y: g.mRow1 + 18, 'text-anchor': 'middle', 'font-size': fs, 'font-family': MONO, fill: '#272727' }, 'A.end');
-                }
+            // ---- A: variable label pointing at merged[-1] ----
+            const ai = aIndex(state);
+            if (ai >= 0) {
+              const fai = aIndex(from);
+              const y = fai >= 0 ? lerp(g.mY(fai), g.mY(ai)) : g.mY(ai);
+              varLabel('a', 'A', y, fai >= 0 ? 1 : t, state.focus === 'A');
+              // After merged[-1] is replaced, A still holds the old Interval: say so under the label.
+              const row = state.merged[ai];
+              if (row && (row[0] !== state.A[0] || row[1] !== state.A[1])) {
+                text('a-stale', { x: g.box.x, y: g.mY(ai) + (g.compact ? 17 : 19), 'font-size': g.compact ? 9.5 : 10.5, fill: '#8a8a84', 'font-family': MONO }, `A = ${fmt(state.A)}`);
               }
             }
 
-            // ---- connector A.end → B.start on decision frames ----
-            if (state.decision && state.A && state.B && !trans) {
-              path('connector', { d: `M ${g.x(state.A[1])} ${g.mRow1 + 6} L ${g.x(state.B[0])} ${bRowOf(state.B) - 9}`, stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none', 'marker-end': 'url(#mi-arrowq)' });
+            // ---- one emphasis per frame ----
+            const guide = { stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3' };
+            if (state.focus === 'init') cellBox('edit-box', g.mY(0));
+
+            if (state.decision && state.A && state.B) {
+              const bi = sortedIndexOf(state.B);
+              const by = g.rowY(bi);
+              const ay = g.mY(ai);
+              const xb = g.x(state.B[0]);
+              const xa = g.x(state.A[1]);
+              vline('chk-b', xb, by + 6, g.NL, guide, rowsAt(xb, bi));
+              vline('chk-a', xa, ay - 6, g.NL, guide);
+              const bw = 7 * g.charW;
+              if (xb - 8 - bw >= g.valueX + g.valueW + 6) label('chk-b-label', { x: xb - 8, y: baseline(by), 'text-anchor': 'end' }, 'B.start');
+              else label('chk-b-label', { x: xb, y: by - 8, 'text-anchor': 'middle' }, 'B.start');
+              const aw = 5 * g.charW;
+              label('chk-a-label', { x: Math.min(xa + 9, g.width - aw - 4), y: baseline(ay) + (xa + 9 + aw > g.width - 4 ? -13 : 0) }, 'A.end');
+              const wordY = g.NL - (g.compact ? 11 : 12);
+              const wfs = g.compact ? 10.5 : 11;
+              if (state.decision === 'overlap') {
+                const xo = g.x(Math.min(state.A[1], state.B[1]));
+                path('chk-mark', { d: `M ${xb} ${g.NL} H ${xo}`, stroke: '#272727', 'stroke-width': 4.5, fill: 'none' });
+                text('chk-word', { x: (xo + xb) / 2, y: wordY, 'text-anchor': 'middle', 'font-size': wfs, fill: '#272727' }, '重叠');
+              } else if (state.decision === 'touch') {
+                circle('chk-dot', { cx: xb, cy: g.NL, r: 4, fill: '#272727' });
+                text('chk-word', { x: xb - 9, y: wordY, 'text-anchor': 'end', 'font-size': wfs, fill: '#272727' }, '相接，也算重叠');
+              } else {
+                path('chk-mark', { d: `M ${xa} ${g.NL - 3} V ${g.NL - 8} H ${xb} V ${g.NL - 3}`, stroke: '#272727', 'stroke-width': 1.2, 'stroke-dasharray': '3 2', fill: 'none' });
+                text('chk-word', { x: (xa + xb) / 2, y: wordY - 2, 'text-anchor': 'middle', 'font-size': wfs, fill: '#272727' }, '空隙');
+              }
             }
 
-            // ---- append drop lines from B's ends ----
             if (state.appendDrop && state.B) {
-              const aOp = presence(Boolean(from && from.appendDrop), true);
-              const by = bRowOf(state.B);
-              path('app-drop-0', { d: `M ${g.x(state.appendDrop[0])} ${by + 8} V ${g.mRow1 - 9}`, stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none', 'marker-end': 'url(#mi-arrowq)', opacity: aOp });
-              path('app-drop-1', { d: `M ${g.x(state.appendDrop[1])} ${by + 8} V ${g.mRow1 - 9}`, stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '4 3', fill: 'none', 'marker-end': 'url(#mi-arrowq)', opacity: aOp });
+              const by = g.rowY(sortedIndexOf(state.B));
+              const ty = g.mY(state.merged.length - 1);
+              const op = grew ? t : 1;
+              const bi = sortedIndexOf(state.B);
+              state.appendDrop.forEach((v, n) => vline(`drop-${n}`, g.x(v), by + 7, ty - 9, { ...guide, 'marker-end': 'url(#mi-arrowq)', opacity: op }, rowsAt(g.x(v), bi)));
+              cellBox('edit-box', ty);
+            }
+
+            if (trans && state.B) {
+              const j = state.merged.length - 1;
+              const y = g.mY(j);
+              const changed = trans.newA[1] !== trans.oldA[1];
+              if (changed) {
+                cellBox('edit-box', y);
+                path('old-end', { d: `M ${g.x(trans.oldA[1])} ${y - 9} V ${y + 9}`, stroke: '#999', 'stroke-width': 1.1, 'stroke-dasharray': '2 2', fill: 'none' });
+                const by = g.rowY(sortedIndexOf(state.B));
+                const mbi = sortedIndexOf(state.B);
+                vline('merge-drop', g.x(trans.newA[1]), by + 7, y - 9, { ...guide, 'marker-end': 'url(#mi-arrowq)' }, rowsAt(g.x(trans.newA[1]), mbi));
+              }
+              const note = `max(${trans.oldA[1]}, ${state.B[1]}) = ${trans.newA[1]}${changed ? '' : '，不变'}`;
+              const noteW = [...note].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? g.fs : g.charW), 0);
+              const xr = g.x(trans.newA[1]) + 10;
+              const xl = g.x(trans.newA[0]) - 10;
+              if (xr + noteW < g.width - 4) label('merge-note', { x: xr, y: baseline(y) }, note);
+              else if (xl - noteW > g.valueX + g.valueW + 8) label('merge-note', { x: xl, y: baseline(y), 'text-anchor': 'end' }, note);
+              else label('merge-note', { x: g.x(trans.newA[1]) - 8, y: y + 20, 'text-anchor': 'end' }, note);
+            }
+
+            if (state.done) {
+              state.merged.forEach((iv, j) => iv.forEach((v, n) =>
+                vline(`cover-${j}-${n}`, g.x(v), g.mY(j) - 7, g.rowY(0) - 10, { stroke: '#555', 'stroke-width': 1, 'stroke-dasharray': '2 3' })));
+              path('answer-box', { d: rectPath(g.valueX - 6, g.mY(0) - 12, g.x(8) - g.valueX + 16, g.mY(state.merged.length - 1) - g.mY(0) + 24), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '5 3' });
             }
           });
         }
@@ -468,7 +537,7 @@
           mB.textContent = state.B ? fmt(state.B) : '—';
           mMerged.textContent = state.merged.length ? fmtList(state.merged) : '∅';
           mCond.textContent = state.decision
-            ? (state.decision === 'gap' ? `${state.A[1]} < ${state.B[0]} → False` : `${state.A[1]} ≥ ${state.B[0]} → True`)
+            ? `${state.A[1]} < ${state.B[0]} → ${state.decision === 'gap' ? 'True' : 'False'}`
             : '—';
           expressionEl.textContent = frame.line;
           explanationEl.textContent = frame.en;
@@ -486,9 +555,9 @@
           onTransition: ({ state }) => {
             const from = transitionFrom;
             transitionFrom = null;
-            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            if (!from || motion.reduced) { draw(state, 1, null); return; }
             motion.tween({
-              duration: 420,
+              duration: from.list !== state.list ? 520 : 420,
               update: eased => draw(state, eased, from),
               complete: () => draw(state, 1, null)
             });
