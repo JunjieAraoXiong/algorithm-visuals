@@ -144,7 +144,7 @@
                     ]
                   ],
                   "children": [
-                    "第 1 轮 · 判定 A.end ≥ B.start"
+                    "第 1 轮 · 判定 A.end >= B.start"
                   ]
                 },
                 {
@@ -204,7 +204,7 @@
                     ]
                   ],
                   "children": [
-                    "第 2 轮 · 判定 A.end ≥ B.start"
+                    "第 2 轮 · 判定 A.end >= B.start"
                   ]
                 },
                 {
@@ -264,7 +264,7 @@
                     ]
                   ],
                   "children": [
-                    "第 3 轮 · 判定 A.end ≥ B.start"
+                    "第 3 轮 · 判定 A.end >= B.start"
                   ]
                 },
                 {
@@ -312,7 +312,7 @@
                     ]
                   ],
                   "children": [
-                    "第 4 轮 · 判定 A.end ≥ B.start"
+                    "第 4 轮 · 判定 A.end >= B.start"
                   ]
                 },
                 {
@@ -348,7 +348,7 @@
                     ]
                   ],
                   "children": [
-                    "循环结束：指针越界"
+                    "循环结束：j 越界"
                   ]
                 },
                 {
@@ -397,7 +397,7 @@
       "attributes": [
         [
           "aria-label",
-          "区间重叠演示：第 1 / 22 步。两个指针分别指向两个数组的第一个区间，重叠列表为空。"
+          "区间重叠演示：第 1 / 22 步。i = 0，j = 0，A = —，B = —，overlaps = []。i、j 都从各自数组的下标 0 出发；overlaps 为空列表。"
         ],
         [
           "class",
@@ -409,7 +409,7 @@
         ],
         [
           "style",
-          "height: 246px;"
+          "height: 360px;"
         ]
       ],
       "children": [
@@ -430,45 +430,13 @@
             ],
             [
               "viewBox",
-              "0 0 731 246"
+              "0 0 731 360"
             ]
           ],
           "children": [
             {
               "tag": "defs",
               "children": [
-                {
-                  "tag": "pattern",
-                  "attributes": [
-                    [
-                      "height",
-                      "7"
-                    ],
-                    [
-                      "width",
-                      "7"
-                    ]
-                  ],
-                  "children": [
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "d",
-                          "M 0 7 L 7 0"
-                        ],
-                        [
-                          "stroke",
-                          "#8f8f88"
-                        ],
-                        [
-                          "stroke-width",
-                          "1"
-                        ]
-                      ]
-                    }
-                  ]
-                },
                 {
                   "tag": "marker",
                   "attributes": [
@@ -492,79 +460,31 @@
                       ]
                     }
                   ]
+                },
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "#555"
+                        ]
+                      ]
+                    }
+                  ]
                 }
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "lab-1"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "x",
-                  "2"
-                ],
-                [
-                  "y",
-                  "77.5"
-                ]
-              ],
-              "children": [
-                "intervals1:"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "lab-2"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "x",
-                  "2"
-                ],
-                [
-                  "y",
-                  "125.5"
-                ]
-              ],
-              "children": [
-                "intervals2:"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "lab-x"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "x",
-                  "2"
-                ],
-                [
-                  "y",
-                  "197"
-                ]
-              ],
-              "children": [
-                "intersections:"
               ]
             },
             {
@@ -572,7 +492,742 @@
               "attributes": [
                 [
                   "d",
-                  "M 105 154 L 711 154"
+                  "M 148.6 29 V 231 M 148.6 245 V 342"
+                ],
+                [
+                  "data-visual-element",
+                  "grid-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#eaeae5"
+                ],
+                [
+                  "stroke-width",
+                  "0.8"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 209.97777777777776 29 V 231 M 209.97777777777776 245 V 342"
+                ],
+                [
+                  "data-visual-element",
+                  "grid-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#eaeae5"
+                ],
+                [
+                  "stroke-width",
+                  "0.8"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 271.35555555555555 29 V 231 M 271.35555555555555 245 V 342"
+                ],
+                [
+                  "data-visual-element",
+                  "grid-3"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#eaeae5"
+                ],
+                [
+                  "stroke-width",
+                  "0.8"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 332.73333333333335 29 V 231 M 332.73333333333335 245 V 342"
+                ],
+                [
+                  "data-visual-element",
+                  "grid-4"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#eaeae5"
+                ],
+                [
+                  "stroke-width",
+                  "0.8"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 394.1111111111111 29 V 231 M 394.1111111111111 245 V 342"
+                ],
+                [
+                  "data-visual-element",
+                  "grid-5"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#eaeae5"
+                ],
+                [
+                  "stroke-width",
+                  "0.8"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 455.4888888888888 29 V 231 M 455.4888888888888 245 V 342"
+                ],
+                [
+                  "data-visual-element",
+                  "grid-6"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#eaeae5"
+                ],
+                [
+                  "stroke-width",
+                  "0.8"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 516.8666666666667 29 V 231 M 516.8666666666667 245 V 342"
+                ],
+                [
+                  "data-visual-element",
+                  "grid-7"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#eaeae5"
+                ],
+                [
+                  "stroke-width",
+                  "0.8"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 578.2444444444444 29 V 231 M 578.2444444444444 245 V 342"
+                ],
+                [
+                  "data-visual-element",
+                  "grid-8"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#eaeae5"
+                ],
+                [
+                  "stroke-width",
+                  "0.8"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 639.6222222222221 29 V 231 M 639.6222222222221 245 V 342"
+                ],
+                [
+                  "data-visual-element",
+                  "grid-9"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#eaeae5"
+                ],
+                [
+                  "stroke-width",
+                  "0.8"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 701 29 V 231 M 701 245 V 342"
+                ],
+                [
+                  "data-visual-element",
+                  "grid-10"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#eaeae5"
+                ],
+                [
+                  "stroke-width",
+                  "0.8"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "cap-1"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "8"
+                ],
+                [
+                  "y",
+                  "18"
+                ]
+              ],
+              "children": [
+                "intervals1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "cap-2"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "8"
+                ],
+                [
+                  "y",
+                  "122"
+                ]
+              ],
+              "children": [
+                "intervals2"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "cap-ov"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "8"
+                ],
+                [
+                  "y",
+                  "258"
+                ]
+              ],
+              "children": [
+                "overlaps"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-1-0"
+                ],
+                [
+                  "fill",
+                  "#8a8a84"
+                ],
+                [
+                  "x",
+                  "46"
+                ],
+                [
+                  "y",
+                  "44.32"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "val-1-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "58.2"
+                ],
+                [
+                  "y",
+                  "44.32"
+                ]
+              ],
+              "children": [
+                "[1, 4]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 148.6 40 H 332.73333333333335 M 148.6 35 V 45 M 332.73333333333335 35 V 45"
+                ],
+                [
+                  "data-visual-element",
+                  "bar-1-0"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "3"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-1-1"
+                ],
+                [
+                  "fill",
+                  "#8a8a84"
+                ],
+                [
+                  "x",
+                  "46"
+                ],
+                [
+                  "y",
+                  "70.32"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "val-1-1"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "58.2"
+                ],
+                [
+                  "y",
+                  "70.32"
+                ]
+              ],
+              "children": [
+                "[5, 6]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 394.1111111111111 66 H 455.4888888888888 M 394.1111111111111 62.5 V 69.5 M 455.4888888888888 62.5 V 69.5"
+                ],
+                [
+                  "data-visual-element",
+                  "bar-1-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.6"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-1-2"
+                ],
+                [
+                  "fill",
+                  "#8a8a84"
+                ],
+                [
+                  "x",
+                  "46"
+                ],
+                [
+                  "y",
+                  "96.32"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "val-1-2"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "58.2"
+                ],
+                [
+                  "y",
+                  "96.32"
+                ]
+              ],
+              "children": [
+                "[9, 10]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 639.6222222222221 92 H 701 M 639.6222222222221 88.5 V 95.5 M 701 88.5 V 95.5"
+                ],
+                [
+                  "data-visual-element",
+                  "bar-1-2"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.6"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-2-0"
+                ],
+                [
+                  "fill",
+                  "#8a8a84"
+                ],
+                [
+                  "x",
+                  "46"
+                ],
+                [
+                  "y",
+                  "148.32"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "val-2-0"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "58.2"
+                ],
+                [
+                  "y",
+                  "148.32"
+                ]
+              ],
+              "children": [
+                "[2, 7]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 209.97777777777776 144 H 516.8666666666667 M 209.97777777777776 139 V 149 M 516.8666666666667 139 V 149"
+                ],
+                [
+                  "data-visual-element",
+                  "bar-2-0"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#272727"
+                ],
+                [
+                  "stroke-width",
+                  "3"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-2-1"
+                ],
+                [
+                  "fill",
+                  "#8a8a84"
+                ],
+                [
+                  "x",
+                  "46"
+                ],
+                [
+                  "y",
+                  "174.32"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "val-2-1"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "58.2"
+                ],
+                [
+                  "y",
+                  "174.32"
+                ]
+              ],
+              "children": [
+                "[8, 9]"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 578.2444444444444 170 H 639.6222222222221 M 578.2444444444444 166.5 V 173.5 M 639.6222222222221 166.5 V 173.5"
+                ],
+                [
+                  "data-visual-element",
+                  "bar-2-1"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#555"
+                ],
+                [
+                  "stroke-width",
+                  "1.6"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "idx-2-ghost"
+                ],
+                [
+                  "fill",
+                  "#b7b7b1"
+                ],
+                [
+                  "x",
+                  "46"
+                ],
+                [
+                  "y",
+                  "200.32"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "val-2-ghost"
+                ],
+                [
+                  "fill",
+                  "#b7b7b1"
+                ],
+                [
+                  "x",
+                  "58.2"
+                ],
+                [
+                  "y",
+                  "200.32"
+                ]
+              ],
+              "children": [
+                "越界"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 138.6 226 H 716"
                 ],
                 [
                   "data-visual-element",
@@ -584,11 +1239,7 @@
                 ],
                 [
                   "marker-end",
-                  "url(#ov-arrow)"
-                ],
-                [
-                  "marker-start",
-                  "url(#ov-arrow)"
+                  "url(#mi-arrow)"
                 ],
                 [
                   "stroke",
@@ -605,7 +1256,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 108 154 L 108 159"
+                  "M 148.6 222.5 V 229.5"
                 ],
                 [
                   "data-visual-element",
@@ -630,7 +1281,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ticklab-1"
+                  "tick-label-1"
                 ],
                 [
                   "fill",
@@ -638,11 +1289,11 @@
                 ],
                 [
                   "x",
-                  "108"
+                  "148.6"
                 ],
                 [
                   "y",
-                  "171"
+                  "241"
                 ]
               ],
               "children": [
@@ -654,7 +1305,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 175 154 L 175 159"
+                  "M 209.97777777777776 222.5 V 229.5"
                 ],
                 [
                   "data-visual-element",
@@ -679,7 +1330,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ticklab-2"
+                  "tick-label-2"
                 ],
                 [
                   "fill",
@@ -687,11 +1338,11 @@
                 ],
                 [
                   "x",
-                  "175"
+                  "209.97777777777776"
                 ],
                 [
                   "y",
-                  "171"
+                  "241"
                 ]
               ],
               "children": [
@@ -703,7 +1354,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 242 154 L 242 159"
+                  "M 271.35555555555555 222.5 V 229.5"
                 ],
                 [
                   "data-visual-element",
@@ -728,7 +1379,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ticklab-3"
+                  "tick-label-3"
                 ],
                 [
                   "fill",
@@ -736,11 +1387,11 @@
                 ],
                 [
                   "x",
-                  "242"
+                  "271.35555555555555"
                 ],
                 [
                   "y",
-                  "171"
+                  "241"
                 ]
               ],
               "children": [
@@ -752,7 +1403,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 309 154 L 309 159"
+                  "M 332.73333333333335 222.5 V 229.5"
                 ],
                 [
                   "data-visual-element",
@@ -777,7 +1428,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ticklab-4"
+                  "tick-label-4"
                 ],
                 [
                   "fill",
@@ -785,11 +1436,11 @@
                 ],
                 [
                   "x",
-                  "309"
+                  "332.73333333333335"
                 ],
                 [
                   "y",
-                  "171"
+                  "241"
                 ]
               ],
               "children": [
@@ -801,7 +1452,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 376 154 L 376 159"
+                  "M 394.1111111111111 222.5 V 229.5"
                 ],
                 [
                   "data-visual-element",
@@ -826,7 +1477,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ticklab-5"
+                  "tick-label-5"
                 ],
                 [
                   "fill",
@@ -834,11 +1485,11 @@
                 ],
                 [
                   "x",
-                  "376"
+                  "394.1111111111111"
                 ],
                 [
                   "y",
-                  "171"
+                  "241"
                 ]
               ],
               "children": [
@@ -850,7 +1501,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 443 154 L 443 159"
+                  "M 455.4888888888888 222.5 V 229.5"
                 ],
                 [
                   "data-visual-element",
@@ -875,7 +1526,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ticklab-6"
+                  "tick-label-6"
                 ],
                 [
                   "fill",
@@ -883,11 +1534,11 @@
                 ],
                 [
                   "x",
-                  "443"
+                  "455.4888888888888"
                 ],
                 [
                   "y",
-                  "171"
+                  "241"
                 ]
               ],
               "children": [
@@ -899,7 +1550,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 510 154 L 510 159"
+                  "M 516.8666666666667 222.5 V 229.5"
                 ],
                 [
                   "data-visual-element",
@@ -924,7 +1575,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ticklab-7"
+                  "tick-label-7"
                 ],
                 [
                   "fill",
@@ -932,11 +1583,11 @@
                 ],
                 [
                   "x",
-                  "510"
+                  "516.8666666666667"
                 ],
                 [
                   "y",
-                  "171"
+                  "241"
                 ]
               ],
               "children": [
@@ -948,7 +1599,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 577 154 L 577 159"
+                  "M 578.2444444444444 222.5 V 229.5"
                 ],
                 [
                   "data-visual-element",
@@ -973,7 +1624,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ticklab-8"
+                  "tick-label-8"
                 ],
                 [
                   "fill",
@@ -981,11 +1632,11 @@
                 ],
                 [
                   "x",
-                  "577"
+                  "578.2444444444444"
                 ],
                 [
                   "y",
-                  "171"
+                  "241"
                 ]
               ],
               "children": [
@@ -997,7 +1648,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 644 154 L 644 159"
+                  "M 639.6222222222221 222.5 V 229.5"
                 ],
                 [
                   "data-visual-element",
@@ -1022,7 +1673,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ticklab-9"
+                  "tick-label-9"
                 ],
                 [
                   "fill",
@@ -1030,11 +1681,11 @@
                 ],
                 [
                   "x",
-                  "644"
+                  "639.6222222222221"
                 ],
                 [
                   "y",
-                  "171"
+                  "241"
                 ]
               ],
               "children": [
@@ -1046,7 +1697,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 711 154 L 711 159"
+                  "M 701 222.5 V 229.5"
                 ],
                 [
                   "data-visual-element",
@@ -1071,7 +1722,7 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ticklab-10"
+                  "tick-label-10"
                 ],
                 [
                   "fill",
@@ -1079,11 +1730,11 @@
                 ],
                 [
                   "x",
-                  "711"
+                  "701"
                 ],
                 [
                   "y",
-                  "171"
+                  "241"
                 ]
               ],
               "children": [
@@ -1091,15 +1742,39 @@
               ]
             },
             {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "ov-empty"
+                ],
+                [
+                  "fill",
+                  "#8a8a84"
+                ],
+                [
+                  "x",
+                  "58.2"
+                ],
+                [
+                  "y",
+                  "284.32"
+                ]
+              ],
+              "children": [
+                "∅"
+              ]
+            },
+            {
               "tag": "path",
               "attributes": [
                 [
                   "d",
-                  "M 108 74 L 309 74"
+                  "M 55.2 271.36 h 56.39999999999999 v 17.28 h -56.39999999999999 Z"
                 ],
                 [
                   "data-visual-element",
-                  "bar-1-0"
+                  "edit-box"
                 ],
                 [
                   "fill",
@@ -1107,11 +1782,15 @@
                 ],
                 [
                   "stroke",
-                  "#999"
+                  "#555"
+                ],
+                [
+                  "stroke-dasharray",
+                  "3 2"
                 ],
                 [
                   "stroke-width",
-                  "2"
+                  "1"
                 ]
               ]
             },
@@ -1120,373 +1799,27 @@
               "attributes": [
                 [
                   "d",
-                  "M 108 70 L 108 78"
+                  "M 11 31 H 27 A 3 3 0 0 1 30 34 V 46 A 3 3 0 0 1 27 49 H 11 A 3 3 0 0 1 8 46 V 34 A 3 3 0 0 1 11 31 Z"
                 ],
                 [
                   "data-visual-element",
-                  "cap-1-0-s"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.4"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 309 70 L 309 78"
-                ],
-                [
-                  "data-visual-element",
-                  "cap-1-0-e"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.4"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 376 74 L 443 74"
-                ],
-                [
-                  "data-visual-element",
-                  "bar-1-1"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "2"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 376 70 L 376 78"
-                ],
-                [
-                  "data-visual-element",
-                  "cap-1-1-s"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.4"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 443 70 L 443 78"
-                ],
-                [
-                  "data-visual-element",
-                  "cap-1-1-e"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.4"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 644 74 L 711 74"
-                ],
-                [
-                  "data-visual-element",
-                  "bar-1-2"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "2"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 644 70 L 644 78"
-                ],
-                [
-                  "data-visual-element",
-                  "cap-1-2-s"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.4"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 711 70 L 711 78"
-                ],
-                [
-                  "data-visual-element",
-                  "cap-1-2-e"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.4"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 175 122 L 510 122"
-                ],
-                [
-                  "data-visual-element",
-                  "bar-2-0"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "2"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 175 118 L 175 126"
-                ],
-                [
-                  "data-visual-element",
-                  "cap-2-0-s"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.4"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 510 118 L 510 126"
-                ],
-                [
-                  "data-visual-element",
-                  "cap-2-0-e"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.4"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 577 122 L 644 122"
-                ],
-                [
-                  "data-visual-element",
-                  "bar-2-1"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "2"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 577 118 L 577 126"
-                ],
-                [
-                  "data-visual-element",
-                  "cap-2-1-s"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.4"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 644 118 L 644 126"
-                ],
-                [
-                  "data-visual-element",
-                  "cap-2-1-e"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#999"
-                ],
-                [
-                  "stroke-width",
-                  "1.4"
-                ]
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 202.5 34 H 214.5 Q 217.5 34 217.5 37 V 49 Q 217.5 52 214.5 52 H 202.5 Q 199.5 52 199.5 49 V 37 Q 199.5 34 202.5 34 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "ptrbox-i"
+                  "ptr-i-box"
                 ],
                 [
                   "fill",
                   "#fffdf8"
                 ],
                 [
+                  "opacity",
+                  "1"
+                ],
+                [
                   "stroke",
-                  "#333"
+                  "#272727"
                 ],
                 [
                   "stroke-width",
-                  "1.4"
+                  "2"
                 ]
               ]
             },
@@ -1495,19 +1828,23 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ptrlab-i"
+                  "ptr-i-name"
                 ],
                 [
                   "fill",
                   "#272727"
                 ],
                 [
+                  "opacity",
+                  "1"
+                ],
+                [
                   "x",
-                  "208.5"
+                  "19"
                 ],
                 [
                   "y",
-                  "47"
+                  "44.2"
                 ]
               ],
               "children": [
@@ -1519,11 +1856,11 @@
               "attributes": [
                 [
                   "d",
-                  "M 208.5 52 L 208.5 65"
+                  "M 31 40 H 41"
                 ],
                 [
                   "data-visual-element",
-                  "ptrarr-i"
+                  "ptr-i-ref"
                 ],
                 [
                   "fill",
@@ -1531,15 +1868,19 @@
                 ],
                 [
                   "marker-end",
-                  "url(#ov-arrow)"
+                  "url(#mi-arrowq)"
+                ],
+                [
+                  "opacity",
+                  "1"
                 ],
                 [
                   "stroke",
-                  "#333"
+                  "#555"
                 ],
                 [
                   "stroke-width",
-                  "1.3"
+                  "1.2"
                 ]
               ]
             },
@@ -1548,23 +1889,27 @@
               "attributes": [
                 [
                   "d",
-                  "M 336.5 90 H 348.5 Q 351.5 90 351.5 93 V 105 Q 351.5 108 348.5 108 H 336.5 Q 333.5 108 333.5 105 V 93 Q 333.5 90 336.5 90 Z"
+                  "M 11 135 H 27 A 3 3 0 0 1 30 138 V 150 A 3 3 0 0 1 27 153 H 11 A 3 3 0 0 1 8 150 V 138 A 3 3 0 0 1 11 135 Z"
                 ],
                 [
                   "data-visual-element",
-                  "ptrbox-j"
+                  "ptr-j-box"
                 ],
                 [
                   "fill",
                   "#fffdf8"
                 ],
                 [
+                  "opacity",
+                  "1"
+                ],
+                [
                   "stroke",
-                  "#333"
+                  "#272727"
                 ],
                 [
                   "stroke-width",
-                  "1.4"
+                  "2"
                 ]
               ]
             },
@@ -1573,19 +1918,23 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "ptrlab-j"
+                  "ptr-j-name"
                 ],
                 [
                   "fill",
                   "#272727"
                 ],
                 [
+                  "opacity",
+                  "1"
+                ],
+                [
                   "x",
-                  "342.5"
+                  "19"
                 ],
                 [
                   "y",
-                  "103"
+                  "148.2"
                 ]
               ],
               "children": [
@@ -1597,11 +1946,11 @@
               "attributes": [
                 [
                   "d",
-                  "M 342.5 108 L 342.5 113"
+                  "M 31 144 H 41"
                 ],
                 [
                   "data-visual-element",
-                  "ptrarr-j"
+                  "ptr-j-ref"
                 ],
                 [
                   "fill",
@@ -1609,15 +1958,19 @@
                 ],
                 [
                   "marker-end",
-                  "url(#ov-arrow)"
+                  "url(#mi-arrowq)"
+                ],
+                [
+                  "opacity",
+                  "1"
                 ],
                 [
                   "stroke",
-                  "#333"
+                  "#555"
                 ],
                 [
                   "stroke-width",
-                  "1.3"
+                  "1.2"
                 ]
               ]
             }
@@ -1681,7 +2034,7 @@
                     {
                       "tag": "code",
                       "children": [
-                        "i"
+                        "i, j"
                       ]
                     }
                   ]
@@ -1690,40 +2043,12 @@
                   "tag": "dd",
                   "attributes": [
                     [
-                      "data-m-i",
+                      "data-m-ij",
                       ""
                     ]
                   ],
                   "children": [
-                    "0"
-                  ]
-                }
-              ]
-            },
-            {
-              "tag": "div",
-              "children": [
-                {
-                  "tag": "dt",
-                  "children": [
-                    {
-                      "tag": "code",
-                      "children": [
-                        "j"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "dd",
-                  "attributes": [
-                    [
-                      "data-m-j",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "0"
+                    "0, 0"
                   ]
                 }
               ]
@@ -1802,7 +2127,7 @@
                   "tag": "dd",
                   "attributes": [
                     [
-                      "data-m-overlaps",
+                      "data-m-ov",
                       ""
                     ]
                   ],
@@ -1850,7 +2175,7 @@
             ]
           ],
           "children": [
-            "Two pointers start at the first interval of each array; the overlap list is empty."
+            "Both pointers start at index 0 of their own array; the overlaps list is empty."
           ]
         },
         {
@@ -1862,7 +2187,7 @@
             ]
           ],
           "children": [
-            "两个指针分别指向两个数组的第一个区间，重叠列表为空。"
+            "i、j 都从各自数组的下标 0 出发；overlaps 为空列表。"
           ]
         }
       ]
