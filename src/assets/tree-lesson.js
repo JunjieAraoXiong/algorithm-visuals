@@ -52,7 +52,7 @@
         }
         if (state.ghosts) {
           for (const g of state.ghosts) {
-            const x = 20 + (width - 40) * (g.index + .5) / (2 ** g.depth), y = 70 + g.depth * 82;
+            const x = 20 + (width - 40) * (g.index + .5) / (2 ** g.depth), y = 70 + g.depth * (state.rowGap || 82);
             circle(`ghost-${g.depth}-${g.index}`, {cx:x, cy:y, r:12, class:'ghost'});
             text(`ghost-index-${g.depth}-${g.index}`, {x,y:y+30,class:'annotation'},`i=${g.heapIndex}`);
           }
@@ -80,7 +80,7 @@
         }
         if (state.widthLevel != null) {
           const {depth,left,right} = state.widthLevel;
-          const x1=20+(width-40)*(left+.5)/2**depth, x2=20+(width-40)*(right+.5)/2**depth, y=70+depth*82+49;
+          const x1=20+(width-40)*(left+.5)/2**depth, x2=20+(width-40)*(right+.5)/2**depth, y=70+depth*(state.rowGap || 82)+49;
           path('width-bracket',{d:`M${x1},${y-5} V${y} H${x2} V${y-5}`,class:'stored-edge'});
           text('width-label',{x:(x1+x2)/2,y:y+19,class:'annotation'},`width = ${right-left+1}`);
         }
