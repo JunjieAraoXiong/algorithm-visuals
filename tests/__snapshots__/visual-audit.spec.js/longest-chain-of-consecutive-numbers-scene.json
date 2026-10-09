@@ -120,7 +120,7 @@
                     ]
                   ],
                   "children": [
-                    "建立哈希集合"
+                    "建立 num_set"
                   ]
                 },
                 {
@@ -132,7 +132,7 @@
                     ]
                   ],
                   "children": [
-                    "初始化最长长度"
+                    "longest_chain = 0"
                   ]
                 },
                 {
@@ -168,7 +168,7 @@
                     ]
                   ],
                   "children": [
-                    "找到下一个值 2"
+                    "2 在集合中"
                   ]
                 },
                 {
@@ -180,7 +180,7 @@
                     ]
                   ],
                   "children": [
-                    "链扩展到 2"
+                    "链延长到 2"
                   ]
                 },
                 {
@@ -192,7 +192,7 @@
                     ]
                   ],
                   "children": [
-                    "找到下一个值 3"
+                    "3 在集合中"
                   ]
                 },
                 {
@@ -204,7 +204,7 @@
                     ]
                   ],
                   "children": [
-                    "链扩展到 3"
+                    "链延长到 3"
                   ]
                 },
                 {
@@ -216,7 +216,7 @@
                     ]
                   ],
                   "children": [
-                    "4 不存在"
+                    "4 不在集合中"
                   ]
                 },
                 {
@@ -228,7 +228,7 @@
                     ]
                   ],
                   "children": [
-                    "更新最长长度为 3"
+                    "longest_chain → 3"
                   ]
                 },
                 {
@@ -240,7 +240,7 @@
                     ]
                   ],
                   "children": [
-                    "跳过 6"
+                    "跳过 2"
                   ]
                 },
                 {
@@ -252,7 +252,7 @@
                     ]
                   ],
                   "children": [
-                    "跳过 2"
+                    "跳过 3"
                   ]
                 },
                 {
@@ -288,7 +288,7 @@
                     ]
                   ],
                   "children": [
-                    "找到下一个值 6"
+                    "6 在集合中"
                   ]
                 },
                 {
@@ -300,7 +300,7 @@
                     ]
                   ],
                   "children": [
-                    "链扩展到 6"
+                    "链延长到 6"
                   ]
                 },
                 {
@@ -312,7 +312,7 @@
                     ]
                   ],
                   "children": [
-                    "找到下一个值 7"
+                    "7 在集合中"
                   ]
                 },
                 {
@@ -324,7 +324,7 @@
                     ]
                   ],
                   "children": [
-                    "链扩展到 7"
+                    "链延长到 7"
                   ]
                 },
                 {
@@ -336,7 +336,7 @@
                     ]
                   ],
                   "children": [
-                    "找到下一个值 8"
+                    "8 在集合中"
                   ]
                 },
                 {
@@ -348,7 +348,7 @@
                     ]
                   ],
                   "children": [
-                    "链扩展到 8"
+                    "链延长到 8"
                   ]
                 },
                 {
@@ -360,7 +360,7 @@
                     ]
                   ],
                   "children": [
-                    "9 不存在"
+                    "9 不在集合中"
                   ]
                 },
                 {
@@ -372,7 +372,7 @@
                     ]
                   ],
                   "children": [
-                    "更新最长长度为 4"
+                    "longest_chain → 4"
                   ]
                 },
                 {
@@ -384,7 +384,7 @@
                     ]
                   ],
                   "children": [
-                    "跳过 8"
+                    "跳过 6"
                   ]
                 },
                 {
@@ -408,7 +408,7 @@
                     ]
                   ],
                   "children": [
-                    "10 是链头"
+                    "跳过 8"
                   ]
                 },
                 {
@@ -420,7 +420,7 @@
                     ]
                   ],
                   "children": [
-                    "从 10 开始计数"
+                    "10 是链头"
                   ]
                 },
                 {
@@ -432,7 +432,7 @@
                     ]
                   ],
                   "children": [
-                    "11 不存在"
+                    "从 10 开始计数"
                   ]
                 },
                 {
@@ -444,7 +444,7 @@
                     ]
                   ],
                   "children": [
-                    "更新最长长度为 4"
+                    "11 不在集合中"
                   ]
                 },
                 {
@@ -456,7 +456,7 @@
                     ]
                   ],
                   "children": [
-                    "跳过 3"
+                    "longest_chain 保持 4"
                   ]
                 },
                 {
@@ -495,16 +495,7 @@
             ]
           ],
           "children": [
-            "Setup / 准备 · 检查空数组"
-          ]
-        },
-        {
-          "tag": "span",
-          "attributes": [
-            [
-              "data-query",
-              ""
-            ]
+            "准备 · 检查空数组"
           ]
         }
       ]
@@ -514,7 +505,7 @@
       "attributes": [
         [
           "aria-label",
-          "第 1 / 31 步。输入不为空，因此继续执行，不返回 0。"
+          "第 1 / 31 步。输入不为空，继续执行，不返回 0。"
         ],
         [
           "class",
@@ -523,171 +514,28 @@
         [
           "data-stage",
           ""
+        ],
+        [
+          "style",
+          "height: 296px;"
         ]
       ],
       "children": [
         {
-          "tag": "div",
+          "tag": "svg",
           "attributes": [
             [
-              "class",
-              "input-row"
+              "aria-hidden",
+              "true"
             ],
             [
-              "data-input-row",
+              "class",
+              "build-links"
+            ],
+            [
+              "data-build-links",
               ""
             ]
-          ],
-          "children": [
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "input-cell"
-                ],
-                [
-                  "data-index",
-                  "0"
-                ]
-              ],
-              "children": [
-                "1"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "input-cell"
-                ],
-                [
-                  "data-index",
-                  "1"
-                ]
-              ],
-              "children": [
-                "6"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "input-cell"
-                ],
-                [
-                  "data-index",
-                  "2"
-                ]
-              ],
-              "children": [
-                "2"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "input-cell"
-                ],
-                [
-                  "data-index",
-                  "3"
-                ]
-              ],
-              "children": [
-                "5"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "input-cell"
-                ],
-                [
-                  "data-index",
-                  "4"
-                ]
-              ],
-              "children": [
-                "8"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "input-cell"
-                ],
-                [
-                  "data-index",
-                  "5"
-                ]
-              ],
-              "children": [
-                "7"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "input-cell"
-                ],
-                [
-                  "data-index",
-                  "6"
-                ]
-              ],
-              "children": [
-                "10"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "input-cell"
-                ],
-                [
-                  "data-index",
-                  "7"
-                ]
-              ],
-              "children": [
-                "3"
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "set-caption"
-            ]
-          ],
-          "children": [
-            "membership picture sorted for clarity · the hash set itself has no order",
-            {
-              "tag": "br"
-            },
-            {
-              "tag": "span",
-              "children": [
-                "为了看清连续关系而排序展示；哈希集合本身没有顺序"
-              ]
-            }
           ]
         },
         {
@@ -712,11 +560,15 @@
           "attributes": [
             [
               "class",
-              "set-track"
+              "scalars"
             ],
             [
-              "data-set-track",
+              "data-scalars",
               ""
+            ],
+            [
+              "style",
+              "top: 256px; flex-direction: row; align-items: flex-start; left: 92.5px; justify-content: flex-start;"
             ]
           ],
           "children": [
@@ -725,19 +577,15 @@
               "attributes": [
                 [
                   "class",
-                  "number-slot"
-                ],
-                [
-                  "data-value",
-                  "1"
+                  "var"
                 ],
                 [
                   "style",
-                  "left: 119.5px; top: 145px; width: 42px; opacity: 0.22;"
+                  "visibility: hidden;"
                 ]
               ],
               "children": [
-                "1"
+                "current_chain = 1"
               ]
             },
             {
@@ -745,173 +593,15 @@
               "attributes": [
                 [
                   "class",
-                  "number-slot"
-                ],
-                [
-                  "data-value",
-                  "2"
+                  "var"
                 ],
                 [
                   "style",
-                  "left: 169.5px; top: 145px; width: 42px; opacity: 0.22;"
+                  "visibility: hidden;"
                 ]
               ],
               "children": [
-                "2"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "number-slot"
-                ],
-                [
-                  "data-value",
-                  "3"
-                ],
-                [
-                  "style",
-                  "left: 219.5px; top: 145px; width: 42px; opacity: 0.22;"
-                ]
-              ],
-              "children": [
-                "3"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "number-slot absent"
-                ],
-                [
-                  "data-value",
-                  "4"
-                ],
-                [
-                  "style",
-                  "left: 269.5px; top: 145px; width: 42px; opacity: 0.22;"
-                ]
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "number-slot"
-                ],
-                [
-                  "data-value",
-                  "5"
-                ],
-                [
-                  "style",
-                  "left: 319.5px; top: 145px; width: 42px; opacity: 0.22;"
-                ]
-              ],
-              "children": [
-                "5"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "number-slot"
-                ],
-                [
-                  "data-value",
-                  "6"
-                ],
-                [
-                  "style",
-                  "left: 369.5px; top: 145px; width: 42px; opacity: 0.22;"
-                ]
-              ],
-              "children": [
-                "6"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "number-slot"
-                ],
-                [
-                  "data-value",
-                  "7"
-                ],
-                [
-                  "style",
-                  "left: 419.5px; top: 145px; width: 42px; opacity: 0.22;"
-                ]
-              ],
-              "children": [
-                "7"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "number-slot"
-                ],
-                [
-                  "data-value",
-                  "8"
-                ],
-                [
-                  "style",
-                  "left: 469.5px; top: 145px; width: 42px; opacity: 0.22;"
-                ]
-              ],
-              "children": [
-                "8"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "number-slot absent"
-                ],
-                [
-                  "data-value",
-                  "9"
-                ],
-                [
-                  "style",
-                  "left: 519.5px; top: 145px; width: 42px; opacity: 0.22;"
-                ]
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "number-slot"
-                ],
-                [
-                  "data-value",
-                  "10"
-                ],
-                [
-                  "style",
-                  "left: 569.5px; top: 145px; width: 42px; opacity: 0.22;"
-                ]
-              ],
-              "children": [
-                "10"
+                "longest_chain = 0"
               ]
             }
           ]
@@ -921,19 +611,15 @@
           "attributes": [
             [
               "class",
-              "pointer num"
+              "input-cell"
             ],
             [
-              "data-num-pointer",
-              ""
-            ],
-            [
-              "hidden",
-              ""
+              "style",
+              "left: 92.5px; top: 12px; width: 30px; height: 30px;"
             ]
           ],
           "children": [
-            "num"
+            "1"
           ]
         },
         {
@@ -941,11 +627,450 @@
           "attributes": [
             [
               "class",
-              "pointer pred"
+              "input-cell"
             ],
             [
-              "data-pred-pointer",
+              "style",
+              "left: 127.5px; top: 12px; width: 30px; height: 30px;"
+            ]
+          ],
+          "children": [
+            "6"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "input-cell"
+            ],
+            [
+              "style",
+              "left: 162.5px; top: 12px; width: 30px; height: 30px;"
+            ]
+          ],
+          "children": [
+            "2"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "input-cell"
+            ],
+            [
+              "style",
+              "left: 197.5px; top: 12px; width: 30px; height: 30px;"
+            ]
+          ],
+          "children": [
+            "5"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "input-cell"
+            ],
+            [
+              "style",
+              "left: 232.5px; top: 12px; width: 30px; height: 30px;"
+            ]
+          ],
+          "children": [
+            "8"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "input-cell"
+            ],
+            [
+              "style",
+              "left: 267.5px; top: 12px; width: 30px; height: 30px;"
+            ]
+          ],
+          "children": [
+            "7"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "input-cell"
+            ],
+            [
+              "style",
+              "left: 302.5px; top: 12px; width: 30px; height: 30px;"
+            ]
+          ],
+          "children": [
+            "10"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "input-cell"
+            ],
+            [
+              "style",
+              "left: 337.5px; top: 12px; width: 30px; height: 30px;"
+            ]
+          ],
+          "children": [
+            "3"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot absent edge unbuilt"
+            ],
+            [
+              "style",
+              "left: 92.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot unbuilt"
+            ],
+            [
+              "style",
+              "left: 138.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ],
+          "children": [
+            "1"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot unbuilt"
+            ],
+            [
+              "style",
+              "left: 184.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ],
+          "children": [
+            "2"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot unbuilt"
+            ],
+            [
+              "style",
+              "left: 230.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ],
+          "children": [
+            "3"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot absent unbuilt"
+            ],
+            [
+              "style",
+              "left: 276.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot unbuilt"
+            ],
+            [
+              "style",
+              "left: 322.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ],
+          "children": [
+            "5"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot unbuilt"
+            ],
+            [
+              "style",
+              "left: 368.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ],
+          "children": [
+            "6"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot unbuilt"
+            ],
+            [
+              "style",
+              "left: 414.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ],
+          "children": [
+            "7"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot unbuilt"
+            ],
+            [
+              "style",
+              "left: 460.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ],
+          "children": [
+            "8"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot absent unbuilt"
+            ],
+            [
+              "style",
+              "left: 506.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot unbuilt"
+            ],
+            [
+              "style",
+              "left: 552.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ],
+          "children": [
+            "10"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "number-slot absent edge unbuilt"
+            ],
+            [
+              "style",
+              "left: 598.5px; top: 104px; width: 40px; height: 46px; font-size: 16px;"
+            ]
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "slot-index"
+            ],
+            [
+              "hidden",
               ""
+            ],
+            [
+              "style",
+              "left: 92.5px; width: 40px; top: 155px;"
+            ]
+          ],
+          "children": [
+            "0"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "slot-index"
+            ],
+            [
+              "hidden",
+              ""
+            ],
+            [
+              "style",
+              "left: 276.5px; width: 40px; top: 155px;"
+            ]
+          ],
+          "children": [
+            "4"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "slot-index"
+            ],
+            [
+              "hidden",
+              ""
+            ],
+            [
+              "style",
+              "left: 506.5px; width: 40px; top: 155px;"
+            ]
+          ],
+          "children": [
+            "9"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "slot-index"
+            ],
+            [
+              "hidden",
+              ""
+            ],
+            [
+              "style",
+              "left: 598.5px; width: 40px; top: 155px;"
+            ]
+          ],
+          "children": [
+            "11"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "found-mark"
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "var"
+            ],
+            [
+              "style",
+              "left: 35.5px; top: 15.5px;"
+            ]
+          ],
+          "children": [
+            "nums"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "hstem"
+            ],
+            [
+              "style",
+              "left: 80.5px; top: 27px; width: 9px;"
+            ]
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "var"
+            ],
+            [
+              "style",
+              "left: 13.5px; top: 115.5px; visibility: hidden;"
+            ]
+          ],
+          "children": [
+            "num_set"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "hstem"
+            ],
+            [
+              "style",
+              "left: 80.5px; top: 127px; width: 9px; visibility: hidden;"
+            ]
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "var probe"
             ],
             [
               "hidden",
@@ -961,11 +1086,49 @@
           "attributes": [
             [
               "class",
-              "pointer walk"
+              "stem"
             ],
             [
-              "data-walk-pointer",
+              "hidden",
               ""
+            ]
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "var"
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ],
+          "children": [
+            "num"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "stem"
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "class",
+              "var"
             ],
             [
               "hidden",
@@ -977,30 +1140,16 @@
           ]
         },
         {
-          "tag": "div",
+          "tag": "span",
           "attributes": [
             [
               "class",
-              "best-row"
+              "stem"
             ],
             [
-              "data-best-row",
+              "hidden",
               ""
             ]
-          ],
-          "children": [
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "best-label"
-                ]
-              ],
-              "children": [
-                "best so far / 当前最长"
-              ]
-            }
           ]
         }
       ]
@@ -1026,7 +1175,7 @@
             {
               "tag": "strong",
               "children": [
-                "Start rule / 链头规则"
+                "链头规则 / Start rule"
               ]
             },
             {
@@ -1038,7 +1187,7 @@
                 ]
               ],
               "children": [
-                "Expand only when the predecessor is missing. / 只有前一个数字不存在时，才从当前数字开始扩展。"
+                "只有 num − 1 不在集合中时，num 才是链头，才从它开始扩展。"
               ]
             }
           ]
@@ -1187,7 +1336,7 @@
                     ]
                   ],
                   "children": [
-                    "0"
+                    "—"
                   ]
                 }
               ]
@@ -1230,7 +1379,7 @@
             ]
           ],
           "children": [
-            "The input is not empty, so continue instead of returning 0."
+            "nums is not empty, so the function continues instead of returning 0."
           ]
         },
         {
@@ -1242,7 +1391,7 @@
             ]
           ],
           "children": [
-            "输入不为空，因此继续执行，不返回 0。"
+            "输入不为空，继续执行，不返回 0。"
           ]
         }
       ]

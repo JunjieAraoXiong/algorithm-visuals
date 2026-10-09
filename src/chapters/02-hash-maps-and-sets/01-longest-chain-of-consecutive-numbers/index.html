@@ -8,46 +8,50 @@
     <link rel="stylesheet" href="../assets/guide.css" />
     <link rel="stylesheet" href="../assets/visual.css" />
     <style>
-      :root { --soft:#e5e3dc; --wash:#f5f2e9; }
+      :root { --soft:#e5e3dc; --wash:#f5f2e9; --light:#999; }
       .problem { max-width:900px; margin:0 3px 12px; color:#41413e; }
       .problem span { display:block; margin-top:3px; color:var(--quiet); }
       .step-meta { display:flex; flex-wrap:wrap; gap:8px 18px; min-height:28px; margin:8px 3px 0; color:var(--quiet); font:12px/1.5 monospace; }
       .step-picker { margin-left:auto; }
-      .stage { height:352px; overflow:hidden; border-bottom:1px solid var(--rule); touch-action:pan-y; }
-      .input-row { position:absolute; top:22px; left:50%; display:flex; gap:5px; transform:translateX(-50%); }
-      .input-row::before { content:"nums"; position:absolute; right:calc(100% + 9px); top:8px; color:var(--quiet); font:10px/1 monospace; }
-      .input-cell { display:grid; place-items:center; width:29px; height:32px; border:1px solid #999; background:var(--paper); font:12px/1 monospace; transition:background-color .2s,border-color .2s; }
-      .input-cell.inspecting { border:2px solid var(--ink); background:var(--wash); }
-      .set-caption { position:absolute; top:77px; left:50%; width:min(96%,650px); transform:translateX(-50%); color:var(--quiet); font:10px/1.35 monospace; text-align:center; }
-      .set-track { position:absolute; inset:0; }
-      .number-slot { position:absolute; z-index:2; display:grid; place-items:center; height:50px; border:1.5px solid var(--ink); background:var(--paper); font:16px/1 monospace; transition:left .32s ease,background-color .2s,border-color .2s,opacity .2s; }
-      .number-slot::after { content:attr(data-value); position:absolute; top:calc(100% + 6px); color:var(--quiet); font:9px/1 monospace; }
-      .number-slot.absent { border-style:dashed; color:#999; opacity:.56; }
-      .number-slot.absent::before { content:"∅"; font:15px/1 monospace; }
-      .number-slot.active-num { border-width:2px; }
-      .number-slot.predecessor { outline:2px dashed #777; outline-offset:3px; }
-      .number-slot.probe { outline:3px double #666; outline-offset:3px; }
+      .stage { height:296px; overflow:hidden; border-bottom:1px solid var(--rule); touch-action:pan-y; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+      .build-links { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
+      .build-links path { fill:none; stroke:var(--light); stroke-width:1; stroke-dasharray:3 3; }
+      .build-links.fresh path { animation:fade-in .26s ease-out; }
+      .input-cell { position:absolute; display:grid; place-items:center; height:30px; border:1px solid var(--light); background:var(--paper); font-size:13px; line-height:1; }
+      .number-slot { position:absolute; z-index:2; display:grid; place-items:center; border:1.5px solid var(--ink); background:var(--paper); line-height:1; transition:background-color .2s; }
+      .number-slot.absent { border:1px dashed var(--light); color:var(--light); }
+      .number-slot.absent::before { content:"∅"; font-size:13px; }
+      .number-slot.edge { opacity:.7; }
+      .number-slot.unbuilt { border:1px dashed var(--rule); color:transparent; opacity:.6; }
+      .number-slot.unbuilt::before { content:none; }
+      .number-slot.queried { outline:1.5px dashed var(--quiet); outline-offset:2px; }
       .number-slot.in-chain { background:var(--wash); }
-      .number-slot.walker { border-width:2px; background:#efede5; }
-      .chain-band { position:absolute; z-index:1; height:74px; border:1px solid #888; background:rgba(229,227,220,.22); transition:left .32s ease,width .32s ease; }
-      .chain-band::after { content:attr(data-label); position:absolute; left:100%; bottom:-22px; transform:translateX(-100%); color:var(--quiet); font:9px/1 monospace; white-space:nowrap; }
-      .pointer { position:absolute; z-index:5; min-width:54px; padding:3px 5px; border:1px solid #666; border-radius:3px; background:var(--paper); font:9px/1.15 monospace; text-align:center; transform:translateX(-50%); transition:left .32s ease,top .2s ease,opacity .18s; }
-      .pointer::after { content:""; position:absolute; top:100%; left:50%; height:22px; border-left:1px solid #666; }
-      .pointer.pred { border-style:dashed; }
-      .pointer.walk { border-width:2px; }
-      .pointer.walk::after { top:auto; bottom:100%; height:36px; }
-      .best-row { position:absolute; left:50%; top:300px; display:flex; align-items:center; gap:5px; transform:translateX(-50%); }
-      .best-label { margin-right:4px; color:var(--quiet); font:10px/1.3 monospace; white-space:nowrap; }
-      .best-token { display:grid; place-items:center; width:30px; height:30px; border:1px solid #777; background:var(--wash); font:12px/1 monospace; animation:settle .24s ease-out; }
-      @keyframes settle { from { transform:translateY(6px); opacity:.25; } to { transform:none; opacity:1; } }
+      .slot-index { position:absolute; z-index:2; color:var(--quiet); font-size:11px; line-height:1; text-align:center; }
+      .chain-band { position:absolute; z-index:1; border:1px solid #888; border-radius:3px; background:rgba(229,227,220,.4); transition:left .3s ease,width .3s ease; }
+      .found-mark { position:absolute; z-index:3; padding:0 1px; background:var(--paper); color:var(--ink); font-size:13px; line-height:1; }
+      .var { position:absolute; z-index:5; padding:3px 6px; border:1px solid #777; border-radius:4px; background:var(--paper); color:var(--ink); font-size:12px; line-height:1.25; white-space:nowrap; transition:left .3s ease,top .3s ease,opacity .18s; }
+      .var.probe { border-style:dashed; }
+      .var.emph { border:2px solid var(--ink); padding:2px 5px; }
+      .var.op, .var.op.emph { border-style:dashed; }
+      .stem { position:absolute; z-index:4; width:0; border-left:1px solid var(--quiet); transition:left .3s ease,top .3s ease,height .3s ease,opacity .18s; }
+      .stem::after { content:""; position:absolute; left:-4px; border-left:3.5px solid transparent; border-right:3.5px solid transparent; }
+      .stem.down::after { bottom:-1px; border-top:6px solid var(--quiet); }
+      .stem.up::after { top:-1px; border-bottom:6px solid var(--quiet); }
+      .hstem { position:absolute; z-index:4; height:0; border-top:1px solid var(--quiet); }
+      .hstem::after { content:""; position:absolute; right:-1px; top:-4px; border-top:3.5px solid transparent; border-bottom:3.5px solid transparent; border-left:6px solid var(--quiet); }
+      .scalars { position:absolute; left:0; right:0; display:flex; flex-wrap:wrap; justify-content:center; gap:6px 14px; }
+      .scalars .var { position:static; transition:none; }
+      .scalars .var b { font-weight:700; }
+      [hidden] { display:none !important; }
+      @keyframes fade-in { from { opacity:0; } to { opacity:1; } }
       .state-grid { display:grid; grid-template-columns:minmax(0,1fr) 250px; gap:10px; margin:12px 3px; }
       .invariant,.metrics { padding:10px 12px; border:1px solid var(--rule); }
       .invariant strong { display:block; margin-bottom:5px; font:12px/1.4 monospace; }
       .invariant p { margin:0; color:var(--quiet); font-size:13px; }
-      .metrics { display:grid; gap:5px; margin:0; font:11px/1.45 monospace; }
+      .metrics { display:grid; gap:5px; margin:0; font:12px/1.45 monospace; }
       .metrics div { display:flex; justify-content:space-between; gap:10px; }
-      .metrics dt { color:var(--quiet); }
-      .metrics dd { margin:0; text-align:right; }
+      .metrics dt { color:var(--quiet); white-space:nowrap; }
+      .metrics dd { margin:0; text-align:right; white-space:nowrap; }
       .section { margin-top:24px; padding-top:18px; border-top:1px solid var(--rule); }
       .section h2 { margin:0 0 8px; font-size:20px; }
       .section-intro { max-width:930px; color:var(--quiet); }
@@ -61,9 +65,9 @@
       .mini-chain span { display:grid; place-items:center; width:30px; height:30px; border:1px solid #777; background:var(--wash); }
       .rule-list { margin:8px 0 0; padding-left:24px; }
       .rule-list li { margin:6px 0; }
-      @media(max-width:760px){.stage{height:360px}.state-grid,.approaches,.proof-grid,.edge-grid,.complexity{grid-template-columns:1fr}.step-picker{width:100%;margin-left:0}.step-picker select{width:100%}.number-slot{height:44px;font-size:13px}.input-cell{width:25px}.best-row{top:304px}.best-token{width:27px;height:27px}}
-      @media(max-width:370px){.input-row{gap:3px}.input-cell{width:23px}.set-caption{font-size:9px}.pointer{min-width:48px;padding-inline:3px}.best-label{white-space:normal;width:62px}}
-      @media(prefers-reduced-motion:reduce){.number-slot,.pointer,.chain-band{transition:none}.best-token{animation:none}}
+      @media(max-width:760px){.state-grid,.approaches,.proof-grid,.edge-grid,.complexity{grid-template-columns:1fr}.step-picker{width:100%;margin-left:0}.step-picker select{width:100%}}
+      @media(max-width:560px){.stage{height:282px}.var{font-size:11px;padding:3px 4px}.var.emph{padding:2px 3px}.input-cell{height:28px;font-size:12px}}
+      @media(prefers-reduced-motion:reduce){.number-slot,.var,.stem,.chain-band{transition:none}.build-links.fresh path{animation:none}}
     </style>
   </head>
   <body>
@@ -80,19 +84,14 @@
             <button type="button" data-action="next">下一步 →</button>
             <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
           </div>
-          <div class="step-meta"><span data-phase></span><span data-query></span></div>
+          <div class="step-meta"><span data-phase></span></div>
           <div class="stage" data-stage tabindex="0" aria-label="Algorithm trace / 算法演示">
-            <div class="input-row" data-input-row></div>
-            <div class="set-caption">membership picture sorted for clarity · the hash set itself has no order<br><span lang="zh-CN">为了看清连续关系而排序展示；哈希集合本身没有顺序</span></div>
+            <svg class="build-links" data-build-links aria-hidden="true"></svg>
             <div class="chain-band" data-chain-band hidden></div>
-            <div class="set-track" data-set-track></div>
-            <span class="pointer num" data-num-pointer hidden>num</span>
-            <span class="pointer pred" data-pred-pointer hidden>num − 1</span>
-            <span class="pointer walk" data-walk-pointer hidden>current_num</span>
-            <div class="best-row" data-best-row><span class="best-label">best so far / 当前最长</span></div>
+            <div class="scalars" data-scalars></div>
           </div>
           <div class="state-grid">
-            <article class="invariant"><strong>Start rule / 链头规则</strong><p data-invariant></p></article>
+            <article class="invariant"><strong>链头规则 / Start rule</strong><p data-invariant></p></article>
             <dl class="metrics">
               <div><dt><code>num</code></dt><dd data-num-value></dd></div>
               <div><dt><code>num - 1</code></dt><dd data-pred-value></dd></div>
@@ -124,18 +123,17 @@
       (() => {
         const root = document.querySelector('#chain-lab');
         const nums = [1, 6, 2, 5, 8, 7, 10, 3];
-        const values = Array.from({length:10}, (_, index) => index + 1);
         const present = new Set(nums);
+        // For these small ints CPython iterates the set in ascending order, so the
+        // trace follows `for num in num_set` exactly: 1, 2, 3, 5, 6, 7, 8, 10.
+        const setOrder = [...present].sort((a, b) => a - b);
+        // Slots 0..11: the queried neighbours 0 and 11 get a place to land too.
+        const values = Array.from({length:12}, (_, value) => value);
         const stage = root.querySelector('[data-stage]');
-        const inputRow = root.querySelector('[data-input-row]');
-        const setTrack = root.querySelector('[data-set-track]');
+        const linksSvg = root.querySelector('[data-build-links]');
         const chainBand = root.querySelector('[data-chain-band]');
-        const numPointer = root.querySelector('[data-num-pointer]');
-        const predPointer = root.querySelector('[data-pred-pointer]');
-        const walkPointer = root.querySelector('[data-walk-pointer]');
-        const bestRow = root.querySelector('[data-best-row]');
+        const scalars = root.querySelector('[data-scalars]');
         const phase = root.querySelector('[data-phase]');
-        const query = root.querySelector('[data-query]');
         const invariant = root.querySelector('[data-invariant]');
         const numValue = root.querySelector('[data-num-value]');
         const predValue = root.querySelector('[data-pred-value]');
@@ -147,201 +145,255 @@
         const explanationZh = root.querySelector('[data-explanation-zh]');
         const clone = value => JSON.parse(JSON.stringify(value));
         const motion = AlgorithmVisualCore.createMotionController();
-        let inputCells = [];
-        let setCells = [];
-        let positions = [];
+        const make = (tag, className, text) => {
+          const node = document.createElement(tag);
+          node.className = className;
+          if (text !== undefined) node.textContent = text;
+          return node;
+        };
+
+        const inputCells = nums.map(value => stage.appendChild(make('span', 'input-cell', value)));
+        const slots = values.map(value => {
+          const slot = stage.appendChild(make('span', 'number-slot'));
+          if (present.has(value)) slot.textContent = value;
+          else slot.classList.add('absent');
+          if (value === 0 || value === 11) slot.classList.add('edge');
+          return slot;
+        });
+        const slotIndices = values.map(value => present.has(value) ? null : stage.appendChild(make('span', 'slot-index', value)));
+        const foundMark = stage.appendChild(make('span', 'found-mark'));
+        const ref = (text, extra = '') => {
+          const label = stage.appendChild(make('span', `var ${extra}`.trim(), text));
+          const stem = stage.appendChild(make('span', 'stem'));
+          return { label, stem };
+        };
+        const numsRef = { label:stage.appendChild(make('span', 'var', 'nums')), stem:stage.appendChild(make('span', 'hstem')) };
+        const setRef = { label:stage.appendChild(make('span', 'var', 'num_set')), stem:stage.appendChild(make('span', 'hstem')) };
+        const probeRef = ref('num − 1', 'probe');
+        const numRef = ref('num');
+        const walkRef = ref('current_num');
+        const chainBox = scalars.appendChild(make('span', 'var'));
+        const longestBox = scalars.appendChild(make('span', 'var'));
+        let geo = null;
+        let current = null;
+        let lastStep = null;
         let trace;
-        let bestSignature = null;
 
         function buildFrames() {
           const frames = [];
-          const state = { setReady:false, iteration:null, num:null, predecessor:null, predecessorExists:null, currentNum:null, currentChain:null, chainStart:null, chainEnd:null, longest:0, best:[], queryType:null, queryValue:null, phase:'setup', done:false };
-          const add = (kind, sourceKeys, label, line, en, zh) => frames.push({ kind, sourceKeys:Array.isArray(sourceKeys)?sourceKeys:[sourceKeys], stepLabel:label, line, en, zh, state:clone(state) });
+          const state = { setReady:false, num:null, predecessor:null, currentNum:null, currentChain:null, chainStart:null, chainEnd:null, longest:null, previousLongest:null, query:null, phase:'setup' };
+          const add = (kind, sourceKeys, label, line, en, zh) => frames.push({ kind, sourceKeys:Array.isArray(sourceKeys) ? sourceKeys : [sourceKeys], stepLabel:label, line, en, zh, state:clone(state) });
 
-          add('empty-check', 'empty-check', '检查空数组', 'if not nums:  # False', 'The input is not empty, so continue instead of returning 0.', '输入不为空，因此继续执行，不返回 0。');
+          add('empty-check', 'empty-check', '检查空数组', 'if not nums:  # False', 'nums is not empty, so the function continues instead of returning 0.', '输入不为空，继续执行，不返回 0。');
           state.setReady = true;
-          add('set-build', 'set-build', '建立哈希集合', 'num_set = set(nums)', 'Store every unique value for average O(1) membership checks.', '把所有不同的数字放入集合，使成员查询平均为 O(1)。');
-          add('longest-init', 'longest-init', '初始化最长长度', 'longest_chain = 0', 'No chain has been completed yet.', '目前还没有完成任何连续链。');
+          add('set-build', 'set-build', '建立 num_set', 'num_set = set(nums)', 'Every value of nums is inserted into num_set. A set has no order; the slots are laid out by value only so neighbours are easy to see.', '把 nums 的每个值放进 num_set。集合本身无序，图中按数值排开，只为看清相邻关系。');
+          state.longest = 0;
+          add('longest-init', 'longest-init', 'longest_chain = 0', 'longest_chain = 0', 'No chain has been measured yet.', '还没有测量任何连续链。');
 
-          const inspect = (num, iteration) => {
-            state.phase = 'inspect';
-            state.iteration = iteration;
-            state.num = num;
-            state.predecessor = num - 1;
-            state.predecessorExists = present.has(num - 1);
-            state.currentNum = null;
-            state.currentChain = null;
-            state.chainStart = null;
-            state.chainEnd = null;
-            state.queryType = 'predecessor';
-            state.queryValue = num - 1;
-            const starts = !state.predecessorExists;
-            add(starts ? 'start-found' : 'skip', ['loop','start-check'], starts ? `${num} 是链头` : `跳过 ${num}`, `num = ${num};  ${num - 1} ${starts ? 'not in' : 'in'} num_set`, starts ? `${num - 1} is absent, so ${num} is the smallest value in a chain.` : `${num - 1} exists, so ${num} sits inside a chain that will be expanded from an earlier value.`, starts ? `${num - 1} 不存在，因此 ${num} 是一条连续链中最小的数字。` : `${num - 1} 已存在，所以 ${num} 位于链中间；从更小的值起步即可覆盖它。`);
+          setOrder.forEach(num => {
+            const predecessor = num - 1;
+            const starts = !present.has(predecessor);
+            Object.assign(state, { phase:'inspect', num, predecessor, currentNum:null, currentChain:null, chainStart:null, chainEnd:null, previousLongest:null, query:{ kind:'pred', value:predecessor, found:!starts } });
+            add(starts ? 'start-found' : 'skip', ['loop', 'start-check'], starts ? `${num} 是链头` : `跳过 ${num}`,
+              `num = ${num};  if num - 1 not in num_set:  # ${predecessor} ${starts ? 'not in' : 'in'} num_set → ${starts ? 'True' : 'False'}`,
+              starts ? `${predecessor} is not in num_set, so ${num} is the smallest value of its chain.` : `${predecessor} is in num_set, so ${num} sits inside a chain that its start will cover. Skip it.`,
+              starts ? `${predecessor} 不在 num_set 中，所以 ${num} 是这条链最小的数，从它开始数。` : `${predecessor} 在 num_set 中，${num} 位于某条链中间，由链头负责统计，跳过。`);
             if (!starts) return;
 
-            state.phase = 'grow';
-            state.currentNum = num;
-            state.currentChain = 1;
-            state.chainStart = num;
-            state.chainEnd = num;
-            state.queryType = null;
-            state.queryValue = null;
-            add('chain-init', ['current-init','chain-init'], `从 ${num} 开始计数`, `current_num = ${num}; current_chain = 1`, 'A confirmed chain starts with this one value.', '已经确认的连续链先包含这一个数字。');
+            Object.assign(state, { phase:'grow', currentNum:num, currentChain:1, chainStart:num, chainEnd:num, query:null });
+            add('chain-init', ['current-init', 'chain-init'], `从 ${num} 开始计数`, `current_num = ${num};  current_chain = 1`, `current_num starts at ${num}; the chain so far is just this one value.`, `current_num 从 ${num} 开始；目前这条链只有它一个数。`);
 
             while (true) {
               const next = state.currentNum + 1;
               const exists = present.has(next);
-              state.queryType = 'next';
-              state.queryValue = next;
-              add(exists ? 'while-yes' : 'while-no', 'while-check', exists ? `找到下一个值 ${next}` : `${next} 不存在`, `while ${next} in num_set:  # ${exists}`, exists ? `${next} exists, so the chain can grow by one.` : `${next} is missing, so the chain ends at ${state.currentNum}.`, exists ? `${next} 存在，连续链可以再增长一位。` : `${next} 不存在，因此这条链结束在 ${state.currentNum}。`);
+              state.query = { kind:'next', value:next, found:exists };
+              add(exists ? 'while-yes' : 'while-no', 'while-check', exists ? `${next} 在集合中` : `${next} 不在集合中`,
+                `while current_num + 1 in num_set:  # ${next} ${exists ? 'in' : 'not in'} num_set → ${exists ? 'True' : 'False'}`,
+                exists ? `${next} is in num_set, so the chain can grow by one.` : `${next} is not in num_set, so this chain ends at ${state.currentNum}.`,
+                exists ? `${next} 在 num_set 中，链可以再延长一位。` : `${next} 不在 num_set 中，这条链在 ${state.currentNum} 结束。`);
               if (!exists) break;
-              state.currentNum = next;
-              state.currentChain += 1;
-              state.chainEnd = next;
-              state.queryType = null;
-              state.queryValue = null;
-              add('grow', ['current-move','chain-grow'], `链扩展到 ${next}`, `current_num = ${next}; current_chain = ${state.currentChain}`, `Advance the walker to ${next}; this chain now has length ${state.currentChain}.`, `游标前进到 ${next}；当前连续链长度变为 ${state.currentChain}。`);
+              Object.assign(state, { currentNum:next, currentChain:state.currentChain + 1, chainEnd:next, query:null });
+              add('grow', ['current-move', 'chain-grow'], `链延长到 ${next}`, `current_num += 1;  current_chain += 1  # ${next}, ${state.currentChain}`, `current_num moves to ${next}; the chain now has ${state.currentChain} values.`, `current_num 前进到 ${next}；这条链现在有 ${state.currentChain} 个数。`);
             }
 
-            state.queryType = null;
-            state.queryValue = null;
             const previousLongest = state.longest;
-            if (state.currentChain > state.longest) {
-              state.longest = state.currentChain;
-              state.best = Array.from({length:state.currentChain}, (_, index) => state.chainStart + index);
-            }
-            state.phase = 'update';
-            add('longest-update', 'longest-update', `更新最长长度为 ${state.longest}`, `longest_chain = max(${previousLongest}, ${state.currentChain})`, state.longest > previousLongest ? `This chain becomes the new best: [${state.best.join(', ')}].` : `This chain has length ${state.currentChain}, so the best length stays ${state.longest}.`, state.longest > previousLongest ? `这条链成为新的最长链：[${state.best.join(', ')}]。` : `这条链长度为 ${state.currentChain}，最长长度仍然是 ${state.longest}。`);
-          };
+            Object.assign(state, { phase:'update', query:null, previousLongest, longest:Math.max(previousLongest, state.currentChain) });
+            const changed = state.longest > previousLongest;
+            add('longest-update', 'longest-update', changed ? `longest_chain → ${state.longest}` : `longest_chain 保持 ${state.longest}`,
+              `longest_chain = max(longest_chain, current_chain)  # max(${previousLongest}, ${state.currentChain}) = ${state.longest}`,
+              changed ? `The chain ${state.chainStart}…${state.chainEnd} has length ${state.currentChain}, longer than ${previousLongest}: longest_chain becomes ${state.longest}.` : `This chain has length ${state.currentChain}, not longer than ${previousLongest}: longest_chain stays ${state.longest}.`,
+              changed ? `链 ${state.chainStart}…${state.chainEnd} 长 ${state.currentChain}，比 ${previousLongest} 长，longest_chain 更新为 ${state.longest}。` : `这条链长 ${state.currentChain}，不比 ${previousLongest} 长，longest_chain 仍为 ${state.longest}。`);
+          });
 
-          nums.forEach((num, index) => inspect(num, index));
-          state.phase = 'done';
-          state.iteration = null;
-          state.num = null;
-          state.predecessor = null;
-          state.predecessorExists = null;
-          state.currentNum = null;
-          state.currentChain = null;
-          state.chainStart = null;
-          state.chainEnd = null;
-          state.queryType = null;
-          state.queryValue = null;
-          state.done = true;
-          add('return', 'return', '返回 4', 'return longest_chain  # 4', 'The longest chain is [5, 6, 7, 8], so return 4.', '最长连续链是 [5, 6, 7, 8]，因此返回 4。');
+          Object.assign(state, { phase:'done', num:null, predecessor:null, currentNum:null, currentChain:null, chainStart:null, chainEnd:null, previousLongest:null, query:null });
+          add('return', 'return', `返回 ${state.longest}`, `return longest_chain  # ${state.longest}`, `Every value has been visited once. The longest chain is 5, 6, 7, 8, so return ${state.longest}.`, `每个值都访问过一次。最长的链是 5, 6, 7, 8，返回 ${state.longest}。`);
           return frames;
-        }
-
-        function makeCells() {
-          inputRow.replaceChildren();
-          inputCells = nums.map((value, index) => {
-            const cell = document.createElement('span');
-            cell.className = 'input-cell';
-            cell.dataset.index = String(index);
-            cell.textContent = value;
-            inputRow.append(cell);
-            return cell;
-          });
-          setTrack.replaceChildren();
-          setCells = values.map(value => {
-            const cell = document.createElement('span');
-            cell.className = 'number-slot';
-            cell.dataset.value = String(value);
-            if (present.has(value)) cell.textContent = value;
-            else cell.classList.add('absent');
-            setTrack.append(cell);
-            return cell;
-          });
         }
 
         function layout() {
           const width = stage.clientWidth;
-          const cellWidth = width < 520 ? 24 : 42;
-          const gap = width < 520 ? 4 : 8;
-          const total = cellWidth * values.length + gap * (values.length - 1);
-          const start = Math.max(5, (width - total) / 2);
-          const top = 145;
-          positions = values.map((_, index) => ({ x:start + index * (cellWidth + gap), center:start + index * (cellWidth + gap) + cellWidth / 2, width:cellWidth, top }));
-          setCells.forEach((cell, index) => { cell.style.left = `${positions[index].x}px`; cell.style.top = `${top}px`; cell.style.width = `${cellWidth}px`; });
-          paint(trace?.state || buildFrames()[0].state);
-        }
+          if (!width) return;
+          const compact = width < 560;
+          const rowLabelWidth = Math.max(numsRef.label.offsetWidth, setRef.label.offsetWidth);
+          const gap = compact ? (width < 360 ? 2 : 3) : 6;
+          const lead = rowLabelWidth + 20;
+          const slotWidth = Math.max(16, Math.min(compact ? 30 : 40, Math.floor((width - 6 - lead - 11 * gap) / 12)));
+          const total = 12 * slotWidth + 11 * gap;
+          const start = Math.max(lead, Math.min((width - total) / 2, width - 4 - total));
+          const twoLines = width < 350;
+          const g = compact
+            ? { numsTop:10, cellH:28, cellW:26, cellGap:4, probeTop:52, setTop:94, slotH:40, numTop:162, walkTop:194, scalarsTop:232 }
+            : { numsTop:12, cellH:30, cellW:30, cellGap:5, probeTop:58, setTop:104, slotH:46, numTop:180, walkTop:216, scalarsTop:256 };
+          Object.assign(g, { width, compact, gap, slotWidth, start, twoLines });
+          stage.style.height = `${g.scalarsTop + (twoLines ? 58 : 28) + 12}px`;
+          g.slotX = value => start + value * (slotWidth + gap);
+          g.slotCenter = value => g.slotX(value) + slotWidth / 2;
+          geo = g;
 
-        function xFor(value) {
-          if (value < 1) return Math.max(13, positions[0].center - positions[0].width - 8);
-          if (value > 10) return Math.min(stage.clientWidth - 13, positions.at(-1).center + positions.at(-1).width + 8);
-          return positions[value - 1].center;
-        }
-
-        function pointerCenter(element, x) {
-          const halfWidth = element.getBoundingClientRect().width / 2;
-          return Math.max(halfWidth + 2, Math.min(stage.clientWidth - halfWidth - 2, x));
-        }
-
-        function paint(state) {
-          if (!positions.length) return;
-          inputCells.forEach((cell, index) => cell.classList.toggle('inspecting', state.iteration === index));
-          setCells.forEach((cell, index) => {
-            const value = index + 1;
-            cell.classList.toggle('active-num', state.num === value);
-            cell.classList.toggle('predecessor', state.queryType === 'predecessor' && state.queryValue === value);
-            cell.classList.toggle('probe', state.queryType === 'next' && state.queryValue === value);
-            cell.classList.toggle('in-chain', state.chainStart !== null && value >= state.chainStart && value <= state.chainEnd);
-            cell.classList.toggle('walker', state.currentNum === value);
-            cell.style.opacity = state.setReady ? '' : '.22';
+          inputCells.forEach((cell, index) => Object.assign(cell.style, { left:`${start + index * (g.cellW + g.cellGap)}px`, top:`${g.numsTop}px`, width:`${g.cellW}px`, height:`${g.cellH}px` }));
+          // Fit the widest stored value (two digits, ~1.2em in monospace) inside the 1.5px borders.
+          const slotFont = Math.max(10.5, Math.min(16, Math.floor((slotWidth - 5) / 1.2 * 2) / 2));
+          slots.forEach((slot, value) => Object.assign(slot.style, { left:`${g.slotX(value)}px`, top:`${g.setTop}px`, width:`${slotWidth}px`, height:`${g.slotH}px`, fontSize:`${slotFont}px` }));
+          slotIndices.forEach((index, value) => { if (index) Object.assign(index.style, { left:`${g.slotX(value)}px`, width:`${slotWidth}px`, top:`${g.setTop + g.slotH + 5}px` }); });
+          [[numsRef, g.numsTop + g.cellH / 2], [setRef, g.setTop + g.slotH / 2]].forEach(([item, centerY]) => {
+            const labelWidth = item.label.offsetWidth;
+            const labelHeight = item.label.offsetHeight;
+            Object.assign(item.label.style, { left:`${start - 14 - labelWidth}px`, top:`${centerY - labelHeight / 2}px` });
+            Object.assign(item.stem.style, { left:`${start - 12}px`, top:`${centerY}px`, width:'9px' });
           });
+          scalars.style.top = `${g.scalarsTop}px`;
+          scalars.style.flexDirection = twoLines ? 'column' : 'row';
+          scalars.style.alignItems = twoLines ? 'center' : 'flex-start';
+          if (current) paint(current.frame, current.state, false);
+        }
 
-          numPointer.hidden = state.num === null;
-          predPointer.hidden = state.queryType !== 'predecessor';
-          walkPointer.hidden = state.currentNum === null;
-          if (!numPointer.hidden) { numPointer.style.left = `${pointerCenter(numPointer, xFor(state.num))}px`; numPointer.style.top = '91px'; }
-          if (!predPointer.hidden) { predPointer.textContent = `${state.predecessor} · num − 1`; predPointer.style.left = `${pointerCenter(predPointer, xFor(state.predecessor))}px`; predPointer.style.top = '114px'; }
-          if (!walkPointer.hidden) { walkPointer.style.left = `${pointerCenter(walkPointer, xFor(state.currentNum))}px`; walkPointer.style.top = '242px'; }
+        // A variable label plus its short gray reference to one slot. The stem keeps
+        // the target x even when the label is clamped inside the stage.
+        function placeRef(item, targetX, top, direction, centerX = targetX) {
+          const labelWidth = item.label.offsetWidth;
+          const labelHeight = item.label.offsetHeight;
+          const left = Math.max(3, Math.min(geo.width - 3 - labelWidth, centerX - labelWidth / 2));
+          // A relabelled box changes width at once; easing its old left would push it past the stage edge.
+          const relabelled = item.label.dataset.text !== undefined && item.label.dataset.text !== item.label.textContent;
+          item.label.dataset.text = item.label.textContent;
+          if (relabelled) item.label.style.transition = 'none';
+          item.label.style.left = `${left}px`;
+          item.label.style.top = `${top}px`;
+          if (relabelled) { void item.label.offsetWidth; item.label.style.transition = ''; }
+          item.stem.className = `stem ${direction}`;
+          if (direction === 'down') Object.assign(item.stem.style, { left:`${targetX}px`, top:`${top + labelHeight}px`, height:`${geo.setTop - top - labelHeight - 2}px` });
+          else Object.assign(item.stem.style, { left:`${targetX}px`, top:`${geo.setTop + geo.slotH + 2}px`, height:`${top - geo.setTop - geo.slotH - 2}px` });
+        }
+
+        function show(item, visible) {
+          item.label.hidden = !visible;
+          item.stem.hidden = !visible;
+        }
+
+        function paint(frame, state, fresh) {
+          if (!geo) return;
+          const { kind } = frame;
+          const query = state.query;
+          slots.forEach((slot, value) => {
+            slot.classList.toggle('unbuilt', !state.setReady);
+            slot.classList.toggle('queried', Boolean(query && query.value === value));
+            slot.classList.toggle('in-chain', state.chainStart !== null && value >= state.chainStart && value <= state.chainEnd);
+          });
+          slotIndices.forEach(index => { if (index) index.hidden = !state.setReady; });
+
+          // num_set = set(nums): draw each insertion from its nums cell to its slot.
+          linksSvg.replaceChildren();
+          linksSvg.classList.toggle('fresh', Boolean(fresh));
+          if (kind === 'set-build') {
+            nums.forEach((value, index) => {
+              const x1 = geo.start + index * (geo.cellW + geo.cellGap) + geo.cellW / 2;
+              const y1 = geo.numsTop + geo.cellH + 1;
+              const x2 = geo.slotCenter(value);
+              const y2 = geo.setTop - 2;
+              const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              path.setAttribute('d', `M${x1} ${y1} C${x1} ${y1 + 26} ${x2} ${y2 - 26} ${x2} ${y2}`);
+              linksSvg.append(path);
+            });
+          }
+
+          setRef.label.style.visibility = setRef.stem.style.visibility = state.setReady ? '' : 'hidden';
+          setRef.label.classList.toggle('emph', kind === 'set-build');
+
+          // The one membership test of this line, drawn at the slot it reads.
+          show(probeRef, Boolean(query));
+          foundMark.hidden = !query;
+          if (query) {
+            probeRef.label.textContent = query.kind === 'pred' ? 'num − 1' : 'current_num + 1';
+            placeRef(probeRef, geo.slotCenter(query.value), geo.probeTop, 'down');
+            foundMark.textContent = query.found ? '∈' : '∉';
+            foundMark.style.left = `${Math.min(geo.width - 11, geo.slotX(query.value) + geo.slotWidth + 1)}px`;
+            foundMark.style.top = `${geo.setTop - 19}px`;
+          }
+
+          show(numRef, state.num !== null);
+          show(walkRef, state.currentNum !== null);
+          numRef.label.classList.toggle('emph', kind === 'start-found' || kind === 'skip');
+          walkRef.label.classList.toggle('emph', kind === 'chain-init' || kind === 'grow');
+          if (state.num !== null) {
+            const shared = state.currentNum === state.num;
+            const offset = shared ? Math.min(12, geo.slotWidth / 2 - 2) : 0;
+            placeRef(numRef, geo.slotCenter(state.num) - offset, geo.numTop, 'up');
+            if (state.currentNum !== null) placeRef(walkRef, geo.slotCenter(state.currentNum) + offset, geo.walkTop, 'up');
+          }
 
           chainBand.hidden = state.chainStart === null;
           if (!chainBand.hidden) {
-            const first = positions[Math.max(1, state.chainStart) - 1];
-            const last = positions[Math.min(10, state.chainEnd) - 1];
-            chainBand.style.left = `${first.x - 4}px`;
-            chainBand.style.top = `${first.top - 12}px`;
-            chainBand.style.width = `${last.x + last.width - first.x + 8}px`;
-            chainBand.dataset.label = `current chain · ${state.currentChain} / 当前链`;
+            // Stay inside the gap so the band never reaches a neighbouring slot.
+            const pad = Math.min(5, geo.gap - 1);
+            const left = geo.slotX(state.chainStart) - pad;
+            Object.assign(chainBand.style, { left:`${left}px`, top:`${geo.setTop - 5}px`, height:`${geo.slotH + 10}px`, width:`${geo.slotX(state.chainEnd) + geo.slotWidth + pad - left}px` });
           }
 
-          const nextBestSignature = state.best.join(',');
-          if (nextBestSignature !== bestSignature) {
-            bestSignature = nextBestSignature;
-            bestRow.querySelectorAll('.best-token').forEach(token => token.remove());
-            const fragment = document.createDocumentFragment();
-            state.best.forEach(value => {
-              const token = document.createElement('span');
-              token.className = 'best-token';
-              token.textContent = value;
-              fragment.append(token);
-            });
-            bestRow.append(fragment);
+          chainBox.style.visibility = state.currentChain === null ? 'hidden' : '';
+          chainBox.textContent = `current_chain = ${state.currentChain ?? 1}`;
+          chainBox.classList.toggle('emph', kind === 'chain-init' || kind === 'grow');
+          longestBox.style.visibility = state.longest === null ? 'hidden' : '';
+          const updating = kind === 'longest-update';
+          longestBox.textContent = updating ? `longest_chain = max(${state.previousLongest}, ${state.currentChain}) = ${state.longest}` : `longest_chain = ${state.longest ?? 0}`;
+          longestBox.classList.toggle('op', updating);
+          longestBox.classList.toggle('emph', kind === 'longest-init' || kind === 'return' || (updating && state.longest > state.previousLongest));
+          scalars.style.left = geo.compact ? `${Math.max(4, (geo.width - 340) / 2)}px` : `${geo.start}px`;
+          scalars.style.right = geo.compact ? '4px' : '';
+          scalars.style.justifyContent = 'flex-start';
+          if (geo.twoLines) { scalars.style.left = '4px'; scalars.style.justifyContent = 'center'; }
+        }
+
+        function invariantText(frame, state) {
+          switch (frame.kind) {
+            case 'start-found': return `${state.predecessor} ∉ num_set，所以 ${state.num} 是链头，从它开始向右数。`;
+            case 'skip': return `${state.predecessor} ∈ num_set，${state.num} 不是链头；它所在的链会从链头统计。`;
+            case 'chain-init': case 'while-yes': case 'while-no': case 'grow': return `从链头 ${state.chainStart} 向右扩展：检查 current_num + 1 是否在 num_set 中。`;
+            case 'longest-update': return `链长 ${state.currentChain}，与 longest_chain 比较，保留较大者。`;
+            case 'return': return '每条链只从链头扩展一次，所有值总共只被访问常数次：O(n)。';
+            default: return '只有 num − 1 不在集合中时，num 才是链头，才从它开始扩展。';
           }
         }
 
         function render({ frame, state, step, frames }) {
-          const phaseLabels = { setup:'Setup / 准备', inspect:'Find a start / 寻找链头', grow:'Grow one chain / 扩展连续链', update:'Save the best / 更新答案', done:'Result / 结果' };
+          const phaseLabels = { setup:'准备', inspect:'寻找链头', grow:'扩展连续链', update:'更新答案', done:'结果' };
           phase.textContent = `${phaseLabels[state.phase]} · ${frame.stepLabel}`;
-          if (state.queryType === 'predecessor') query.textContent = `query: ${state.predecessor} ${state.predecessorExists ? '∈' : '∉'} num_set`;
-          else if (state.queryType === 'next') query.textContent = `query: ${state.queryValue} ${present.has(state.queryValue) ? '∈' : '∉'} num_set`;
-          else query.textContent = '';
-          invariant.textContent = state.num === null ? 'Expand only when the predecessor is missing. / 只有前一个数字不存在时，才从当前数字开始扩展。' : state.predecessorExists ? `${state.num} is not a start because ${state.predecessor} exists. / ${state.predecessor} 已存在，所以 ${state.num} 不是链头。` : `${state.num} can start a chain because ${state.predecessor} is absent. / ${state.predecessor} 不存在，所以 ${state.num} 可以作为链头。`;
+          invariant.textContent = invariantText(frame, state);
           numValue.textContent = state.num ?? '—';
-          predValue.textContent = state.predecessor === null ? '—' : `${state.predecessor} ${state.predecessorExists ? '∈ set' : '∉ set'}`;
+          predValue.textContent = state.query?.kind === 'pred' ? `${state.predecessor} ${state.query.found ? '∈' : '∉'} num_set` : '—';
           currentNumValue.textContent = state.currentNum ?? '—';
           currentChainValue.textContent = state.currentChain ?? '—';
-          longestValue.textContent = state.longest;
+          longestValue.textContent = state.longest ?? '—';
           expression.textContent = frame.line;
           explanation.textContent = frame.en;
           explanationZh.textContent = frame.zh;
-          paint(state);
+          const fresh = lastStep !== null && lastStep !== step;
+          lastStep = step;
+          current = { frame, state };
+          paint(frame, state, fresh && !motion.reduced);
           stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
         }
 
-        makeCells();
-        const resizeObserver = new ResizeObserver(layout);
+        const resizeObserver = new ResizeObserver(() => layout());
         resizeObserver.observe(stage);
         layout();
         trace = AlgorithmVisualCore.createTrace({

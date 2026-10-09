@@ -31,20 +31,22 @@
     #reverse-list-lab .lab-controls { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-family: monospace; }
     #reverse-list-lab .lab-controls button { color: #272727; background: transparent; border: 1px solid #777; border-radius: 2px; padding: 5px 9px; font: inherit; cursor: pointer; }
     #reverse-list-lab .lab-controls button:disabled { opacity: .4; cursor: default; }
-    #reverse-list-lab .lab-stage { position: relative; width: 100%; height: 315px; margin-top: 10px; touch-action: none; border-bottom: 1px solid #b7b7b1; }
+    #reverse-list-lab .lab-stage { position: relative; width: 100%; height: 186px; margin-top: 10px; touch-action: none; border-bottom: 1px solid #b7b7b1; }
     #reverse-list-lab .lab-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
     #reverse-list-lab .lab-stage button { position: absolute; transform: translate(-50%, -50%); z-index: 1; color: #272727; font-family: monospace; cursor: grab; user-select: none; touch-action: none; }
     #reverse-list-lab .lab-stage button:active { cursor: grabbing; }
     #reverse-list-lab .lab-token { min-width: 89px; min-height: 30px; padding: 3px 6px; border: 1.5px solid #595959; border-radius: 3px; background: #fffdf8; font-size: 13px; font-weight: 400; }
     #reverse-list-lab .lab-token.next-token { min-width: 65px; min-height: 27px; border-style: dashed; color: #555; font-size: 12px; }
     #reverse-list-lab .lab-token.is-selected { outline: 2px solid #555; outline-offset: 3px; }
+    #reverse-list-lab .lab-token.is-changed { border: 2px solid #272727; }
+    #reverse-list-lab .lab-token.next-token.is-changed { border: 1.5px solid #272727; color: #272727; }
+    #reverse-list-lab .lab-token.is-unset { border-color: #b7b7b1; color: #555; }
     #reverse-list-lab .lab-node { width: 54px; height: 54px; border-radius: 50%; border: 2px solid #383838; background: #fffdf8; font-family: Arial, Helvetica, sans-serif !important; font-size: 22px; font-weight: 500; cursor: pointer !important; }
-    #reverse-list-lab .lab-null { min-width: 44px; min-height: 38px; padding: 3px; border: 0; background: #fffdf8; font-family: Arial, Helvetica, sans-serif !important; font-size: 18px; font-weight: 500; cursor: pointer !important; }
+    #reverse-list-lab .lab-null { min-width: 44px; min-height: 38px; padding: 3px; border: 0; background: transparent; font-family: Arial, Helvetica, sans-serif !important; font-size: 18px; font-weight: 500; cursor: pointer !important; }
     #reverse-list-lab .drop-ready { outline: 2px dashed #777; outline-offset: 3px; }
-    #reverse-list-lab .link-change { animation: rl-link-change 380ms ease-out both; }
+    #reverse-list-lab .link-change { animation: rl-link-change 380ms ease-out; }
     @keyframes rl-link-change {
-      0% { stroke-width: 4; }
-      100% { stroke-width: 2; }
+      from { stroke-width: 5; }
     }
     @media (prefers-reduced-motion: reduce) {
       #reverse-list-lab .link-change { animation: none; }
@@ -68,11 +70,13 @@
       #reverse-list-lab .code-panel { position: static; }
     }
     @media (max-width: 400px) {
-      #reverse-list-lab .lab-token { min-width: 82px; padding: 3px; font-size: 11px; }
+      #reverse-list-lab .lab-stage { height: 172px; }
+      #reverse-list-lab .lab-token { min-width: 70px; padding: 3px 4px; font-size: 11px; }
       #reverse-list-lab .lab-token.next-token { min-width: 59px; }
-      #reverse-list-lab .lab-node { width: 46px; height: 46px; }
-      #reverse-list-lab .lab-null { min-width: 38px; font-size: 15px; }
+      #reverse-list-lab .lab-node { width: 42px; height: 42px; font-size: 20px; }
+      #reverse-list-lab .lab-null { min-width: 36px; padding: 3px 0; font-size: 15px; }
       #reverse-list-lab .lab-head h1 { font-size: 15px; }
+      #reverse-list-lab .lab-operation { min-height: 59px; }
     }
   </style>
 
@@ -82,7 +86,7 @@
         <h1>Linked List Reversal · 反转链表</h1>
         <div class="lab-controls">
           <button type="button" data-action="previous">← 上一步</button>
-          <span data-count aria-live="polite">0 / 12</span>
+          <span data-count aria-live="polite">步骤 1 / 14</span>
           <button type="button" data-action="next">下一步 →</button>
         </div>
       </div>
@@ -95,8 +99,8 @@
         <button type="button" class="lab-node" data-target="1" aria-label="节点 1">1</button>
         <button type="button" class="lab-node" data-target="2" aria-label="节点 2">2</button>
         <button type="button" class="lab-node" data-target="3" aria-label="节点 3">3</button>
-        <button type="button" class="lab-null" data-target="null-left" aria-label="左侧 null">null</button>
-        <button type="button" class="lab-null" data-target="null-right" aria-label="右侧 null">null</button>
+        <button type="button" class="lab-null" data-target="null-left" aria-label="左侧 None">None</button>
+        <button type="button" class="lab-null" data-target="null-right" aria-label="右侧 None">None</button>
         <button type="button" class="lab-token next-token" data-source="link1" aria-label="拖动 1.next，或点击后选择目标">1.next</button>
         <button type="button" class="lab-token next-token" data-source="link2" aria-label="拖动 2.next，或点击后选择目标">2.next</button>
         <button type="button" class="lab-token next-token" data-source="link3" aria-label="拖动 3.next，或点击后选择目标">3.next</button>
@@ -113,13 +117,13 @@
 
   <section class="lab-reasoning" aria-label="迭代反转链表的解题思路">
     <h3>题目与思路</h3>
-    <p>把 <code>1 → 2 → 3 → null</code> 反转为 <code>3 → 2 → 1 → null</code>。<code>prev_node</code> 是已反转部分的头，<code>curr_node</code> 是尚未处理部分的头。</p>
+    <p>把 <code>1 → 2 → 3 → None</code> 反转为 <code>3 → 2 → 1 → None</code>。<code>prev_node</code> 是已反转部分的头，<code>curr_node</code> 是尚未处理部分的头。</p>
     <ol>
       <li>先保存 <code>next_node = curr_node.next</code>，否则改线后会丢失剩余链表的入口。</li>
       <li>执行 <code>curr_node.next = prev_node</code>，这一步才修改节点保存的实线。</li>
       <li>让 <code>prev_node = curr_node</code>、<code>curr_node = next_node</code>，继续处理下一个节点。</li>
     </ol>
-    <p>每轮结束时，<code>prev_node</code> 指向已反转部分，<code>curr_node</code> 指向剩余部分；当 <code>curr_node = null</code>，返回 <code>prev_node</code>。时间 <code>O(n)</code>，额外空间 <code>O(1)</code>。</p>
+    <p>每轮结束时，<code>prev_node</code> 指向已反转部分，<code>curr_node</code> 指向剩余部分；当 <code>curr_node</code> 是 <code>None</code>，返回 <code>prev_node</code>。时间 <code>O(n)</code>，额外空间 <code>O(1)</code>。</p>
   </section>
 
   <script src="../assets/core.js"></script>
@@ -139,29 +143,35 @@
       const buttons = [...stage.querySelectorAll('button')];
       const sourceButtons = buttons.filter(button => button.dataset.source);
       const targetButtons = buttons.filter(button => button.dataset.target);
-      const copy = value => ({prev: value.prev, curr: value.curr, temp: value.temp, link: {...value.link}});
+      const labelNames = ['prev', 'curr', 'temp'];
+      const labelButtons = Object.fromEntries(labelNames.map(name => [name, stage.querySelector(`[data-source="${name}"]`)]));
+      const copy = value => ({prev: value.prev, curr: value.curr, temp: value.temp, link: {...value.link}, side: {...value.side}});
       const frames = [];
-      const building = {prev: null, curr: 1, temp: undefined, link: {1: 2, 2: 3, 3: null}};
-      const add = (code, explanation, change, sourceKeys) => {
+      const building = {prev: null, curr: 1, temp: undefined, link: {1: 2, 2: 3, 3: null}, side: {}};
+      // change: the one reference ({ref}) or stored link ({link}) the frame's code line writes.
+      const add = (code, explanation, change, sourceKeys, mark = null) => {
         if (change) change(building);
-        frames.push({state: copy(building), code, explanation, sourceKeys});
+        frames.push({state: copy(building), code, explanation, sourceKeys, change: mark});
       };
-      add('开始', 'prev_node 是 None；curr_node 指向节点 1。', null, ['init-prev', 'init-curr']);
-      add('next_node = curr_node.next', '先记住节点 2，避免断开 1 → 2 后找不到它。', s => { s.temp = 2; }, ['save-next']);
-      add('curr_node.next = prev_node', '把 1.next 从 2 改成 None；只有这一行改变了链表。', s => { s.link[1] = null; }, ['reverse-link']);
-      add('prev_node = curr_node', 'prev_node 改为指向节点 1；节点本身没有移动。', s => { s.prev = 1; }, ['move-prev']);
-      add('curr_node = next_node', 'curr_node 改为指向之前存好的节点 2。', s => { s.curr = 2; }, ['move-curr']);
-      add('next_node = curr_node.next', '先记住节点 3。', s => { s.temp = 3; }, ['save-next']);
-      add('curr_node.next = prev_node', '把 2.next 从 3 改为 1。next_node 仍然指向 3。', s => { s.link[2] = 1; }, ['reverse-link']);
-      add('prev_node = curr_node', 'prev_node 改为指向节点 2。', s => { s.prev = 2; }, ['move-prev']);
-      add('curr_node = next_node', 'curr_node 改为指向节点 3。', s => { s.curr = 3; }, ['move-curr']);
-      add('next_node = curr_node.next', '3.next 是 None，所以 next_node 现在指向 None。', s => { s.temp = null; }, ['save-next']);
-      add('curr_node.next = prev_node', '把 3.next 从 None 改为 2。链表已变成 3 → 2 → 1 → None。', s => { s.link[3] = 2; }, ['reverse-link']);
-      add('prev_node = curr_node', 'prev_node 改为指向节点 3，也就是新的头节点。', s => { s.prev = 3; }, ['move-prev']);
-      add('curr_node = next_node', 'curr_node 变成 None，循环结束；返回 prev_node（节点 3）。', s => { s.curr = null; }, ['move-curr', 'return']);
+      add('开始', 'prev_node 是 None；curr_node 指向节点 1；next_node 尚未赋值。', null, ['init-prev', 'init-curr']);
+      add('next_node = curr_node.next', '先记住节点 2，避免断开 1 → 2 后找不到它。', s => { s.temp = 2; }, ['save-next'], {ref: 'temp'});
+      add('curr_node.next = prev_node', '把 1.next 从 2 改成 None；只有这一行改变了链表。', s => { s.link[1] = null; }, ['reverse-link'], {link: 1});
+      add('prev_node = curr_node', 'prev_node 改为指向节点 1；节点本身没有移动。', s => { s.prev = 1; }, ['move-prev'], {ref: 'prev'});
+      add('curr_node = next_node', 'curr_node 改为指向之前存好的节点 2。', s => { s.curr = 2; }, ['move-curr'], {ref: 'curr'});
+      add('next_node = curr_node.next', '先记住节点 3。', s => { s.temp = 3; }, ['save-next'], {ref: 'temp'});
+      add('curr_node.next = prev_node', '把 2.next 从 3 改为 1。next_node 仍然指向 3。', s => { s.link[2] = 1; }, ['reverse-link'], {link: 2});
+      add('prev_node = curr_node', 'prev_node 改为指向节点 2。', s => { s.prev = 2; }, ['move-prev'], {ref: 'prev'});
+      add('curr_node = next_node', 'curr_node 改为指向节点 3。', s => { s.curr = 3; }, ['move-curr'], {ref: 'curr'});
+      add('next_node = curr_node.next', '3.next 是 None，所以 next_node 现在是 None。', s => { s.temp = null; }, ['save-next'], {ref: 'temp'});
+      add('curr_node.next = prev_node', '把 3.next 从 None 改为 2，链表成为 3 → 2 → 1 → None。', s => { s.link[3] = 2; }, ['reverse-link'], {link: 3});
+      add('prev_node = curr_node', 'prev_node 改为指向节点 3，也就是新的头节点。', s => { s.prev = 3; }, ['move-prev'], {ref: 'prev'});
+      add('curr_node = next_node', 'curr_node 改为 next_node 存的 None。', s => { s.curr = null; }, ['move-curr'], {ref: 'curr'});
+      add('return prev_node', 'curr_node 是 None，返回 prev_node：3 → 2 → 1 → None。', null, ['return']);
 
       let places = {};
-      let movingTips = {};
+      let dims = null;
+      let targetGeometry = null;
+      let shownGeometry = null;
       let linkChanges = new Set();
       let transitionHandoff = null;
       let trace, interaction;
@@ -169,101 +179,176 @@
       const linkMotion = createMotionController();
       const scene = createSvgScene(lines);
       scene.defineMarker('rl-node-arrow', {fill: '#333'});
+      scene.defineMarker('rl-node-arrow-strong', {markerWidth: 16 / 3, markerHeight: 16 / 3, fill: '#333'});
       scene.defineMarker('rl-label-arrow', {markerWidth: 7, refX: 6, fill: '#555'});
+      scene.defineMarker('rl-label-arrow-strong', {markerWidth: 5.25, markerHeight: 6, refX: 6, fill: '#272727'});
 
-      const display = value => value === undefined ? '未设置' : value === null ? 'null' : `节点 ${value}`;
-      const pointFor = (value, side = 'left') => places[value === null ? `null-${side}` : String(value)];
-      function tipFor(name, value) {
-        if (value === undefined) return {x: places[name].x, y: places[name].y + 16};
-        const target = pointFor(value, name === 'prev' ? 'left' : 'right');
-        return {x: target.x, y: target.y - (value === null ? 23 : 31)};
+      const display = value => value === undefined ? '未设置' : value === null ? 'None' : `节点 ${value}`;
+      const labelText = source => source.startsWith('link') ? `${source.slice(4)}.next` : source === 'temp' ? 'next_node' : `${source}_node`;
+      // Practice remembers which None was chosen (state.side); scripted frames use the defaults.
+      const targetKey = (name, value, side = {}) => value === null ? (side[name] || (['prev', 'link1', 'link2'].includes(name) ? 'null-left' : 'null-right')) : String(value);
+      const pointsTo = value => `指向${value === null ? ' None' : display(value)}`;
+      const activeChange = () => (trace && !trace.manualMessage && trace.frame?.change) || null;
+
+      // One label row; each label sits above its target, shared targets split as a pair.
+      function geometry(state) {
+        const width = dims.width;
+        const gap = 6;
+        const items = labelNames.map((name, order) => ({name, order, value: state[name], w: labelButtons[name].offsetWidth || 80}));
+        const groups = new Map();
+        for (const item of items) {
+          if (item.value === undefined) {
+            // Unset: park in the gap between nodes 2 and 3, above no target.
+            item.want = (places[2].x + places[3].x) / 2;
+            continue;
+          }
+          const key = targetKey(item.name, item.value, state.side);
+          if (!groups.has(key)) groups.set(key, []);
+          groups.get(key).push(item);
+        }
+        for (const [key, group] of groups) {
+          const target = places[key];
+          const total = group.reduce((sum, item) => sum + item.w, 0) + gap * (group.length - 1);
+          let left = target.x - total / 2;
+          group.forEach((item, index) => {
+            item.want = left + item.w / 2;
+            left += item.w + gap;
+            item.tip = {
+              x: target.x + (group.length > 1 ? (index - (group.length - 1) / 2) * 20 : 0),
+              y: dims.nodeY - (key.startsWith('null') ? dims.nullTip : dims.nodeTip)
+            };
+          });
+        }
+        const sorted = [...items].sort((a, b) => a.want - b.want || a.order - b.order);
+        let clusters = sorted.map(item => [item]);
+        const place = cluster => {
+          const offsets = [0];
+          for (let i = 1; i < cluster.length; i++) offsets.push(offsets[i - 1] + (cluster[i - 1].w + cluster[i].w) / 2 + gap);
+          let shift = cluster.reduce((sum, item, i) => sum + item.want - offsets[i], 0) / cluster.length;
+          const last = cluster.length - 1;
+          shift = Math.min(Math.max(shift, cluster[0].w / 2 + 4), width - cluster[last].w / 2 - 4 - offsets[last]);
+          cluster.forEach((item, i) => { item.x = offsets[i] + shift; });
+        };
+        for (let merged = true; merged;) {
+          clusters.forEach(place);
+          merged = false;
+          for (let i = 0; i < clusters.length - 1; i++) {
+            const a = clusters[i][clusters[i].length - 1], b = clusters[i + 1][0];
+            if (b.x - a.x < (a.w + b.w) / 2 + gap - .5) {
+              clusters.splice(i, 2, [...clusters[i], ...clusters[i + 1]]);
+              merged = true;
+              break;
+            }
+          }
+        }
+        return Object.fromEntries(items.map(item => [item.name, {x: item.x, tip: item.tip || null}]));
+      }
+      function lerpGeometry(from, to, t) {
+        const result = {};
+        for (const name of labelNames) {
+          const a = from[name], b = to[name];
+          const mix = (p, q) => p + (q - p) * t;
+          result[name] = {
+            x: mix(a.x, b.x),
+            tip: b.tip && a.tip ? {x: mix(a.tip.x, b.tip.x), y: mix(a.tip.y, b.tip.y)} : b.tip
+          };
+        }
+        return result;
       }
       function pathBetween(from, to, toNull) {
         if (from.x === to.x && from.y === to.y) {
-          return `M ${from.x + 16} ${from.y - 18} C ${from.x + 70} ${from.y - 80}, ${from.x - 70} ${from.y - 80}, ${from.x - 16} ${from.y - 18}`;
+          return `M ${from.x + 14} ${from.y - 16} C ${from.x + 52} ${from.y - 58}, ${from.x - 52} ${from.y - 58}, ${from.x - 14} ${from.y - 16}`;
         }
         const dx = to.x - from.x, dy = to.y - from.y;
         const length = Math.hypot(dx, dy);
         const ux = dx / length, uy = dy / length;
-        const compact = stage.clientWidth <= 400;
-        const startRadius = compact ? 24 : 28;
-        const endRadius = toNull ? (compact ? 19 : 24) : (compact ? 27 : 32);
-        return `M ${from.x + ux * startRadius} ${from.y + uy * startRadius} L ${to.x - ux * endRadius} ${to.y - uy * endRadius}`;
+        const endRadius = toNull ? dims.nullEnd : dims.nodeEnd;
+        return `M ${from.x + ux * dims.start} ${from.y + uy * dims.start} L ${to.x - ux * endRadius} ${to.y - uy * endRadius}`;
       }
       function cancelMotion() {
         arrowMotion.cancel();
         linkMotion.cancel();
-        movingTips = {};
+        shownGeometry = targetGeometry;
         linkChanges = new Set();
       }
-      function animateReferences(changes) {
-        if (!changes.length || arrowMotion.reduced) return;
-        for (const change of changes) movingTips[change.name] = change.from;
+      function placeLabels() {
+        for (const name of labelNames) position(labelButtons[name], shownGeometry[name].x, dims.labelY);
+      }
+      function animateLabels(from) {
+        if (!from || !targetGeometry || arrowMotion.reduced) return;
+        const to = targetGeometry;
+        if (labelNames.every(name => Math.abs(from[name].x - to[name].x) < .5 && (!from[name].tip || !to[name].tip || Math.abs(from[name].tip.x - to[name].tip.x) < .5))) return;
         arrowMotion.tween({
           duration: 380,
           update(eased) {
-            for (const change of changes) {
-              movingTips[change.name] = {
-                x: change.from.x + (change.to.x - change.from.x) * eased,
-                y: change.from.y + (change.to.y - change.from.y) * eased
-              };
-            }
+            shownGeometry = lerpGeometry(from, to, eased);
+            placeLabels();
             draw();
           },
-          complete() { movingTips = {}; draw(); }
+          complete() { shownGeometry = targetGeometry; placeLabels(); draw(); }
         });
       }
       function animateLinks(before, after) {
         linkChanges = new Set([1, 2, 3].filter(node => before.link[node] !== after.link[node]));
-        if (!linkChanges.size || linkMotion.reduced) return;
+        if (!linkChanges.size || linkMotion.reduced) { linkChanges = new Set(); return; }
         linkMotion.tween({duration: 380, update: draw, complete() { linkChanges = new Set(); draw(); }});
       }
       function layout() {
         const width = stage.clientWidth;
-        const xs = [width * .25, width * .5, width * .75];
-        const nullInset = Math.max(25, width * .06);
+        const compact = width <= 400;
+        dims = compact
+          ? {width, height: stage.clientHeight, labelY: 34, nodeY: 104, nextY: 146, start: 22, nodeEnd: 24, nullEnd: 24, nodeTip: 25, nullTip: 17, nodeR: 21}
+          : {width, height: stage.clientHeight, labelY: 36, nodeY: 110, nextY: 157, start: 28, nodeEnd: 31, nullEnd: 28, nodeTip: 31, nullTip: 19, nodeR: 27};
+        const xs = compact ? [width * .26, width * .5, width * .74] : [width * .25, width * .5, width * .75];
+        const nullInset = compact ? 22 : Math.max(34, width * .09);
+        const {nodeY, nextY} = dims;
         places = {
-          1: {x: xs[0], y: 190}, 2: {x: xs[1], y: 190}, 3: {x: xs[2], y: 190},
-          'null-left': {x: nullInset, y: 190}, 'null-right': {x: width - nullInset, y: 190},
-          link1: {x: xs[0], y: 278}, link2: {x: xs[1], y: 278}, link3: {x: xs[2], y: 278},
-          prev: {x: width * .17, y: 55}, curr: {x: width * .5, y: 55}, temp: {x: width * .83, y: 55}
+          1: {x: xs[0], y: nodeY}, 2: {x: xs[1], y: nodeY}, 3: {x: xs[2], y: nodeY},
+          'null-left': {x: nullInset, y: nodeY}, 'null-right': {x: width - nullInset, y: nodeY},
+          link1: {x: xs[0], y: nextY}, link2: {x: xs[1], y: nextY}, link3: {x: xs[2], y: nextY}
         };
         for (const button of buttons) {
           const key = button.dataset.source || button.dataset.target;
-          position(button, places[key].x, places[key].y);
+          if (places[key]) position(button, places[key].x, places[key].y);
         }
-        lines.setAttribute('viewBox', `0 0 ${width} 315`);
+        const animating = shownGeometry && shownGeometry !== targetGeometry;
+        targetGeometry = trace?.state ? geometry(trace.state) : null;
+        if (!animating) shownGeometry = targetGeometry;
+        if (shownGeometry) placeLabels();
+        lines.setAttribute('viewBox', `0 0 ${width} ${dims.height}`);
         draw();
       }
       function draw() {
         const state = trace?.state;
-        if (!state || !places[1]) return;
-        const frame = trace.frame;
+        if (!state || !places[1] || !shownGeometry) return;
         const drag = interaction?.drag;
+        const change = activeChange();
         scene.update(({path}) => {
           for (const node of [1, 2, 3]) {
             if (drag?.moved && drag.source === `link${node}`) continue;
-            const target = state.link[node];
+            const target = state[`link`][node];
+            const strong = change?.link === node;
             path(`node-link-${node}`, {
-              d: pathBetween(places[node], pointFor(target, node === 3 ? 'right' : 'left'), target === null),
-              fill: 'none', stroke: '#333', 'stroke-width': 2,
+              d: pathBetween(places[node], places[targetKey(`link${node}`, target, state.side)], target === null),
+              fill: 'none', stroke: '#333', 'stroke-width': strong ? 3 : 2,
               class: linkChanges.has(node) ? 'link-change' : null,
-              'marker-end': 'url(#rl-node-arrow)'
+              'marker-end': strong ? 'url(#rl-node-arrow-strong)' : 'url(#rl-node-arrow)'
             });
           }
-          for (const name of ['prev', 'curr', 'temp']) {
-            const target = state[name];
-            if (target === undefined || (drag?.moved && drag.source === name)) continue;
-            const tip = movingTips[name] || tipFor(name, target);
+          for (const name of labelNames) {
+            const geo = shownGeometry[name];
+            if (state[name] === undefined || !geo.tip || (drag?.moved && drag.source === name)) continue;
+            const strong = change?.ref === name;
             path(`reference-${name}`, {
-              d: `M ${places[name].x} ${places[name].y + 16} L ${tip.x} ${tip.y}`,
-              fill: 'none', stroke: '#555', 'stroke-width': 1.5, 'marker-end': 'url(#rl-label-arrow)'
+              d: `M ${geo.x} ${dims.labelY + 16} L ${geo.tip.x} ${geo.tip.y}`,
+              fill: 'none', stroke: strong ? '#272727' : '#555', 'stroke-width': strong ? 2 : 1.5,
+              'marker-end': strong ? 'url(#rl-label-arrow-strong)' : 'url(#rl-label-arrow)'
             });
           }
           if (drag?.moved) {
             if (drag.source.startsWith('link')) {
               const from = places[Number(drag.source.slice(4))];
-              path('drag-preview', {d: `M ${from.x} ${from.y + 28} L ${drag.x} ${drag.y}`, fill: 'none', stroke: '#333', 'stroke-width': 2, 'stroke-dasharray': '5 5', 'marker-end': 'url(#rl-node-arrow)'});
+              path('drag-preview', {d: `M ${from.x} ${from.y + dims.nodeR + 1} L ${drag.x} ${drag.y}`, fill: 'none', stroke: '#333', 'stroke-width': 2, 'stroke-dasharray': '5 5', 'marker-end': 'url(#rl-node-arrow)'});
             } else {
               path('drag-preview', {d: `M ${drag.x} ${drag.y + 16} L ${drag.x} ${drag.y + 38}`, fill: 'none', stroke: '#555', 'stroke-width': 1.5, 'stroke-dasharray': '5 5', 'marker-end': 'url(#rl-label-arrow)'});
             }
@@ -272,6 +357,7 @@
       }
       function renderScene({frame, state, manualMessage}) {
         const selected = interaction?.selected;
+        const change = manualMessage ? null : frame.change;
         operation.replaceChildren();
         const code = document.createElement('code');
         code.dataset.currentCode = '';
@@ -280,23 +366,19 @@
         for (const button of sourceButtons) {
           const source = button.dataset.source;
           const value = source.startsWith('link') ? state.link[Number(source.slice(4))] : state[source];
-          button.setAttribute('aria-label', `${button.textContent} 当前指向${display(value)}。拖动或点击后选择目标。`);
+          const status = value === undefined ? '尚未赋值' : `当前${pointsTo(value)}`;
+          button.setAttribute('aria-label', `${button.textContent} ${status}。拖动或点击后选择目标。`);
           button.classList.toggle('is-selected', selected === source);
+          button.classList.toggle('is-unset', value === undefined);
+          button.classList.toggle('is-changed', Boolean(change) && (change.ref === source || `link${change.link}` === source));
         }
         for (const button of targetButtons) {
-          button.classList.toggle('is-current', !button.dataset.target.startsWith('null') && Number(button.dataset.target) === state.curr);
           button.classList.toggle('drop-ready', Boolean(selected));
         }
         layout();
       }
-      function prepareStep({beforeState, nextStep, previousStep}) {
-        const nextState = frames[nextStep].state;
-        const changedNames = beforeState ? ['prev', 'curr', 'temp'].filter(name => beforeState[name] !== nextState[name]) : [];
-        const oldTips = {};
-        if (beforeState && places[1]) {
-          for (const name of changedNames) oldTips[name] = movingTips[name] || tipFor(name, beforeState[name]);
-        }
-        transitionHandoff = {beforeState, changedNames, oldTips, direction: Math.sign(nextStep - previousStep)};
+      function prepareStep({beforeState}) {
+        transitionHandoff = {beforeState, from: beforeState ? shownGeometry : null};
         cancelMotion();
         interaction?.clearSelection({notify: false});
       }
@@ -305,23 +387,20 @@
         transitionHandoff = null;
         if (!handoff?.beforeState) return;
         animateLinks(handoff.beforeState, state);
-        const changes = handoff.changedNames
-          .filter(name => state[name] !== undefined && handoff.oldTips[name])
-          .map(name => ({name, from: handoff.oldTips[name], to: tipFor(name, state[name])}));
-        animateReferences(changes);
+        animateLabels(handoff.from);
       }
-      function apply(source, target) {
-        const before = source.startsWith('link') ? undefined : trace.state[source];
-        const oldTip = before !== undefined && places[1] ? movingTips[source] || tipFor(source, before) : null;
+      function apply(source, target, side) {
+        const from = shownGeometry;
         cancelMotion();
         interaction.clearSelection({notify: false});
-        const label = source.startsWith('link') ? `${source.slice(4)}.next` : source === 'temp' ? 'next_node' : `${source}_node`;
         trace.updatePractice(state => {
-          if (source.startsWith('link')) state.link[Number(source.slice(4))] = target;
-          else state[source] = target;
-        }, `已把 ${label} 指向${display(target)}。只有修改 .next 才会改变圆圈之间的实线。`);
-        if (oldTip && before !== target) animateReferences([{name: source, from: oldTip, to: tipFor(source, target)}]);
-        else draw();
+          if (source.startsWith('link')) { state.link[Number(source.slice(4))] = target; return; }
+          state[source] = target;
+          // A stored .next keeps its default None so its line never runs through other nodes.
+          if (target === null) state.side[source] = side;
+          else delete state.side[source];
+        }, `已把 ${labelText(source)} ${pointsTo(target)}。只有修改 .next 才会改变圆圈之间的实线。`);
+        if (!source.startsWith('link')) animateLabels(from);
       }
       trace = createTrace({
         root,
@@ -345,13 +424,13 @@
           if (selected) trace.setPreviewMessage(`已选 ${source.textContent}；点一个节点或 None，也可以直接拖过去。`);
           else trace.clearPreviewMessage();
         },
-        onPointerStart: () => { cancelMotion(); trace.clearCodeHighlight(); draw(); },
+        onPointerStart: () => { cancelMotion(); placeLabels(); trace.clearCodeHighlight(); draw(); },
         onPointerMove: draw,
         onPointerEnd: () => trace.render(),
         onPointerCancel: () => trace.render(),
-        onDrop: ({source, value}) => apply(source, value)
+        onDrop: ({source, target, value}) => apply(source, value, target.dataset.target)
       });
-      arrowMotion.onPreferenceChange(() => { movingTips = {}; draw(); });
+      arrowMotion.onPreferenceChange(() => { shownGeometry = targetGeometry; layout(); });
       linkMotion.onPreferenceChange(() => { linkChanges = new Set(); draw(); });
       new ResizeObserver(() => { cancelMotion(); layout(); }).observe(stage);
       trace.setFrames(frames);
