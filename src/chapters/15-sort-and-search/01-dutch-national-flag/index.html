@@ -11,17 +11,17 @@
       :root { --df-one: #f0ecdd; --df-two: #e0ddd3; }
       .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
       .problem span { display: block; margin-top: 3px; color: var(--quiet); }
-      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
       .step-picker { margin-left: auto; }
-      .stage { height: 290px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .stage { height: 262px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
       .track { position: absolute; inset: 0; }
       .cell { position: absolute; z-index: 2; display: grid; place-items: center; height: 56px; border: 1.5px solid var(--ink); background: var(--paper); font: 21px/1 monospace; transition: background-color .2s; }
-      .cell::after { content: attr(data-index); position: absolute; top: calc(100% + 5px); color: var(--quiet); font: 10px/1 monospace; }
+      .cell::after { content: attr(data-index); position: absolute; left: 3px; top: calc(100% + 4px); color: var(--quiet); font: 10px/1 monospace; }
       .cell.v1 { background: var(--df-one); }
       .cell.v2 { background: var(--df-two); }
       .cell.unknown { border-style: dashed; border-color: #777; }
       .cell.current { outline: 2px dashed #555; outline-offset: 4px; }
       .cell.swap { outline: 3px double var(--ink); outline-offset: 4px; }
+      .cell.swapping { color: transparent; }
       .pointer { position: absolute; z-index: 4; min-width: 48px; padding: 3px 6px; border: 1px solid #666; border-radius: 3px; background: var(--paper); font: 11px/1.15 monospace; text-align: center; transform: translateX(-50%); transition: left .32s ease, top .2s ease; }
       .pointer.above::after { content: ""; position: absolute; top: 100%; left: 50%; height: var(--stem, 20px); border-left: 1px solid #666; }
       .pointer.below::before { content: ""; position: absolute; bottom: 100%; left: 50%; height: var(--stem, 20px); border-left: 1px solid #666; }
@@ -80,7 +80,6 @@
             <button type="button" data-action="next">下一步 →</button>
             <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
           </div>
-          <div class="step-meta"><span data-phase></span></div>
           <div class="stage" data-stage tabindex="0" aria-label="Algorithm trace / 算法演示">
             <div class="track" data-track></div>
             <span class="pointer above" data-pointer="left">left</span>
@@ -102,11 +101,10 @@
           <h2 id="flag-code-title">Final Python / 最终代码</h2>
           <p class="code-status" data-code-status></p>
           <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="signature">def dutch_national_flag(nums: List[int]) -&gt; None:</span><span class="code-line" data-source-key="init">    i, left, right = 0, 0, len(nums) - 1</span><span class="code-line" data-source-key="while">    while i &lt;= right:</span><span class="code-line" data-source-key="c-zero">        # 0：和 left 处交换，0 区向右扩一格</span><span class="code-line" data-source-key="is-zero">        if nums[i] == 0:</span><span class="code-line" data-source-key="swap-left">            nums[i], nums[left] = nums[left], nums[i]</span><span class="code-line" data-source-key="left-inc">            left += 1</span><span class="code-line" data-source-key="i-inc-zero">            i += 1</span><span class="code-line" data-source-key="c-two">        # 2：和 right 处交换，2 区向左扩一格</span><span class="code-line" data-source-key="is-two">        elif nums[i] == 2:</span><span class="code-line" data-source-key="swap-right">            nums[i], nums[right] = nums[right], nums[i]</span><span class="code-line" data-source-key="right-dec">            right -= 1</span><span class="code-line" data-source-key="c-one">        # 1：已经在中间区，直接跳过</span><span class="code-line" data-source-key="else">        else:</span><span class="code-line" data-source-key="i-inc-one">            i += 1</span></code></pre>
-          <p class="note">和 <code>right</code> 交换后 <code>i</code> 不动：换过来的值还没检查过。</p>
         </aside>
       </div>
 
-      <section class="section" aria-labelledby="flag-idea"><h2 id="flag-idea">Four regions / 四个区间</h2><p class="section-intro">三个指针把数组切成四段。每一轮只检查 <code>nums[i]</code>，把它放进正确的一段，让“未处理”区缩小一格。</p><div class="region-strip" aria-label="四个区间示意"><span>0</span><span class="r1">1</span><span class="r3">未处理</span><span class="r2">2</span></div><div class="strip-index"><span>[0, left)</span><span>[left, i)</span><span>[i, right]</span><span>(right, n)</span></div></section>
+      <section class="section" aria-labelledby="flag-idea"><h2 id="flag-idea">Four regions / 四个区间</h2><p class="section-intro">三个指针把数组切成四段。每一轮只检查 <code>nums[i]</code>，把它放进正确的一段，让“未处理”区缩小一格。</p><div class="region-strip" role="img" aria-label="四个区间示意：0、1、未处理、2"><span>0</span><span class="r1">1</span><span class="r3">未处理</span><span class="r2">2</span></div><div class="strip-index"><span>[0, left)</span><span>[left, i)</span><span>[i, right]</span><span>(right, n)</span></div></section>
       <section class="section" aria-labelledby="flag-why"><h2 id="flag-why">Why i moves differently / 为什么 i 的移动不对称</h2><div class="card-grid"><article class="paper-card"><strong>nums[i] == 0 → swap with left, i += 1</strong><p><code>left ≤ i</code>。如果 <code>left &lt; i</code>，<code>nums[left]</code> 位于 1 区，换到 <code>i</code> 的一定是 1，已经检查过；如果 <code>left == i</code>，就是和自己交换。两种情况 <code>i</code> 都可以前进。</p></article><article class="paper-card"><strong>nums[i] == 2 → swap with right, i stays</strong><p><code>nums[right]</code> 来自未处理区，可能是 0、1 或 2。它被换到 <code>i</code> 后还需要在下一轮检查，所以只缩小 <code>right</code>。</p></article></div></section>
       <section class="section" aria-labelledby="flag-edge"><h2 id="flag-edge">Edge cases / 边界情况</h2><div class="edge-grid"><article class="paper-card"><code>[]</code><p><code>right = -1</code>，循环一次都不执行。</p></article><article class="paper-card"><code>[2, 2, 2]</code><p>每轮都和自己或右边的 2 交换，<code>right</code> 一路减到 -1，<code>i</code> 始终为 0。</p></article><article class="paper-card"><code>[0, 0, 0]</code><p><code>i == left</code>，每次都是自交换，两个指针一起前进。</p></article><article class="paper-card">循环条件 <code>i &lt;= right</code><p>用 <code>&lt;=</code>：<code>i == right</code> 时那一格仍未检查。</p></article></div></section>
       <section class="section" aria-labelledby="flag-complexity"><h2 id="flag-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(n)</strong><p>每一轮要么 <code>i</code> 加 1，要么 <code>right</code> 减 1，未处理区每轮缩小一格，最多 n 轮。</p></article><article class="paper-card"><strong>Space · O(1)</strong><p>原地交换，只用三个下标。</p></article></div></section>
@@ -152,16 +150,19 @@
               state.swap = null;
               state.left += 1;
               state.i += 1;
-              add(['left-inc', 'i-inc-zero'], `left → ${state.left}, i → ${state.i}`, 'left += 1;  i += 1', `0 区扩到 [0, ${state.left})。换到 i 的值已经检查过（是 1 或就是这个 0），所以 i 也前进。`);
+              add(['left-inc', 'i-inc-zero'], `left → ${state.left}, i → ${state.i}`, 'left += 1;  i += 1', `0 区扩到 [0, ${state.left})。换到原 i 处的值已经检查过（是 1 或就是这个 0），所以 i 也前进。`);
             } else if (value === 2) {
-              add(['while', 'is-two'], `第 ${state.round} 轮 · nums[${i}] = 2`, `while ${i} <= ${right}:  nums[${i}] == 2`, '遇到 2：它属于最右边的 2 区，要换到 right 的位置。');
+              add(['while', 'is-zero', 'is-two'], `第 ${state.round} 轮 · nums[${i}] = 2`, `while ${i} <= ${right}:  nums[${i}] == 2`, '遇到 2：它属于最右边的 2 区，要换到 right 的位置。');
               swap(i, right);
               add(['swap-right'], `交换 ${i} ↔ ${right}`, `nums[${i}], nums[${right}] = nums[${right}], nums[${i}]`, i === right ? `i 和 right 都是 ${i}，自交换，数组不变。` : `2 换到下标 ${right}；从未处理区换来的 ${state.nums[i]} 落在下标 ${i}，还没检查。`);
               state.swap = null;
               state.right -= 1;
-              add(['right-dec'], `right → ${state.right}`, 'right -= 1', `2 区扩到 (${state.right}, ${n})。i 不动，下一轮检查刚换过来的 nums[${i}] = ${state.nums[i]}。`);
+              const ending = state.i > state.right;
+              add(['right-dec'], `right → ${state.right}`, 'right -= 1', ending
+                ? `2 区扩到 (${state.right}, ${n})。现在 i > right，未处理区为空，循环将结束。`
+                : `2 区扩到 (${state.right}, ${n})。i 不动，下一轮检查${i === right ? '' : '刚换过来的'} nums[${i}] = ${state.nums[i]}。`);
             } else {
-              add(['while', 'else'], `第 ${state.round} 轮 · nums[${i}] = 1`, `while ${i} <= ${right}:  nums[${i}] == 1`, '遇到 1：它就该在中间区，不用交换。');
+              add(['while', 'is-zero', 'is-two', 'else'], `第 ${state.round} 轮 · nums[${i}] = 1`, `while ${i} <= ${right}:  nums[${i}] == 1`, '遇到 1：它就该在中间区，不用交换。');
               state.i += 1;
               add(['i-inc-one'], `i → ${state.i}`, 'i += 1', `1 区扩到 [${state.left}, ${state.i})。`);
             }
@@ -183,12 +184,13 @@
         }
 
         function layout() {
+          clearMovingTokens();
           const width = stage.clientWidth;
           const gap = width < 520 ? 6 : 10;
           const cellWidth = Math.max(36, Math.min(62, (width - 24 - gap * (n - 1)) / n));
           const total = cellWidth * n + gap * (n - 1);
           const start = Math.max(8, (width - total) / 2);
-          const top = 104;
+          const top = 86;
           positions = input.map((_, index) => ({ x: start + index * (cellWidth + gap), center: start + index * (cellWidth + gap) + cellWidth / 2, width: cellWidth, gap, top, height: width < 700 ? 50 : 56 }));
           cells.forEach((cell, index) => {
             cell.style.left = `${positions[index].x}px`;
@@ -212,7 +214,7 @@
           if (to <= from) return;
           const a = positions[from];
           const b = positions[to - 1];
-          const y = a.top + a.height + 30;
+          const y = a.top + a.height + 52;
           element.style.left = `${a.x}px`;
           element.style.width = `${b.x + b.width - a.x}px`;
           element.style.top = `${y}px`;
@@ -229,7 +231,7 @@
             cell.classList.toggle('v1', value === 1);
             cell.classList.toggle('v2', value === 2);
             cell.classList.toggle('unknown', index >= state.i && index <= state.right);
-            cell.classList.toggle('current', state.current && !state.swap && index === state.i);
+            cell.classList.toggle('current', state.current && !state.swap && index === state.i && state.i <= state.right);
             cell.classList.toggle('swap', Boolean(state.swap && (state.swap.a === index || state.swap.b === index)));
           });
           const leftRightShare = state.left === state.right;
@@ -240,19 +242,24 @@
           pointers.right.style.top = `${top - (leftRightShare ? 80 : 46)}px`;
           pointers.right.style.setProperty('--stem', leftRightShare ? '58px' : '24px');
           pointers.i.style.left = `${pointerX(state.i)}px`;
-          pointers.i.style.top = `${top + height + 56}px`;
-          pointers.i.style.setProperty('--stem', '42px');
+          pointers.i.style.top = `${top + height + 20}px`;
+          pointers.i.style.setProperty('--stem', '16px');
           placeRegion(regions.zeros, 0, state.left, '0 区');
           placeRegion(regions.ones, state.left, state.i, '1 区');
           placeRegion(regions.unknown, state.i, state.right + 1, '未处理');
           placeRegion(regions.twos, state.right + 1, n, '2 区');
         }
 
-        function clearMovingTokens() { stage.querySelectorAll('.moving-token').forEach(token => token.remove()); }
+        function clearMovingTokens() {
+          stage.querySelectorAll('.moving-token').forEach(token => token.remove());
+          cells.forEach(cell => cell.classList.remove('swapping'));
+        }
         function animateSwap(state) {
           clearMovingTokens();
           if (motion.reduced || !state.swap || state.swap.a === state.swap.b) return;
           const { a, b, before } = state.swap;
+          cells[a].classList.add('swapping');
+          cells[b].classList.add('swapping');
           for (const [from, to] of [[a, b], [b, a]]) {
             const token = document.createElement('span');
             token.className = 'moving-token';
@@ -265,12 +272,14 @@
               { transform: 'translate3d(0,0,0)' },
               { transform: `translate3d(${dx / 2}px,${lift}px,0)` },
               { transform: `translate3d(${dx}px,0,0)` }
-            ], { duration: 420, easing: 'ease-in-out' }).finished.finally(() => token.remove());
+            ], { duration: 420, easing: 'ease-in-out' }).finished.finally(() => {
+              token.remove();
+              cells[from].classList.remove('swapping');
+            });
           }
         }
 
         function render({ frame, state, step, frames }) {
-          $('[data-phase]').textContent = frame.stepLabel;
           $('[data-value="left"]').textContent = state.left;
           $('[data-value="i"]').textContent = state.i;
           $('[data-value="right"]').textContent = state.right;
@@ -297,7 +306,7 @@
           motion,
           onRender: render,
           onBeforeStep: clearMovingTokens,
-          onTransition: ({ state }) => animateSwap(state),
+          onTransition: ({ state, step, previousStep }) => { if (step === previousStep + 1) animateSwap(state); },
           formatStepOption: (frame, index) => `${index + 1}. ${frame.stepLabel}`
         });
         trace.setFrames(buildFrames());
