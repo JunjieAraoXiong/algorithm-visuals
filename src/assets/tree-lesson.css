@@ -28,7 +28,7 @@
 .tree-lesson .array-panel { margin: 10px 3px; }
 .tree-lesson .array-row { margin: 8px 0; }
 .tree-lesson .array-row p { margin: 0 0 5px; font: 12px monospace; overflow-wrap: anywhere; }
-.tree-lesson .array-cells { display: flex; gap: 3px; flex-wrap: wrap; }
+.tree-lesson .array-cells { position: relative; margin-top: 18px; display: flex; gap: 3px; flex-wrap: wrap; }
 .tree-lesson .array-cell { position: relative; min-width: 32px; padding: 7px 5px; border: 1px solid var(--rule); text-align: center; font: 14px monospace; }
 .tree-lesson .array-cell small { display: block; font-size: 10px; color: var(--quiet); }
 .tree-lesson .array-cell.in-range { background: var(--node-active); }
@@ -42,3 +42,6 @@
  .tree-lesson .memory-items { flex-direction: row; flex-wrap: wrap; }
  .tree-lesson .memory-item { flex: 1 0 auto; max-width: 100%; }
 }
+
+.tree-lesson .array-pointer { position:absolute; left:0; top:0; color:var(--quiet); font:16px monospace; pointer-events:none; }
+.tree-lesson .array-end { align-self:center; min-width:32px; padding:7px 5px; font:12px monospace; color:var(--quiet); }

@@ -98,3 +98,21 @@ test('LCA handles both child regions, an ancestor target, and targets inside the
   await expect(page.locator('[data-visual-element="label-f"]')).toHaveText('T*');
   await expect(page.locator('[data-visual-element="label-c"]')).toHaveText('T');
 });
+
+test('reconstruction creates roots before connecting returned children and consumes preorder once', async ({page}) => {
+  await page.goto('/build-binary-tree-from-preorder-and-inorder-traversals/#step=0');
+  const index=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('node = TreeNode(5)')));
+  await page.locator('[data-step-select]').selectOption(String(index));
+  await expect(page.locator('svg .node')).toHaveCount(1);
+  await expect(page.locator('svg .stored-edge')).toHaveCount(0);
+  await finish(page);
+  await expect(page.locator('svg .node')).toHaveCount(6);
+  await expect(page.locator('svg .stored-edge')).toHaveCount(5);
+  await expect(page.locator('[data-result]')).toContainText('左 9（左 2）；右 3（左 4，右 7）');
+  await expect(page.locator('[data-arrays]')).toContainText('preorder_index = 6');
+  await page.locator('[data-step-select]').selectOption(String(index));
+  await expect(page.locator('svg .stored-edge')).toHaveCount(0);
+  await page.locator('[data-case]').selectOption('empty');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toHaveText('None');
+});
