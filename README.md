@@ -118,6 +118,10 @@ Source folders are ordered for repository browsing. The build keeps the public U
 
 - [Dutch National Flag / 荷兰国旗问题](https://junjiearaoxiong.github.io/algorithm-visuals/dutch-national-flag/)
 
+### 16 · Math and Geometry / 数学与几何
+
+- [The Josephus Problem / 约瑟夫问题](https://junjiearaoxiong.github.io/algorithm-visuals/the-josephus-problem/)
+
 ## Development
 
 - `npm run build` validates the registry, catalog, README inventory, and internal links, then writes the ignored `_site/` directory.
