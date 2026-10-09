@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of the Josephus problem: each recursive call removes one person and renumbers the circle; the answer maps back with (survivor + k) % n. 约瑟夫问题：递归缩小规模并重新编号，返回时用 (幸存者 + k) % n 映射回来。" />
+    <title>The Josephus Problem · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; padding: 6px 0 10px; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .stage svg { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; }
+      .stage text { font-family: Arial, Helvetica, sans-serif; }
+      .stage .mono { font-family: monospace; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; align-content: start; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .card-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { margin: 8px 0 0; }
+      .paper-card pre { margin: 8px 0 0; padding: 8px 10px; overflow: auto; border-left: 2px solid var(--rule); background: #f8f6f0; font: 12px/1.55 monospace; }
+      .circle-figure { display: block; width: 100%; max-width: 260px; height: auto; margin: 8px auto 0; }
+      .circle-figure text { font-family: Arial, Helvetica, sans-serif; }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="josephus-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>The Josephus Problem · 约瑟夫问题</h1></div></header>
+      <p class="problem"><code>n</code> people stand in a circle, numbered from <code>0</code>. Starting at person <code>0</code>, count <code>k</code> people clockwise and remove the <code>k</code>-th; the count restarts from the next person. Return the position of the last person standing.<span lang="zh-CN">n 个人围成一圈，从 0 开始编号。从 0 号开始顺时针数 k 个人，淘汰第 k 个，再从下一个人重新数。返回最后剩下那个人的编号。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="约瑟夫问题递归演示 / Josephus recursion trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="Algorithm trace / 算法演示">
+            <svg data-scene viewBox="0 0 560 400" role="img" aria-label="每一行是一个递归调用：圆圈里的字母是原来的人，下方数字是这一层的新编号"></svg>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>重新编号 / Renumbering</strong><p data-invariant></p></article>
+            <dl class="metrics"><div><dt>当前调用</dt><dd data-value="call"></dd></div><div><dt>调用栈深度</dt><dd data-value="depth"></dd></div><div><dt>返回值</dt><dd data-value="result"></dd></div></dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="josephus-code-title">
+          <h2 id="josephus-code-title">Final Python / 最终代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="signature">def josephus(n: int, k: int) -&gt; int:</span><span class="code-line" data-source-key="c-base">    # 基础情况：只剩一个人，他的编号是 0</span><span class="code-line" data-source-key="base-check">    if n == 1:</span><span class="code-line" data-source-key="base-return">        return 0</span><span class="code-line" data-source-key="c-recurse">    # 先求 n - 1 人时的幸存者编号，</span><span class="code-line" data-source-key="c-recurse-2">    # 再平移 k 位映射回 n 人时的编号</span><span class="code-line" data-source-key="recurse">    return (josephus(n - 1, k) + k) % n</span></code></pre>
+          <p class="note">字母表示同一个人；数字是他在当前这一层调用里的编号。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="josephus-sim"><h2 id="josephus-sim">The circle / 直接模拟</h2><p class="section-intro">以 <code>n = 5, k = 2</code> 为例：每次数到第 2 个人就把他淘汰。直接模拟需要真的维护一个圈，删除 n − 1 次。</p><div class="card-grid"><article class="paper-card"><strong>淘汰顺序</strong><svg class="circle-figure" viewBox="0 0 220 200" role="img" aria-label="5 人围成一圈，淘汰顺序依次为 B、D、A、E，C 幸存"><g fill="none" stroke="#999"><circle cx="110" cy="100" r="66" stroke-dasharray="3 4"/></g><g font-size="15" text-anchor="middle"><circle cx="110" cy="34" r="17" fill="#fffdf8" stroke="#999" stroke-dasharray="4 3"/><path d="M121 13 l8 8 M129 13 l-8 8" stroke="#272727" stroke-width="1.5"/><text x="110" y="39" fill="#555">A</text><text x="110" y="11" font-size="11" fill="#555">0 · 第3个</text><circle cx="173" cy="80" r="17" fill="#fffdf8" stroke="#999" stroke-dasharray="4 3"/><path d="M184 59 l8 8 M192 59 l-8 8" stroke="#272727" stroke-width="1.5"/><text x="173" y="85" fill="#555">B</text><text x="196" y="58" font-size="11" fill="#555">1 · 第1个</text><circle cx="149" cy="153" r="19" fill="#e9e5d9" stroke="#272727" stroke-width="2.5"/><text x="149" y="158" fill="#272727">C</text><text x="168" y="189" font-size="11" fill="#555">2 · 幸存</text><circle cx="71" cy="153" r="17" fill="#fffdf8" stroke="#999" stroke-dasharray="4 3"/><path d="M82 132 l8 8 M90 132 l-8 8" stroke="#272727" stroke-width="1.5"/><text x="71" y="158" fill="#555">D</text><text x="52" y="189" font-size="11" fill="#555">3 · 第2个</text><circle cx="47" cy="80" r="17" fill="#fffdf8" stroke="#999" stroke-dasharray="4 3"/><path d="M58 59 l8 8 M66 59 l-8 8" stroke="#272727" stroke-width="1.5"/><text x="47" y="85" fill="#555">E</text><text x="26" y="58" font-size="11" fill="#555">4 · 第4个</text></g></svg></article><article class="paper-card"><strong>递归视角</strong><p>淘汰一个人后，剩下的 <code>n − 1</code> 人正好是一个规模更小的同类问题——只是“0 号”变成了被淘汰者的下一位。只要知道小问题的答案，再把编号平移回来即可。</p></article></div></section>
+      <section class="section" aria-labelledby="josephus-why"><h2 id="josephus-why">Why (survivor + k) % n / 为什么是加 k 取模</h2><p class="section-intro">在 <code>n</code> 人的圈里，第一个被淘汰的是编号 <code>(k − 1) % n</code>，新一轮从编号 <code>k % n</code> 开始数，于是它在 <code>n − 1</code> 人的问题里成为新的 0 号。</p><div class="card-grid"><article class="paper-card"><strong>新编号 p → 旧编号 (p + k) % n</strong><p>新 0 号是旧 <code>k % n</code> 号，新 1 号是旧 <code>(k + 1) % n</code> 号……每个新编号都比旧编号少了 <code>k</code>，绕过圈尾时取模回到开头。</p></article><article class="paper-card"><strong>被淘汰的人不会被映射到</strong><p>新编号只有 <code>0 … n − 2</code>，加 <code>k</code> 后取模正好跳过旧编号 <code>(k − 1) % n</code>，也就是被淘汰的那个人。</p></article></div></section>
+      <section class="section" aria-labelledby="josephus-iter"><h2 id="josephus-iter">Iterative version / 迭代写法</h2><div class="card-grid"><article class="paper-card"><strong>自底向上</strong><pre><code>def josephus_optimized(n: int, k: int) -&gt; int:
+    res = 0
+    for i in range(2, n + 1):
+        res = (res + k) % i
+    return res</code></pre></article><article class="paper-card"><strong>同一条递推</strong><p>递归返回时做的事就是从 1 人一路映射到 n 人。迭代版直接按 <code>i = 2 … n</code> 的顺序算，省掉 O(n) 的调用栈。上面的例子：res 从 0（1 人）开始，依次变为 0 → 2 → 0 → 2。</p></article></div></section>
+      <section class="section" aria-labelledby="josephus-edge"><h2 id="josephus-edge">Edge cases / 边界情况</h2><div class="edge-grid"><article class="paper-card"><code>n = 1</code><p>不用淘汰任何人，答案是 0。</p></article><article class="paper-card"><code>k = 1</code><p>每次淘汰当前第一个人，最后留下的是 <code>n − 1</code> 号；递推 <code>(res + 1) % i</code> 也给出同样结果。</p></article><article class="paper-card"><code>k &gt; n</code><p>数的时候会绕圈多次；取模已经处理了绕圈，公式不变。</p></article><article class="paper-card"><code>k = 2</code><p>有闭式解：把 n 写成 <code>2^m + l</code>（<code>0 ≤ l &lt; 2^m</code>），幸存者编号是 <code>2l</code>。例子中 5 = 4 + 1，答案 2。</p></article></div></section>
+      <section class="section" aria-labelledby="josephus-complexity"><h2 id="josephus-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(n)</strong><p>从 n 递归到 1，每层 O(1)。</p></article><article class="paper-card"><strong>Space · O(n) / O(1)</strong><p>递归版占用 n 层调用栈；迭代版只用一个变量。</p></article></div></section>
+      <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../recursive-reverse-linked-list/">递归反转链表</a><a href="../linked-list-loop/">链表环检测</a><a href="../">返回目录</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.querySelector('#josephus-lab');
+        const N = 5;
+        const K = 2;
+        const names = 'ABCDEFGH'.slice(0, N).split('');
+        const $ = selector => root.querySelector(selector);
+        const stage = $('[data-stage]');
+        const svg = $('[data-scene]');
+        const scene = AlgorithmVisualCore.createSvgScene(svg);
+        const clone = value => JSON.parse(JSON.stringify(value));
+        const motion = AlgorithmVisualCore.createMotionController();
+        scene.defineMarker('jo-arrow', { fill: '#555', markerWidth: 7, markerHeight: 7 });
+
+        // rows[n] = people in the order of that call's numbering (index 0 first).
+        const rows = {};
+        rows[N] = [...names];
+        for (let size = N; size > 1; size -= 1) {
+          const start = K % size;
+          const order = rows[size];
+          const rotated = [...order.slice(start), ...order.slice(0, start)];
+          rows[size - 1] = rotated.slice(0, size - 1);
+        }
+        const removedIndex = size => (K - 1) % size;
+        const results = { 1: 0 };
+        for (let size = 2; size <= N; size += 1) results[size] = (results[size - 1] + K) % size;
+
+        function buildFrames() {
+          const frames = [];
+          const state = { deepest: N, active: N, phase: 'call', returned: [], line: null };
+          const add = (keys, label, line, text) => frames.push({ sourceKeys: keys, stepLabel: label, line, text, state: clone(state) });
+          add(['signature'], `调用 josephus(${N}, ${K})`, `josephus(${N}, ${K})`, `${N} 个人 ${names.join(' ')}，编号 0 到 ${N - 1}；每数到第 ${K} 个人就淘汰。`);
+          for (let size = N; size > 1; size -= 1) {
+            state.active = size;
+            state.phase = 'eliminate';
+            const out = removedIndex(size);
+            const next = rows[size][K % size];
+            add(['base-check', 'recurse'], `josephus(${size}, ${K}) · ${rows[size][out]} 出局`, `n = ${size} ≠ 1  →  josephus(${size - 1}, ${K})`, `n ≠ 1，递归。代码不会真的删除谁：概念上编号 ${out} 的 ${rows[size][out]} 出局，剩下 ${size - 1} 人从 ${next} 开始重新编号为 0…${size - 2}，交给子问题。`);
+            state.deepest = size - 1;
+            state.active = size - 1;
+            state.phase = 'call';
+            add(['signature'], `调用 josephus(${size - 1}, ${K})`, `josephus(${size - 1}, ${K})`, `新的一层：${rows[size - 1].map((name, index) => `${name}=${index}`).join('，')}。上一层还在等这个结果。`);
+          }
+          state.phase = 'base';
+          state.returned.push(1);
+          add(['base-check', 'base-return'], `josephus(1, ${K}) 返回 0`, 'if n == 1: return 0', `只剩 ${rows[1][0]}，他在这一层的编号是 0。开始逐层返回。`);
+          for (let size = 2; size <= N; size += 1) {
+            state.active = size;
+            state.phase = 'return';
+            state.returned.push(size);
+            const inner = results[size - 1];
+            const value = results[size];
+            add(['recurse'], `josephus(${size}, ${K}) 返回 ${value}`, `return (${inner} + ${K}) % ${size}  # = ${value}`, `子问题的幸存者编号 ${inner} 平移 ${K} 位回到这一层：(${inner} + ${K}) % ${size} = ${value}。仍然是同一个人 ${rows[size][value]}。`);
+          }
+          state.phase = 'done';
+          add(['recurse'], `答案 ${results[N]}`, `josephus(${N}, ${K}) = ${results[N]}`, `最后幸存的是原来编号 ${results[N]} 的 ${rows[N][results[N]]}。`);
+          return frames;
+        }
+
+        const geometry = { left: 70, gap: 64, top: 42, rowGap: 86, r: 21 };
+        const cx = index => geometry.left + index * geometry.gap;
+        const cy = size => geometry.top + (N - size) * geometry.rowGap;
+
+        function draw(state) {
+          scene.update(({ path, text, circle }) => {
+            for (let size = N; size >= state.deepest; size -= 1) {
+              const y = cy(size);
+              const isActive = state.active === size;
+              const eliminated = size > state.deepest || (state.active === size && state.phase === 'eliminate');
+              const out = size > 1 ? removedIndex(size) : -1;
+              const survivor = state.returned.includes(size) ? results[size] : -1;
+              text(`row-${size}-label`, { x: 10, y: y + 5, 'font-size': 14, class: 'mono', fill: isActive ? '#272727' : '#777' }, `n=${size}`);
+              if (isActive && state.phase !== 'done') {
+                path(`row-${size}-focus`, { d: `M1 ${y - 44} H${cx(size - 1) + 34} V${y + 44} H1 Z`, fill: 'none', stroke: '#777', 'stroke-dasharray': '4 4' });
+              }
+              rows[size].forEach((name, index) => {
+                const x = cx(index);
+                const gone = eliminated && index === out;
+                const won = index === survivor;
+                circle(`row-${size}-p-${index}`, { cx: x, cy: y, r: geometry.r, fill: won ? '#e9e5d9' : '#fffdf8', stroke: gone ? '#999' : '#272727', 'stroke-width': won ? 2.5 : 1.3, 'stroke-dasharray': gone ? '4 3' : null });
+                text(`row-${size}-n-${index}`, { x, y: y + 6, 'text-anchor': 'middle', 'font-size': 17, fill: gone ? '#555' : '#272727' }, name);
+                text(`row-${size}-i-${index}`, { x, y: y + 38, 'text-anchor': 'middle', 'font-size': 14, class: 'mono', fill: '#555' }, String(index));
+                if (gone) path(`row-${size}-x-${index}`, { d: `M${x + 13} ${y - 25} l10 10 M${x + 23} ${y - 25} l-10 10`, stroke: '#272727', 'stroke-width': 1.6, fill: 'none' });
+              });
+              if (size > 1 && eliminated && state.active === size && state.phase === 'eliminate') {
+                const restart = K % size;
+                text(`row-${size}-restart`, { x: cx(restart), y: y - 28, 'text-anchor': 'middle', 'font-size': 12, fill: '#555' }, '↓ 下一层 0 号');
+              }
+              if (survivor >= 0 && size > 1 && state.returned.includes(size)) {
+                const from = results[size - 1];
+                const x1 = cx(from);
+                const x2 = cx(survivor);
+                const y1 = cy(size - 1) - geometry.r - 2;
+                const y2 = y + geometry.r + 22;
+                path(`row-${size}-map`, { d: `M${x1} ${y1} C${x1} ${y1 - 18}, ${x2} ${y2 + 18}, ${x2} ${y2}`, fill: 'none', stroke: '#555', 'stroke-width': 1.3, 'marker-end': 'url(#jo-arrow)', 'stroke-dasharray': state.active === size && state.phase === 'return' ? null : '4 3' });
+                text(`row-${size}-map-label`, { x: Math.max(x1, x2) + 12, y: (y1 + y2) / 2 + 5, 'font-size': 13, class: 'mono', fill: '#555' }, `+${K} mod ${size}`);
+              }
+            }
+          });
+          svg.setAttribute('viewBox', `0 0 ${cx(N - 1) + 40} ${cy(1) + 50}`);
+        }
+
+        function render({ frame, state, step, frames }) {
+          $('[data-phase]').textContent = frame.stepLabel;
+          draw(state);
+          $('[data-value="call"]').textContent = state.phase === 'done' ? '—' : `josephus(${state.active}, ${K})`;
+          $('[data-value="depth"]').textContent = state.phase === 'done' ? 0 : N - state.active + 1;
+          $('[data-value="result"]').textContent = state.returned.length ? `${results[state.returned.at(-1)]}（${rows[state.returned.at(-1)][results[state.returned.at(-1)]]}）` : '—';
+          const size = state.active;
+          $('[data-invariant]').textContent = state.phase === 'eliminate'
+            ? `n = ${size}：淘汰编号 ${removedIndex(size)}，从编号 ${K % size} 重新数，所以新编号 p 对应旧编号 (p + ${K}) % ${size}。`
+            : state.phase === 'return' || state.phase === 'done'
+              ? '每一行的加粗圆圈都是同一个人；只有他的编号随着这一层的编号方式改变。'
+              : '字母是同一个人，下面的数字是他在这一层调用里的编号。';
+          $('[data-expression]').textContent = frame.line;
+          $('[data-explanation]').textContent = frame.text;
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.text}`);
+        }
+
+        AlgorithmVisualCore.createTrace({
+          root,
+          cloneState: clone,
+          motion,
+          onRender: render,
+          onTransition: ({ state, beforeState }) => {
+            if (motion.reduced) return;
+            const fresh = state.deepest < beforeState.deepest ? `row-${state.deepest}-` : state.returned.length > beforeState.returned.length ? `row-${state.returned.at(-1)}-map` : null;
+            if (!fresh) return;
+            svg.querySelectorAll(`[data-visual-element^="${fresh}"]`).forEach(element => element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: 'ease-out' }));
+          },
+          formatStepOption: (frame, index) => `${index + 1}. ${frame.stepLabel}`
+        }).setFrames(buildFrames());
+      })();
+    </script>
+  </body>
+</html>
