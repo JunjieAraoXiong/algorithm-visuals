@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of the triangle numbers problem: build the rows, watch the parity of the first four positions repeat every four rows, then answer in O(1). 三角形数字：观察前 4 个位置的奇偶每 4 行重复，O(1) 给出第一个偶数的位置。" />
+    <title>Triangle Numbers · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { overflow: hidden; padding: 8px 0 10px; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .stage svg { display: block; width: 100%; max-width: 560px; height: auto; margin: 0 auto; }
+      .stage text { font-family: Arial, Helvetica, sans-serif; }
+      .stage .mono { font-family: monospace; }
+      .parity { width: fit-content; max-width: calc(100% - 6px); margin: 12px 3px 0; padding: 10px 12px; border: 1px solid var(--rule); }
+      .parity caption { margin-bottom: 6px; font: 12px/1.4 monospace; text-align: left; }
+      .parity td strong { font-weight: normal; }
+      .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+      .parity table { border-collapse: collapse; font: 12px/1.3 monospace; }
+      .parity th, .parity td { min-width: 30px; padding: 3px 6px; border: 1px solid #b7b7b1; text-align: center; font-weight: normal; }
+      .parity th { color: var(--quiet); }
+      .parity td.even { background: #e9e5d9; }
+      .parity td.first { outline: 2px solid var(--ink); outline-offset: -2px; }
+      .parity tr.repeat td, .parity tr.repeat th { border-style: dashed; }
+      .parity tr.focus th { color: var(--ink); text-decoration: underline; }
+      .parity .repeat-note { margin: 6px 0 0; color: var(--quiet); font-size: 12px; }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; align-content: start; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .card-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { margin: 8px 0 0; }
+      .full-triangle { margin: 10px 0 0; overflow-x: auto; font: 12px/1.6 monospace; white-space: pre; }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="triangle-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Triangle Numbers · 三角形数字</h1></div></header>
+      <p class="problem">The top row of a triangle is <code>1</code>. Each number below is the sum of the three numbers above it (top-left, top, top-right; missing numbers count as <code>0</code>). Given a row number <code>n ≥ 3</code>, return the position of the first even number in that row (positions start at <code>1</code>).<span lang="zh-CN">三角形顶端是 1。下面每个数等于它左上、正上、右上三个数之和（不存在的按 0 算）。给定行号 n（n ≥ 3），返回这一行第一个偶数的位置（位置从 1 开始）。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="三角形数字演示 / triangle numbers trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="Algorithm trace / 算法演示">
+            <svg data-scene viewBox="0 0 420 330" role="img" aria-label="三角形左半边：每行从位置 1 画到中间位置"></svg>
+          </div>
+          <div class="parity" data-parity>
+            <table><caption>前 4 个位置的奇偶</caption><thead><tr><th scope="col">行</th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th></tr></thead><tbody data-parity-body></tbody></table>
+            <p class="repeat-note" data-repeat-note></p>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong data-invariant-title></strong><p data-invariant></p></article>
+            <dl class="metrics"><div><dt>行 <code>n</code></dt><dd data-value="row"></dd></div><div><dt><code>n % 2</code></dt><dd data-value="mod2"></dd></div><div><dt><code>n % 4</code></dt><dd data-value="mod4"></dd></div><div><dt>第一个偶数位置</dt><dd data-value="answer"></dd></div></dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="triangle-code-title">
+          <h2 id="triangle-code-title">Final Python / 最终代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="c-brute">#（观察用）暴力生成下一行</span><span class="code-line" data-source-key="next-row">def next_row(row: List[int]) -&gt; List[int]:</span><span class="code-line" data-source-key="pad">    padded = [0, 0] + row + [0, 0]</span><span class="code-line" data-source-key="sum">    return [padded[i] + padded[i + 1] + padded[i + 2]</span><span class="code-line" data-source-key="sum-range">            for i in range(len(row) + 2)]</span><span class="code-line" data-source-key="blank"> </span><span class="code-line" data-source-key="c-pattern">#  规律：从第 3 行起，前 4 个位置的奇偶每 4 行重复</span><span class="code-line" data-source-key="signature">def triangle_numbers(n: int) -&gt; int:</span><span class="code-line" data-source-key="c-odd">    # 奇数行：位置 2 是第一个偶数</span><span class="code-line" data-source-key="odd-check">    if n % 2 != 0:</span><span class="code-line" data-source-key="return-2">        return 2</span><span class="code-line" data-source-key="c-four">    # 4 的倍数行：位置 3 是第一个偶数</span><span class="code-line" data-source-key="four-check">    elif n % 4 == 0:</span><span class="code-line" data-source-key="return-3">        return 3</span><span class="code-line" data-source-key="c-else">    # 其余偶数行：位置 4 是第一个偶数</span><span class="code-line" data-source-key="return-4">    return 4</span></code></pre>
+          <p class="note"><code>next_row</code> 只用来找规律；真正的答案 <code>triangle_numbers</code> 是 O(1)。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="triangle-shape"><h2 id="triangle-shape">The full triangle / 完整三角形</h2><p class="section-intro">每一行左右对称，第 n 行有 2n − 1 个数，中间位置是 n。所以只看左半边就能找到第一个偶数；演示里只画位置 1 到 n。</p><pre class="full-triangle" aria-label="三角形前 5 行">           1
+         1   1   1
+       1   2   3   2   1
+     1   3   6   7   6   3   1
+   1   4  10  16  19  16  10   4   1</pre></section>
+      <section class="section" aria-labelledby="triangle-why"><h2 id="triangle-why">Why only four positions / 为什么只看前 4 个位置</h2><ol class="section-intro"><li>位置 1 永远是 1（上面只有一个 1，另外两个按 0 算），所以位置 1 不会是偶数。</li><li>位置 p 只由上一行的位置 p − 2、p − 1、p 决定。所以“前 4 个位置的奇偶”只取决于上一行“前 4 个位置的奇偶”。</li><li>从第 3 行起，上一行至少有 5 个数，所以计算前 4 个位置不会碰到右侧边界，规则每行都一样。第 7 行前 4 个位置的奇偶与第 3 行完全相同，之后每一行都由上一行唯一决定，于是整个模式以 4 行为周期重复：奇数行 → 2，4 的倍数行 → 3，其余偶数行 → 4。</li><li>每个周期里第一个偶数都落在位置 2、3 或 4，所以不必看更远的位置。</li></ol></section>
+      <section class="section" aria-labelledby="triangle-edge"><h2 id="triangle-edge">Edge cases / 边界情况</h2><div class="edge-grid"><article class="paper-card"><code>n = 1, 2</code><p>这两行全是 1，没有偶数；题目约定 <code>n ≥ 3</code>。若要处理它们，可以先判断并返回 -1。</p></article><article class="paper-card">很大的 n<p>数字本身会指数增长，暴力生成既慢又占内存；规律只用到 <code>n % 4</code>。</p></article></div></section>
+      <section class="section" aria-labelledby="triangle-complexity"><h2 id="triangle-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(1)</strong><p>只做两次取模判断。（暴力生成到第 n 行是 O(n²)。）</p></article><article class="paper-card"><strong>Space · O(1)</strong><p>不需要保存任何一行。</p></article></div></section>
+      <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../happy-number/">快乐数</a><a href="../sum-between-range/">区间求和</a><a href="../">返回目录</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.querySelector('#triangle-lab');
+        const ROWS = 8;
+        const $ = selector => root.querySelector(selector);
+        const stage = $('[data-stage]');
+        const svg = $('[data-scene]');
+        const scene = AlgorithmVisualCore.createSvgScene(svg);
+        const clone = value => JSON.parse(JSON.stringify(value));
+        const motion = AlgorithmVisualCore.createMotionController();
+
+        const rows = [[1]];
+        while (rows.length < ROWS) {
+          const row = rows.at(-1);
+          const padded = [0, 0, ...row, 0, 0];
+          rows.push(row.map((_, i) => i).concat([row.length, row.length + 1]).map(i => padded[i] + padded[i + 1] + padded[i + 2]));
+        }
+        const firstEven = r => { const index = rows[r - 1].findIndex(value => value % 2 === 0); return index < 0 ? null : index + 1; };
+        const answer = n => (n % 2 !== 0 ? 2 : n % 4 === 0 ? 3 : 4);
+
+        function buildFrames() {
+          const frames = [];
+          const state = { built: 1, focus: 1, phase: 'build', parity: false, query: null };
+          const add = (keys, label, line, text) => frames.push({ sourceKeys: keys, stepLabel: label, line, text, state: clone(state) });
+          add(['next-row'], '第 1 行', 'row = [1]  # 起始行；之后每行 = next_row(上一行)', '顶端只有一个 1。下面用 next_row 逐行生成，观察第一个偶数的位置。');
+          for (let r = 2; r <= ROWS; r += 1) {
+            state.built = r;
+            state.focus = r;
+            const first = firstEven(r);
+            const sample = r >= 4 ? 3 : r - 1;
+            const above = [sample - 2, sample - 1, sample].map(p => (p >= 1 && p <= 2 * r - 3 ? rows[r - 2][p - 1] : 0));
+            add(['pad', 'sum', 'sum-range'], `第 ${r} 行`, `row = next_row(row)  # 位置 ${sample} = ${above.join(' + ')} = ${rows[r - 1][sample - 1]}`,
+              `虚线框是上一行的来源（位置 ${sample - 2}…${sample}，越界按 0），实线框是本行位置 ${sample}。` + (first ? `第 ${r} 行的第一个偶数是位置 ${first} 的 ${rows[r - 1][first - 1]}。` : `第 ${r} 行左半边全是奇数，没有偶数。`));
+          }
+          state.phase = 'pattern';
+          state.parity = true;
+          state.focus = null;
+          add(['signature'], '发现周期', '# 前 4 个位置的奇偶：第 7 行 = 第 3 行，第 8 行 = 第 4 行', '这是观察得到的规律，不是执行的代码：前 4 个位置的奇偶只由上一行的前 4 个位置决定，第 7 行和第 3 行一样，所以之后每 4 行重复一次。据此写出 triangle_numbers。');
+          for (let n = 3; n <= ROWS; n += 1) {
+            state.phase = 'query';
+            state.query = n;
+            state.focus = n;
+            const result = answer(n);
+            const keys = n % 2 !== 0 ? ['odd-check', 'return-2'] : n % 4 === 0 ? ['odd-check', 'four-check', 'return-3'] : ['odd-check', 'four-check', 'return-4'];
+            const reason = n % 2 !== 0 ? `${n} 是奇数` : n % 4 === 0 ? `${n} 是 4 的倍数` : `${n} 是偶数但不是 4 的倍数`;
+            add(keys, `triangle_numbers(${n}) = ${result}`, `triangle_numbers(${n})  →  return ${result}`, `${reason}，返回 ${result}；与第 ${n} 行实际的第一个偶数位置 ${firstEven(n)} 一致。`);
+          }
+          return frames;
+        }
+
+        const cell = { w: 46, h: 34, gap: 4 };
+        const rowGap = 38;
+        const labelWidth = 26;
+        const center = labelWidth + (ROWS - 1) * (cell.w + cell.gap) + cell.w / 2 + 4;
+        const cellX = (r, p) => center + (p - r) * (cell.w + cell.gap);
+        const rowY = r => 24 + (r - 1) * rowGap;
+
+        function draw(state) {
+          scene.update(({ path, text }) => {
+            text('row-head', { x: 4, y: 14, 'font-size': 12, fill: '#555' }, '行');
+            for (let r = 1; r <= state.built; r += 1) {
+              const y = rowY(r);
+              const focus = state.focus === r;
+              const first = firstEven(r);
+              text(`label-${r}`, { x: 4, y: y + cell.h / 2 + 6, 'font-size': 16, class: 'mono', fill: focus ? '#272727' : '#777' }, String(r));
+              for (let p = 1; p <= r; p += 1) {
+                const value = rows[r - 1][p - 1];
+                const x = cellX(r, p);
+                const even = value % 2 === 0;
+                const isFirst = p === first;
+                path(`cell-${r}-${p}`, {
+                  d: `M${x - cell.w / 2} ${y} h${cell.w} v${cell.h} h${-cell.w} Z`,
+                  fill: even ? '#e9e5d9' : '#fffdf8',
+                  stroke: isFirst && (focus || state.parity) ? '#272727' : '#999',
+                  'stroke-width': isFirst && (focus || state.parity) ? 2.5 : 1
+                });
+                text(`value-${r}-${p}`, { x, y: y + cell.h / 2 + 5, 'text-anchor': 'middle', 'font-size': value >= 100 ? 15 : 18, fill: '#272727' }, String(value));
+              }
+              if (focus && r === state.built && r > 1 && state.phase === 'build') {
+                const p = r >= 4 ? 3 : r - 1;
+                const box = (id, rr, q, dash) => path(id, { d: `M${cellX(rr, q) - cell.w / 2 + 3} ${rowY(rr) + 3} h${cell.w - 6} v${cell.h - 6} h${-(cell.w - 6)} Z`, fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': dash });
+                [p - 2, p - 1, p].forEach(q => { if (q >= 1 && q <= r - 1) box(`feed-${q}`, r - 1, q, '3 2'); });
+                box('feed-target', r, p, null);
+              }
+            }
+            if (state.focus) {
+              const y = rowY(state.focus);
+              path('focus', { d: `M1 ${y - 3} H${center + cell.w / 2 + 4} V${y + cell.h + 3} H1 Z`, fill: 'none', stroke: '#777', 'stroke-dasharray': '4 4' });
+            }
+          });
+          svg.setAttribute('viewBox', `0 0 ${center + cell.w / 2 + 8} ${rowY(ROWS) + cell.h + 8}`);
+        }
+
+        function drawParity(state) {
+          const body = [];
+          for (let r = 3; r <= ROWS; r += 1) {
+            const first = firstEven(r);
+            const cells = [1, 2, 3, 4].map(p => {
+              const value = rows[r - 1][p - 1];
+              const even = value % 2 === 0;
+              if (r > state.built) return '<td></td>';
+              if (p === first) return '<td class="even first"><strong>偶</strong><span class="sr-only">（第一个偶数）</span></td>';
+              return `<td class="${even ? 'even' : ''}">${even ? '偶' : '奇'}</td>`;
+            }).join('');
+            body.push(`<tr class="${state.parity && r >= 7 ? 'repeat' : ''}${state.focus === r ? ' focus' : ''}"><th scope="row">${r}</th>${cells}</tr>`);
+          }
+          $('[data-parity-body]').innerHTML = body.join('');
+          $('[data-repeat-note]').textContent = state.parity ? '粗框格是每行第一个偶数。虚线行：第 7、8 行与第 3、4 行完全相同，周期为 4。' : '粗框格是每行第一个偶数。';
+        }
+
+        function render({ frame, state, step, frames }) {
+          $('[data-phase]').textContent = frame.stepLabel;
+          draw(state);
+          drawParity(state);
+          const n = state.query ?? state.focus;
+          $('[data-value="row"]').textContent = n ?? '—';
+          $('[data-value="mod2"]').textContent = state.query ? state.query % 2 : '—';
+          $('[data-value="mod4"]').textContent = state.query ? state.query % 4 : '—';
+          $('[data-value="answer"]').textContent = n ? (firstEven(n) ?? '无') : '—';
+          if (state.phase === 'build') {
+            $('[data-invariant-title]').textContent = '只画左半边 / Left half';
+            $('[data-invariant]').textContent = '每行左右对称，位置 1 到 n 已包含第一个偶数可能出现的位置。灰底格是偶数，粗框是本行第一个偶数。';
+          } else {
+            $('[data-invariant-title]').textContent = '周期 4 / Period 4';
+            $('[data-invariant]').textContent = state.query
+              ? (state.query >= 7 ? `第 ${state.query} 行前 4 个位置的奇偶与第 ${state.query - 4} 行相同（周期 4），所以只需看 n % 4。` : `第 ${state.query} 行属于第一个周期（第 3–6 行）；之后的行都按 n % 4 对应回这里。`)
+              : '第 3–6 行覆盖了一个完整周期，第 7 行起重复。';
+          }
+          $('[data-expression]').textContent = frame.line;
+          $('[data-explanation]').textContent = frame.text;
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.text}`);
+        }
+
+        AlgorithmVisualCore.createTrace({
+          root,
+          cloneState: clone,
+          motion,
+          onRender: render,
+          onTransition: ({ state, beforeState }) => {
+            if (motion.reduced || state.built <= beforeState.built) return;
+            svg.querySelectorAll(`[data-visual-element^="cell-${state.built}-"], [data-visual-element^="value-${state.built}-"], [data-visual-element^="feed"]`)
+              .forEach(element => element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: 'ease-out' }));
+          },
+          formatStepOption: (frame, index) => `${index + 1}. ${frame.stepLabel}`
+        }).setFrames(buildFrames());
+      })();
+    </script>
+  </body>
+</html>
