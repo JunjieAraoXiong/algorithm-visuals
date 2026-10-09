@@ -27,6 +27,24 @@ test('both inversion methods mirror entire subtrees and accept an empty tree', a
   await expect(page.locator('svg .node')).toHaveCount(0);
 });
 
+test('iterative inversion keeps root before pop and retains the last node after the stack empties', async ({page}) => {
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/invert-binary-tree/?case=iterative#step=0');
+  await expect(page.locator('[data-visual-element="reference-label"]')).toHaveText('root');
+  await expect(page.locator('[data-memory] h3')).toContainText('stack');
+  const options=page.locator('[data-step-select] option');
+  const finalWhile=await options.evaluateAll(items=>items.map((o,i)=>o.textContent.includes('while stack')?i:-1).filter(i=>i>=0).pop());
+  await page.locator('[data-step-select]').selectOption(String(finalWhile));
+  await expect(page.locator('[data-memory-items]')).toHaveText('∅');
+  await expect(page.locator('[data-visual-element="reference-label"]')).toHaveText('node');
+  await expect(page.locator('[data-visual-element="null-reference"]')).toHaveCount(0);
+  const nodeY=Number(await page.locator('[data-visual-element="node-f"]').getAttribute('cy'));
+  const referenceY=Number(await page.locator('[data-visual-element="reference-label"]').getAttribute('y'));
+  expect(referenceY).toBe(nodeY-45);
+  await finish(page);
+  await expect(page.locator('[data-visual-element="reference-label"]')).toHaveText('root');
+});
+
 test('balance validation propagates internal imbalance instead of accepting equal root heights', async ({page}) => {
   await page.goto('/balanced-binary-tree-validation/#step=0');
   await finish(page);
