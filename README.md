@@ -94,18 +94,23 @@ Source folders are ordered for repository browsing. The build keeps the public U
 
 ### 11 · Trees / 树
 
-- [Binary Tree Symmetry / 二叉树对称性](https://junjiearaoxiong.github.io/algorithm-visuals/binary-tree-symmetry/)
-- [Binary Tree Columns / 二叉树的垂序遍历](https://junjiearaoxiong.github.io/algorithm-visuals/binary-tree-columns/)
-- [Kth Smallest Number in a Binary Search Tree / 二叉搜索树中第 K 小的数](https://junjiearaoxiong.github.io/algorithm-visuals/kth-smallest-number-in-a-binary-search-tree/)
-- [Serialize and Deserialize a Binary Tree / 二叉树的序列化与反序列化](https://junjiearaoxiong.github.io/algorithm-visuals/serialize-and-deserialize-a-binary-tree/)
+#### DFS / 深度优先
+
 - [Invert Binary Tree / 翻转二叉树](https://junjiearaoxiong.github.io/algorithm-visuals/invert-binary-tree/)
 - [Balanced Binary Tree Validation / 平衡二叉树验证](https://junjiearaoxiong.github.io/algorithm-visuals/balanced-binary-tree-validation/)
-- [Rightmost Nodes of a Binary Tree / 二叉树每层最右节点](https://junjiearaoxiong.github.io/algorithm-visuals/rightmost-nodes-of-a-binary-tree/)
-- [Widest Binary Tree Level / 二叉树最大层宽](https://junjiearaoxiong.github.io/algorithm-visuals/widest-binary-tree-level/)
 - [Binary Search Tree Validation / 二叉搜索树验证](https://junjiearaoxiong.github.io/algorithm-visuals/binary-search-tree-validation/)
 - [Lowest Common Ancestor / 最近公共祖先](https://junjiearaoxiong.github.io/algorithm-visuals/lowest-common-ancestor/)
 - [Build Binary Tree From Preorder and Inorder Traversals / 从前序与中序遍历构建二叉树](https://junjiearaoxiong.github.io/algorithm-visuals/build-binary-tree-from-preorder-and-inorder-traversals/)
 - [Maximum Sum of a Continuous Path in a Binary Tree / 二叉树最大路径和](https://junjiearaoxiong.github.io/algorithm-visuals/maximum-sum-of-a-continuous-path-in-a-binary-tree/)
+- [Binary Tree Symmetry / 二叉树对称性](https://junjiearaoxiong.github.io/algorithm-visuals/binary-tree-symmetry/)
+- [Kth Smallest Number in a Binary Search Tree / 二叉搜索树中第 K 小的数](https://junjiearaoxiong.github.io/algorithm-visuals/kth-smallest-number-in-a-binary-search-tree/)
+- [Serialize and Deserialize a Binary Tree / 二叉树的序列化与反序列化](https://junjiearaoxiong.github.io/algorithm-visuals/serialize-and-deserialize-a-binary-tree/)
+
+#### BFS / 广度优先
+
+- [Rightmost Nodes of a Binary Tree / 二叉树每层最右节点](https://junjiearaoxiong.github.io/algorithm-visuals/rightmost-nodes-of-a-binary-tree/)
+- [Widest Binary Tree Level / 二叉树最大层宽](https://junjiearaoxiong.github.io/algorithm-visuals/widest-binary-tree-level/)
+- [Binary Tree Columns / 二叉树的垂序遍历](https://junjiearaoxiong.github.io/algorithm-visuals/binary-tree-columns/)
 
 ### 12 · Graphs / 图
 
