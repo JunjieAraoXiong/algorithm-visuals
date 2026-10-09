@@ -151,3 +151,70 @@ test('maximum path separates the two-arm candidate 30 from gain 21 and accepts a
   await expect(page.locator('[data-visual-element="node-b"]')).toHaveClass(/on-path/);
   await expect(page.locator('[data-visual-element="node-a"]')).not.toHaveClass(/on-path/);
 });
+
+test('a child reference leaves its parent position label readable on narrow screens', async ({page}) => {
+  await page.emulateMedia({reducedMotion:'reduce'});
+  for (const width of [320,390]) {
+    await page.setViewportSize({width,height:844});
+    await page.goto('/widest-binary-tree-level/#step=0');
+    const index=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('node, i = (11, 10)')));
+    await page.locator('[data-step-select]').selectOption(String(index));
+    const overlaps=await page.locator('[data-stage] svg').evaluate(svg=>{
+      const box=svg.querySelector('[data-visual-element="reference-box"]').getBBox();
+      const label=svg.querySelector('[data-visual-element="index-e"]').getBBox();
+      return box.x<label.x+label.width && box.x+box.width>label.x && box.y<label.y+label.height && box.y+box.height>label.y;
+    });
+    expect(overlaps).toBe(false);
+    await expect(page.locator('[data-visual-element="index-e"]')).toHaveText('i=4');
+  }
+});
+
+test('queue front and back follow FIFO order even when the next layer is waiting', async ({page}) => {
+  await page.goto('/rightmost-nodes-of-a-binary-tree/#step=0');
+  const options=page.locator('[data-step-select] option');
+  const push=await options.evaluateAll(items=>items.findIndex(o=>o.textContent.includes('queue.append(node.right)')));
+  await page.locator('[data-step-select]').selectOption(String(push));
+  await expect(page.locator('.queue-head')).toContainText('队首');
+  await expect(page.locator('.queue-head > div')).toHaveText('2');
+  await expect(page.locator('.queue-tail > div')).toHaveText('3');
+  await expect(page.locator('.queue-head')).toHaveClass(/next-level/);
+  const pop=await options.evaluateAll((items,after)=>items.findIndex((o,i)=>i>after && o.textContent.includes('node = queue.popleft()')),push);
+  await page.locator('[data-step-select]').selectOption(String(pop));
+  await expect(page.locator('.queue-head > div')).toHaveText('3');
+  await expect(page.locator('.queue-head .memory-role')).toHaveText('队首 / 队尾');
+  await expect(page.locator('.queue-head')).not.toHaveClass(/next-level/);
+  await finish(page);
+  await expect(page.locator('.memory-role')).toHaveCount(0);
+});
+
+test('an explicit stack marks the next pop while recursion marks the executing call', async ({page}) => {
+  await page.goto('/invert-binary-tree/?case=iterative#step=0');
+  const push=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('stack.append(node.right)')));
+  await page.locator('[data-step-select]').selectOption(String(push));
+  await expect(page.locator('.memory-item.current .memory-role')).toHaveText('栈顶 · 待弹出');
+  await expect(page.locator('.memory-item.current > div')).toHaveText('node = 1');
+  await expect(page.locator('[data-visual-element="node-a"]')).toHaveClass(/active/);
+  await page.goto('/balanced-binary-tree-validation/#step=0');
+  const child=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex((o,i)=>i>2 && o.textContent.includes('if not node')));
+  await page.locator('[data-step-select]').selectOption(String(child));
+  await expect(page.locator('.memory-item.current .memory-role')).toHaveText('当前调用');
+  await expect(page.locator('.memory-item.current > div')).toHaveText('node = 2');
+});
+
+test('map insertion emphasis clears on the next iteration', async ({page}) => {
+  await page.goto('/build-binary-tree-from-preorder-and-inorder-traversals/#step=0');
+  const write=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('inorder_indexes_map[2] = 0')));
+  await page.locator('[data-step-select]').selectOption(String(write));
+  await expect(page.locator('.memory-item.current .memory-role')).toHaveText('本次写入');
+  await expect(page.locator('.memory-item.current > div')).toHaveText('2 → 0');
+  await expect(page.locator('[data-stage]')).toBeHidden();
+  await page.locator('[data-action="next"]').click();
+  await expect(page.locator('.memory-item.current')).toHaveCount(0);
+  await expect(page.locator('.memory-role')).toHaveCount(0);
+  const node=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('node = TreeNode(5)')));
+  await page.locator('[data-step-select]').selectOption(String(node));
+  await expect(page.locator('[data-stage]')).toBeVisible();
+  await expect(page.locator('svg .node')).toHaveCount(1);
+  await finish(page);
+  await expect(page.locator('svg .node')).toHaveCount(6);
+});
