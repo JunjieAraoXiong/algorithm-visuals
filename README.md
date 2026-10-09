@@ -113,6 +113,10 @@ Source folders are ordered for repository browsing. The build keeps the public U
 
 - [Largest Square in a Matrix / 矩阵中的最大正方形](https://junjiearaoxiong.github.io/algorithm-visuals/largest-square-in-a-matrix/)
 
+### 15 · Sort and Search / 排序与搜索
+
+- [Dutch National Flag / 荷兰国旗问题](https://junjiearaoxiong.github.io/algorithm-visuals/dutch-national-flag/)
+
 ## Development
 
 - `npm run build` validates the registry, catalog, README inventory, and internal links, then writes the ignored `_site/` directory.
