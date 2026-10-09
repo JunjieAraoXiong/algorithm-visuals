@@ -109,6 +109,10 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [Kth Smallest Number in a Binary Search Tree / 二叉搜索树中第 K 小的数](https://junjiearaoxiong.github.io/algorithm-visuals/kth-smallest-number-in-a-binary-search-tree/)
 - [Serialize and Deserialize a Binary Tree / 二叉树的序列化与反序列化](https://junjiearaoxiong.github.io/algorithm-visuals/serialize-and-deserialize-a-binary-tree/)
 
+### 14 · Dynamic Programming / 动态规划
+
+- [Largest Square in a Matrix / 矩阵中的最大正方形](https://junjiearaoxiong.github.io/algorithm-visuals/largest-square-in-a-matrix/)
+
 ## Development
 
 - `npm run build` validates the registry, catalog, README inventory, and internal links, then writes the ignored `_site/` directory.
