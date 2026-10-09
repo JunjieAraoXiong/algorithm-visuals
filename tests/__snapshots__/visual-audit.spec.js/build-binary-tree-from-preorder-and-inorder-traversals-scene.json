@@ -1,0 +1,1863 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "算法逐步执行"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "label",
+      "attributes": [
+        [
+          "class",
+          "settings"
+        ]
+      ],
+      "children": [
+        "输入",
+        {
+          "tag": "select",
+          "attributes": [
+            [
+              "aria-label",
+              "构建二叉树输入"
+            ],
+            [
+              "data-case",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "original"
+                ]
+              ],
+              "children": [
+                "原图：5、9、2、3、4、7"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "empty"
+                ]
+              ],
+              "children": [
+                "两个空数组"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 90"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "1 · preorder_index = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "2 · inorder_indexes_map = {}"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "3 · for i, val in enumerate(inorder) · (0, 2)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "4 · inorder_indexes_map[2] = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "5 · for i, val in enumerate(inorder) · (1, 9)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "6 · inorder_indexes_map[9] = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "7 · for i, val in enumerate(inorder) · (2, 5)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "8 · inorder_indexes_map[5] = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "9 · for i, val in enumerate(inorder) · (3, 4)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "10 · inorder_indexes_map[4] = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "11 · for i, val in enumerate(inorder) · (4, 3)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "12 · inorder_indexes_map[3] = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "13 · for i, val in enumerate(inorder) · (5, 7)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "14 · inorder_indexes_map[7] = 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "15 · build_subtree(0, 5, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "16 · 0 > 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "17 · val = preorder[0] = 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "18 · inorder_index = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "19 · node = TreeNode(5)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "19"
+                    ]
+                  ],
+                  "children": [
+                    "20 · preorder_index += 1 → 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "20"
+                    ]
+                  ],
+                  "children": [
+                    "21 · node.left = build_subtree(0, 1, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "21"
+                    ]
+                  ],
+                  "children": [
+                    "22 · 0 > 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "22"
+                    ]
+                  ],
+                  "children": [
+                    "23 · val = preorder[1] = 9"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "23"
+                    ]
+                  ],
+                  "children": [
+                    "24 · inorder_index = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "24"
+                    ]
+                  ],
+                  "children": [
+                    "25 · node = TreeNode(9)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "25"
+                    ]
+                  ],
+                  "children": [
+                    "26 · preorder_index += 1 → 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "26"
+                    ]
+                  ],
+                  "children": [
+                    "27 · node.left = build_subtree(0, 0, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "27"
+                    ]
+                  ],
+                  "children": [
+                    "28 · 0 > 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "28"
+                    ]
+                  ],
+                  "children": [
+                    "29 · val = preorder[2] = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "29"
+                    ]
+                  ],
+                  "children": [
+                    "30 · inorder_index = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "30"
+                    ]
+                  ],
+                  "children": [
+                    "31 · node = TreeNode(2)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "31"
+                    ]
+                  ],
+                  "children": [
+                    "32 · preorder_index += 1 → 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "32"
+                    ]
+                  ],
+                  "children": [
+                    "33 · node.left = build_subtree(0, -1, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "33"
+                    ]
+                  ],
+                  "children": [
+                    "34 · 0 > -1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "34"
+                    ]
+                  ],
+                  "children": [
+                    "35 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "35"
+                    ]
+                  ],
+                  "children": [
+                    "36 · node.left = None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "36"
+                    ]
+                  ],
+                  "children": [
+                    "37 · node.right = build_subtree(1, 0, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "37"
+                    ]
+                  ],
+                  "children": [
+                    "38 · 1 > 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "38"
+                    ]
+                  ],
+                  "children": [
+                    "39 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "39"
+                    ]
+                  ],
+                  "children": [
+                    "40 · node.right = None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "40"
+                    ]
+                  ],
+                  "children": [
+                    "41 · return node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "41"
+                    ]
+                  ],
+                  "children": [
+                    "42 · node.left = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "42"
+                    ]
+                  ],
+                  "children": [
+                    "43 · node.right = build_subtree(2, 1, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "43"
+                    ]
+                  ],
+                  "children": [
+                    "44 · 2 > 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "44"
+                    ]
+                  ],
+                  "children": [
+                    "45 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "45"
+                    ]
+                  ],
+                  "children": [
+                    "46 · node.right = None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "46"
+                    ]
+                  ],
+                  "children": [
+                    "47 · return node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "47"
+                    ]
+                  ],
+                  "children": [
+                    "48 · node.left = 9"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "48"
+                    ]
+                  ],
+                  "children": [
+                    "49 · node.right = build_subtree(3, 5, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "49"
+                    ]
+                  ],
+                  "children": [
+                    "50 · 3 > 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "50"
+                    ]
+                  ],
+                  "children": [
+                    "51 · val = preorder[3] = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "51"
+                    ]
+                  ],
+                  "children": [
+                    "52 · inorder_index = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "52"
+                    ]
+                  ],
+                  "children": [
+                    "53 · node = TreeNode(3)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "53"
+                    ]
+                  ],
+                  "children": [
+                    "54 · preorder_index += 1 → 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "54"
+                    ]
+                  ],
+                  "children": [
+                    "55 · node.left = build_subtree(3, 3, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "55"
+                    ]
+                  ],
+                  "children": [
+                    "56 · 3 > 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "56"
+                    ]
+                  ],
+                  "children": [
+                    "57 · val = preorder[4] = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "57"
+                    ]
+                  ],
+                  "children": [
+                    "58 · inorder_index = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "58"
+                    ]
+                  ],
+                  "children": [
+                    "59 · node = TreeNode(4)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "59"
+                    ]
+                  ],
+                  "children": [
+                    "60 · preorder_index += 1 → 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "60"
+                    ]
+                  ],
+                  "children": [
+                    "61 · node.left = build_subtree(3, 2, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "61"
+                    ]
+                  ],
+                  "children": [
+                    "62 · 3 > 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "62"
+                    ]
+                  ],
+                  "children": [
+                    "63 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "63"
+                    ]
+                  ],
+                  "children": [
+                    "64 · node.left = None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "64"
+                    ]
+                  ],
+                  "children": [
+                    "65 · node.right = build_subtree(4, 3, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "65"
+                    ]
+                  ],
+                  "children": [
+                    "66 · 4 > 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "66"
+                    ]
+                  ],
+                  "children": [
+                    "67 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "67"
+                    ]
+                  ],
+                  "children": [
+                    "68 · node.right = None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "68"
+                    ]
+                  ],
+                  "children": [
+                    "69 · return node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "69"
+                    ]
+                  ],
+                  "children": [
+                    "70 · node.left = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "70"
+                    ]
+                  ],
+                  "children": [
+                    "71 · node.right = build_subtree(5, 5, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "71"
+                    ]
+                  ],
+                  "children": [
+                    "72 · 5 > 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "72"
+                    ]
+                  ],
+                  "children": [
+                    "73 · val = preorder[5] = 7"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "73"
+                    ]
+                  ],
+                  "children": [
+                    "74 · inorder_index = 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "74"
+                    ]
+                  ],
+                  "children": [
+                    "75 · node = TreeNode(7)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "75"
+                    ]
+                  ],
+                  "children": [
+                    "76 · preorder_index += 1 → 6"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "76"
+                    ]
+                  ],
+                  "children": [
+                    "77 · node.left = build_subtree(5, 4, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "77"
+                    ]
+                  ],
+                  "children": [
+                    "78 · 5 > 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "78"
+                    ]
+                  ],
+                  "children": [
+                    "79 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "79"
+                    ]
+                  ],
+                  "children": [
+                    "80 · node.left = None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "80"
+                    ]
+                  ],
+                  "children": [
+                    "81 · node.right = build_subtree(6, 5, preorder, inorder)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "81"
+                    ]
+                  ],
+                  "children": [
+                    "82 · 6 > 5"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "82"
+                    ]
+                  ],
+                  "children": [
+                    "83 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "83"
+                    ]
+                  ],
+                  "children": [
+                    "84 · node.right = None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "84"
+                    ]
+                  ],
+                  "children": [
+                    "85 · return node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "85"
+                    ]
+                  ],
+                  "children": [
+                    "86 · node.right = 7"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "86"
+                    ]
+                  ],
+                  "children": [
+                    "87 · return node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "87"
+                    ]
+                  ],
+                  "children": [
+                    "88 · node.right = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "88"
+                    ]
+                  ],
+                  "children": [
+                    "89 · return node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "89"
+                    ]
+                  ],
+                  "children": [
+                    "90 · return build_subtree(...)"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ],
+        [
+          "data-phase",
+          ""
+        ]
+      ],
+      "children": [
+        "先建立中序位置表"
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "array-panel"
+        ],
+        [
+          "data-arrays",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "array-row"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "p",
+              "children": [
+                "preorder · preorder_index = 0"
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "array-cells"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell cursor"
+                    ]
+                  ],
+                  "children": [
+                    "5",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "0"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "9",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "1"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "2",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "2"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "3",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "3"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "4",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "4"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "7",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "5"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-end"
+                    ]
+                  ],
+                  "children": [
+                    "结束"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "aria-hidden",
+                      "true"
+                    ],
+                    [
+                      "class",
+                      "array-pointer"
+                    ],
+                    [
+                      "style",
+                      "transform: translate(16px, -17px) translateX(-50%);"
+                    ]
+                  ],
+                  "children": [
+                    "↓"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "array-row"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "p",
+              "children": [
+                "inorder · 建立值 → 下标表"
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "array-cells"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "2",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "0"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "9",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "1"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "5",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "2"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "4",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "3"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "3",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "4"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "array-cell"
+                    ]
+                  ],
+                  "children": [
+                    "7",
+                    {
+                      "tag": "small",
+                      "children": [
+                        "5"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "diagram-caption"
+        ],
+        [
+          "data-caption",
+          ""
+        ]
+      ],
+      "children": [
+        "树中的实线只画已经赋值的子指针；新节点没有孩子，孩子返回后才接上边。"
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "diagram-workspace"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "aria-label",
+              "每次构建先重置前序游标，避免第二次调用从旧位置开始。"
+            ],
+            [
+              "class",
+              "stage"
+            ],
+            [
+              "data-stage",
+              ""
+            ],
+            [
+              "role",
+              "group"
+            ],
+            [
+              "style",
+              "height: 294px;"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "svg",
+              "attributes": [
+                [
+                  "aria-label",
+                  "树节点与指针"
+                ],
+                [
+                  "role",
+                  "img"
+                ],
+                [
+                  "viewBox",
+                  "0 0 520 294"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "defs",
+                  "children": [
+                    {
+                      "tag": "marker",
+                      "attributes": [
+                        [
+                          "viewBox",
+                          "0 0 8 8"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "d",
+                              "M0 0 L8 4 L0 8 Z"
+                            ],
+                            [
+                              "fill",
+                              "#333"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "marker",
+                      "attributes": [
+                        [
+                          "viewBox",
+                          "0 0 8 8"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "d",
+                              "M0 0 L8 4 L0 8 Z"
+                            ],
+                            [
+                              "fill",
+                              "#555"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "memory"
+            ],
+            [
+              "data-memory",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "h3",
+              "children": [
+                "inorder_indexes_map · 值 → 下标"
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "memory-items"
+                ],
+                [
+                  "data-memory-items",
+                  ""
+                ]
+              ],
+              "children": [
+                "∅"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "class",
+                  "memory-note"
+                ],
+                [
+                  "data-memory-note",
+                  ""
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "preorder_index = 0"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "每次构建先重置前序游标，避免第二次调用从旧位置开始。"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "保持什么成立"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "preorder_index 只向前移动，给出下一棵子树的根。中序闭区间 [left,right] 决定这个根可以带哪些后代。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "返回结果"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "class",
+                  "result"
+                ],
+                [
+                  "data-result",
+                  ""
+                ]
+              ],
+              "children": [
+                "preorder_index = 0 / 6"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

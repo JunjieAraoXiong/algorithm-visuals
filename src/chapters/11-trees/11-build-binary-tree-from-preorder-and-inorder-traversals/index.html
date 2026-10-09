@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="从前序与中序遍历构建二叉树：逐行执行 Python，观察树、变量与返回值。">
+<title>Build Binary Tree From Preorder and Inorder Traversals · Algorithm Visuals</title>
+<link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
+</head><body>
+<main class="tree-guide tree-lesson" id="lesson">
+<nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+<h1>Build Binary Tree From Preorder and Inorder Traversals · 从前序与中序遍历构建二叉树</h1>
+<p class="problem">Reconstruct a binary tree from its preorder and inorder traversals with unique values.<span>跟随图片中的两组数组：前序决定创建顺序，中序决定子树范围。</span></p>
+<div class="learning-layout" data-learning-layout>
+<section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
+<label class="settings">输入 <select data-case aria-label="构建二叉树输入"><option value="original">原图：5、9、2、3、4、7</option><option value="empty">两个空数组</option></select></label>
+<div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
+<p class="step-meta" data-phase></p>
+<div class="array-panel" data-arrays></div>
+<p class="diagram-caption" data-caption></p>
+<div class="diagram-workspace">
+<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-label="树节点与指针"></svg></div>
+<div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
+</div>
+<div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+<div class="state-grid"><div class="invariant"><strong>保持什么成立</strong><p data-invariant></p></div><div class="invariant"><strong>返回结果</strong><p class="result" data-result></p></div></div>
+</section>
+<aside class="code-panel" data-code-panel><h2>完整 Python 代码</h2><p class="code-status" data-code-status></p><pre data-code-scroll tabindex="0" aria-label="完整 Python 实现"><code><span class="code-line">from typing import List, Optional</span><span class="code-line"> </span><span class="code-line">class TreeNode:</span><span class="code-line">    def __init__(self, val=0, left=None, right=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.left = left</span><span class="code-line">        self.right = right</span><span class="code-line"> </span><span class="code-line">preorder_index = 0</span><span class="code-line">inorder_indexes_map = {}</span><span class="code-line"> </span><span class="code-line">def build_binary_tree(preorder: List[int], inorder: List[int]) -&gt; Optional[TreeNode]:</span><span class="code-line">    global preorder_index, inorder_indexes_map</span><span class="code-line" data-source-key="reset-index">    preorder_index = 0  # Reset both globals for each reconstruction.</span><span class="code-line" data-source-key="reset-map">    inorder_indexes_map = {}</span><span class="code-line" data-source-key="map-loop">    for i, val in enumerate(inorder):</span><span class="code-line" data-source-key="map-set">        inorder_indexes_map[val] = i</span><span class="code-line" data-source-key="build-return">    return build_subtree(0, len(inorder) - 1, preorder, inorder)</span><span class="code-line"> </span><span class="code-line">def build_subtree(left: int, right: int, preorder: List[int], inorder: List[int]) -&gt; Optional[TreeNode]:</span><span class="code-line">    global preorder_index, inorder_indexes_map</span><span class="code-line" data-source-key="check">    if left &gt; right:</span><span class="code-line" data-source-key="empty">        return None</span><span class="code-line" data-source-key="val">    val = preorder[preorder_index]</span><span class="code-line" data-source-key="inorder-index">    inorder_index = inorder_indexes_map[val]</span><span class="code-line" data-source-key="node">    node = TreeNode(val)</span><span class="code-line" data-source-key="advance">    preorder_index += 1</span><span class="code-line" data-source-key="left">    node.left = build_subtree(left, inorder_index - 1, preorder, inorder)</span><span class="code-line" data-source-key="right">    node.right = build_subtree(inorder_index + 1, right, preorder, inorder)</span><span class="code-line" data-source-key="return">    return node</span></code></pre></aside>
+</div>
+<section class="section"><h2>一条遍历顺序不够，两条顺序各补一个信息</h2><p class="section-intro">前序 [5,9,2,3,4,7] 先告诉我们根是 5，却不能单独决定左子树有多大。中序 [2,9,5,4,3,7] 把 5 左侧的 2、9 分到左子树，把 4、3、7 分到右子树。再在每个范围里重复这个逻辑。</p><div class="card-grid"><article class="paper-card"><strong>前序游标：下一个创建谁</strong><p>新建 5 后游标指向 9。必须先完成整个左子树，才轮到右侧的 3。每个非空调用消耗一个值，空范围不消耗，因此不需要另找前序子数组。</p></article><article class="paper-card"><strong>中序闭区间：哪些值属于这里</strong><p>根所在位置 inorder_index 把 [left,right] 拆为 [left,inorder_index-1] 和 [inorder_index+1,right]。范围为空就返回 None；边界不需要从数组中删除。</p></article></div></section><section class="section"><h2>节点创建和指针接上是两个时刻</h2><p class="section-intro">TreeNode(val) 只创建当前节点，孩子都是 None。node.left 的递归调用返回以后，才把左子树根引用写进 .left；.right 同理。图中等待返回的节点可以已创建而尚未连到父节点。</p><div class="card-grid"><article class="paper-card"><strong>完整过程与重复调用</strong><p>建立 inorder_indexes_map；重置 preorder_index；按中序范围递归；读取前序根，查中序分界，新建节点，前序索引加一；先左后右构建并接边，返回节点。外层重置两个全局变量，保持图片策略且支持重复调用。</p></article><article class="paper-card"><strong>前提与复杂度</strong><p>两组遍历必须来自同一棵树，长度相同且值唯一；这些是输入前提。空数组返回 None。O(n) 时间，位置表 O(n)、栈 O(h)，不计输出树；输出本身另占 O(n)。</p></article></div></section>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../serialize-and-deserialize-a-binary-tree/">序列化与反序列化</a><a href="../kth-smallest-number-in-a-binary-search-tree/">BST 中序遍历</a><a href="../">目录</a></nav>
+</main>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script>
+<script>
+(() => {
+'use strict';
+const root=document.querySelector('#lesson');
+const {clone,valueOf,recorder,mount}=window.TreeLesson;
+const selector=root.querySelector('[data-case]');
+if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
+
+function makeFrames(){
+ const empty=selector.value==='empty',preorder=empty?[]:[5,9,2,3,4,7],inorder=empty?[]:[2,9,5,4,3,7];
+ const layout={a:{val:5,left:'b',right:'c'},b:{val:9,left:'d',right:null},c:{val:3,left:'e',right:'f'},d:{val:2,left:null,right:null},e:{val:4,left:null,right:null},f:{val:7,left:null,right:null}},nodes=Object.fromEntries(Object.entries(layout).map(([id,n])=>[id,{val:n.val,left:null,right:null}]));
+ const byValue={5:'a',9:'b',3:'c',2:'d',4:'e',7:'f'};
+ const state={nodes,layout,root:empty?null:'a',visible:[],memory:[],focus:undefined,labels:{},memoryTitle:'inorder_indexes_map · 值 → 下标',phase:'先建立中序位置表',caption:'树中的实线只画已经赋值的子指针；新节点没有孩子，孩子返回后才接上边。',invariant:'preorder_index 只向前移动，给出下一棵子树的根。中序闭区间 [left,right] 决定这个根可以带哪些后代。'};
+ const {frames,emit}=recorder(state),stack=[],map={};let index=0;
+ function sync(range=null,lookup=null){state.arrays=[{label:`preorder · preorder_index = ${index}`,values:preorder,cursor:index,end:true},{label:`inorder · ${range?`[${range[0]},${range[1]}]${lookup!=null?`, inorder_index=${lookup}`:''}`:state.phase==='先建立中序位置表'?'建立值 → 下标表':'完整中序顺序'}`,values:inorder,range,cursor:lookup}];state.result=`preorder_index = ${index} / ${preorder.length}`;}
+ function calls(){state.phase='递归 · 前序取根，中序拆区间';state.memoryTitle='调用栈 · 闭区间 [left,right]';state.memory=stack.map(c=>({label:`build_subtree(${c.left}, ${c.right})`,detail:`val=${c.id?nodes[c.id].val:'?'} / inorder_index=${c.mid??'?'}`}));state.memoryNote=`inorder_indexes_map = {${Object.entries(map).map(([v,i])=>`${v}:${i}`).join(', ')}}`;}
+ sync();emit('reset-index','preorder_index = 0','每次构建先重置前序游标，避免第二次调用从旧位置开始。');emit('reset-map','inorder_indexes_map = {}','清空旧的位置表；图片中的算法依赖唯一值。');
+ inorder.forEach((v,i)=>{emit('map-loop',`for i, val in enumerate(inorder) · (${i}, ${v})`,'依次读取中序值与下标。');map[v]=i;state.memory=inorder.slice(0,i+1).map((val,k)=>({label:`${val} → ${k}`}));emit('map-set',`inorder_indexes_map[${v}] = ${i}`,'用哈希表查分界点，避免每次扫描或切片。');});
+ emit('build-return',`build_subtree(0, ${inorder.length-1}, preorder, inorder)`,'整个中序范围构成第一棵子树。');
+ function build(left,right){const call={left,right,id:null,mid:null};stack.push(call);calls();sync([left,right]);emit('check',`${left} > ${right}`,left>right?'闭区间为空，返回 None。':'范围非空，下一项前序值就是本子树的根。',{focus:undefined});
+  if(left>right){emit('empty','return None','不消耗前序值，也不创建节点。');stack.pop();calls();return null;}
+  const v=preorder[index],id=byValue[v];call.id=id;calls();emit('val',`val = preorder[${index}] = ${v}`,'前序顺序是根 → 左 → 右；这个值先成为当前根。');
+  const mid=map[v];call.mid=mid;calls();sync([left,right],mid);emit('inorder-index',`inorder_index = ${mid}`,`中序下标 ${mid} 把 [${left},${right}] 分成左 [${left},${mid-1}] 和右 [${mid+1},${right}]。`);
+  state.visible.push(id);emit('node',`node = TreeNode(${v})`,'新节点的 left、right 最初都是 None；它还没有返回给父调用。',{focus:id,reference:'node'});
+  index++;sync([left,right],mid);emit('advance',`preorder_index += 1 → ${index}`,'只消费这一个根值。左子树必须在右子树之前完整创建。');
+  emit('left',`node.left = build_subtree(${left}, ${mid-1}, preorder, inorder)`,'暂停当前调用，先构建左子树；实线连接等待返回。');
+  const l=build(left,mid-1);nodes[id].left=l;calls();sync([left,right],mid);emit('left',`node.left = ${valueOf(nodes,l)}`,`左子树返回 ${valueOf(nodes,l)}，现在才写入 ${v}.left。`,{focus:id,edited:`${id}:left`,returnEdge:l?{from:l,to:id,text:'node'}:null});
+  emit('right',`node.right = build_subtree(${mid+1}, ${right}, preorder, inorder)`,'此时前序游标已经越过整个左子树；开始右子树。');
+  const r=build(mid+1,right);nodes[id].right=r;calls();sync([left,right],mid);emit('right',`node.right = ${valueOf(nodes,r)}`,`右子树返回 ${valueOf(nodes,r)}，写入 ${v}.right。`,{focus:id,edited:`${id}:right`,returnEdge:r?{from:r,to:id,text:'node'}:null});
+  emit('return','return node',`返回以 ${v} 为根的完整子树。`);stack.pop();calls();return id;
+ }
+ const answer=build(0,inorder.length-1);sync();emit('build-return','return build_subtree(...)','前序决定创建顺序，中序范围决定孩子归属。',{phase:'构建完成',focus:answer,reference:'返回值',memory:[],result:answer?'返回树根：5；左 9（左 2）；右 3（左 4，右 7）':'None'});return frames;
+}
+mount(root,makeFrames);
+})();
+</script></body></html>

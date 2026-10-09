@@ -65,7 +65,7 @@
             if (!visible(child) || !points[child]) continue;
             const q = points[child];
             const dx = q.x-p.x, dy=q.y-p.y, length=Math.hypot(dx,dy);
-            path(`edge-${id}-${side}`, {d:`M${p.x+dx*17/length},${p.y+dy*17/length} L${q.x-dx*19/length},${q.y-dy*19/length}`,class:`stored-edge${state.edited===id ? ' edited-edge' : ''}`,'marker-end':'url(#tree-arrow)'});
+            path(`edge-${id}-${side}`, {d:`M${p.x+dx*17/length},${p.y+dy*17/length} L${q.x-dx*19/length},${q.y-dy*19/length}`,class:`stored-edge${(state.edited===id || state.edited===`${id}:${side}`) ? ' edited-edge' : ''}`,'marker-end':'url(#tree-arrow)'});
           }
         }
         for (const [id, node] of Object.entries(state.nodes)) {
@@ -111,6 +111,20 @@
       const firstMark = [...svg.children].find(child => child.tagName.toLowerCase() !== 'defs');
       for (const band of svg.querySelectorAll('.path-band')) svg.insertBefore(band, firstMark);
     }
+    function positionArrayCursors(state, before = null, progress = 1) {
+      for (const [index, block] of [...root.querySelector('[data-arrays]').children].entries()) {
+        const marker = block.querySelector('.array-pointer');
+        if (!marker) continue;
+        const cells = [...block.querySelectorAll('.array-cell, .array-end')];
+        const point = cursor => {
+          const cell = cells[cursor];
+          return cell ? {x:cell.offsetLeft + cell.offsetWidth / 2, y:cell.offsetTop - 17} : null;
+        };
+        const target = point(state.arrays[index].cursor);
+        const previous = point(before?.arrays?.[index]?.cursor) || target;
+        if (target) marker.style.transform = `translate(${previous.x + (target.x-previous.x)*progress}px, ${previous.y + (target.y-previous.y)*progress}px) translateX(-50%)`;
+      }
+    }
     function renderMemory(state) {
       memory.classList.toggle('queue',state.memoryType==='queue');
       memory.querySelector('h3').textContent=state.memoryTitle||'调用栈 · 最后一个是栈顶';
@@ -130,8 +144,15 @@
         const label=document.createElement('p');label.textContent=row.label;block.append(label);
         const cells=document.createElement('div');cells.className='array-cells';
         row.values.forEach((val,index)=>{const cell=document.createElement('div');cell.className=`array-cell${row.range && index>=row.range[0]&&index<=row.range[1]?' in-range':''}${row.cursor===index?' cursor':''}`;cell.textContent=val;const small=document.createElement('small');small.textContent=index;cell.append(small);cells.append(cell);});
+        if (row.end) {
+          const end = document.createElement('span'); end.className='array-end'; end.textContent='结束'; cells.append(end);
+        }
+        if (Number.isInteger(row.cursor)) {
+          const marker=document.createElement('span');marker.className='array-pointer';marker.textContent='↓';marker.setAttribute('aria-hidden','true');cells.append(marker);
+        }
         block.append(cells);return block;
       }));
+      positionArrayCursors(state);
     }
     const trace=core.createTrace({root,cloneState:clone,motion,onBeforeStep:()=>motion.cancel(),
       onRender:({state,frame})=>{
@@ -143,11 +164,11 @@
         root.querySelector('[data-result]').textContent=state.result||'结果：尚未返回';
         root.querySelector('[data-phase]').textContent=state.phase||'执行过程';
         stage.setAttribute('aria-label',frame.explanation);
-      },onTransition:({state,beforeState})=>motion.tween({duration:250,update:p=>draw(state,beforeState,p)})});
+      },onTransition:({state,beforeState})=>motion.tween({duration:250,update:p=>{draw(state,beforeState,p);positionArrayCursors(state,beforeState,p);}})});
     trace.setFrames(makeFrames());
     root.querySelector('[data-case]')?.addEventListener('change',()=>{motion.cancel();trace.setFrames(makeFrames(),{initialStep:0});});
-    new ResizeObserver(()=>{motion.cancel();draw(trace.state);}).observe(stage);
-    motion.onPreferenceChange(()=>draw(trace.state));
+    new ResizeObserver(()=>{motion.cancel();draw(trace.state);positionArrayCursors(trace.state);}).observe(stage);
+    motion.onPreferenceChange(()=>{draw(trace.state);positionArrayCursors(trace.state);});
     return trace;
   }
   window.TreeLesson=Object.freeze({clone,valueOf,recorder,mount});
