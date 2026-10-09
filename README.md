@@ -92,22 +92,22 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [K-Sum Subarrays / 和为 K 的子数组](https://junjiearaoxiong.github.io/algorithm-visuals/k-sum-subarrays/)
 - [Product Array Without Current Element / 除自身以外数组的乘积](https://junjiearaoxiong.github.io/algorithm-visuals/product-array-without-current-element/)
 
-### 11 · Graphs / 图
-
-- [Shortest Path / 最短路径](https://junjiearaoxiong.github.io/algorithm-visuals/shortest-path/)
-- [Connect the Dots / 连接所有点](https://junjiearaoxiong.github.io/algorithm-visuals/connect-the-dots/)
-
-### 12 · Backtracking / 回溯
-
-- [Combinations of a Sum / 组合总和](https://junjiearaoxiong.github.io/algorithm-visuals/combinations-of-a-sum/)
-- [Phone Keypad Combinations / 电话号码字母组合](https://junjiearaoxiong.github.io/algorithm-visuals/phone-keypad-combinations/)
-
-### 13 · Trees / 树
+### 11 · Trees / 树
 
 - [Binary Tree Symmetry / 二叉树对称性](https://junjiearaoxiong.github.io/algorithm-visuals/binary-tree-symmetry/)
 - [Binary Tree Columns / 二叉树的垂序遍历](https://junjiearaoxiong.github.io/algorithm-visuals/binary-tree-columns/)
 - [Kth Smallest Number in a Binary Search Tree / 二叉搜索树中第 K 小的数](https://junjiearaoxiong.github.io/algorithm-visuals/kth-smallest-number-in-a-binary-search-tree/)
 - [Serialize and Deserialize a Binary Tree / 二叉树的序列化与反序列化](https://junjiearaoxiong.github.io/algorithm-visuals/serialize-and-deserialize-a-binary-tree/)
+
+### 12 · Graphs / 图
+
+- [Shortest Path / 最短路径](https://junjiearaoxiong.github.io/algorithm-visuals/shortest-path/)
+- [Connect the Dots / 连接所有点](https://junjiearaoxiong.github.io/algorithm-visuals/connect-the-dots/)
+
+### 13 · Backtracking / 回溯
+
+- [Combinations of a Sum / 组合总和](https://junjiearaoxiong.github.io/algorithm-visuals/combinations-of-a-sum/)
+- [Phone Keypad Combinations / 电话号码字母组合](https://junjiearaoxiong.github.io/algorithm-visuals/phone-keypad-combinations/)
 
 ## Development
 
