@@ -55,3 +55,16 @@ test('right view includes a deeper node from the left subtree and freezes each B
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('[]');
 });
+
+test('width includes interior gaps but enqueues only real nodes', async ({page}) => {
+  await page.goto('/widest-binary-tree-level/#step=0');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toHaveText('7');
+  await expect(page.locator('[data-visual-element="width-label"]')).toHaveText('width = 7');
+  await expect(page.locator('svg .node')).toHaveCount(10);
+  await expect(page.locator('svg .ghost')).toHaveCount(4);
+  await expect(page.locator('[data-memory-items]')).toHaveText('∅');
+  await page.locator('[data-case]').selectOption('empty');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toHaveText('0');
+});

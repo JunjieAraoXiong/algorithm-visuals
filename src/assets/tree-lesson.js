@@ -41,7 +41,7 @@
         points[id] = { ...p, x: previous.x + (p.x - previous.x) * progress, y: previous.y + (p.y - previous.y) * progress };
       }
       const deepest = Math.max(0, ...Object.values(current).map(p => p.depth));
-      const height = 70 + deepest * 82 + (state.widthLevel != null ? 90 : 60);
+      const height = 70 + deepest * 82 + (state.indexes || state.widthLevel != null ? 90 : 60);
       stage.style.height = `${height}px`;
       svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       const visible = id => id != null && (!state.visible || state.visible.includes(id));
@@ -54,7 +54,7 @@
           for (const g of state.ghosts) {
             const x = 20 + (width - 40) * (g.index + .5) / (2 ** g.depth), y = 70 + g.depth * 82;
             circle(`ghost-${g.depth}-${g.index}`, {cx:x, cy:y, r:12, class:'ghost'});
-            text(`ghost-index-${g.depth}-${g.index}`, {x,y:y+30,class:'annotation'},g.heapIndex);
+            text(`ghost-index-${g.depth}-${g.index}`, {x,y:y+30,class:'annotation'},`i=${g.heapIndex}`);
           }
         }
         for (const [id, node] of Object.entries(state.nodes)) {
