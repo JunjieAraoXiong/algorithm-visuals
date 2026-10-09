@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="最近公共祖先：逐行执行 Python，观察树、变量与返回值。">
+<title>Lowest Common Ancestor · Algorithm Visuals</title>
+<link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
+</head><body>
+<main class="tree-guide tree-lesson" id="lesson">
+<nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+<h1>Lowest Common Ancestor · 最近公共祖先</h1>
+<p class="problem">Find the lowest node whose subtree contains both distinct target nodes, including the node itself.<span>p、q 都存在于树中。图片中的 8 与 7 在节点 3 会合。</span></p>
+<div class="learning-layout" data-learning-layout>
+<section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
+<label class="settings">目标 <select data-case aria-label="最近公共祖先目标"><option value="split">p=8，q=7：左右会合</option><option value="selfLeft">p=3，q=8：自身＋左侧</option><option value="selfRight">p=3，q=7：自身＋右侧</option><option value="same">p=8，q=9：更低的 6</option></select></label>
+<div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
+<p class="step-meta" data-phase></p>
+<div class="array-panel" data-arrays></div>
+<p class="diagram-caption" data-caption></p>
+<div class="diagram-workspace">
+<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-label="树节点与指针"></svg></div>
+<div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
+</div>
+<div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+<div class="state-grid"><div class="invariant"><strong>保持什么成立</strong><p data-invariant></p></div><div class="invariant"><strong>返回结果</strong><p class="result" data-result></p></div></div>
+</section>
+<aside class="code-panel" data-code-panel><h2>完整 Python 代码</h2><p class="code-status" data-code-status></p><pre data-code-scroll tabindex="0" aria-label="完整 Python 实现"><code><span class="code-line">from typing import List, Optional</span><span class="code-line"> </span><span class="code-line">class TreeNode:</span><span class="code-line">    def __init__(self, val=0, left=None, right=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.left = left</span><span class="code-line">        self.right = right</span><span class="code-line"> </span><span class="code-line">lca = None</span><span class="code-line"> </span><span class="code-line">def lowest_common_ancestor(root: TreeNode, p: TreeNode, q: TreeNode) -&gt; TreeNode:</span><span class="code-line">    global lca</span><span class="code-line" data-source-key="reset">    lca = None  # Reset the saved answer for each call.</span><span class="code-line" data-source-key="call">    dfs(root, p, q)</span><span class="code-line" data-source-key="answer">    return lca</span><span class="code-line"> </span><span class="code-line">def dfs(node: Optional[TreeNode], p: TreeNode, q: TreeNode) -&gt; bool:</span><span class="code-line">    global lca</span><span class="code-line" data-source-key="check">    if not node:</span><span class="code-line" data-source-key="empty">        return False</span><span class="code-line" data-source-key="self">    node_is_p_or_q = node == p or node == q</span><span class="code-line" data-source-key="left">    left_contains_p_or_q = dfs(node.left, p, q)</span><span class="code-line" data-source-key="right">    right_contains_p_or_q = dfs(node.right, p, q)</span><span class="code-line" data-source-key="two">    if node_is_p_or_q + left_contains_p_or_q + right_contains_p_or_q == 2:</span><span class="code-line" data-source-key="set">        lca = node</span><span class="code-line" data-source-key="flag">    return node_is_p_or_q or left_contains_p_or_q or right_contains_p_or_q</span></code></pre></aside>
+</div>
+<section class="section"><h2>两个目标第一次在两个区域会合</h2><p class="section-intro">把一个节点分成「自己、左子树、右子树」三个互不重叠的区域。p、q 是不同且存在于树中的节点，因此恰好两个区域命中就说明它们在这里会合。图片里的 p=8、q=7 在节点 3 的两侧，答案是 3。</p><div class="card-grid"><article class="paper-card"><strong>三个成立的情况</strong><p>self=False、L=True、R=True：两侧各一个。self=True、L=True、R=False：当前节点和左侧。self=True、L=False、R=True：当前节点和右侧。节点本身也可以是祖先。</p></article><article class="paper-card"><strong>同在一侧时不要提早设置答案</strong><p>切换 p=8、q=9：节点 3 只有左区域为 True，不能成为最近的祖先。更低的 6 已经在两侧找到目标，返回的单个 True 不表示「只有一个目标」。</p></article></div></section><section class="section"><h2>布尔返回值和节点答案各做一件事</h2><p class="section-intro">dfs 返回当前子树是否包含 p 或 q；lca 保存节点引用。后序遍历先解决更低的子树。LCA 之上的节点只看到一个命中区域，不会再次满足和为 2，所以最深的答案不会被覆盖。</p><div class="card-grid"><article class="paper-card"><strong>完整过程与重复调用</strong><p>每层计算 self，再递归左右，检查三个布尔值之和，必要时保存 lca，最后返回 OR。保留图片中的全局变量策略，但外层每次重置 lca，连续查询不会串用旧答案。</p></article><article class="paper-card"><strong>约束与复杂度</strong><p>假设 p、q 不同，且都存在于这棵树；比较节点引用，不靠值寻找目标。O(n) 时间，O(h) 调用栈，最坏 O(n) 空间。None 子树返回 False。</p></article></div></section>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../balanced-binary-tree-validation/">平衡二叉树验证</a><a href="../binary-search-tree-validation/">BST 验证</a><a href="../">目录</a></nav>
+</main>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script>
+<script>
+(() => {
+'use strict';
+const root=document.querySelector('#lesson');
+const {clone,valueOf,recorder,mount}=window.TreeLesson;
+const selector=root.querySelector('[data-case]');
+if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
+
+function makeFrames(){
+ const nodes={a:{val:1,left:'b',right:'c'},b:{val:2,left:'d',right:'e'},c:{val:3,left:'f',right:'g'},d:{val:4,left:null,right:null},e:{val:5,left:null,right:null},f:{val:6,left:'h',right:'i'},g:{val:7,left:null,right:null},h:{val:8,left:null,right:null},i:{val:9,left:null,right:null}};
+ const pairs={split:['h','g'],selfLeft:['c','h'],selfRight:['c','g'],same:['h','i']},[p,q]=pairs[selector.value],val=id=>valueOf(nodes,id),bool=x=>x==null?'?':x?'T':'F';
+ const state={nodes,root:'a',focus:'a',reference:'root',memory:[],labels:{[p]:'p',[q]:'q'},marked:[p,q],phase:'后序 · 三个区域',caption:`p=${val(p)}，q=${val(q)}；T/F 表示子树是否含任意一个目标，虚线箭头是返回值。`,invariant:'把「当前节点、左子树、右子树」视为三个区域。两个区域命中时找到 LCA；向父调用只返回是否含任意目标。'};
+ const {frames,emit}=recorder(state),stack=[];let lca=null;
+ const parents={b:'a',c:'a',d:'b',e:'b',f:'c',g:'c',h:'f',i:'f'};
+ function pathTo(id,stop){const path=[];while(id){path.push(id);if(id===stop)break;id=parents[id];}return path;}
+ function sync(){state.memory=stack.map(c=>({label:`node = ${val(c.id)}`,detail:`self=${bool(c.self)}, L=${bool(c.L)}, R=${bool(c.R)}`}));state.memoryNote='self = node_is_p_or_q；L/R 是左右调用返回的 contains 标记，不是目标数量。';state.result=`lca = ${val(lca)}`;}
+ sync();emit('reset','lca = None','每次外层调用先清空答案，避免保留上一次查询的节点。');emit('call','dfs(root, p, q)','开始后序遍历，不把 LCA 的节点引用当作 contains 布尔值。');
+ function visit(id){const c={id,self:null,L:null,R:null};stack.push(c);sync();emit('check','if not node',id?`进入 ${val(id)}。`:'空子树不包含目标。',{focus:id,reference:'node'});
+  if(!id){emit('empty','return False','None 返回 False。');stack.pop();sync();return false;}
+  c.self=id===p||id===q;sync();emit('self','node_is_p_or_q = node == p or node == q',c.self?`${val(id)} 自己就是 ${id===p?'p':'q'}，self=True。`:`${val(id)} 自己不是目标，self=False。`);
+  emit('left','left_contains_p_or_q = dfs(node.left, p, q)','先计算左子树是否含 p 或 q。');c.L=visit(nodes[id].left);sync();emit('left',`left_contains_p_or_q = ${c.L?'True':'False'}`,`回到 ${val(id)}，左区域的 contains 标记是 ${bool(c.L)}。`,{focus:id,returnEdge:nodes[id].left?{from:nodes[id].left,to:id,text:bool(c.L)}:null});
+  emit('right','right_contains_p_or_q = dfs(node.right, p, q)','再计算右子树的 contains 标记。');c.R=visit(nodes[id].right);sync();emit('right',`right_contains_p_or_q = ${c.R?'True':'False'}`,`回到 ${val(id)}，右区域的 contains 标记是 ${bool(c.R)}。`,{focus:id,returnEdge:nodes[id].right?{from:nodes[id].right,to:id,text:bool(c.R)}:null});
+  const sum=Number(c.self)+Number(c.L)+Number(c.R);emit('two',`${Number(c.self)} + ${Number(c.L)} + ${Number(c.R)} == 2`,sum===2?'两个目标分布在两个区域；这个节点是它们第一次会合的位置。':sum===1?'只命中一个区域；即使其中包含两个目标，也不在这里会合。':'这个子树没有目标。');
+  if(sum===2){lca=id;sync();state.labels[id]=`${id===p?'p:':id===q?'q:':''}*`;state.caption=`p=${val(p)}，q=${val(q)}；* 标记 LCA，灰带沿原有边连接两个目标，T/F 是 contains 返回值。`;state.paths=[pathTo(p,lca).concat(pathTo(q,lca).reverse().slice(1))];emit('set','lca = node',`保存 ${val(id)} 为 LCA。到祖先时，这整个子树只算一个 contains=True 区域。`,{reference:'lca'});}
+  const found=c.self||c.L||c.R;state.labels[id]=`${id===p?'p:':id===q?'q:':''}${bool(found)}${id===lca?'*':''}`;emit('flag',`return ${found?'True':'False'}`,'向上只传「包含任意目标」，LCA 引用单独保存在 lca。',{reference:'node'});stack.pop();sync();return found;
+ }
+ visit('a');emit('answer','return lca',`返回 ${val(lca)}。更高祖先只在一个孩子区域看到 True，因此不会覆盖答案。`,{focus:lca,reference:'lca',memory:[],result:`LCA(${val(p)}, ${val(q)}) = ${val(lca)}`});return frames;
+}
+mount(root,makeFrames);
+})();
+</script></body></html>

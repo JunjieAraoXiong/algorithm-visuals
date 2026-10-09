@@ -103,6 +103,7 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [Rightmost Nodes of a Binary Tree / 二叉树每层最右节点](https://junjiearaoxiong.github.io/algorithm-visuals/rightmost-nodes-of-a-binary-tree/)
 - [Widest Binary Tree Level / 二叉树最大层宽](https://junjiearaoxiong.github.io/algorithm-visuals/widest-binary-tree-level/)
 - [Binary Search Tree Validation / 二叉搜索树验证](https://junjiearaoxiong.github.io/algorithm-visuals/binary-search-tree-validation/)
+- [Lowest Common Ancestor / 最近公共祖先](https://junjiearaoxiong.github.io/algorithm-visuals/lowest-common-ancestor/)
 
 ### 12 · Graphs / 图
 

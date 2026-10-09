@@ -86,3 +86,15 @@ test('BST bounds reject ancestor violations, short-circuit the right subtree, an
     await expect(page.locator('[data-result]')).toHaveText('True');
   }
 });
+
+test('LCA handles both child regions, an ancestor target, and targets inside the same child', async ({page}) => {
+  await page.goto('/lowest-common-ancestor/#step=0');
+  const cases={split:'LCA(8, 7) = 3',selfLeft:'LCA(3, 8) = 3',selfRight:'LCA(3, 7) = 3',same:'LCA(8, 9) = 6'};
+  for (const [mode,answer] of Object.entries(cases)) {
+    await page.locator('[data-case]').selectOption(mode);
+    await finish(page);
+    await expect(page.locator('[data-result]')).toHaveText(answer);
+  }
+  await expect(page.locator('[data-visual-element="label-f"]')).toHaveText('T*');
+  await expect(page.locator('[data-visual-element="label-c"]')).toHaveText('T');
+});
