@@ -1,0 +1,951 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "三角形数字演示 / triangle numbers trace"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 15"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "1. 第 1 行"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "2. 第 2 行"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "3. 第 3 行"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "4. 第 4 行"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "5. 第 5 行"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "6. 第 6 行"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "7. 第 7 行"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "8. 第 8 行"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "9. 发现周期"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "10. triangle_numbers(3) = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "11. triangle_numbers(4) = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "12. triangle_numbers(5) = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "13. triangle_numbers(6) = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "14. triangle_numbers(7) = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "15. triangle_numbers(8) = 3"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "第 1 行"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "第 1 / 15 步。顶端只有一个 1。下面用 next_row 逐行生成，观察第一个偶数的位置。"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "aria-label",
+              "三角形左半边：每行从位置 1 画到中间位置"
+            ],
+            [
+              "data-scene",
+              ""
+            ],
+            [
+              "role",
+              "img"
+            ],
+            [
+              "viewBox",
+              "0 0 434 332"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "row-head"
+                ],
+                [
+                  "fill",
+                  "#555"
+                ],
+                [
+                  "x",
+                  "4"
+                ],
+                [
+                  "y",
+                  "14"
+                ]
+              ],
+              "children": [
+                "行"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "class",
+                  "mono"
+                ],
+                [
+                  "data-visual-element",
+                  "label-1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "4"
+                ],
+                [
+                  "y",
+                  "47"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M380 24 h46 v34 h-46 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "cell-1-1"
+                ],
+                [
+                  "fill",
+                  "#fffdf8"
+                ],
+                [
+                  "stroke",
+                  "#999"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "value-1-1"
+                ],
+                [
+                  "fill",
+                  "#272727"
+                ],
+                [
+                  "x",
+                  "403"
+                ],
+                [
+                  "y",
+                  "46"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M1 21 H430 V61 H1 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "focus"
+                ],
+                [
+                  "fill",
+                  "none"
+                ],
+                [
+                  "stroke",
+                  "#777"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 4"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "parity"
+        ],
+        [
+          "data-parity",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "table",
+          "children": [
+            {
+              "tag": "caption",
+              "children": [
+                "前 4 个位置的奇偶"
+              ]
+            },
+            {
+              "tag": "thead",
+              "children": [
+                {
+                  "tag": "tr",
+                  "children": [
+                    {
+                      "tag": "th",
+                      "children": [
+                        "行"
+                      ]
+                    },
+                    {
+                      "tag": "th",
+                      "children": [
+                        "1"
+                      ]
+                    },
+                    {
+                      "tag": "th",
+                      "children": [
+                        "2"
+                      ]
+                    },
+                    {
+                      "tag": "th",
+                      "children": [
+                        "3"
+                      ]
+                    },
+                    {
+                      "tag": "th",
+                      "children": [
+                        "4"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "tbody",
+              "attributes": [
+                [
+                  "data-parity-body",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "tr",
+                  "attributes": [
+                    [
+                      "class",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "th",
+                      "children": [
+                        "3"
+                      ]
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "tag": "tr",
+                  "attributes": [
+                    [
+                      "class",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "th",
+                      "children": [
+                        "4"
+                      ]
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "tag": "tr",
+                  "attributes": [
+                    [
+                      "class",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "th",
+                      "children": [
+                        "5"
+                      ]
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "tag": "tr",
+                  "attributes": [
+                    [
+                      "class",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "th",
+                      "children": [
+                        "6"
+                      ]
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "tag": "tr",
+                  "attributes": [
+                    [
+                      "class",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "th",
+                      "children": [
+                        "7"
+                      ]
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "tag": "tr",
+                  "attributes": [
+                    [
+                      "class",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "th",
+                      "children": [
+                        "8"
+                      ]
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    },
+                    {
+                      "tag": "td"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "attributes": [
+            [
+              "class",
+              "repeat-note"
+            ],
+            [
+              "data-repeat-note",
+              ""
+            ]
+          ],
+          "children": [
+            "粗框格是每行第一个偶数。"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "attributes": [
+                [
+                  "data-invariant-title",
+                  ""
+                ]
+              ],
+              "children": [
+                "只画左半边 / Left half"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "每行左右对称，位置 1 到 n 已包含第一个偶数可能出现的位置。灰底格是偶数，粗框是本行第一个偶数。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    "行",
+                    {
+                      "tag": "code",
+                      "children": [
+                        "n"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-value",
+                      "row"
+                    ]
+                  ],
+                  "children": [
+                    "1"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "n % 2"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-value",
+                      "mod2"
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "n % 4"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-value",
+                      "mod4"
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    "第一个偶数位置"
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-value",
+                      "answer"
+                    ]
+                  ],
+                  "children": [
+                    "无"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "row = [1] # 起始行；之后每行 = next_row(上一行)"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "顶端只有一个 1。下面用 next_row 逐行生成，观察第一个偶数的位置。"
+          ]
+        }
+      ]
+    }
+  ]
+}

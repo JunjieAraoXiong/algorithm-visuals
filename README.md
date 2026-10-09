@@ -122,6 +122,7 @@ Source folders are ordered for repository browsing. The build keeps the public U
 ### 16 · Math and Geometry / 数学与几何
 
 - [The Josephus Problem / 约瑟夫问题](https://junjiearaoxiong.github.io/algorithm-visuals/the-josephus-problem/)
+- [Triangle Numbers / 三角形数字](https://junjiearaoxiong.github.io/algorithm-visuals/triangle-numbers/)
 
 ## Development
 
