@@ -99,6 +99,7 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [Kth Smallest Number in a Binary Search Tree / 二叉搜索树中第 K 小的数](https://junjiearaoxiong.github.io/algorithm-visuals/kth-smallest-number-in-a-binary-search-tree/)
 - [Serialize and Deserialize a Binary Tree / 二叉树的序列化与反序列化](https://junjiearaoxiong.github.io/algorithm-visuals/serialize-and-deserialize-a-binary-tree/)
 - [Invert Binary Tree / 翻转二叉树](https://junjiearaoxiong.github.io/algorithm-visuals/invert-binary-tree/)
+- [Balanced Binary Tree Validation / 平衡二叉树验证](https://junjiearaoxiong.github.io/algorithm-visuals/balanced-binary-tree-validation/)
 
 ### 12 · Graphs / 图
 

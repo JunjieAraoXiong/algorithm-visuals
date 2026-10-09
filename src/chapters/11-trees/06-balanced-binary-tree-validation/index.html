@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="平衡二叉树验证：逐行执行 Python，观察树、变量与返回值。">
+<title>Balanced Binary Tree Validation · Algorithm Visuals</title>
+<link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
+</head><body>
+<main class="tree-guide tree-lesson" id="lesson">
+<nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+<h1>Balanced Binary Tree Validation · 平衡二叉树验证</h1>
+<p class="problem">Check whether every node’s left and right subtree heights differ by at most one.<span>每个节点都必须平衡。图片里的根 5 局部平衡，内部的 7 却不平衡。</span></p>
+<div class="learning-layout" data-learning-layout>
+<section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
+<label class="settings">示例 <select data-case aria-label="平衡验证示例"><option value="original">原图：根平衡，内部失衡</option><option value="balanced">移除 6：整树平衡</option><option value="empty">空树</option></select></label>
+<div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
+<p class="step-meta" data-phase></p>
+<div class="array-panel" data-arrays></div>
+<p class="diagram-caption" data-caption></p>
+<div class="diagram-workspace">
+<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-label="树节点与指针"></svg></div>
+<div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
+</div>
+<div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+<div class="state-grid"><div class="invariant"><strong>保持什么成立</strong><p data-invariant></p></div><div class="invariant"><strong>返回结果</strong><p class="result" data-result></p></div></div>
+</section>
+<aside class="code-panel" data-code-panel><h2>完整 Python 代码</h2><p class="code-status" data-code-status></p><pre data-code-scroll tabindex="0" aria-label="完整 Python 实现"><code><span class="code-line">from typing import List, Optional</span><span class="code-line"> </span><span class="code-line">class TreeNode:</span><span class="code-line">    def __init__(self, val=0, left=None, right=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.left = left</span><span class="code-line">        self.right = right</span><span class="code-line"> </span><span class="code-line">def balanced_binary_tree_validation(root: Optional[TreeNode]) -&gt; bool:</span><span class="code-line" data-source-key="answer">    return get_height_imbalance(root) != -1</span><span class="code-line"> </span><span class="code-line">def get_height_imbalance(node: Optional[TreeNode]) -&gt; int:</span><span class="code-line" data-source-key="check">    if not node:</span><span class="code-line" data-source-key="empty">        return 0</span><span class="code-line" data-source-key="left">    left_height = get_height_imbalance(node.left)</span><span class="code-line" data-source-key="right">    right_height = get_height_imbalance(node.right)</span><span class="code-line" data-source-key="sentinel">    if left_height == -1 or right_height == -1:</span><span class="code-line" data-source-key="propagate">        return -1</span><span class="code-line" data-source-key="difference">    if abs(left_height - right_height) &gt; 1:</span><span class="code-line" data-source-key="unbalanced">        return -1</span><span class="code-line" data-source-key="height">    return 1 + max(left_height, right_height)</span></code></pre></aside>
+</div>
+<section class="section"><h2>根看起来平衡，不代表整棵树平衡</h2><p class="section-intro">示例中 5 的两侧高度都是 3，但 7 的左侧为空（0），右侧高度为 2。只检查根会漏掉内部的失衡；定义要求每个节点都满足高度差至多 1。</p><div class="card-grid"><article class="paper-card"><strong>把高度和验证合成一次后序遍历</strong><p>先问左右孩子的结果。两侧都有效且差值合格，当前节点返回 1 + max(left_height, right_height)。这让父调用既得到高度，也知道下面所有节点已通过检查。</p></article><article class="paper-card"><strong>-1 不是高度</strong><p>失衡节点返回 -1，祖先看到它也返回 -1。否则，若 7 返回普通高度 3，根会看到 3 与 3，从而把坏子树掩盖。</p></article></div></section><section class="section"><h2>递归的边界与代价</h2><p class="section-intro">None 返回 0；叶子返回 1。图片中的实现先求两边，再检查 -1，因此左边已失衡时仍会遍历右边；动画保持这个执行顺序。</p><div class="card-grid"><article class="paper-card"><strong>为什么一次就够</strong><p>每个节点只读取两个孩子已经算好的结果，不重复计算整棵子树的高度。O(n) 时间，O(h) 递归栈；退化链最坏 O(n) 空间。</p></article><article class="paper-card"><strong>平衡案例与空树</strong><p>移除 9 下方的 6 后，7 的高度差变为 1，整棵树通过。空树没有违反条件的节点，验证结果为 True。</p></article></div></section>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../invert-binary-tree/">翻转二叉树</a><a href="../binary-tree-symmetry/">二叉树对称性</a><a href="../">目录</a></nav>
+</main>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script>
+<script>
+(() => {
+'use strict';
+const root=document.querySelector('#lesson');
+const {clone,valueOf,recorder,mount}=window.TreeLesson;
+const selector=root.querySelector('[data-case]');
+if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
+
+function makeFrames(){
+ const mode=selector.value;
+ const nodes={a:{val:5,left:'b',right:'c'},b:{val:2,left:'d',right:'e'},c:{val:7,left:null,right:'f'},d:{val:1,left:null,right:null},e:{val:4,left:'g',right:null},f:{val:9,left:mode==='balanced'?null:'h',right:null},g:{val:3,left:null,right:null},h:{val:6,left:null,right:null}};
+ const state={nodes,root:mode==='empty'?null:'a',focus:mode==='empty'?null:'a',reference:'root',labels:{},memory:[],phase:'后序 · 子树先返回',caption:'节点下方 h 是已返回的高度；虚线箭头把返回值交给父调用。',invariant:'返回非负高度意味着整个子树平衡；返回 -1 意味着至少一处失衡，祖先必须继续返回 -1。'};
+ const {frames,emit}=recorder(state),stack=[],val=id=>valueOf(nodes,id);
+ function sync(){state.memory=stack.map(c=>({label:`node = ${val(c.id)}`,detail:`left_height=${c.L ?? '?'} / right_height=${c.R ?? '?'}`}));}
+ emit('answer','get_height_imbalance(root) != -1','检查整棵子树的返回值，不能只比较根的两个高度。');
+ function visit(id){const call={id,L:null,R:null};stack.push(call);sync();emit('check','if not node',id?`进入 ${val(id)}，先计算孩子的高度。`:'空子树的高度定义为 0。',{focus:id,reference:'node'});
+  if(!id){emit('empty','return 0','返回 0 给父调用；空子树是平衡的。');stack.pop();sync();return 0;}
+  emit('left','left_height = get_height_imbalance(node.left)',`暂停 ${val(id)}，进入左子树 ${val(nodes[id].left)}。`);
+  call.L=visit(nodes[id].left);sync();emit('left',`left_height = ${call.L}`,`${val(id)} 收到左侧返回值 ${call.L}。`,{focus:id,returnEdge:nodes[id].left?{from:nodes[id].left,to:id,text:String(call.L)}:null});
+  emit('right','right_height = get_height_imbalance(node.right)',`继续计算 ${val(id)} 的右子树；图片中的代码会先完成两侧递归。`);
+  call.R=visit(nodes[id].right);sync();emit('right',`right_height = ${call.R}`,`${val(id)} 收到右侧返回值 ${call.R}。`,{focus:id,returnEdge:nodes[id].right?{from:nodes[id].right,to:id,text:String(call.R)}:null});
+  emit('sentinel',`${call.L} == -1 or ${call.R} == -1`,call.L===-1||call.R===-1?'孩子已报告失衡，不能把它当作普通高度。':'两个孩子都给出了有效高度。');
+  let height;
+  if(call.L===-1||call.R===-1){height=-1;state.labels[id]='h=-1';emit('propagate','return -1','向上传递失衡标记，避免祖先误判为平衡。');}
+  else{const diff=Math.abs(call.L-call.R);emit('difference',`abs(${call.L} - ${call.R}) > 1`,`${val(id)} 的高度差是 ${diff}。`);
+   if(diff>1){height=-1;state.labels[id]='h=-1';emit('unbalanced','return -1',`${val(id)} 高度差超过 1；这里返回 -1，不返回它的普通高度。`,{marked:[id]});}
+   else{height=1+Math.max(call.L,call.R);state.labels[id]=`h=${height}`;emit('height',`return 1 + max(${call.L}, ${call.R})`,`${val(id)} 的整个子树平衡，高度为 ${height}。`);}}
+  stack.pop();sync();return height;
+ }
+ const height=visit(state.root);
+ emit('answer',`return ${height} != -1`,height===-1?'7 的失衡传到 5，即使根的原始左右高度同为 3，整棵树也不平衡。':'每个节点的高度差都不超过 1。',{focus:state.root,reference:'root',memory:[],result:height===-1?'False · 子树失衡':'True · 整棵树平衡'});
+ return frames;
+}
+mount(root,makeFrames);
+})();
+</script></body></html>
