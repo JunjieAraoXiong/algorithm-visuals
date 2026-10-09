@@ -107,6 +107,9 @@
           text('null-reference',{x:width/2,y:25,class:'annotation'},`${state.reference||'node'} = None`);
         }
       });
+      // Retained marks added on later frames must stay beneath node values.
+      const firstMark = [...svg.children].find(child => child.tagName.toLowerCase() !== 'defs');
+      for (const band of svg.querySelectorAll('.path-band')) svg.insertBefore(band, firstMark);
     }
     function renderMemory(state) {
       memory.classList.toggle('queue',state.memoryType==='queue');
