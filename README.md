@@ -100,6 +100,7 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [Serialize and Deserialize a Binary Tree / 二叉树的序列化与反序列化](https://junjiearaoxiong.github.io/algorithm-visuals/serialize-and-deserialize-a-binary-tree/)
 - [Invert Binary Tree / 翻转二叉树](https://junjiearaoxiong.github.io/algorithm-visuals/invert-binary-tree/)
 - [Balanced Binary Tree Validation / 平衡二叉树验证](https://junjiearaoxiong.github.io/algorithm-visuals/balanced-binary-tree-validation/)
+- [Rightmost Nodes of a Binary Tree / 二叉树每层最右节点](https://junjiearaoxiong.github.io/algorithm-visuals/rightmost-nodes-of-a-binary-tree/)
 
 ### 12 · Graphs / 图
 
