@@ -1,6 +1,7 @@
 /* Original tree marks; algorithm-specific frames stay in each question page. */
 (() => {
   'use strict';
+  const DEFAULT_ROW_GAP = 104;
   const clone = value => JSON.parse(JSON.stringify(value));
   const valueOf = (nodes, id) => id == null ? 'None' : String(nodes[id].val);
   function recorder(state) {
@@ -15,7 +16,7 @@
     const layout = state.layout || state.nodes;
     function walk(id, depth, index) {
       if (id == null) return;
-      result[id] = {x: 20 + (width - 40) * (index + .5) / (2 ** depth), y: 70 + depth * (state.rowGap || 82), depth, index};
+      result[id] = {x: 20 + (width - 40) * (index + .5) / (2 ** depth), y: 70 + depth * (state.rowGap || DEFAULT_ROW_GAP), depth, index};
       walk(layout[id].left, depth + 1, index * 2);
       walk(layout[id].right, depth + 1, index * 2 + 1);
     }
@@ -31,6 +32,8 @@
     scene.defineMarker('return-arrow', {markerWidth: 5, markerHeight: 5, fill: '#555'});
     const motion = core.createMotionController();
     const memory = root.querySelector('[data-memory]');
+    const workspace = root.querySelector('.diagram-workspace');
+    const caption = root.querySelector('[data-caption]');
     function draw(state, before = null, progress = 1) {
       const width = stage.clientWidth;
       const current = positions(state, width);
@@ -41,7 +44,7 @@
         points[id] = { ...p, x: previous.x + (p.x - previous.x) * progress, y: previous.y + (p.y - previous.y) * progress };
       }
       const deepest = Math.max(0, ...Object.values(current).map(p => p.depth));
-      const height = 70 + deepest * (state.rowGap || 82) + (state.indexes || state.widthLevel != null ? 90 : 60);
+      const height = 70 + deepest * (state.rowGap || DEFAULT_ROW_GAP) + (state.indexes || state.widthLevel != null ? 90 : 60);
       stage.style.height = `${height}px`;
       svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       const pathNodes = new Set((state.paths || []).flat());
@@ -53,7 +56,7 @@
         }
         if (state.ghosts) {
           for (const g of state.ghosts) {
-            const x = 20 + (width - 40) * (g.index + .5) / (2 ** g.depth), y = 70 + g.depth * (state.rowGap || 82);
+            const x = 20 + (width - 40) * (g.index + .5) / (2 ** g.depth), y = 70 + g.depth * (state.rowGap || DEFAULT_ROW_GAP);
             circle(`ghost-${g.depth}-${g.index}`, {cx:x, cy:y, r:12, class:'ghost'});
             text(`ghost-index-${g.depth}-${g.index}`, {x,y:y+30,class:'annotation'},`i=${g.heapIndex}`);
           }
@@ -81,7 +84,7 @@
         }
         if (state.widthLevel != null) {
           const {depth,left,right} = state.widthLevel;
-          const x1=20+(width-40)*(left+.5)/2**depth, x2=20+(width-40)*(right+.5)/2**depth, y=70+depth*(state.rowGap || 82)+49;
+          const x1=20+(width-40)*(left+.5)/2**depth, x2=20+(width-40)*(right+.5)/2**depth, y=70+depth*(state.rowGap || DEFAULT_ROW_GAP)+49;
           path('width-bracket',{d:`M${x1},${y-5} V${y} H${x2} V${y-5}`,class:'stored-edge'});
           text('width-label',{x:(x1+x2)/2,y:y+19,class:'annotation'},`width = ${right-left+1}`);
         }
@@ -126,13 +129,26 @@
         if (target) marker.style.transform = `translate(${previous.x + (target.x-previous.x)*progress}px, ${previous.y + (target.y-previous.y)*progress}px) translateX(-50%)`;
       }
     }
-    function renderMemory(state) {
-      memory.classList.toggle('queue',state.memoryType==='queue');
-      memory.querySelector('h3').textContent=state.memoryTitle||'调用栈 · 最后一个是栈顶';
+    function renderMemory(state, frame) {
+      const queue = state.memoryType === 'queue';
+      const title = state.memoryTitle || '调用栈 · 最后一个是栈顶';
+      const calls = title.startsWith('调用栈');
+      const stack = title.startsWith('stack');
+      const mapWrite = title.startsWith('inorder_indexes_map') && frame.sourceKeys.includes('map-set');
+      memory.classList.toggle('queue',queue);
+      memory.querySelector('h3').textContent=title;
       const items=state.memory||[];
       memory.querySelector('[data-memory-items]').replaceChildren(...items.map((item,index)=>{
+        const last = index === items.length - 1;
+        const current = last && (calls || stack || mapWrite);
+        const head = queue && index === 0;
+        const tail = queue && last;
+        const role = head ? (tail ? '队首 / 队尾' : '队首') : tail ? '队尾' : current ? (calls ? '当前调用' : stack ? '栈顶 · 待弹出' : '本次写入') : '';
         const entry=document.createElement('div');
-        entry.className=`memory-item${index===items.length-1 && state.memoryType!=='queue'?' current':''}${item.next?' next-level':''}`;
+        entry.className=`memory-item${current?' current':''}${head?' queue-head':''}${tail?' queue-tail':''}${item.next?' next-level':''}`;
+        if (role) {
+          const badge = document.createElement('small'); badge.className = 'memory-role'; badge.textContent = role; entry.append(badge);
+        }
         const label=document.createElement('div'); label.textContent=typeof item==='string'?item:item.label;entry.append(label);
         if(item.detail){const detail=document.createElement('span');detail.textContent=item.detail;entry.append(detail);}
         return entry;
@@ -157,10 +173,14 @@
     }
     const trace=core.createTrace({root,cloneState:clone,motion,onBeforeStep:()=>motion.cancel(),
       onRender:({state,frame})=>{
-        draw(state);renderMemory(state);
+        const mapping = Boolean(state.layout && state.memoryTitle?.startsWith('inorder_indexes_map'));
+        workspace.classList.toggle('building-map',mapping);
+        stage.hidden = mapping;
+        caption.hidden = mapping;
+        draw(state);renderMemory(state,frame);
         root.querySelector('[data-expression]').textContent=frame.expression;
         root.querySelector('[data-explanation]').textContent=frame.explanation;
-        root.querySelector('[data-caption]').textContent=state.caption||'实线是节点保存的子指针；短箭头是当前变量引用。';
+        caption.textContent=state.caption||'实线是节点保存的子指针；短箭头是当前变量引用。';
         root.querySelector('[data-invariant]').textContent=state.invariant||'';
         root.querySelector('[data-result]').textContent=state.result||'结果：尚未返回';
         root.querySelector('[data-phase]').textContent=state.phase||'执行过程';
