@@ -38,29 +38,32 @@
     .guide strong { font-weight: 600; }
     .guide ol { margin: 3px 0 6px; padding-left: 23px; }
     .guide code { font: 12px monospace; overflow-wrap: anywhere; }
-    .stage { position: relative; width: 100%; height: 292px; margin-top: 9px; border-bottom: 1px solid var(--rule); touch-action: none; }
+    .stage { position: relative; width: 100%; height: 262px; margin-top: 9px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: none; }
     .arrows { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
     .stage button { position: absolute; z-index: 1; transform: translate(-50%, -50%); user-select: none; touch-action: none; }
-    .source { min-width: 80px; min-height: 30px; border: 1.5px solid #595959; border-radius: 3px; background: var(--paper); padding: 3px 6px; font: 13px monospace; cursor: grab; }
+    .stack-caption { position: absolute; left: 8px; top: 2px; color: var(--quiet); font: 12px/14px monospace; }
+    .frame-card { position: absolute; display: flex; flex-direction: column; justify-content: center; gap: 1px; padding: 3px 6px; border: 1px solid #999; border-radius: 4px; background: var(--paper); font: 12px/14px monospace; white-space: nowrap; }
+    .frame-card.current { border: 1.5px solid #333; }
+    .frame-card.popped { border: 1px dashed #b7b7b1; }
+    .frame-card.unused { visibility: hidden; }
+    .frame-card .field { align-self: flex-start; padding: 0 2px; margin-left: -2px; }
+    .frame-card .field.unset { color: #555; }
+    .frame-card .field.changed { outline: 1.5px solid #272727; outline-offset: 0; border-radius: 2px; }
+    .source { min-width: 64px; min-height: 30px; border: 1.5px solid #595959; border-radius: 3px; background: var(--paper); padding: 3px 6px; font: 13px monospace; white-space: nowrap; cursor: grab; }
     .source:active { cursor: grabbing; }
-    .source.unset { color: #777; border-color: #aaa; }
-    .source.link { min-width: 59px; min-height: 28px; border-style: dashed; font-size: 12px; }
-    .source.selected, .source.changed { outline: 2px solid #555; outline-offset: 3px; }
+    .source.absent { visibility: hidden; }
+    .source.link { min-width: 0; min-height: 28px; padding: 3px 7px; border: 1px dashed #777; color: var(--ink); font-size: 12px; }
+    .source.link.changed { border: 1.5px solid #272727; }
+    .source.selected { outline: 2px solid #555; outline-offset: 3px; }
     .node { width: var(--node-size); height: var(--node-size); border: 2px solid #383838; border-radius: 50%; background: var(--paper); font: 500 21px Arial, Helvetica, sans-serif; cursor: pointer; }
-    .node.active { border-width: 3px; }
     .null { min-width: 32px; height: 30px; border: 0; padding: 0; background: var(--paper); font: 16px Arial, Helvetica, sans-serif; cursor: pointer; }
+    .null.idle { visibility: hidden; }
     .target-ready { outline: 2px dashed #777; outline-offset: 3px; }
-    .stack { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; min-height: 43px; padding: 11px 8px 5px; border-bottom: 1px solid var(--rule); }
-    .stack-label { color: var(--quiet); font-size: 13px; white-space: nowrap; }
-    .stack ol { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin: 0; padding: 0; list-style: none; font: 13px monospace; }
-    .stack li { border: 1px solid #aaa; padding: 3px 7px; }
-    .stack li:not(:last-child)::after { content: "→"; margin: 0 -15px 0 12px; color: #777; }
-    .stack li.current { border: 1.5px solid #333; }
-    .stack .empty { color: #777; font-size: 13px; }
+    .local-null { font: 16px Arial, Helvetica, sans-serif; fill: #272727; }
+    .cue-label { font: 12px monospace; fill: #555; }
     .operation { min-height: 56px; margin: 12px 8px 0; padding: 9px 11px; border: 1px dashed #999; font-size: 14px; line-height: 1.5; }
     .operation code { font: 13px monospace; overflow-wrap: anywhere; }
     .operation .explanation { display: block; margin-top: 3px; }
-    .base-note { margin: 8px 8px 0; color: var(--quiet); font-size: 12px; line-height: 1.4; }
     .code-panel { position: sticky; top: 18px; align-self: start; padding: 13px 14px 14px; border: 1px solid var(--rule); }
     .code-panel h2 { margin: 0; font-size: 16px; font-weight: 500; }
     .code-scroll { max-height: min(72vh, 640px); margin: 0; overflow: auto; padding: 11px 0; border-left: 2px solid var(--rule); background: #f8f6f0; font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size: 4; }
@@ -73,17 +76,21 @@
       .code-panel { position: static; }
     }
     @media (max-width: 480px) {
-      :root { --node-size: 43px; }
+      :root { --node-size: 40px; }
       body { padding: 7px; }
       .lab-head { padding: 6px 5px 0; }
       h1 { font-size: 16px; }
       .controls { font-size: 12px; }
-      .stage { height: 278px; }
-      .source { min-width: 68px; font-size: 11px; }
-      .source[data-source="newHead"] { min-width: 90px; white-space: nowrap; }
-      .source.link { min-width: 51px; font-size: 10px; }
+      .stage { height: 240px; }
+      .stack-caption { left: 2px; font-size: 11px; line-height: 13px; }
+      .frame-card { padding: 3px 5px; font-size: 11px; line-height: 13px; }
+      .source { min-width: 48px; min-height: 28px; padding: 3px 5px; font-size: 11px; }
+      .source.link { min-height: 30px; padding: 2px 5px; font-size: 11px; line-height: 13px; }
+      .source.link span { display: block; }
       .node { font-size: 19px; }
       .null { min-width: 29px; font-size: 13px; }
+      .local-null { font-size: 13px; }
+      .cue-label { font-size: 11px; }
       .operation { font-size: 13px; }
       .operation code { font-size: 12px; }
     }
@@ -99,13 +106,15 @@
         <h1>Recursive Reverse Linked List · 递归反转链表</h1>
         <div class="controls">
           <button type="button" data-action="previous">← 上一步</button>
-          <output data-count aria-live="polite">0 / 16</output>
+          <output data-count aria-live="polite">步骤 1 / 17</output>
           <button type="button" data-action="next">下一步 →</button>
         </div>
       </div>
 
-      <div class="stage" data-stage tabindex="0" aria-label="递归链表反转：固定位置的四个节点及其指针">
+      <div class="stage" data-stage tabindex="0" aria-label="递归链表反转：调用栈、固定位置的四个节点及其指针">
         <svg class="arrows" data-arrows aria-hidden="true"></svg>
+        <span class="stack-caption" data-stack-caption aria-hidden="true">调用栈</span>
+        <div data-stack role="list" aria-label="递归调用栈"></div>
         <button type="button" class="source" data-source="head">head</button>
         <button type="button" class="source" data-source="newHead">new_head</button>
         <button type="button" class="node" data-target="1">1</button>
@@ -120,12 +129,7 @@
         <button type="button" class="source link" data-source="link4">4.next</button>
       </div>
 
-      <section class="stack" aria-label="递归调用栈">
-        <span class="stack-label">调用栈（右端正在执行）</span>
-        <ol data-stack></ol>
-      </section>
       <p class="operation" data-operation aria-live="polite"></p>
-      <p class="base-note">f(k) 表示 linked_list_reversal_recursive(head=节点 k)。基本情况：空链表或只有一个节点时，直接返回原来的 head；本例在 f(4) 遇到单节点。</p>
     </section>
 
     <aside class="code-panel" data-code-panel aria-label="完整 Python 代码">
@@ -154,192 +158,348 @@
   const root = document.getElementById('recursive-lab');
   const stage = root.querySelector('[data-stage]');
   const arrows = root.querySelector('[data-arrows]');
-  const stack = root.querySelector('[data-stack]');
+  const stackRow = root.querySelector('[data-stack]');
   const operation = root.querySelector('[data-operation]');
+  const stackCaption = root.querySelector('[data-stack-caption]');
   const sources = [...stage.querySelectorAll('[data-source]')];
   const targets = [...stage.querySelectorAll('[data-target]')];
-  const allButtons = [...sources, ...targets];
-  const working = {head: 1, newHead: undefined, links: {1: 2, 2: 3, 3: 4, 4: null}, stack: [1]};
-  const clone = state => ({head: state.head, newHead: state.newHead, links: {...state.links}, stack: [...state.stack]});
-  const frames = [];
-  const add = (code, explanation, change, changed, sourceKeys) => {
-    if (change) change(working);
-    frames.push({state: clone(working), code, explanation, changed, sourceKeys});
-  };
-  add('linked_list_reversal_recursive(head=1)', '从节点 1 开始。每个递归调用都先处理 head.next 后面的较短链表。', null, null, ['entry']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 先等 f(2) 反转 2 → 3 → 4。此时节点的 .next 都没变。', s => { s.stack.push(2); s.head = 2; }, null, ['recursive-call']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 再等 f(3) 反转 3 → 4。', s => { s.stack.push(3); s.head = 3; }, null, ['recursive-call']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 再调用 f(4)。', s => { s.stack.push(4); s.head = 4; }, null, ['recursive-call']);
-  add('if not head or not head.next: return head', 'f(4) 只有节点 4，直接返回 head（节点 4）。此时 f(3) 尚未收到返回值。', null, null, ['base-test', 'base-return']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 恢复执行，接住 f(4) 返回的节点 4；new_head 此时才被赋值。', s => { s.stack.pop(); s.head = 3; s.newHead = 4; }, null, ['recursive-call']);
-  add('head.next.next = head', 'head.next 是 4；把 4.next 改为 3。此刻 3 → 4 和 4 → 3 同时存在，暂时成环。', s => { s.links[4] = 3; }, 'link4', ['reverse-link']);
-  add('head.next = None', '把 3.next 清空，拆掉刚才的环；子链表变成 4 → 3 → None。', s => { s.links[3] = null; }, 'link3', ['clear-link']);
-  add('return new_head', 'f(3) 把同一个 new_head（节点 4）返回给 f(2)。', null, null, ['return-new-head']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 恢复执行，接住 f(3) 返回的节点 4；节点本身没有移动。', s => { s.stack.pop(); s.head = 2; }, null, ['recursive-call']);
-  add('head.next.next = head', 'head.next 是 3；把 3.next 改为 2。2 → 3 与 3 → 2 暂时成环。', s => { s.links[3] = 2; }, 'link3', ['reverse-link']);
-  add('head.next = None', '把 2.next 清空，拆环；现在是 4 → 3 → 2 → None。', s => { s.links[2] = null; }, 'link2', ['clear-link']);
-  add('return new_head', 'f(2) 把节点 4 返回给 f(1)。', null, null, ['return-new-head']);
-  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 恢复执行，接住 f(2) 返回的节点 4。', s => { s.stack.pop(); s.head = 1; }, null, ['recursive-call']);
-  add('head.next.next = head', 'head.next 是 2；把 2.next 改为 1。1 → 2 与 2 → 1 暂时成环。', s => { s.links[2] = 1; }, 'link2', ['reverse-link']);
-  add('head.next = None', '把 1.next 清空，拆环；链表成为 4 → 3 → 2 → 1 → None。', s => { s.links[1] = null; }, 'link1', ['clear-link']);
-  add('return new_head', 'f(1) 返回节点 4。所有调用结束；4 是新头，1 是新尾。', s => { s.stack.pop(); s.head = undefined; }, null, ['return-new-head']);
+  const sourceButton = name => stage.querySelector(`[data-source="${name}"]`);
+  const NODES = [1, 2, 3, 4];
 
+  // stack entries are the frames f(k); each keeps its own head and new_head.
+  const working = {head: 1, newHead: undefined, links: {1: 2, 2: 3, 3: 4, 4: null}, stack: [{call: 1, head: 1, newHead: undefined}], depth: 1};
+  const clone = state => ({head: state.head, newHead: state.newHead, links: {...state.links}, stack: state.stack.map(entry => ({...entry})), depth: state.depth});
+  const frames = [];
+  const add = (code, explanation, change, changed, sourceKeys, returning = false) => {
+    if (change) change(working);
+    frames.push({state: clone(working), code, explanation, changed, sourceKeys, returning});
+  };
+  const call = k => s => { s.stack.push({call: k, head: k, newHead: undefined}); s.depth = Math.max(s.depth, s.stack.length); s.head = k; s.newHead = undefined; };
+  const resume = s => { s.stack.pop(); const top = s.stack[s.stack.length - 1]; top.newHead = 4; s.head = top.head; s.newHead = 4; };
+  add('linked_list_reversal_recursive(head=1)', 'f(1)：head 指向节点 1；先递归处理 head.next 之后的部分。', null, null, ['entry']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 停在这一行等待；新一层 f(2) 的 head 指向节点 2。.next 都没变。', call(2), null, ['recursive-call']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 停在这一行等待；新一层 f(3) 的 head 指向节点 3。', call(3), null, ['recursive-call']);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 停在这一行等待；新一层 f(4) 的 head 指向节点 4。', call(4), null, ['recursive-call']);
+  add('if not head or not head.next: return head', 'f(4)：head.next 是 None，属于基本情况，直接把 head（节点 4）返回给 f(3)。', null, null, ['base-test', 'base-return'], true);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(3) 恢复执行：f(3) 的 new_head = 节点 4；f(3) 的 head 仍是节点 3。', resume, 'card-newHead', ['recursive-call']);
+  add('head.next.next = head', 'head.next 是 4；把 4.next 改为 3。此刻 3 → 4 和 4 → 3 同时存在，暂时成环。', s => { s.links[4] = 3; }, 'link4', ['reverse-link']);
+  add('head.next = None', '把 3.next 改为 None，拆掉环；子链表变成 4 → 3 → None。', s => { s.links[3] = null; }, 'link3', ['clear-link']);
+  add('return new_head', 'f(3) 把 new_head（节点 4）返回给 f(2)。', null, null, ['return-new-head'], true);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(2) 恢复执行：f(2) 的 new_head = 节点 4；f(2) 的 head 是节点 2。', resume, 'card-newHead', ['recursive-call']);
+  add('head.next.next = head', 'head.next 是 3；把 3.next 改为 2。2 → 3 与 3 → 2 暂时成环。', s => { s.links[3] = 2; }, 'link3', ['reverse-link']);
+  add('head.next = None', '把 2.next 改为 None，拆环；现在是 4 → 3 → 2 → None。', s => { s.links[2] = null; }, 'link2', ['clear-link']);
+  add('return new_head', 'f(2) 把同一个节点 4 返回给 f(1)。', null, null, ['return-new-head'], true);
+  add('new_head = linked_list_reversal_recursive(head.next)', 'f(1) 恢复执行：f(1) 的 new_head = 节点 4；f(1) 的 head 是节点 1。', resume, 'card-newHead', ['recursive-call']);
+  add('head.next.next = head', 'head.next 是 2；把 2.next 改为 1。1 → 2 与 2 → 1 暂时成环。', s => { s.links[2] = 1; }, 'link2', ['reverse-link']);
+  add('head.next = None', '把 1.next 改为 None，拆环；链表成为 4 → 3 → 2 → 1 → None。', s => { s.links[1] = null; }, 'link1', ['clear-link']);
+  add('return new_head', 'f(1) 返回节点 4；调用栈清空。新头 4，新尾 1。', s => { s.stack.pop(); s.head = undefined; }, null, ['return-new-head']);
+
+  const cards = [1, 2, 3, 4].map(() => {
+    const card = document.createElement('div');
+    card.className = 'frame-card unused';
+    card.setAttribute('role', 'listitem');
+    const name = document.createElement('span');
+    const head = document.createElement('span');
+    const newHead = document.createElement('span');
+    head.className = newHead.className = 'field';
+    card.append(name, head, newHead);
+    stackRow.append(card);
+    return {card, name, head, newHead};
+  });
+
+  let geo = null;
   let places = {};
-  let motion = [];
+  let motion = null;
   let motionProgress = 1;
   let transitionHandoff = null;
   let trace, interaction;
   const tween = createMotionController();
   const scene = createSvgScene(arrows);
   scene.defineMarker('node-arrow', {fill: '#333'});
-  scene.defineMarker('var-arrow', {markerWidth: 7, refX: 6, fill: '#555'});
+  scene.defineMarker('var-arrow', {fill: '#555'});
+  const nodeMarker = arrows.querySelector('#node-arrow');
+  const varMarker = arrows.querySelector('#var-arrow');
+  for (const marker of [nodeMarker, varMarker]) marker.setAttribute('markerUnits', 'userSpaceOnUse');
   const labelFor = value => value === undefined ? '未赋值' : value === null ? 'None' : `节点 ${value}`;
-  const targetPoint = (value, side = 'right') => places[value === null ? `null-${side}` : String(value)];
   const keyToValue = key => key.startsWith('null') ? null : Number(key);
-  function cancelMotion() { tween.cancel(); motion = []; motionProgress = 1; }
-  function beginMotion(before, after, fromTips = {}) {
-    cancelMotion();
-    if (tween.reduced) return;
-    for (const name of ['head', 'newHead']) if (before[name] !== after[name]) motion.push({kind: 'reference', name, from: before[name], to: after[name], fromPoint: fromTips[name]});
-    for (const node of [1, 2, 3, 4]) if (before.links[node] !== after.links[node]) motion.push({kind: 'link', node});
-    if (!motion.length) return;
-    motionProgress = 0;
-    tween.tween({duration: 380, update(eased) { motionProgress = eased; draw(); }, complete() { motion = []; motionProgress = 1; draw(); }});
-  }
-  function layout() {
-    const state = trace?.state;
-    if (!state) return;
-    const width = stage.clientWidth, narrow = width <= 480;
-    const fractions = narrow ? [.16, .38, .60, .82] : [.20, .40, .60, .80];
-    const nodeY = narrow ? 166 : 176, linkY = narrow ? 250 : 263;
-    const nullOwner = [1, 2, 3, 4].find(node => state.links[node] === null);
-    const localNull = nullOwner === 2 || nullOwner === 3;
-    const localNullX = localNull ? width * (fractions[nullOwner - 1] + fractions[nullOwner]) / 2 : width - (narrow ? 17 : 32);
-    places = {
-      1: {x: width * fractions[0], y: nodeY}, 2: {x: width * fractions[1], y: nodeY}, 3: {x: width * fractions[2], y: nodeY}, 4: {x: width * fractions[3], y: nodeY},
-      'null-left': {x: narrow ? 17 : 32, y: nodeY + (narrow ? 36 : 0)}, 'null-right': {x: localNullX, y: nodeY + (localNull ? 48 : narrow ? 36 : 0)},
-      head: {x: width * .25, y: 48}, newHead: {x: width * .75, y: 48},
-      link1: {x: width * fractions[0], y: linkY}, link2: {x: width * fractions[1], y: linkY}, link3: {x: width * fractions[2], y: linkY}, link4: {x: width * fractions[3], y: linkY}
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const interacting = () => Boolean(interaction?.selected || interaction?.drag?.moved);
+  // Where a link to None is drawn: row ends for the first/last node, straight below the node otherwise.
+  const nullSpot = node => node === 1 ? 'null-left' : node === 4 ? 'null-right' : `local-null-${node}`;
+
+  function cancelMotion() { tween.cancel(); motion = null; motionProgress = 1; }
+
+  function computeGeometry() {
+    const width = stage.clientWidth, height = stage.clientHeight, narrow = width <= 480;
+    const r = narrow ? 20 : 26;
+    const nodeY = narrow ? 164 : 190;
+    const nodeX = narrow
+      ? NODES.map((_, i) => 72 + i * (width - 144) / 3)
+      : NODES.map((_, i) => width * (.2 + i * .2));
+    const gap = narrow ? 6 : 8, x0 = narrow ? 2 : 8;
+    const cardW = Math.min(narrow ? 84 : 96, (width - 2 * x0 - 3 * gap) / 4);
+    return {
+      width, height, narrow, r, nodeY, nodeX,
+      labelY: narrow ? 104 : 116,
+      localNullY: nodeY + r + (narrow ? 11 : 10),
+      fieldY: nodeY + (narrow ? 55 : 48),
+      nullX: narrow ? [16, width - 16] : [32, width - 32],
+      nullHalf: narrow ? 15 : 19,
+      card: {x0, gap, w: cardW, top: narrow ? 30 : 34, h: narrow ? 48 : 52},
+      arc: narrow ? 28 : 42
     };
-    for (const button of allButtons) {
-      const key = button.dataset.source || button.dataset.target;
-      position(button, places[key].x, places[key].y);
+  }
+
+  function layout() {
+    if (!trace?.state) return;
+    geo = computeGeometry();
+    const {nodeX, nodeY, nullX, localNullY, fieldY, card} = geo;
+    places = {'null-left': {x: nullX[0], y: nodeY}, 'null-right': {x: nullX[1], y: nodeY}};
+    for (const node of NODES) {
+      places[node] = {x: nodeX[node - 1], y: nodeY};
+      // A middle node's None sits below the gap to its right, off the .next field column.
+      if (node < NODES.length) places[`local-null-${node}`] = {x: (nodeX[node - 1] + nodeX[node]) / 2 - (geo.narrow ? 3 : 0), y: localNullY};
+      places[`link${node}`] = {x: nodeX[node - 1], y: fieldY};
     }
-    arrows.setAttribute('viewBox', `0 0 ${width} ${stage.clientHeight}`);
+    for (const button of targets) position(button, places[button.dataset.target].x, places[button.dataset.target].y);
+    for (const node of NODES) position(sourceButton(`link${node}`), places[`link${node}`].x, places[`link${node}`].y);
+    cards.forEach(({card: element}, i) => {
+      element.style.left = `${card.x0 + i * (card.w + card.gap)}px`;
+      element.style.top = `${card.top}px`;
+      element.style.width = `${card.w}px`;
+      element.style.height = `${card.h}px`;
+    });
+    nodeMarker.setAttribute('markerWidth', geo.narrow ? 9 : 11);
+    nodeMarker.setAttribute('markerHeight', geo.narrow ? 9 : 11);
+    varMarker.setAttribute('markerWidth', geo.narrow ? 7 : 8);
+    varMarker.setAttribute('markerHeight', geo.narrow ? 7 : 8);
+    arrows.setAttribute('viewBox', `0 0 ${geo.width} ${geo.height}`);
     draw();
   }
-  function linkPath(from, to, reciprocal) {
-    const a = places[from], b = targetPoint(to, to === null && from === 1 ? 'left' : 'right');
-    const r = stage.clientWidth <= 480 ? 23 : 28;
-    if (to !== null && reciprocal) {
-      if (from < to) return `M ${a.x + r - 2} ${a.y - 7} C ${(a.x + b.x) / 2} ${a.y - 42}, ${(a.x + b.x) / 2} ${a.y - 42}, ${b.x - r + 1} ${b.y - 7}`;
-      return `M ${a.x - r + 2} ${a.y + 8} C ${(a.x + b.x) / 2} ${a.y + 42}, ${(a.x + b.x) / 2} ${a.y + 42}, ${b.x + r - 1} ${b.y + 8}`;
+
+  // Label box centre and arrow tip for a variable in a given state; null when the variable is unset.
+  function referencePlacement(name, state) {
+    const value = state[name];
+    if (value === undefined || !geo) return null;
+    const button = sourceButton(name), half = (button.offsetWidth || 70) / 2;
+    const other = name === 'head' ? 'newHead' : 'head';
+    const shared = state[other] !== undefined && state[other] === value;
+    const target = value === null ? places['null-right'] : places[value];
+    const shift = shared ? (name === 'head' ? -1 : 1) * (geo.narrow ? 31 : 40) : 0;
+    const x = Math.max(half + 2, Math.min(geo.width - half - 2, target.x + shift));
+    const tip = value === null
+      ? {x: target.x, y: target.y - 13}
+      : {x: target.x + (shared ? Math.sign(shift) * 9 : 0), y: target.y - geo.r - 3};
+    return {x, y: geo.labelY, tip};
+  }
+
+  function displayedReference(name, state) {
+    const now = referencePlacement(name, state);
+    const transition = motion?.references[name];
+    if (!transition) return now && {...now, opacity: 1};
+    const before = transition.from;
+    if (!before && !now) return null;
+    if (!before) return {...now, opacity: motionProgress};
+    if (!now) return {...before, opacity: 1 - motionProgress};
+    const t = motionProgress;
+    return {x: lerp(before.x, now.x, t), y: lerp(before.y, now.y, t), tip: {x: lerp(before.tip.x, now.tip.x, t), y: lerp(before.tip.y, now.tip.y, t)}, opacity: 1};
+  }
+
+  function beginMotion(beforeState, afterState, fromReferences) {
+    cancelMotion();
+    if (tween.reduced || !beforeState) return;
+    const references = {};
+    for (const name of ['head', 'newHead']) {
+      const changedLabel = (beforeState.stack.length === 0) !== (afterState.stack.length === 0);
+      if (beforeState[name] !== afterState[name] || (name === 'newHead' && changedLabel) || (beforeState.head === beforeState.newHead) !== (afterState.head === afterState.newHead)) references[name] = {from: fromReferences[name]};
+    }
+    const links = NODES.filter(node => beforeState.links[node] !== afterState.links[node]);
+    if (!Object.keys(references).length && !links.length) return;
+    motion = {references, links};
+    motionProgress = 0;
+    tween.tween({duration: 380, update(eased) { motionProgress = eased; draw(); }, complete() { motion = null; motionProgress = 1; draw(); }});
+  }
+
+  function edgePoint(center, angle, radius) { return {x: center.x + Math.cos(angle) * radius, y: center.y + Math.sin(angle) * radius}; }
+
+  function linkPath(from, to, state) {
+    const a = places[from], r = geo.r;
+    if (to === null) {
+      const spot = nullSpot(from), b = places[spot];
+      if (spot.startsWith('local')) {
+        const start = edgePoint(a, 35 * Math.PI / 180, r + 1);
+        const end = geo.narrow ? {x: b.x - 6, y: b.y - 11} : {x: b.x - geo.nullHalf - 4, y: b.y - 5};
+        return `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+      }
+      const dir = Math.sign(b.x - a.x) || 1;
+      return `M ${a.x + dir * (r + 1)} ${a.y} L ${b.x - dir * (geo.nullHalf + (geo.narrow ? 3 : 7))} ${b.y}`;
+    }
+    const b = places[to];
+    if (to === from) return `M ${a.x + r * .55} ${a.y - r * .85} C ${a.x + r * 1.9} ${a.y - r * 2.6}, ${a.x - r * 1.9} ${a.y - r * 2.6}, ${a.x - r * .55} ${a.y - r * .85}`;
+    const reciprocal = state.links[to] === from;
+    const distance = Math.abs(to - from);
+    if (reciprocal || distance > 1) {
+      const up = from < to, sign = up ? -1 : 1, lift = geo.arc * (distance > 1 ? 1.25 : 1);
+      const angle = 40 * Math.PI / 180;
+      const start = edgePoint(a, up ? -angle : Math.PI - angle, r + 1);
+      const end = edgePoint(b, up ? Math.PI + angle : angle, r + 2);
+      if (!up) { start.y = a.y + Math.sin(angle) * (r + 1); start.x = a.x - Math.cos(angle) * (r + 1); end.x = b.x + Math.cos(angle) * (r + 2); end.y = b.y + Math.sin(angle) * (r + 2); }
+      const mid = (a.x + b.x) / 2;
+      return `M ${start.x} ${start.y} C ${mid} ${a.y + sign * lift}, ${mid} ${a.y + sign * lift}, ${end.x} ${end.y}`;
     }
     const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
-    const endRadius = to === null ? 14 : r + 2;
-    return `M ${a.x + dx / len * r} ${a.y + dy / len * r} L ${b.x - dx / len * endRadius} ${b.y - dy / len * endRadius}`;
+    return `M ${a.x + dx / len * (r + 1)} ${a.y + dy / len * (r + 1)} L ${b.x - dx / len * (r + 2)} ${b.y - dy / len * (r + 2)}`;
   }
-  function referenceEnd(name, value) {
-    if (value === undefined) return {x: places[name].x, y: places[name].y + 17};
-    const target = targetPoint(value);
-    return {x: target.x, y: target.y - (value === null ? 19 : stage.clientWidth <= 480 ? 25 : 30)};
-  }
-  function displayedReferenceEnd(name, state) {
-    const transition = motion.find(item => item.kind === 'reference' && item.name === name);
-    if (!transition) return referenceEnd(name, state[name]);
-    const start = transition.fromPoint || referenceEnd(name, transition.from), end = referenceEnd(name, transition.to);
-    return {x: start.x + (end.x - start.x) * motionProgress, y: start.y + (end.y - start.y) * motionProgress};
-  }
+
   function draw() {
     const state = trace?.state;
-    if (!state || !places[1]) return;
-    const frame = trace.frame, drag = interaction?.drag;
-    scene.update(({path}) => {
-      for (const node of [1, 2, 3, 4]) {
+    if (!state || !geo) return;
+    const frame = trace.frame, drag = interaction?.drag, manual = Boolean(trace.manualMessage);
+    // None tokens: show only those a link or variable refers to (all while choosing a target).
+    const showAll = interacting();
+    const nullLeftUsed = state.links[1] === null;
+    const nullRightUsed = state.links[4] === null || state.head === null || state.newHead === null;
+    stage.querySelector('[data-target="null-left"]').classList.toggle('idle', !(showAll || nullLeftUsed));
+    stage.querySelector('[data-target="null-right"]').classList.toggle('idle', !(showAll || nullRightUsed));
+    for (const name of ['head', 'newHead']) {
+      const shown = displayedReference(name, state), button = sourceButton(name);
+      button.classList.toggle('absent', !shown);
+      if (shown) {
+        position(button, shown.x, shown.y);
+        button.style.opacity = shown.opacity < 1 ? String(shown.opacity) : '';
+      }
+    }
+    scene.update(({path, text}) => {
+      for (const node of NODES) {
         if (drag?.moved && drag.source === `link${node}`) continue;
-        const to = state.links[node], reciprocal = to !== null && state.links[to] === node;
-        const changed = !trace.manualMessage && frame.changed === `link${node}`;
-        const changing = motion.some(cue => cue.kind === 'link' && cue.node === node);
-        path(`node-link-${node}`, {d: linkPath(node, to, reciprocal), fill: 'none', stroke: '#333', 'stroke-width': changing ? 4.5 - (4.5 - (changed ? 2.8 : 2)) * motionProgress : changed ? 2.8 : 2, 'marker-end': 'url(#node-arrow)'});
+        const to = state.links[node];
+        const changed = !manual && frame.changed === `link${node}`;
+        const settled = changed ? 2.6 : 2;
+        const changing = motion?.links.includes(node);
+        path(`node-link-${node}`, {d: linkPath(node, to, state), fill: 'none', stroke: '#333', 'stroke-width': changing ? 3.2 - (3.2 - settled) * motionProgress : settled, 'marker-end': 'url(#node-arrow)'});
+        if (to === null && nullSpot(node).startsWith('local')) {
+          const spot = places[nullSpot(node)];
+          text(`local-null-${node}`, {x: spot.x, y: spot.y, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'local-null'}, 'None');
+        }
       }
       for (const name of ['head', 'newHead']) {
-        const value = state[name], transition = motion.find(item => item.kind === 'reference' && item.name === name);
-        if ((value === undefined && !transition) || (drag?.moved && drag.source === name)) continue;
-        const a = places[name], tip = displayedReferenceEnd(name, state);
-        path(`reference-${name}`, {d: `M ${a.x} ${a.y + 17} L ${tip.x} ${tip.y}`, fill: 'none', stroke: '#555', 'stroke-width': 1.5, opacity: transition && transition.to === undefined ? 1 - motionProgress : 1, 'marker-end': 'url(#var-arrow)'});
+        if (drag?.moved && drag.source === name) continue;
+        const shown = displayedReference(name, state);
+        if (!shown) continue;
+        const box = sourceButton(name).offsetHeight || 30;
+        path(`reference-${name}`, {d: `M ${shown.x} ${shown.y + box / 2} L ${shown.tip.x} ${shown.tip.y}`, fill: 'none', stroke: '#555', 'stroke-width': 1.5, opacity: shown.opacity, 'marker-end': 'url(#var-arrow)'});
+      }
+      // Return cue: the popping frame hands node 4 back to its caller, drawn inside the stack row.
+      if (!manual && frame.returning && state.stack.length >= 2) {
+        const {x0, gap, w, top} = geo.card, k = state.stack.length - 1;
+        const from = {x: x0 + k * (w + gap) + 16, y: top - 1};
+        const to = {x: x0 + (k - 1) * (w + gap) + w - 16, y: top - 3};
+        const lift = geo.narrow ? 19 : 22;
+        path('return-cue', {d: `M ${from.x} ${from.y} C ${from.x - 4} ${top - lift}, ${to.x + 4} ${top - lift}, ${to.x} ${to.y}`, fill: 'none', stroke: '#555', 'stroke-width': 1.5, 'stroke-dasharray': '5 4', 'marker-end': 'url(#var-arrow)'});
+        // Label sits beside the arc, above the returning frame's card, so the whole arc stays visible.
+        text('return-cue-label', {x: from.x + 7, y: top - (geo.narrow ? 11 : 13), 'text-anchor': 'start', 'dominant-baseline': 'central', class: 'cue-label'}, '返回 节点4');
       }
       if (drag?.moved) {
-        const a = places[drag.source], y = drag.source.startsWith('link') ? a.y - 12 : a.y + 16;
+        const a = sourceButton(drag.source).dataset.source.startsWith('link') ? places[drag.source] : displayedReference(drag.source, state) || places[1];
+        const y = drag.source.startsWith('link') ? a.y - 14 : a.y + 15;
         path('drag-preview', {d: `M ${a.x} ${y} L ${drag.x} ${drag.y}`, fill: 'none', stroke: '#777', 'stroke-width': 1.5, 'stroke-dasharray': '5 5', 'marker-end': 'url(#var-arrow)'});
       }
     });
   }
+
+  function renderCards(state, frame, manual) {
+    const top = state.stack.length - 1;
+    stackCaption.textContent = state.stack.length ? '调用栈' : '调用栈：空';
+    cards.forEach((slot, i) => {
+      const entry = state.stack[i];
+      // Once the stack is empty, '调用栈：空' says it alone; hidden slots keep the row height.
+      const empty = state.stack.length === 0;
+      slot.card.classList.toggle('unused', !entry && (empty || i >= state.depth));
+      slot.card.classList.toggle('popped', !entry && !empty && i < state.depth);
+      slot.card.classList.toggle('current', Boolean(entry) && i === top);
+      slot.name.textContent = entry ? `f(${entry.call})` : '';
+      slot.head.textContent = entry ? `head=${entry.head === null ? 'None' : entry.head ?? '—'}` : '';
+      // The base-case frame returns before reaching the new_head line, so it shows no new_head.
+      const baseCase = Boolean(entry) && entry.newHead === undefined && state.links[entry.head] === null && i === top;
+      slot.newHead.textContent = !entry || baseCase ? '' : `new_head=${entry.newHead === null ? 'None' : entry.newHead ?? '—'}`;
+      slot.newHead.classList.toggle('unset', Boolean(entry) && entry.newHead === undefined);
+      slot.newHead.classList.toggle('changed', Boolean(entry) && i === top && !manual && frame.changed === 'card-newHead');
+      slot.card.setAttribute('aria-label', entry
+        ? `f(${entry.call})${i === top ? '，正在执行' : '，等待返回'}：head 指向${labelFor(entry.head)}，new_head ${entry.newHead === undefined ? '未赋值' : `指向${labelFor(entry.newHead)}`}`
+        : '已返回');
+      slot.card.hidden = false;
+    });
+  }
+
   function renderScene({frame, state, manualMessage}) {
-    const selected = interaction?.selected;
+    const selected = interaction?.selected, manual = Boolean(manualMessage);
     operation.replaceChildren();
     const code = document.createElement('code');
     code.dataset.currentCode = '';
-    code.textContent = manualMessage ? '自由练习' : frame.code;
+    code.textContent = manual ? '自由练习' : frame.code;
     const explanation = document.createElement('span');
     explanation.className = 'explanation';
     explanation.textContent = manualMessage || frame.explanation;
     operation.append(code, explanation);
-    stack.replaceChildren();
-    if (state.stack.length) {
-      for (const [index, value] of state.stack.entries()) {
-        const item = document.createElement('li');
-        item.textContent = `f(${value})`;
-        if (index === state.stack.length - 1) item.classList.add('current');
-        stack.append(item);
-      }
-    } else {
-      const empty = document.createElement('span');
-      empty.className = 'empty';
-      empty.textContent = '全部返回';
-      stack.append(empty);
-    }
+    renderCards(state, frame, manual);
     for (const button of sources) {
-      const source = button.dataset.source, value = source.startsWith('link') ? state.links[Number(source.slice(4))] : state[source];
-      button.textContent = source === 'newHead' ? (value === undefined ? 'new_head = —' : 'new_head') : source.startsWith('link') ? `${source.slice(4)}.next` : (value === undefined ? 'head = —' : 'head');
-      button.setAttribute('aria-label', `${button.textContent} 当前指向${labelFor(value)}。点击后选节点或 None，也可拖动。`);
-      button.classList.toggle('unset', value === undefined);
+      const source = button.dataset.source;
+      if (source.startsWith('link')) {
+        const node = Number(source.slice(4)), value = state.links[node];
+        const name = document.createElement('span'), stored = document.createElement('span');
+        name.textContent = `${node}.next`;
+        stored.textContent = `=${value === null ? 'None' : value}`;
+        button.replaceChildren(name, stored);
+        button.setAttribute('aria-label', `${node}.next 当前指向${labelFor(value)}。点击后选节点或 None，也可拖动。`);
+      } else {
+        const label = source === 'newHead' ? (state.stack.length ? 'new_head' : '返回值') : 'head';
+        button.textContent = label;
+        button.setAttribute('aria-label', `${label} 当前指向${labelFor(state[source])}。点击后选节点或 None，也可拖动。`);
+      }
       button.classList.toggle('selected', selected === source);
-      button.classList.toggle('changed', !manualMessage && frame.changed === source);
+      button.classList.toggle('changed', !manual && frame.changed === source);
     }
     for (const button of targets) {
       const key = button.dataset.target;
-      button.setAttribute('aria-label', key.startsWith('null') ? `${key === 'null-left' ? '左侧' : '右侧'} None` : `节点 ${key}`);
-      button.classList.toggle('active', !key.startsWith('null') && Number(key) === state.head);
+      button.setAttribute('aria-label', key.startsWith('null') ? 'None' : `节点 ${key}`);
       button.classList.toggle('target-ready', Boolean(selected));
     }
     layout();
   }
+
+  function snapshotReferences(state) {
+    return {head: displayedReference('head', state), newHead: displayedReference('newHead', state)};
+  }
   function prepareStep({beforeState}) {
-    transitionHandoff = beforeState ? {beforeState, fromTips: {head: displayedReferenceEnd('head', beforeState), newHead: displayedReferenceEnd('newHead', beforeState)}} : null;
+    transitionHandoff = beforeState ? {beforeState, fromReferences: snapshotReferences(beforeState)} : null;
     cancelMotion();
     interaction?.clearSelection({notify: false});
   }
   function animateStep({state}) {
     const handoff = transitionHandoff;
     transitionHandoff = null;
-    if (handoff) beginMotion(handoff.beforeState, state, handoff.fromTips);
+    if (handoff) beginMotion(handoff.beforeState, state, handoff.fromReferences);
   }
   function apply(source, value) {
     const before = clone(trace.state);
-    const fromTips = source.startsWith('link') ? {} : {[source]: displayedReferenceEnd(source, before)};
+    const fromReferences = snapshotReferences(before);
     cancelMotion();
     interaction.clearSelection({notify: false});
     const label = source === 'newHead' ? 'new_head' : source.startsWith('link') ? `${source.slice(4)}.next` : 'head';
     trace.updatePractice(state => {
       if (source.startsWith('link')) state.links[Number(source.slice(4))] = value;
-      else state[source] = value;
-    }, `${label} 现在指向${labelFor(value)}。只有改动 .next 才会改变节点之间的实线；调用栈和演示步骤未改变。`);
-    beginMotion(before, trace.state, fromTips);
+      else {
+        state[source] = value;
+        const top = state.stack[state.stack.length - 1];
+        if (top) top[source] = value;
+      }
+    }, `${label} 现在指向${labelFor(value)}。${source.startsWith('link') ? '这是节点里存的 .next，实线随之改变。' : '只改了变量引用，节点之间的实线不变。'}演示步骤未前进。`);
+    beginMotion(before, trace.state, fromReferences);
   }
   trace = createTrace({root, cloneState: clone, motion: tween, onRender: renderScene, onBeforeStep: prepareStep, onTransition: animateStep});
   interaction = createManualInteraction({
     root, stage, sources, targets,
-    getTargetPoint: target => places[target.dataset.target],
+    getTargetPoint: target => target.classList.contains('idle') && !interacting() ? null : places[target.dataset.target],
     getTargetValue: target => keyToValue(target.dataset.target),
     targetReadyClass: 'target-ready', maxDistance: 48,
     onSelectionChange: ({selected, source}) => {
@@ -353,7 +513,7 @@
     onPointerCancel: () => trace.render(),
     onDrop: ({source, value}) => apply(source, value)
   });
-  tween.onPreferenceChange(() => { motion = []; motionProgress = 1; draw(); });
+  tween.onPreferenceChange(() => { motion = null; motionProgress = 1; draw(); });
   new ResizeObserver(() => { cancelMotion(); layout(); }).observe(stage);
   trace.setFrames(frames);
 })();

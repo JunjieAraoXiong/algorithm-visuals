@@ -10,22 +10,29 @@
     :root { --node-size: 42px; }
     .settings select { padding: 4px 20px 4px 6px; }
     .controls output { min-width: 52px; }
-    .gap { margin-left: auto; color: var(--quiet); }
-    .stage { height: 320px; border-bottom: 1px solid var(--rule); }
+    .stage { height: 200px; overflow: hidden; border-bottom: 1px solid var(--rule); }
     .lines, .motion { overflow: visible; }
-    .source { min-width: 83px; min-height: 30px; padding: 3px 6px; border: 1.5px solid #595959; border-radius: 3px; background: var(--paper); font: 13px monospace; cursor: grab; }
+    .source { padding: 2px 6px; border: 1.5px solid #777; border-radius: 4px; background: var(--paper); color: var(--ink); font: 12px/18px monospace; white-space: nowrap; cursor: grab; }
     .source:active { cursor: grabbing; }
-    .source.link { min-width: 77px; border-style: dashed; font-size: 12px; }
-    .source:disabled { color: #777; border-color: #aaa; cursor: default; }
-    .source.selected, .source.changed { outline: 2px solid #555; outline-offset: 3px; }
-    .node { width: var(--node-size); height: var(--node-size); padding: 0; border: 2px solid #383838; border-radius: 50%; background: var(--paper); font: 20px Arial, Helvetica, sans-serif; cursor: pointer; }
+    .source.link { border-style: dashed; border-color: #999; }
+    .source.changed, .source.link.changed { border-color: var(--ink); }
+    .source.faded { border-color: #b7b7b1; color: #999; }
+    .source:disabled { color: #999; border-color: #b7b7b1; cursor: default; }
+    .source.selected { outline: 2px solid #555; outline-offset: 2px; }
+    .tag { position: absolute; left: 0; top: 0; z-index: 1; padding: 2px 6px; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--paper); color: var(--ink); font: 12px/18px monospace; white-space: nowrap; pointer-events: none; transform: translate3d(var(--visual-x, 0px), var(--visual-y, 0px), 0) translate(-50%, -50%); }
+    .tag[hidden] { display: none; }
+    .node { width: var(--node-size); height: var(--node-size); padding: 0; border: 2px solid #383838; border-radius: 50%; background: var(--paper); color: var(--ink); font: 20px Arial, Helvetica, sans-serif; cursor: pointer; }
     .node.dummy { border-color: #777; color: #555; font-size: 17px; }
     .node.to-remove { outline: 2px dashed #777; outline-offset: 4px; }
-    .node.removed { border-style: dashed; color: #777; }
-    .null { min-width: 34px; height: 32px; padding: 0; border: 0; background: var(--paper); font: 15px Arial, Helvetica, sans-serif; cursor: pointer; }
+    .node.removed { border-style: dashed; border-color: #999; color: #777; }
+    .null { min-width: 0; height: 28px; padding: 0 2px; border: 0; background: var(--paper); color: var(--ink); font: 14px Arial, Helvetica, sans-serif; cursor: pointer; }
     .target-ready { outline: 2px dashed #777; outline-offset: 3px; }
-    .operation { margin-top: 12px; }
-    .note { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--rule); }
+    .step-grid { display: grid; grid-template-columns: minmax(0, 1fr) 190px; align-items: start; gap: 10px; margin: 12px 3px 0; }
+    .step-grid .operation { min-width: 0; min-height: 84px; margin: 0; }
+    .metrics { display: grid; align-content: start; gap: 4px; margin: 0; padding: 9px 11px; border: 1px solid var(--rule); font: 12px/1.5 monospace; }
+    .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+    .metrics dt { color: var(--quiet); white-space: nowrap; }
+    .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
     .reasoning { margin: 20px 3px 0; padding-top: 15px; border-top: 1px solid var(--rule); }
     .reasoning h2 { margin: 0 0 10px; font-size: 16px; font-weight: 500; }
     .reasoning h3 { margin: 15px 0 5px; font-size: 14px; font-weight: 600; }
@@ -33,15 +40,21 @@
     .reasoning ol { max-width: 90ch; margin: 5px 0 0; padding-left: 23px; }
     .reasoning li { margin: 4px 0; }
     .reasoning code { font: 13px/1.4 monospace; }
+    @media (max-width: 700px) {
+      .step-grid { grid-template-columns: minmax(0, 1fr); }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; }
+      .metrics div { min-width: 0; }
+    }
     @media (max-width: 480px) {
-      :root { --node-size: 36px; }
-      .gap { width: 100%; margin-left: 0; }
-      .stage { height: 307px; }
-      .source { min-width: 72px; font-size: 11px; }
-      .source.link { min-width: 68px; font-size: 11px; }
-      .node { font-size: 17px; }
-      .node.dummy { font-size: 15px; }
-      .null { min-width: 29px; font-size: 12px; }
+      :root { --node-size: 32px; }
+      .stage { height: 186px; }
+      .source, .tag { padding: 1px 5px; font-size: 11px; line-height: 17px; }
+      .node { font-size: 16px; }
+      .node.dummy { font-size: 14px; }
+      .node.to-remove { outline-offset: 1px; }
+      .step-grid .operation { min-height: 98px; }
+      .null { font-size: 12px; }
+      .metrics { font-size: 11px; }
     }
   </style>
 <link rel="stylesheet" href="../assets/guide.css">
@@ -69,10 +82,9 @@
         <button type="button" data-action="previous">← 上一步</button>
         <output data-count aria-live="polite">0 / 0</output>
         <button type="button" data-action="next">下一步 →</button>
-        <span class="gap" data-gap>间距：0 条边</span>
       </div>
 
-      <div class="stage" data-stage tabindex="0" aria-label="固定位置的 dummy 节点、五个链表节点和两个可移动指针；按左右方向键切换步骤">
+      <div class="stage" data-stage tabindex="0" aria-label="dummy 节点 D、五个链表节点、变量 leader 与 trailer，以及可编辑的 trailer.next；按左右方向键切换步骤">
         <svg class="lines" data-lines aria-hidden="true"></svg>
         <svg class="motion" data-motion aria-hidden="true"></svg>
         <button type="button" class="source" data-source="trailer">trailer</button>
@@ -84,11 +96,21 @@
         <button type="button" class="node" data-target="7" aria-label="节点 7">7</button>
         <button type="button" class="node" data-target="3" aria-label="节点 3">3</button>
         <button type="button" class="null" data-target="null" aria-label="None，链表结束">None</button>
-        <button type="button" class="source link" data-source="link">D.next</button>
+        <button type="button" class="source link" data-source="link">trailer.next</button>
+        <span class="tag" data-return hidden>return</span>
       </div>
 
-      <p class="operation" data-operation aria-live="polite"></p>
-      <p class="note">关键区别：移动 leader／trailer 只改变变量的箭头；执行 trailer.next = trailer.next.next 才改变节点之间的实线。返回 dummy.next，才能处理删除原 head 的情况。</p>
+      <div class="step-grid">
+        <p class="operation" data-operation aria-live="polite"></p>
+        <dl class="metrics" aria-label="当前变量">
+          <div><dt>k</dt><dd data-m-k></dd></div>
+          <div><dt>间距</dt><dd data-m-gap></dd></div>
+          <div><dt>leader →</dt><dd data-m-leader></dd></div>
+          <div><dt>trailer →</dt><dd data-m-trailer></dd></div>
+          <div><dt>trailer.next →</dt><dd data-m-next></dd></div>
+          <div><dt>返回</dt><dd data-m-result></dd></div>
+        </dl>
+      </div>
     </div>
 
     <aside class="code-panel" data-code-panel aria-labelledby="code-title">
@@ -135,107 +157,48 @@
   const lines = root.querySelector('[data-lines]');
   const cueLayer = root.querySelector('[data-motion]');
   const operation = root.querySelector('[data-operation]');
-  const gapLabel = root.querySelector('[data-gap]');
+  const returnTag = root.querySelector('[data-return]');
   const choice = root.querySelector('#k-choice');
+  const metric = key => root.querySelector(`[data-m-${key}]`);
+  const metrics = {k: metric('k'), gap: metric('gap'), leader: metric('leader'), trailer: metric('trailer'), next: metric('next'), result: metric('result')};
   const sources = [...stage.querySelectorAll('[data-source]')];
+  const sourceFor = key => sources.find(button => button.dataset.source === key);
   const targets = [...stage.querySelectorAll('[data-target]')];
-  const allButtons = [...sources, ...targets];
+  const nullButton = stage.querySelector('[data-target="null"]');
   const order = ['D', '1', '2', '4', '7', '3'];
   const initialLinks = {D: '1', 1: '2', 2: '4', 4: '7', 7: '3', 3: null};
   const clone = s => ({leader: s.leader, trailer: s.trailer, links: {...s.links}, removed: s.removed, phase: s.phase});
   const name = value => value === null ? 'None' : value === 'D' ? 'D（dummy）' : `节点 ${value}`;
+  const short = value => value === null ? 'None' : value;
+  const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
   let frames = [];
   let places = {};
-  let referenceMotion = null;
-  let transitionHandoff = null;
+  let geo = null;
+  let shown = null;
+  let linkFade = null;
   let trace, interaction;
   const referenceTween = createMotionController();
   const cueTween = createMotionController();
   const scene = createSvgScene(lines);
   const cueScene = createSvgScene(cueLayer);
-  scene.defineMarker('node-arrow', {fill: '#333'});
-  scene.defineMarker('old-arrow', {fill: '#999'});
-  scene.defineMarker('var-arrow', {markerWidth: 7, markerHeight: 7, refX: 6, fill: '#555'});
-  referenceTween.onPreferenceChange(() => { referenceMotion = null; draw(); });
-  cueTween.onPreferenceChange(() => { cueScene.clear(); cueLayer.style.opacity = ''; });
+  referenceTween.onPreferenceChange(() => { layout(); });
+  cueTween.onPreferenceChange(() => { clearCue(); draw(); });
+
+  function defineMarkers(narrow) {
+    const node = narrow ? 7 : 9;
+    const variable = narrow ? 6 : 7;
+    scene.defineMarker('node-arrow', {markerWidth: node, markerHeight: node, fill: '#333'});
+    scene.defineMarker('old-arrow', {markerWidth: node, markerHeight: node, fill: '#999'});
+    scene.defineMarker('var-arrow', {markerWidth: variable, markerHeight: variable, fill: '#555'});
+    scene.defineMarker('faded-arrow', {markerWidth: variable, markerHeight: variable, fill: '#b7b7b1'});
+    // Fixed-size heads: a thicker emphasised link must not grow a larger arrowhead.
+    for (const id of ['node-arrow', 'old-arrow', 'var-arrow', 'faded-arrow']) lines.querySelector(`#${id}`).setAttribute('markerUnits', 'userSpaceOnUse');
+  }
 
   function clearCue() {
     cueTween.cancel();
     cueScene.clear();
-    cueLayer.style.opacity = '';
-  }
-
-  function clearReferenceMotion() {
-    referenceTween.cancel();
-    referenceMotion = null;
-  }
-
-  function referenceTip(value) {
-    const point = places[value ?? 'null'];
-    if (!point) return null;
-    return {x: point.x, y: point.y - (stage.clientWidth <= 480 ? 22 : 26)};
-  }
-
-  function displayedTip(key, value) {
-    return referenceMotion?.key === key ? {...referenceMotion.point} : referenceTip(value);
-  }
-
-  function moveReferenceArrow(key, fromPoint, value) {
-    const toPoint = referenceTip(value);
-    if (referenceTween.reduced || !fromPoint || !toPoint || Math.hypot(fromPoint.x - toPoint.x, fromPoint.y - toPoint.y) < 1) return;
-    const animation = {key, from: fromPoint, to: toPoint, point: {...fromPoint}};
-    referenceMotion = animation;
-    draw();
-    referenceTween.tween({
-      duration: 380,
-      easing: progress => 1 - Math.pow(1 - progress, 3),
-      update(eased) {
-        animation.point = {
-          x: animation.from.x + (animation.to.x - animation.from.x) * eased,
-          y: animation.from.y + (animation.to.y - animation.from.y) * eased
-        };
-        draw();
-      },
-      complete() { referenceMotion = null; draw(); }
-    });
-  }
-
-  function showCue(kind, from, to) {
-    clearCue();
-    if (cueTween.reduced || from === to || !places[from ?? 'null'] || !places[to ?? 'null']) return;
-    const a = kind === 'link' ? places.link : places[from ?? 'null'];
-    const b = places[to ?? 'null'];
-    const radius = stage.clientWidth <= 480 ? 19 : 22;
-    const above = kind !== 'link';
-    const y = above ? a.y - radius - 7 : a.y - 16;
-    const endY = b.y + (above ? -radius - 7 : radius + 7);
-    // A variable moving from None routes above the chain. A .next assignment
-    // starts at the edited field, never at the old target node.
-    const controlY = above
-      ? (from === null || to === null ? Math.min(y, endY) - 56 : (y + endY) / 2 - 35)
-      : Math.max(y, endY) + 34;
-    let path, marker;
-    cueScene.update(scene => {
-      path = scene.path('movement-cue', {
-        d: `M ${a.x} ${y} Q ${(a.x + b.x) / 2} ${controlY} ${b.x} ${endY}`,
-        fill: 'none', stroke: above ? '#777' : '#444', 'stroke-width': 1.6,
-        'stroke-dasharray': '5 5', 'stroke-linecap': 'round'
-      });
-      marker = scene.circle('movement-marker', {r: 3, fill: above ? '#777' : '#444'});
-    });
-    const length = path.getTotalLength();
-    cueTween.tween({
-      duration: 380,
-      easing: progress => 1 - Math.pow(1 - progress, 2),
-      update(eased, progress) {
-        const point = path.getPointAtLength(length * eased);
-        marker.setAttribute('cx', point.x);
-        marker.setAttribute('cy', point.y);
-        cueLayer.style.opacity = String(Math.min(1, progress * 7, (1 - progress) * 5));
-      },
-      complete: clearCue
-    });
-    cueLayer.style.opacity = '0';
+    linkFade = null;
   }
 
   function build(k) {
@@ -245,35 +208,45 @@
       if (change) change(work);
       result.push({state: clone(work), code, sourceKeys, explanation, changed});
     };
-    add(['remove-init-dummy', 'remove-init-pointers'], 'dummy = ListNode(0, head); leader = trailer = dummy', 'D 放在原 head 前。两个变量都指向 D；先让 leader 向前走 k 步。');
+    add(['remove-init-dummy', 'remove-init-pointers'], 'dummy = ListNode(0, head); leader = trailer = dummy', `D 放在原 head（节点 1）前，leader 和 trailer 都指向 D。先让 leader 向前走 k = ${k} 步。`);
     for (let i = 1; i <= k; i++) {
       const value = work.links[work.leader];
-      add(['remove-advance-leader'], 'leader = leader.next', `第 ${i} / ${k} 次前进：leader 现在指向${name(value)}。只改变 leader 变量，节点的 .next 没变。`, s => {s.leader = value;}, 'leader');
+      add(['remove-advance-leader'], 'leader = leader.next', `第 ${i} / ${k} 步：leader 改指 ${short(value)}。只改变量 leader，节点的 .next 没变。`, s => {s.leader = value;}, 'leader');
       if (value === null) {
-        add(['remove-validity-check', 'remove-invalid-return'], 'if not leader: return head', `leader 已走到 None：k = ${k} 超出长度 5。返回原 head，链表不变。`, s => {s.phase = 'invalid';});
+        add(['remove-validity-check', 'remove-invalid-return'], 'if not leader: return head', `leader 是 None：k = ${k} 超出长度 5。返回原 head（节点 1），链表不变。`, s => {s.phase = 'invalid';});
         return result;
       }
-      add(['remove-validity-check'], 'if not leader:  # False', 'leader 仍指向一个节点，继续前进；链表的 .next 没有改变。');
+      add(['remove-validity-check'], 'if not leader:  # False', `leader 指向节点 ${value}，不是 None → 条件为 False，继续。`);
     }
-    add(['remove-walk-condition'], 'while leader.next:', `已经隔开 ${k} 条边。接下来让两个指针一起前进，直到 leader 到达最后一个节点。`, s => {s.phase = 'move';});
-    while (work.links[work.leader] !== null) {
+    for (let round = 0; work.links[work.leader] !== null; round++) {
       const lead = work.links[work.leader];
       const trail = work.links[work.trailer];
-      add(['remove-move-leader'], 'leader = leader.next', `leader 指向${name(lead)}；这一小步后，trailer 还没移动，间距暂时多 1。`, s => {s.leader = lead;}, 'leader');
-      add(['remove-move-trailer'], 'trailer = trailer.next', `trailer 指向${name(trail)}；两者重新相隔 ${k} 条边。节点的 .next 没变。`, s => {s.trailer = trail;}, 'trailer');
+      add(['remove-walk-condition'], 'while leader.next:  # True', round === 0 ? `leader 已领先 trailer ${k} 条边；leader.next 是 ${lead}，不是 None → 两个变量一起前进。` : `leader.next 是 ${lead}，不是 None → 再一起前进一步。`, s => {s.phase = 'move';});
+      add(['remove-move-leader'], 'leader = leader.next', `leader 改指 ${short(lead)}。trailer 还没动，间距暂时是 ${k + 1}。`, s => {s.leader = lead;}, 'leader');
+      add(['remove-move-trailer'], 'trailer = trailer.next', `trailer 改指 ${short(trail)}，间距回到 ${k}。节点的 .next 没变。`, s => {s.trailer = trail;}, 'trailer');
     }
     const doomed = work.links[work.trailer];
     const after = work.links[doomed];
-    add(['remove-walk-condition'], 'while leader.next:  # False', `leader 已到最后一个节点。trailer 停在${name(doomed)}的前一个节点。`, s => {s.phase = 'ready';});
-    add(['remove-rewire'], 'trailer.next = trailer.next.next', `把 ${work.trailer}.next 从${name(doomed)}改为${name(after)}。代码没有改被跳过节点的 .next；若该节点仍存在，它仍指向${name(after)}。从 head 已到不了它。`, s => {s.links[s.trailer] = after; s.removed = doomed; s.phase = 'removed';}, 'link');
-    add(['remove-return'], 'return dummy.next', `返回 D.next（${name(work.links.D)}）作为新的 head。${after === null ? '' : `${name(after)}仍在新链表中，没有被复制。`}图中的虚线旧节点只是示意；若没有其他引用，Python 可以回收它。`, s => {s.phase = 'done';});
+    const owner = work.trailer === 'D' ? 'dummy' : work.trailer;
+    add(['remove-walk-condition'], 'while leader.next:  # False', `leader.next 是 None → 循环结束。trailer 停在待删节点 ${doomed} 的前一个。`, s => {s.phase = 'ready';});
+    add(['remove-rewire'], 'trailer.next = trailer.next.next', `${owner}.next 从 ${doomed} 改为 ${short(after)}；${doomed} 自己的 .next 没变，但从 head 已到不了 ${doomed}。`, s => {s.links[s.trailer] = after; s.removed = doomed; s.phase = 'removed';}, 'link');
+    add(['remove-return'], 'return dummy.next', `返回 dummy.next（节点 ${work.links.D}）。新链表：${chain(work.links, work.links.D).join(' → ')}。`, s => {s.phase = 'done';});
     return result;
+  }
+
+  function chain(links, start) {
+    const values = [];
+    const seen = new Set();
+    for (let node = start; node !== null && node !== undefined && !seen.has(node); node = links[node]) {
+      seen.add(node);
+      values.push(node);
+    }
+    return values;
   }
 
   function distance() {
     const state = trace?.state;
-    if (!state) return null;
-    if (state.trailer === null || state.leader === null) return null;
+    if (!state || state.trailer === null || state.leader === null) return null;
     let at = state.trailer;
     const seen = new Set();
     for (let n = 0; n <= order.length; n++) {
@@ -287,104 +260,231 @@
 
   function reachableFromDummy(target) {
     const state = trace?.state;
-    if (!state) return false;
-    const seen = new Set();
-    let node = 'D';
-    while (node !== null && !seen.has(node)) {
-      if (node === target) return true;
-      seen.add(node);
-      node = state.links[node];
+    return Boolean(state) && chain(state.links, 'D').includes(target);
+  }
+
+  function gapInfo() {
+    const state = trace?.state;
+    const gap = distance();
+    if (!state || trace.manualMessage || ['removed', 'done', 'invalid'].includes(state.phase) || gap === null) return null;
+    const temporary = trace.frame.changed === 'leader' && state.phase === 'move';
+    return {gap, text: `${gap} 条边${temporary ? '（暂时 +1）' : ''}`};
+  }
+
+  function returnTarget() {
+    const state = trace?.state;
+    if (!state || trace.manualMessage) return undefined;
+    if (state.phase === 'done') return state.links.D;
+    if (state.phase === 'invalid') return '1';
+    return undefined;
+  }
+
+  // Lay out the labels in one row above the chain: each label wants to sit
+  // over its target; labels that would overlap are pushed apart as a group.
+  function spread(items, min, max, gap) {
+    items.sort((a, b) => a.x - b.x || a.rank - b.rank);
+    const groups = [];
+    const settle = group => {
+      const total = group.items.reduce((sum, item) => sum + item.w, 0) + gap * (group.items.length - 1);
+      const center = group.items.reduce((sum, item) => sum + item.x, 0) / group.items.length;
+      let left = clamp(center - total / 2, min, Math.max(min, max - total));
+      group.left = left;
+      group.right = left + total;
+      for (const item of group.items) { item.cx = left + item.w / 2; left += item.w + gap; }
+    };
+    for (const item of items) {
+      groups.push({items: [item]});
+      settle(groups[groups.length - 1]);
+      while (groups.length > 1) {
+        const before = groups[groups.length - 2], last = groups[groups.length - 1];
+        if (before.right + gap <= last.left) break;
+        before.items.push(...last.items);
+        groups.pop();
+        settle(before);
+      }
     }
-    return false;
+  }
+
+  function targetTop(value) {
+    const point = places[value ?? 'null'];
+    return {x: point.x, y: value === null ? geo.nodeY - 11 : geo.nodeY - geo.r - 4};
+  }
+
+  function placement() {
+    const state = trace.state;
+    const width = stage.clientWidth;
+    const result = {};
+    const items = ['trailer', 'leader'].map((key, index) => {
+      const button = sourceFor(key);
+      return {key, value: state[key], x: places[state[key] ?? 'null'].x, w: button.offsetWidth, h: button.offsetHeight, rank: index * 2};
+    });
+    const returned = returnTarget();
+    if (returned !== undefined) items.push({key: 'return', value: returned, x: places[returned ?? 'null'].x, w: returnTag.offsetWidth || 50, h: returnTag.offsetHeight || 22, rank: 1});
+    spread(items, 4, width - 4, geo.narrow ? 5 : 8);
+    for (const item of items) {
+      const top = targetTop(item.value);
+      const tx = top.x + clamp((item.cx - top.x) * .3, -7, 7);
+      result[item.key] = {
+        x: item.cx, y: geo.labelY, opacity: 1,
+        sx: item.cx + clamp(tx - item.cx, -(item.w / 2 - 8), item.w / 2 - 8), sy: geo.labelY + item.h / 2 + 1,
+        tx, ty: top.y
+      };
+    }
+    const field = sourceFor('link');
+    const anchor = places[state.trailer ?? 'D'];
+    result.link = {x: clamp(anchor.x, field.offsetWidth / 2 + 4, width - field.offsetWidth / 2 - 4), y: geo.fieldY, opacity: 1};
+    return result;
+  }
+
+  function applyPlacement(next) {
+    shown = next;
+    for (const key of ['trailer', 'leader', 'link']) {
+      const button = sourceFor(key);
+      const spot = next[key];
+      position(button, spot.x, spot.y);
+      button.style.opacity = spot.opacity < 1 ? String(spot.opacity) : '';
+    }
+    returnTag.hidden = !next.return;
+    if (next.return) {
+      position(returnTag, next.return.x, next.return.y);
+      returnTag.style.opacity = next.return.opacity < 1 ? String(next.return.opacity) : '';
+    }
+  }
+
+  // Move every label together with its short reference. A long jump fades out
+  // and back in instead of sliding across the chain.
+  function animatePlacement(from) {
+    referenceTween.cancel();
+    if (!from || referenceTween.reduced) return;
+    const to = placement();
+    const pitch = places['1'].x - places.D.x;
+    const moving = Object.keys(to).filter(key => !from[key] || ['x', 'tx', 'ty', 'sx'].some(field => Math.abs((from[key][field] ?? 0) - (to[key][field] ?? 0)) > .5));
+    if (!moving.length) return;
+    const fade = new Set(moving.filter(key => from[key] && Math.abs(from[key].x - to[key].x) > pitch * 2.6));
+    const frameAt = eased => {
+      const next = {};
+      for (const key of Object.keys(to)) {
+        const a = from[key], b = to[key];
+        if (!a) next[key] = {...b, opacity: eased};
+        else if (fade.has(key)) next[key] = eased < .5 ? {...a, opacity: 1 - eased * 2} : {...b, opacity: eased * 2 - 1};
+        else {
+          next[key] = {opacity: 1};
+          for (const field of Object.keys(b)) if (field !== 'opacity') next[key][field] = a[field] + (b[field] - a[field]) * eased;
+        }
+      }
+      return next;
+    };
+    applyPlacement(frameAt(0));
+    draw();
+    referenceTween.tween({
+      duration: 380,
+      easing: progress => 1 - Math.pow(1 - progress, 3),
+      update(eased) { applyPlacement(frameAt(eased)); draw(); },
+      complete() { applyPlacement(to); draw(); }
+    });
   }
 
   function layout() {
     const state = trace?.state;
     if (!state) return;
+    referenceTween.cancel();
     const width = stage.clientWidth;
     const height = stage.clientHeight;
     const narrow = width <= 480;
-    const nodeY = narrow ? 166 : 174;
-    const xs = narrow ? [.075, .22, .365, .51, .655, .80] : [.08, .23, .38, .53, .68, .83];
+    geo = narrow
+      ? {narrow, r: 16, labelY: 30, nodeY: 88, gapY: 118, fieldY: 154, low: 46}
+      : {narrow, r: 21, labelY: 32, nodeY: 94, gapY: 130, fieldY: 164, low: 54};
+    const xs = narrow ? [.06, .20, .34, .48, .62, .76] : [.07, .21, .35, .49, .63, .77];
     places = {};
-    order.forEach((id, index) => { places[id] = {x: width * xs[index], y: nodeY}; });
-    places.null = {x: width * .95, y: nodeY};
-    places.trailer = {x: width * (narrow ? .27 : .30), y: 47};
-    places.leader = {x: width * (narrow ? .73 : .70), y: 47};
-    const anchor = state.trailer === null ? places.D : places[state.trailer];
-    places.link = {x: Math.max(narrow ? 40 : 50, Math.min(width - 44, anchor.x)), y: narrow ? 277 : 287};
-    for (const button of allButtons) {
-      const key = button.dataset.source || button.dataset.target;
-      position(button, places[key].x, places[key].y);
+    order.forEach((id, index) => { places[id] = {x: width * xs[index], y: geo.nodeY}; });
+    places.null = {x: width * .905, y: geo.nodeY};
+    for (const target of targets) {
+      const key = target.dataset.target;
+      position(target, places[key].x, places[key].y);
     }
+    defineMarkers(narrow);
     lines.setAttribute('viewBox', `0 0 ${width} ${height}`);
     cueLayer.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    applyPlacement(placement());
     draw();
+  }
+
+  function linkEnd(to) {
+    return to === null ? places.null.x - nullButton.offsetWidth / 2 - 5 : places[to].x - geo.r - 1;
   }
 
   function linkPath(from, to) {
     const a = places[from], b = places[to === null ? 'null' : to];
-    const radius = stage.clientWidth <= 480 ? 19 : 22;
-    const distanceInOrder = to === null ? 6 - order.indexOf(from) : order.indexOf(to) - order.indexOf(from);
-    if (distanceInOrder === 0) {
-      return `M ${a.x + 8} ${a.y - radius} C ${a.x + 53} ${a.y - 85}, ${a.x - 53} ${a.y - 85}, ${a.x - 8} ${a.y - radius}`;
+    const radius = geo.r;
+    const step = to === null ? 6 - order.indexOf(from) : order.indexOf(to) - order.indexOf(from);
+    if (step === 0) {
+      return `M ${a.x + 8} ${a.y + radius - 2} C ${a.x + 40} ${a.y + 60}, ${a.x - 40} ${a.y + 60}, ${a.x - 8} ${a.y + radius - 2}`;
     }
-    if (distanceInOrder > 1) {
+    if (step < 0) {
+      const low = a.y + geo.low + 12;
+      return `M ${a.x - 6} ${a.y + radius - 1} C ${a.x - 6} ${low}, ${b.x + 6} ${low}, ${b.x + 6} ${b.y + radius + 1}`;
+    }
+    if (step > 1) {
       const start = a.x + radius - 2;
-      const end = b.x - (to === null ? 17 : radius) + 2;
-      const low = a.y + 54;
-      return `M ${start} ${a.y + 7} C ${(start + end) / 2} ${low}, ${(start + end) / 2} ${low}, ${end} ${b.y + 7}`;
+      const end = to === null ? linkEnd(null) : b.x - radius + 2;
+      const middle = (start + end) / 2;
+      return `M ${start} ${a.y + 7} C ${middle} ${a.y + geo.low}, ${middle} ${a.y + geo.low}, ${end} ${b.y + (to === null ? 4 : 7)}`;
     }
-    const dx = b.x - a.x, dy = b.y - a.y;
-    const length = Math.hypot(dx, dy) || 1;
-    return `M ${a.x + dx / length * radius} ${a.y + dy / length * radius} L ${b.x - dx / length * (to === null ? 17 : radius + 2)} ${b.y - dy / length * (to === null ? 17 : radius + 2)}`;
+    return `M ${a.x + radius} ${a.y} L ${linkEnd(to)} ${b.y}`;
   }
 
   function draw() {
-    if (!places.D) return;
+    if (!places.D || !shown) return;
     const state = trace?.state;
     if (!state) return;
     const frame = trace.frame;
+    const manual = Boolean(trace.manualMessage);
     const drag = interaction?.drag;
+    const finished = !manual && ['done', 'invalid'].includes(state.phase);
     scene.update(({path, text}) => {
       for (const node of order) {
         if (drag?.moved && drag.source === 'link' && node === state.trailer) continue;
-        const changed = !trace.manualMessage && frame.changed === 'link' && node === state.trailer;
+        const changed = !manual && frame.changed === 'link' && node === state.trailer;
         const detached = node === state.removed && !reachableFromDummy(node);
         path(`node-link-${node}`, {
-          d: linkPath(node, state.links[node]), fill: 'none', stroke: detached ? '#999' : '#333',
-          'stroke-width': changed ? 3 : detached ? 1.5 : 2,
+          d: linkPath(node, state.links[node]), fill: 'none', stroke: detached ? '#999' : changed ? '#272727' : '#333',
+          'stroke-width': changed ? 2.8 : detached ? 1.5 : 2,
           'stroke-dasharray': detached ? '4 4' : null,
+          opacity: linkFade?.node === node ? linkFade.opacity : null,
           'marker-end': `url(#${detached ? 'old-arrow' : 'node-arrow'})`
         });
       }
-      for (const variable of ['trailer', 'leader']) {
-        if (drag?.moved && drag.source === variable) continue;
-        const a = places[variable], tip = displayedTip(variable, state[variable]);
-        if (!tip) continue;
-        const changed = !trace.manualMessage && frame.changed === variable;
-        path(`reference-${variable}`, {
-          d: `M ${a.x} ${a.y + 16} L ${tip.x} ${tip.y}`, fill: 'none', stroke: '#555',
-          'stroke-width': changed ? 2.4 : 1.5, 'marker-end': 'url(#var-arrow)'
+      for (const key of ['trailer', 'leader', 'return']) {
+        const spot = shown[key];
+        if (!spot || (drag?.moved && drag.source === key)) continue;
+        const changed = !manual && (key === 'return' || frame.changed === key);
+        const faded = finished && key !== 'return';
+        path(`reference-${key}`, {
+          d: `M ${spot.sx} ${spot.sy} L ${spot.tx} ${spot.ty}`, fill: 'none',
+          stroke: faded ? '#b7b7b1' : changed ? '#333' : '#555',
+          'stroke-width': changed ? 2 : 1.3, opacity: spot.opacity < 1 ? spot.opacity : null,
+          'marker-end': `url(#${faded ? 'faded-arrow' : 'var-arrow'})`
         });
       }
-      const gap = distance();
-      if (!trace.manualMessage && !['removed', 'done', 'invalid'].includes(state.phase) && gap !== null && gap > 0) {
+      const gap = gapInfo();
+      if (gap?.gap > 0) {
         const a = places[state.trailer], b = places[state.leader];
-        const y = stage.clientWidth <= 480 ? 237 : 246;
+        const y = geo.gapY;
         path('gap-bracket', {
-          d: `M ${a.x} ${y - 5} L ${a.x} ${y + 2} L ${b.x} ${y + 2} L ${b.x} ${y - 5}`,
+          d: `M ${a.x} ${y - 6} L ${a.x} ${y} L ${b.x} ${y} L ${b.x} ${y - 6}`,
           fill: 'none', stroke: '#777', 'stroke-width': 1
         });
         text('gap-label', {
-          x: (a.x + b.x) / 2, y: y + 16, 'text-anchor': 'middle', fill: '#555',
-          'font-family': 'monospace', 'font-size': 11
-        }, `${gap} 条边`);
+          x: (a.x + b.x) / 2, y: y + (geo.narrow ? 14 : 16), 'text-anchor': 'middle', fill: '#555',
+          'font-family': 'monospace', 'font-size': geo.narrow ? 11 : 12
+        }, gap.text);
       }
       if (drag?.moved) {
-        const a = places[drag.source];
+        const spot = shown[drag.source];
+        const button = sourceFor(drag.source);
+        const fromY = drag.source === 'link' ? spot.y - button.offsetHeight / 2 : spot.y + button.offsetHeight / 2;
         path('drag-preview', {
-          d: `M ${a.x} ${drag.source === 'link' ? a.y - 16 : a.y + 16} L ${drag.x} ${drag.y}`,
+          d: `M ${spot.x} ${fromY} L ${drag.x} ${drag.y}`,
           fill: 'none', stroke: '#777', 'stroke-width': 1.5, 'stroke-dasharray': '5 5',
           'marker-end': 'url(#var-arrow)'
         });
@@ -392,56 +492,119 @@
     });
   }
 
+  // A .next assignment: the old stored link fades out in place while the new
+  // one fades in; a gray dashed cue runs from the edited trailer.next field.
+  function showLinkChange(node, oldTarget, newTarget, skipped, withCue = true) {
+    clearCue();
+    if (cueTween.reduced || oldTarget === newTarget || !shown?.link) return;
+    const field = sourceFor('link');
+    const sx = shown.link.x + field.offsetWidth / 2 + 3;
+    const sy = geo.fieldY;
+    const b = places[newTarget ?? 'null'];
+    const ex = b.x;
+    const ey = newTarget === null ? geo.nodeY + 12 : geo.nodeY + geo.r + 5;
+    const label = skipped !== undefined ? `跳过 ${skipped}` : `改指 ${short(newTarget)}`;
+    let ghost, cue, caption;
+    cueScene.update(({path, text}) => {
+      ghost = path('old-link', {
+        d: linkPath(node, oldTarget), fill: 'none', stroke: '#333', 'stroke-width': 2, 'marker-end': 'url(#node-arrow)'
+      });
+      if (!withCue) return;
+      cue = path('rewire-cue', {
+        d: `M ${sx} ${sy} Q ${ex} ${sy} ${ex} ${ey}`, fill: 'none', stroke: '#777', 'stroke-width': 1.5,
+        'stroke-dasharray': '5 4', 'stroke-linecap': 'round'
+      });
+      caption = text('rewire-caption', {
+        x: Math.min(stage.clientWidth - 30, sx + (ex - sx) * .55), y: sy + (geo.narrow ? 19 : 21), 'text-anchor': 'middle', fill: '#555',
+        'font-family': 'monospace', 'font-size': geo.narrow ? 11 : 12
+      }, label);
+    });
+    const length = cue ? cue.getTotalLength() : 0;
+    linkFade = {node, opacity: 0};
+    draw();
+    cueTween.tween({
+      duration: 700,
+      easing: progress => progress,
+      update(progress) {
+        const fadeIn = Math.min(1, progress / .45);
+        linkFade = {node, opacity: fadeIn};
+        ghost.setAttribute('opacity', String(1 - fadeIn));
+        if (cue) {
+          const grow = Math.min(1, progress / .4);
+          cue.setAttribute('stroke-dasharray', grow < 1 ? `${length * grow} ${length}` : '5 4');
+          // The head appears only once the dashed curve has reached the target.
+          if (grow < 1) cue.removeAttribute('marker-end'); else cue.setAttribute('marker-end', 'url(#var-arrow)');
+          const visible = String(Math.min(1, (1 - progress) * 5));
+          cue.setAttribute('opacity', visible);
+          caption.setAttribute('opacity', visible);
+        }
+        draw();
+      },
+      complete() { clearCue(); draw(); }
+    });
+  }
+
   function renderScene({frame, state, manualMessage}) {
     const selected = interaction?.selected;
-    const gap = distance();
-    gapLabel.textContent = state.phase === 'invalid' ? 'k 超出长度' : ['removed', 'done'].includes(state.phase) ? '已删除：不再计算 k 间距' : `当前间距：${gap === null ? '—' : gap} 条边；目标 k = ${choice.value}`;
     operation.replaceChildren();
     const code = document.createElement('code');
     code.textContent = manualMessage ? '自由练习' : frame.code;
     const explanation = document.createElement('span');
     explanation.textContent = manualMessage || frame.explanation;
     operation.append(code, explanation);
+    const finished = !manualMessage && ['done', 'invalid'].includes(state.phase);
     for (const source of sources) {
       const key = source.dataset.source;
       const value = key === 'link' ? state.trailer === null ? undefined : state.links[state.trailer] : state[key];
-      source.textContent = key === 'link' ? `${state.trailer === null ? '—' : state.trailer}.next` : key;
+      const label = key === 'link' ? 'trailer.next' : key;
       source.disabled = key === 'link' && state.trailer === null;
-      source.setAttribute('aria-label', `${source.textContent} 当前指向${value === undefined ? '未定义' : name(value)}。点击后选择节点或 None，也可以拖动。`);
+      source.setAttribute('aria-label', `${label} 当前指向${value === undefined ? '未定义' : name(value)}。点击后选择节点或 None，也可以拖动。`);
       source.classList.toggle('selected', selected === key);
       source.classList.toggle('changed', !manualMessage && frame.changed === key);
+      source.classList.toggle('faded', finished);
     }
     for (const target of targets) {
       target.classList.toggle('to-remove', !manualMessage && state.phase === 'ready' && target.dataset.target === state.links[state.trailer]);
       target.classList.toggle('removed', target.dataset.target === state.removed && !reachableFromDummy(state.removed));
       target.classList.toggle('target-ready', Boolean(selected));
     }
+    const info = gapInfo();
+    metrics.k.textContent = choice.value;
+    metrics.gap.textContent = info ? info.text : '—';
+    metrics.leader.textContent = short(state.leader);
+    metrics.trailer.textContent = state.trailer === undefined ? '—' : short(state.trailer);
+    metrics.next.textContent = state.trailer === null ? '—' : short(state.links[state.trailer]);
+    const returned = returnTarget();
+    metrics.result.textContent = returned === undefined ? '—' : chain(state.links, returned).join('→') || 'None';
     layout();
   }
 
-  function prepareStep({beforeState}) {
+  let pendingFrom = null;
+
+  function prepareStep() {
     clearCue();
-    const oldTips = beforeState ? {leader: displayedTip('leader', beforeState.leader), trailer: displayedTip('trailer', beforeState.trailer)} : null;
-    transitionHandoff = {beforeState, oldTips};
-    clearReferenceMotion();
+    pendingFrom = shown ? JSON.parse(JSON.stringify(shown)) : null;
+    referenceTween.cancel();
     interaction?.clearSelection({notify: false});
   }
 
-  function animateStep({state}) {
-    const handoff = transitionHandoff;
-    transitionHandoff = null;
-    if (handoff?.beforeState) {
-      const changedLink = order.find(node => handoff.beforeState.links[node] !== state.links[node]);
-      if (changedLink) showCue('link', handoff.beforeState.links[changedLink], state.links[changedLink]);
-      else for (const key of ['leader', 'trailer']) {
-        if (handoff.beforeState[key] !== state[key]) { moveReferenceArrow(key, handoff.oldTips[key], state[key]); break; }
-      }
+  function animateStep({state, beforeState, step, previousStep}) {
+    const from = pendingFrom;
+    pendingFrom = null;
+    if (!beforeState) return;
+    const changedLink = order.find(node => beforeState.links[node] !== state.links[node]);
+    // Only a single step animates the link change; jumps land instantly.
+    if (changedLink && Math.abs(step - previousStep) === 1) {
+      const oldTarget = beforeState.links[changedLink];
+      const skipped = oldTarget !== null && beforeState.links[oldTarget] === state.links[changedLink] ? oldTarget : undefined;
+      showLinkChange(changedLink, oldTarget, state.links[changedLink], skipped, step > previousStep);
     }
+    animatePlacement(from);
   }
 
   function reset() {
     clearCue();
-    clearReferenceMotion();
+    referenceTween.cancel();
     frames = build(Number(choice.value));
     interaction?.clearSelection({notify: false});
     trace.setFrames(frames);
@@ -450,21 +613,19 @@
   function apply(source, value) {
     clearCue();
     const currentState = trace.state;
+    if (source === 'link' && currentState.trailer === null) return;
     const before = source === 'link' ? currentState.links[currentState.trailer] : currentState[source];
-    const oldTip = source === 'link' ? null : displayedTip(source, before);
-    clearReferenceMotion();
+    const from = shown ? JSON.parse(JSON.stringify(shown)) : null;
+    referenceTween.cancel();
+    interaction.clearSelection({notify: false});
     if (source === 'link') {
-      if (currentState.trailer === null) return;
-      const message = `${currentState.trailer}.next 现在指向${name(value)}。节点之间的实线改变了；演示步骤没有前进。`;
-      interaction.clearSelection({notify: false});
-      trace.updatePractice(state => { state.links[state.trailer] = value; }, message);
+      const owner = currentState.trailer;
+      trace.updatePractice(state => { state.links[state.trailer] = value; }, `trailer.next（${owner === 'D' ? 'dummy' : owner}.next）现在指向 ${short(value)}。节点之间的实线改变了；演示步骤没有前进。`);
+      showLinkChange(owner, before, value);
     } else {
-      const message = `${source} 现在指向${name(value)}。只改变变量的细箭头；节点的 .next 没有改变。`;
-      interaction.clearSelection({notify: false});
-      trace.updatePractice(state => { state[source] = value; }, message);
+      trace.updatePractice(state => { state[source] = value; }, `${source} 现在指向 ${short(value)}。只改变量的灰色箭头；节点的 .next 没有改变。`);
+      animatePlacement(from);
     }
-    if (source === 'link') showCue(source, before, value);
-    else moveReferenceArrow(source, oldTip, value);
   }
 
   trace = createTrace({
@@ -485,15 +646,13 @@
     targetReadyClass: 'target-ready',
     onSelectionChange: ({selected}) => {
       clearCue();
-      clearReferenceMotion();
-      if (selected) {
-        const source = sources.find(button => button.dataset.source === selected);
-        trace.setPreviewMessage(`已选择 ${source.textContent}；再点一个节点或 None，也可以直接拖动方框。`);
-      } else trace.clearPreviewMessage();
+      referenceTween.cancel();
+      if (selected) trace.setPreviewMessage(`已选择 ${selected === 'link' ? 'trailer.next' : selected}；再点一个节点或 None，也可以直接拖动方框。`);
+      else trace.clearPreviewMessage();
     },
     onPointerStart: () => {
       clearCue();
-      clearReferenceMotion();
+      referenceTween.cancel();
       trace.clearCodeHighlight();
       draw();
     },
@@ -507,7 +666,7 @@
   let observedSize = '';
   new ResizeObserver(() => {
     const size = `${stage.clientWidth}x${stage.clientHeight}`;
-    if (size !== observedSize) { observedSize = size; clearCue(); clearReferenceMotion(); layout(); }
+    if (size !== observedSize) { observedSize = size; clearCue(); layout(); }
   }).observe(stage);
   reset();
 })();

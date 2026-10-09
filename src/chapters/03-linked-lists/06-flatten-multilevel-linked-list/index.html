@@ -37,32 +37,35 @@
     .controls { margin-bottom: 10px; }
     .plain-button, select, .source-button { min-height: 35px; padding: 6px 10px; border: 1px solid #858580; border-radius: 3px; background: transparent; font-size: 13px; }
     .plain-button:hover:not(:disabled), .source-button:hover:not(:disabled) { background: var(--wash); }
-    .step-count { min-width: 77px; text-align: center; font-size: 12px; }
+    .step-count { min-width: 128px; text-align: center; font-size: 12px; }
     .jump-row { margin: 0 0 11px; color: var(--secondary); font-size: 12px; }
     .jump-row select { max-width: min(100%, 330px); background: var(--paper); }
     .visual { border: 1px solid var(--border); background: var(--paper); }
-    .visual-head { display: flex; justify-content: space-between; gap: 10px; padding: 12px 14px 0; color: var(--secondary); font-size: 12px; }
-    .diagram { position: relative; width: 100%; height: 440px; overflow: hidden; }
+    .diagram { position: relative; width: 100%; height: 352px; overflow: hidden; touch-action: pan-y; }
     .diagram svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+    .diagram svg text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .node { position: absolute; z-index: 2; display: grid; place-items: center; width: var(--node); height: var(--node); transform: translate(-50%, -50%); border: 1.7px solid var(--line); border-radius: 50%; background: var(--paper); font-size: 17px; line-height: 1; touch-action: manipulation; }
     .node:hover { background: var(--wash); }
-    .node.is-current { outline: 2px solid var(--ink); outline-offset: 3px; }
-    .node.is-target { outline: 2px dashed var(--ink); outline-offset: 5px; }
-    .node.is-changed { animation: node-change 440ms ease-out; }
-    @keyframes node-change { 0% { background: #e9e5d9; border-width: 2.8px; } 100% { background: var(--paper); border-width: 1.7px; } }
-    .reference { position: absolute; z-index: 3; min-width: 48px; padding: 3px 5px; transform: translate(-50%, -50%); border: 1px solid var(--muted); border-radius: 3px; background: var(--paper); color: var(--secondary); text-align: center; font-size: 11px; line-height: 15px; pointer-events: none; }
+    .node.is-available { outline: 1.5px dashed var(--ink); outline-offset: 5px; }
+    .node.is-target { outline: 2px solid var(--ink); outline-offset: 5px; }
+    .reference { position: absolute; z-index: 3; width: 44px; height: 22px; padding: 0 4px; transform: translate(-50%, -50%); border: 1px solid var(--muted); border-radius: 4px; background: var(--paper); color: var(--secondary); text-align: center; font-size: 12px; line-height: 20px; pointer-events: none; }
     .reference.visual-positioned { left: 0 !important; top: 0 !important; transform: translate3d(var(--visual-x, 0px), var(--visual-y, 0px), 0) translate(-50%, -50%) !important; }
     .reference.is-changed { border-color: var(--line); color: var(--ink); }
     .reference.is-repositioned { animation: appear 380ms ease-out; }
     @keyframes appear { from { opacity: .12; } to { opacity: 1; } }
-    .stage-label { position: absolute; z-index: 1; left: 14px; padding: 2px 4px; background: var(--paper); color: var(--secondary); font-size: 11px; }
-    .stage-label.main-label { top: 12px; }
-    .stage-label.branch-label { top: 247px; }
-    .diagram.is-complete { height: 280px; }
+    .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 244px; gap: 10px; margin: 10px 0 0; }
+    .invariant, .metrics { margin: 0; padding: 9px 12px; border: 1px solid var(--border); }
+    .invariant strong { display: block; margin-bottom: 4px; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 400; }
+    .invariant p { margin: 0; color: var(--secondary); font-size: 13px; line-height: 1.5; }
+    .metrics { display: grid; gap: 4px; font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+    .metrics dt { color: var(--secondary); white-space: nowrap; }
+    .metrics dd { margin: 0; text-align: right; white-space: nowrap; }
+    .metrics dd.is-changed { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
     .callout { margin: 11px 0 0; padding: 10px 13px; border: 1px dashed #999; min-height: 67px; font-size: 13px; line-height: 1.5; }
     .callout code { display: block; margin-bottom: 3px; font-size: 12px; }
     .callout span { color: var(--secondary); }
-    .source-button { position: absolute; z-index: 4; min-width: 82px; min-height: 28px; padding: 4px 6px; transform: translate(-50%, -50%); border-style: dashed; background: var(--paper); font-size: 12px; touch-action: none; cursor: grab; }
+    .source-button { position: absolute; z-index: 4; width: 78px; min-height: 26px; height: 26px; padding: 0 4px; transform: translate(-50%, -50%); border-style: dashed; background: var(--paper); font-size: 12px; touch-action: none; cursor: grab; }
     .source-button:active { cursor: grabbing; }
     .source-button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
     .practice-status { min-height: 18px; margin: 5px 0 0; color: var(--secondary); font-size: 12px; }
@@ -83,12 +86,13 @@
       :root { --node: 36px; }
       body { padding: 12px 8px 35px; }
       h1 { font-size: 23px; }
-      .diagram { height: 515px; }
-      .diagram.is-complete { height: 365px; }
-      .visual-head { padding: 10px 8px 0; font-size: 10px; }
-      .stage-label { left: 6px; font-size: 10px; }
-      .stage-label.branch-label { display: none; }
-      .callout { font-size: 12px; }
+      .step-count { width: 86px; min-width: 0; line-height: 1.25; }
+      .diagram { height: 344px; }
+      .reference { width: 40px; height: 20px; font-size: 11px; line-height: 18px; }
+      .source-button { width: 72px; height: 24px; min-height: 24px; font-size: 11px; }
+      .state-grid { grid-template-columns: 1fr; }
+      .invariant p { min-height: 39px; font-size: 12.5px; }
+      .callout { min-height: 84px; font-size: 12px; }
     }
     @media (max-width: 1000px) {
       .workspace { grid-template-columns: minmax(0, 1fr); }
@@ -97,7 +101,7 @@
       .notes { grid-column: 1; grid-row: 3; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .node.is-changed, .reference.is-repositioned { animation: none; }
+      .reference.is-repositioned { animation: none; }
     }
   </style>
 <link rel="stylesheet" href="../assets/guide.css">
@@ -121,11 +125,9 @@
   </div>
 
   <section class="visual" aria-label="多层链表逐步图">
-    <div class="visual-head"><span><code>head → 1</code></span><span>同一个编号始终是同一个节点</span></div>
     <div class="diagram stage" id="diagram" tabindex="0" aria-label="多层链表图。按左右方向键切换步骤。">
       <svg id="links" aria-hidden="true"></svg>
-      <span class="stage-label main-label">从 head 沿 next 可走到的链</span>
-      <span class="stage-label branch-label" id="branch-label">尚在 child 支链中的节点</span>
+      <span class="reference" id="head-reference">head</span>
       <span class="reference" id="curr-reference" hidden>curr</span>
       <span class="reference" id="tail-reference" hidden>tail</span>
       <button type="button" class="source-button" id="connect-source" data-source="connect" aria-pressed="false" hidden>tail.next</button>
@@ -133,6 +135,16 @@
     </div>
   </section>
 
+  <div class="state-grid">
+    <article class="invariant"><strong>不变量</strong><p id="invariant"></p></article>
+    <dl class="metrics">
+      <div><dt>curr</dt><dd data-m="curr"></dd></div>
+      <div><dt>tail</dt><dd data-m="tail"></dd></div>
+      <div><dt>curr.child</dt><dd data-m="child"></dd></div>
+      <div><dt>tail.next</dt><dd data-m="next"></dd></div>
+      <div><dt>head 沿 next</dt><dd data-m="chain"></dd></div>
+    </dl>
+  </div>
   <p class="callout" id="callout" aria-live="polite"><code data-current-code></code><span></span></p>
   <p class="practice-status" id="practice-status" aria-live="polite"></p>
   </div>
@@ -146,7 +158,7 @@
       <li>下一行才把 <code>curr.child</code> 清为 <code>None</code>。在这两行之间，<code>tail.next</code> 和 <code>curr.child</code> 会暂时指向同一个节点。</li>
       <li>把 <code>tail</code> 走到新增部分的末尾，继续移动 <code>curr</code>。因为 <code>next</code> 链变长，<code>curr</code> 后面也会走到 7 和 8，发现更深层的子链。</li>
     </ol>
-    <p>圆圈为了排版会移到主链行；编号保持不变，表示仍是原来的节点。<code>curr</code> 与 <code>tail</code> 方框只是变量引用；实线或虚线变化才是节点字段变化。时间 <code>O(n)</code>：<code>curr</code> 和 <code>tail</code> 都只向前走。额外空间 <code>O(1)</code>。</p>
+    <p><code>curr</code> 与 <code>tail</code> 方框只是变量引用；只有实线或虚线变化才是节点字段变化。时间 <code>O(n)</code>：<code>curr</code> 和 <code>tail</code> 都只向前走。额外空间 <code>O(1)</code>。</p>
   </section>
 
   <section class="code-panel" data-code-panel>
@@ -165,10 +177,10 @@
   const diagram = document.getElementById('diagram');
   const links = document.getElementById('links');
   const nodesHost = document.getElementById('nodes');
-  const currReference = document.getElementById('curr-reference');
-  const tailReference = document.getElementById('tail-reference');
-  const branchLabel = document.getElementById('branch-label');
+  const labels = {head: document.getElementById('head-reference'), curr: document.getElementById('curr-reference'), tail: document.getElementById('tail-reference')};
   const callout = document.getElementById('callout');
+  const invariant = document.getElementById('invariant');
+  const metric = Object.fromEntries([...document.querySelectorAll('[data-m]')].map(el => [el.dataset.m, el]));
   const connectSource = document.getElementById('connect-source');
   const practiceStatus = document.getElementById('practice-status');
   const ids = Array.from({length: 11}, (_, i) => i + 1);
@@ -189,165 +201,295 @@
     next: {1: 2, 2: 3, 3: 4, 4: 5, 5: null, 6: 7, 7: null, 8: 9, 9: null, 10: null, 11: null},
     child: {1: null, 2: 6, 3: null, 4: 8, 5: null, 6: null, 7: 10, 8: 11, 9: null, 10: null, 11: null}, tail: null, curr: null
   };
+  const SCAN = 'tail 沿 next 走，tail.next 为 None 时停在第一层末尾。';
+  const LOOP = 'curr 之前的节点 child 都已是 None；子链总接在 next 链末尾 tail 之后。';
   const frames = [];
-  function add(action, code, explanation, line, mutate, bookmark) {
+  function add(action, code, explanation, line, mutate, options = {}) {
     if (mutate) mutate(work);
-    frames.push({action, code, explanation, sourceKeys: [line], state: clone(work), bookmark: bookmark || ''});
+    frames.push({action, code, explanation, sourceKeys: [line], state: clone(work), bookmark: options.bookmark || '', ghost: options.ghost || null, invariant: options.invariant || LOOP});
   }
-  add('start', '开始', '第一层是 1 → 2 → 3 → 4 → 5；实线是 next，虚线是 child。', 'start', null, '初始结构');
-  add('tail', 'tail = head', 'tail 变量现在指向节点 1；链表还没有改变。', 'tail-init', s => { s.tail = 1; });
+  add('start', '开始', '第一层是 1 → 2 → 3 → 4 → 5；节点 2、4、7、8 各有一条 child 子链。', 'start', null, {bookmark: '初始结构', invariant: '从 head 沿 next 只能走到 1 … 5；其余节点只能经 child 到达。'});
+  add('tail', 'tail = head', 'tail 变量现在指向节点 1；链表还没有改变。', 'tail-init', s => { s.tail = 1; }, {invariant: SCAN});
   while (work.next[work.tail] !== null) {
     const nextTail = work.next[work.tail];
-    add('tail', 'tail = tail.next', `tail 沿 next 前进到节点 ${nextTail}，寻找第一层末尾。`, 'tail-scan', s => { s.tail = nextTail; }, nextTail === 5 ? '找到第一层 tail = 5' : '');
+    add('tail', 'tail = tail.next', `tail 沿 next 前进到节点 ${nextTail}${nextTail === 5 ? '；5.next 是 None，第一层末尾找到了' : ''}。`, 'tail-scan', s => { s.tail = nextTail; }, {bookmark: nextTail === 5 ? '找到第一层 tail = 5' : '', invariant: SCAN});
   }
   add('curr', 'curr = head', 'curr 从节点 1 开始；tail 留在末尾节点 5。', 'curr-init', s => { s.curr = 1; });
   while (work.curr !== null) {
     const here = work.curr, childHead = work.child[here];
-    add('check', 'if curr.child:', childHead === null ? `节点 ${here}.child 是 None，继续沿 next 前进。` : `节点 ${here}.child 指向节点 ${childHead}；下一行会把这条子链接到 tail.next。`, 'if-child', null, childHead === null ? '' : `发现 ${here}.child → ${childHead}`);
+    add('check', 'if curr.child:', childHead === null ? `${here}.child 是 None，不接任何子链。` : `${here}.child 指向节点 ${childHead}；下一行把这条子链接到 tail.next。`, 'if-child', null, {bookmark: childHead === null ? '' : `发现 ${here}.child → ${childHead}`});
     if (childHead !== null) {
       const oldTail = work.tail;
-      add('append', 'tail.next = curr.child', `把 ${oldTail}.next 从 None 改为节点 ${childHead}。此刻 ${here}.child 仍指向 ${childHead}；两个字段同时引用同一个节点。`, 'append', s => { s.next[oldTail] = childHead; }, `接入 ${childHead}`);
-      add('clear', 'curr.child = None', `把 ${here}.child 清为 None；从现在起只有 next 链保留这条接入关系。`, 'clear', s => { s.child[here] = null; }, `清空 ${here}.child`);
+      add('append', 'tail.next = curr.child', `把 ${oldTail}.next 从 None 改为节点 ${childHead}。此刻 ${here}.child 仍指向 ${childHead}；两个字段引用同一个节点。`, 'append', s => { s.next[oldTail] = childHead; }, {bookmark: `接入 ${childHead}`});
+      add('clear', 'curr.child = None', `把 ${here}.child 清为 None；从现在起只有 ${oldTail}.next 保留这条接入关系。`, 'clear', s => { s.child[here] = null; }, {bookmark: `清空 ${here}.child`, ghost: {from: here, to: childHead}});
       while (work.next[work.tail] !== null) {
         const nextTail = work.next[work.tail];
-        add('tail', 'tail = tail.next', `tail 沿 next 前进到节点 ${nextTail}。`, 'tail-walk', s => { s.tail = nextTail; }, work.next[nextTail] === null ? `tail 到达 ${nextTail}` : '');
+        add('tail', 'tail = tail.next', `tail 沿 next 前进到节点 ${nextTail}${work.next[nextTail] === null ? `；${nextTail}.next 是 None，tail 又到了末尾` : ''}。`, 'tail-walk', s => { s.tail = nextTail; }, {bookmark: work.next[nextTail] === null ? `tail 到达 ${nextTail}` : ''});
       }
     }
     const nextCurr = work.next[here];
-    add('curr', 'curr = curr.next', nextCurr === null ? `节点 ${here}.next 是 None；curr 变为 None，扫描结束。` : `curr 从节点 ${here} 沿 next 前进到节点 ${nextCurr}。`, 'curr-walk', s => { s.curr = nextCurr; });
+    add('curr', 'curr = curr.next', nextCurr === null ? `${here}.next 是 None；curr 变为 None，扫描结束。` : `curr 从节点 ${here} 沿 next 前进到节点 ${nextCurr}。`, 'curr-walk', s => { s.curr = nextCurr; });
   }
-  add('return', 'return head', '返回原来的 head。沿 next 依次读到 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11；所有 child 都是 None。', 'return', null, '完成：1 → … → 11');
+  add('return', 'return head', '返回原来的 head。沿 next 依次读到 1 → 2 → … → 11；所有 child 都是 None。', 'return', null, {bookmark: '完成：1 → … → 11', invariant: '每个节点在 next 链上恰好出现一次；所有 child 都是 None。'});
 
-  const pointCopy = positions => Object.fromEntries(ids.map(id => [id, {...positions[id]}]));
   function mainOrder(state) {
     const order = [], seen = new Set();
     let node = 1;
     while (node !== null && !seen.has(node)) { order.push(node); seen.add(node); node = state.next[node]; }
     return order;
   }
-  function makeLayout(state) {
-    const width = diagram.clientWidth, compact = width <= 540;
-    const columns = width >= 760 ? 7 : width > 540 ? 6 : width >= 400 ? 5 : 4;
-    const margin = compact ? 29 : 34, x = column => margin + column * (width - margin * 2) / (columns - 1);
-    const mainY = compact ? 82 : 86, rowGap = compact ? 91 : 96, branchY = compact ? 351 : 280;
-    const positions = {}, order = mainOrder(state);
-    for (const [index, id] of order.entries()) positions[id] = {x: x(index % columns), y: mainY + Math.floor(index / columns) * rowGap};
-    const branchSlots = columns >= 6 ? {6: [1, 0], 7: [2, 0], 8: [4, 0], 9: [5, 0], 10: [2, 1], 11: [4, 1]} : {6: [0, 0], 7: [1, 0], 8: [2, 0], 9: [3, 0], 10: [1, 1], 11: [2, 1]};
-    const onMain = new Set(order);
+
+  // Every node keeps one slot for the whole trace: the classic multi-level picture,
+  // which is also the final next chain read row by row.
+  const SLOTS = {1: [0, 0], 2: [1, 0], 3: [2, 0], 4: [3, 0], 5: [4, 0], 6: [1, 1], 7: [2, 1], 8: [3, 1], 9: [4, 1], 10: [2, 2], 11: [3, 2]};
+  function makeLayout() {
+    const w = diagram.clientWidth, h = diagram.clientHeight, compact = w <= 540;
+    const r = compact ? 18 : 20, gap = 112;
+    const sp = compact ? Math.min(80, (w - 82) / 4) : Math.min(140, (w - 150) / 4);
+    const cw = compact ? 72 : 78;
+    // Centre the grid, but keep room for the tail.next chip right of a column-4 tail.
+    const x0 = compact ? 24 : Math.max(78, Math.min((w - 4 * sp) / 2 + 12, w - 4 * sp - (r + 24 + cw + 8))), y0 = compact ? 58 : 62;
+    const positions = {};
+    for (const id of ids) positions[id] = {x: x0 + SLOTS[id][0] * sp, y: y0 + SLOTS[id][1] * gap};
+    const font = compact ? 11 : 12, lw = compact ? 40 : 44, lh = compact ? 20 : 22;
+    return {w, h, compact, r, sp, positions, font, lw, lh, D: r + (compact ? 12 : 13) + lh / 2, cw, ch: compact ? 24 : 26};
+  }
+
+  // ---- geometry helpers for placing labels away from arrows and text ----
+  const rectAt = (x, y, w, h) => ({x: x - w / 2, y: y - h / 2, w, h});
+  const inRect = (p, q, pad) => p.x >= q.x - pad && p.x <= q.x + q.w + pad && p.y >= q.y - pad && p.y <= q.y + q.h + pad;
+  const rectsHit = (a, b, pad = 3) => a.x < b.x + b.w + pad && b.x < a.x + a.w + pad && a.y < b.y + b.h + pad && b.y < a.y + a.h + pad;
+  function segHitsRect(s, q, pad = 3) {
+    const n = Math.max(2, Math.ceil(Math.hypot(s.x2 - s.x1, s.y2 - s.y1) / 2));
+    for (let i = 0; i <= n; i++) if (inRect({x: s.x1 + (s.x2 - s.x1) * i / n, y: s.y1 + (s.y2 - s.y1) * i / n}, q, pad)) return true;
+    return false;
+  }
+  function circleHitsRect(c, q, pad) {
+    const cx = Math.max(q.x, Math.min(c.x, q.x + q.w)), cy = Math.max(q.y, Math.min(c.y, q.y + q.h));
+    return Math.hypot(c.x - cx, c.y - cy) < c.r + pad;
+  }
+  function edge(a, b, startGap, endGap) {
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+    return {x1: a.x + ux * startGap, y1: a.y + uy * startGap, x2: b.x - ux * endGap, y2: b.y - uy * endGap};
+  }
+  function rectExit(q, toward) {
+    const cx = q.x + q.w / 2, cy = q.y + q.h / 2, dx = toward.x - cx, dy = toward.y - cy;
+    const t = Math.min(dx ? (q.w / 2) / Math.abs(dx) : Infinity, dy ? (q.h / 2) / Math.abs(dy) : Infinity);
+    return {x: cx + dx * t, y: cy + dy * t};
+  }
+  const textRect = (x, y, text, font, anchor) => {
+    const w = text.length * font * .6 + 2;
+    return {x: anchor === 'end' ? x - w : anchor === 'middle' ? x - w / 2 : x, y: y - font * .8, w, h: font + 2};
+  };
+
+  function buildScene(state, frame, layout, chipVisible, previous = {}) {
+    const {positions: P, r, font, w, h, D, lw, lh} = layout;
+    const lines = [], texts = [], obstacles = [], circles = ids.map(id => ({...P[id], r}));
     for (const id of ids) {
-      if (positions[id]) continue;
-      const [column, row] = branchSlots[id], parent = id === 10 ? 7 : id === 11 ? 8 : null;
-      positions[id] = !compact && parent !== null && onMain.has(parent) ? {x: positions[parent].x, y: branchY} : {x: x(column), y: branchY + row * (compact ? 88 : 87)};
+      const target = state.next[id];
+      if (target === null) continue;
+      const strong = frame.action === 'append' && id === state.tail;
+      lines.push({id: `next-${id}`, kind: 'next', strong, ...edge(P[id], P[target], r + 1, r + 4)});
     }
-    return {positions, order, compact};
-  }
-  const referencePositions = (state, positions) => ({curr: state.curr === null ? null : {x: positions[state.curr].x, y: positions[state.curr].y - 47}, tail: state.tail === null ? null : {x: positions[state.tail].x, y: positions[state.tail].y + 48}});
-  const mixPoint = (a, b, t) => ({x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t});
-  const nextPath = (from, to, radius) => Math.abs(from.y - to.y) < 4 ? `M ${from.x + radius} ${from.y} L ${to.x - radius - 3} ${to.y}` : `M ${from.x} ${from.y + radius} L ${from.x} ${(from.y + to.y) / 2} L ${to.x} ${(from.y + to.y) / 2} L ${to.x} ${to.y - radius - 3}`;
-  function childPath(from, to, radius) {
-    if (Math.abs(from.y - to.y) < 9) {
-      const arch = Math.max(from.y, to.y) + 53;
-      return `M ${from.x} ${from.y + radius} C ${from.x} ${arch}, ${to.x} ${arch}, ${to.x} ${to.y + radius + 3}`;
+    const childLabel = (seg, from, text, color, key) => {
+      const y = seg.y1 + (seg.y2 - seg.y1) * (SLOTS[from][1] >= 1 ? .8 : .7) + font * .35;
+      const label = {id: key, x: seg.x1 + 6, y, anchor: 'start', text, color, size: font};
+      const rect = () => textRect(label.x, label.y, label.text, font, label.anchor);
+      if (texts.some(t => rectsHit(rect(), textRect(t.x, t.y, t.text, font, t.anchor), 2)) || lines.some(l => l.kind === 'next' && segHitsRect(l, rect(), 2)) || rect().x + rect().w > w - 2) {
+        label.x = seg.x1 - 6;
+        label.anchor = 'end';
+      }
+      texts.push(label);
+    };
+    for (const id of ids) {
+      const target = state.child[id];
+      if (target === null) continue;
+      const tested = frame.action === 'check' && id === state.curr;
+      const seg = {id: `child-${id}`, kind: 'child', tested, ...edge(P[id], P[target], r + 1, r + 4)};
+      lines.push(seg);
+      childLabel(seg, id, 'child', '#555', `child-label-${id}`);
     }
-    const dy = to.y - from.y;
-    return `M ${from.x} ${from.y + radius} C ${from.x} ${from.y + dy * .52}, ${to.x} ${to.y - dy * .5}, ${to.x} ${to.y - radius - 3}`;
+    if (frame.ghost) {
+      const seg = {id: `ghost-${frame.ghost.from}`, kind: 'ghost', ...edge(P[frame.ghost.from], P[frame.ghost.to], r + 1, r + 4)};
+      lines.push(seg);
+      childLabel(seg, frame.ghost.from, 'child = None', '#272727', `ghost-label-${frame.ghost.from}`);
+    }
+    let tailNone = null;
+    if (state.tail !== null && state.next[state.tail] === null && !chipVisible) {
+      const t = P[state.tail];
+      texts.push({id: 'tail-none', x: t.x + r + 5, y: t.y + font * .35, anchor: 'start', text: 'None', color: '#555', size: font});
+      tailNone = {x: t.x + r + 5 + font * 1.2, y: t.y, gap: font * .5 + 4};
+    }
+    for (const t of texts) obstacles.push(textRect(t.x, t.y, t.text, t.size, t.anchor));
+    const segs = lines.map(l => ({...l}));
+    const placed = {}, placedRects = [...obstacles], placedSegs = [];
+    function place(name, targetId, offsets, bw, bh, noArrow, edgePad = 2) {
+      const node = typeof targetId === 'object' ? targetId : P[targetId], gap = node.gap ?? r + 3;
+      let best = null;
+      offsets.forEach(([dx, dy], index) => {
+        const x = noArrow ? Math.max(bw / 2 + 2, Math.min(w - bw / 2 - 2, node.x + dx)) : node.x + dx, y = node.y + dy, q = rectAt(x, y, bw, bh);
+        const from = rectExit(q, node), arrow = edge(from, node, 0, gap);
+        arrow.x1 = from.x; arrow.y1 = from.y;
+        let cost = index;
+        if (q.x < edgePad || q.y < edgePad || q.x + q.w > w - edgePad || q.y + q.h > h - edgePad) cost += 1000;
+        for (const c of circles) if (circleHitsRect(c, q, 3)) cost += 400;
+        for (const o of placedRects) if (rectsHit(q, o)) cost += 300;
+        for (const s of segs) if (segHitsRect(s, q, 3)) cost += s.kind === 'next' ? 150 : s.kind === 'child' ? 60 : 30;
+        for (const s of placedSegs) if (segHitsRect(s, q, 2)) cost += 120;
+        if (!noArrow) for (const o of placedRects) if (segHitsRect(arrow, o, 1)) cost += 60;
+        if (!noArrow) for (const s of segs) if (segHitsRect(s, rectAt((arrow.x1 + arrow.x2) / 2, (arrow.y1 + arrow.y2) / 2, 2, 2), 1)) cost += 20;
+        if (cost < 100 && previous[name]?.target === targetId && previous[name].dx === dx && previous[name].dy === dy) cost -= 50;
+        if (!best || cost < best.cost) best = {cost, x, y, rect: q, arrow, dx, dy};
+      });
+      placed[name] = {x: best.x, y: best.y, target: targetId, point: node, gap, dx: best.dx, dy: best.dy};
+      placedRects.push(best.rect);
+      if (!noArrow) placedSegs.push(best.arrow);
+      return best;
+    }
+    const s = 28;
+    const above = [[0, -D], [-s, -D], [s, -D]], below = [[0, D], [-s, D], [s, D]], far = [[46, -D], [-46, -D], [46, D], [-46, D]];
+    place('head', 1, layout.compact ? [[0, -D], [0, D]] : [[-(r + 12 + lw / 2), 0], [0, -D]], lw, lh);
+    if (state.tail !== null) place('tail', state.tail, [...below, ...above, ...far], lw, lh);
+    if (frame.action === 'check' && state.curr !== null && state.child[state.curr] === null) {
+      const text = 'child: None', tw = text.length * font * .6 + 2, th = font + 2, side = tw / 2 + lw / 2 + 6, dy = r + 4 + th / 2;
+      const best = place('childNone', state.curr, [[0, dy], [side, dy], [-side, dy], [0, -dy], [side, -dy], [-side, -dy]], tw, th, true);
+      delete placed.childNone;
+      texts.push({id: 'child-none', x: best.x, y: best.y + font * .35, anchor: 'middle', text, color: '#555', size: font});
+    }
+    if (state.curr !== null) place('curr', state.curr, [...above, ...below, ...far], lw, lh);
+    else if (tailNone && (frame.action === 'curr' || frame.action === 'return')) place('curr', tailNone, [[0, -D + 4], [0, D - 4], [-s, -D + 4], [s, -D + 4]], lw, lh);
+    let chip = null;
+    if (chipVisible && state.tail !== null) {
+      const {cw, ch} = layout, gapX = r + 24 + cw / 2, offsets = [[gapX, 0]];
+      for (const dy of [D + 4, -D - 4, -D, D + lh + 12, -D - lh - 12]) for (const dx of [cw / 2 + 4, -cw / 2 - 4, 0]) offsets.push([dx, dy]);
+      offsets.push([-gapX, 0]);
+      const best = place('chip', state.tail, offsets, cw, ch, false, 6);
+      chip = {x: best.x, y: best.y, stub: {...edge(P[state.tail], best, r + 2, 0), x2: rectExit(best.rect, P[state.tail]).x, y2: rectExit(best.rect, P[state.tail]).y}};
+    }
+    return {lines, texts, placed, chip};
   }
-  let currentState = frames[0].state;
-  let targetLayout = makeLayout(currentState);
-  let shownPositions = pointCopy(targetLayout.positions);
-  let shownReferences = referencePositions(currentState, shownPositions);
+
+  const canConnectAt = index => {
+    const frame = frames[index], curr = frame.state.curr;
+    return frame.action === 'check' && curr !== null && frame.state.child[curr] !== null && frames[index + 1]?.action === 'append';
+  };
+  // Scenes are computed in trace order so a label keeps its side while free;
+  // revisiting a step always restores the same placement.
+  let layout = makeLayout(), sceneCache = null;
+  function sceneAt(index) {
+    if (!sceneCache || sceneCache.w !== layout.w || sceneCache.h !== layout.h) {
+      const list = [];
+      frames.forEach((frame, i) => list.push(buildScene(frame.state, frame, layout, canConnectAt(i), list[i - 1]?.placed)));
+      sceneCache = {w: layout.w, h: layout.h, list};
+    }
+    return sceneCache.list[index];
+  }
+  let currentStep = 0, hasRendered = false;
+  let targetScene = sceneAt(0);
+  let shownLabels = {...targetScene.placed};
   let trace, interaction;
   const motion = createMotionController();
   const scene = createSvgScene(links);
-  scene.defineMarker('next-arrow', {markerWidth: 7, fill: '#333'});
-  scene.defineMarker('child-arrow', {markerWidth: 7, fill: '#555'});
+  scene.defineMarker('next-arrow', {markerWidth: 10, markerHeight: 10, fill: '#333'});
+  scene.defineMarker('next-arrow-strong', {markerWidth: 13, markerHeight: 13, fill: '#333'});
+  scene.defineMarker('child-arrow', {markerWidth: 9, markerHeight: 9, fill: '#555'});
+  scene.defineMarker('ref-arrow', {markerWidth: 8, markerHeight: 8, fill: '#777'});
+  for (const id of ['next-arrow', 'next-arrow-strong', 'child-arrow', 'ref-arrow']) document.getElementById(id)?.setAttribute('markerUnits', 'userSpaceOnUse');
+  const line = l => `M ${l.x1.toFixed(1)} ${l.y1.toFixed(1)} L ${l.x2.toFixed(1)} ${l.y2.toFixed(1)}`;
   function draw() {
-    const width = diagram.clientWidth, height = diagram.clientHeight, radius = width <= 540 ? 18 : 20;
-    const frame = trace?.frame || frames[0], drag = interaction?.drag;
-    links.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    scene.update(({path}) => {
-      for (const id of ids) {
-        const target = currentState.next[id];
-        if (target === null) continue;
-        const changed = frame.action === 'append' && id === currentState.tail && target === currentState.child[currentState.curr];
-        path(`next-${id}`, {d: nextPath(shownPositions[id], shownPositions[target], radius), fill: 'none', stroke: '#333', 'stroke-width': changed ? 2.8 : 1.7, 'marker-end': 'url(#next-arrow)'});
+    const {w, h, r, positions: P} = layout, drag = interaction?.drag;
+    links.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    scene.update(({path, text}) => {
+      for (const l of targetScene.lines) {
+        if (l.kind === 'next') path(l.id, {d: line(l), fill: 'none', stroke: '#333', 'stroke-width': l.strong ? 2.8 : 1.7, 'marker-end': `url(#${l.strong ? 'next-arrow-strong' : 'next-arrow'})`});
+        else if (l.kind === 'child') path(l.id, {d: line(l), fill: 'none', stroke: l.tested ? '#333' : '#555', 'stroke-width': l.tested ? 2.2 : 1.35, 'stroke-dasharray': '4 4', 'marker-end': `url(#${l.tested ? 'next-arrow' : 'child-arrow'})`});
+        else path(l.id, {d: line(l), fill: 'none', stroke: '#555', 'stroke-width': 1.35, 'stroke-dasharray': '4 4', opacity: .35, 'marker-end': 'url(#child-arrow)'});
       }
-      for (const id of ids) {
-        const target = currentState.child[id];
-        if (target === null) continue;
-        path(`child-${id}`, {d: childPath(shownPositions[id], shownPositions[target], radius), fill: 'none', stroke: '#555', 'stroke-width': 1.35, 'stroke-dasharray': '4 4', 'marker-end': 'url(#child-arrow)'});
+      for (const t of targetScene.texts) text(t.id, {x: t.x.toFixed(1), y: t.y.toFixed(1), 'text-anchor': t.anchor, fill: t.color, 'font-size': t.size}, t.text);
+      for (const name of ['head', 'curr', 'tail']) {
+        const ref = shownLabels[name], final = targetScene.placed[name];
+        if (!ref || !final) continue;
+        const node = final.point, q = rectAt(ref.x, ref.y, layout.lw, layout.lh), from = rectExit(q, node), arrow = edge(from, node, 0, final.gap);
+        if (Math.hypot(node.x - from.x, node.y - from.y) < final.gap + 3) continue;
+        path(`reference-${name}`, {d: `M ${from.x.toFixed(1)} ${from.y.toFixed(1)} L ${arrow.x2.toFixed(1)} ${arrow.y2.toFixed(1)}`, fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'marker-end': 'url(#ref-arrow)'});
       }
-      for (const name of ['curr', 'tail']) {
-        const target = currentState[name], ref = shownReferences[name];
-        if (target === null || !ref) continue;
-        const node = shownPositions[target];
-        path(`reference-${name}`, {d: `M ${ref.x} ${name === 'curr' ? ref.y + 12 : ref.y - 12} L ${node.x} ${name === 'curr' ? node.y - radius - 3 : node.y + radius + 3}`, fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'marker-end': 'url(#child-arrow)'});
-      }
-      if (drag?.moved) {
-        const tail = shownPositions[currentState.tail];
-        path('drag-preview', {d: `M ${tail.x} ${tail.y + radius + 18} L ${drag.x} ${drag.y}`, fill: 'none', stroke: '#777', 'stroke-width': 1.5, 'stroke-dasharray': '4 4', 'marker-end': 'url(#child-arrow)'});
+      if (targetScene.chip) path('chip-stub', {d: line(targetScene.chip.stub), fill: 'none', stroke: '#555', 'stroke-width': 1.1, 'stroke-dasharray': '3 3'});
+      if (drag?.moved && targetScene.chip) {
+        const c = targetScene.chip;
+        path('drag-preview', {d: `M ${c.x} ${c.y} L ${drag.x} ${drag.y}`, fill: 'none', stroke: '#777', 'stroke-width': 1.5, 'stroke-dasharray': '4 4', 'marker-end': 'url(#child-arrow)'});
       }
     });
-    for (const id of ids) position(nodes.get(id), shownPositions[id].x, shownPositions[id].y);
-    for (const [name, label] of [['curr', currReference], ['tail', tailReference]]) {
-      const point = shownReferences[name];
-      label.hidden = !point;
-      if (point) position(label, point.x, point.y);
+    for (const id of ids) position(nodes.get(id), P[id].x, P[id].y);
+    for (const [name, label] of Object.entries(labels)) {
+      const point = shownLabels[name];
+      label.hidden = !point || !targetScene.placed[name];
+      if (!label.hidden) position(label, point.x, point.y);
     }
-    if (!connectSource.hidden && currentState.tail !== null) {
-      const tail = shownPositions[currentState.tail], offset = tail.x + 80 <= width - 49 ? 80 : -80;
-      position(connectSource, Math.max(49, Math.min(width - 49, tail.x + offset)), tail.y + 48);
-    }
+    if (targetScene.chip) position(connectSource, targetScene.chip.x, targetScene.chip.y);
   }
-  function transitionTo(newState) {
+  function transitionTo(step, instant) {
     motion.cancel();
-    const oldPositions = pointCopy(shownPositions), oldRefs = {...shownReferences};
-    const nextLayout = makeLayout(newState), finalPositions = nextLayout.positions, finalRefs = referencePositions(newState, finalPositions);
-    const unchanged = currentState === newState;
-    currentState = newState;
-    targetLayout = nextLayout;
-    diagram.classList.toggle('is-compact', nextLayout.compact);
-    if (unchanged || motion.reduced) { shownPositions = pointCopy(finalPositions); shownReferences = finalRefs; draw(); return; }
+    const oldLabels = {...shownLabels};
+    layout = makeLayout();
+    targetScene = sceneAt(step);
+    currentStep = step;
+    const finalLabels = targetScene.placed;
+    const jumps = [];
+    for (const name of ['curr', 'tail']) {
+      const before = oldLabels[name], after = finalLabels[name];
+      if (after && (!before || Math.hypot(after.x - before.x, after.y - before.y) > 175)) jumps.push(name);
+    }
+    if (instant || motion.reduced) { shownLabels = {...finalLabels}; draw(); return; }
+    for (const name of jumps) {
+      labels[name].classList.remove('is-repositioned');
+      void labels[name].offsetWidth;
+      labels[name].classList.add('is-repositioned');
+    }
     motion.tween({
-      duration: 430,
+      duration: 380,
       update(t) {
-        shownPositions = Object.fromEntries(ids.map(id => [id, mixPoint(oldPositions[id], finalPositions[id], t)]));
-        shownReferences = {};
-        for (const name of ['curr', 'tail']) {
-          const before = oldRefs[name], after = finalRefs[name];
-          shownReferences[name] = !after ? null : !before || Math.hypot(after.x - before.x, after.y - before.y) > 175 ? after : mixPoint(before, after, t);
+        shownLabels = {};
+        for (const name of ['head', 'curr', 'tail']) {
+          const before = oldLabels[name], after = finalLabels[name];
+          shownLabels[name] = !after ? null : !before || jumps.includes(name) ? after : {...after, x: before.x + (after.x - before.x) * t, y: before.y + (after.y - before.y) * t};
         }
         draw();
       },
-      complete: draw
+      complete() { shownLabels = {...finalLabels}; draw(); }
     });
   }
-  function mainSummary(state) { return mainOrder(state).join(' → '); }
+  const nodeText = id => id === null ? 'None' : `节点 ${id}`;
+  const CHANGED = {append: 'next', clear: 'child', tail: 'tail', curr: 'curr'};
   function renderScene({frame, state, manualMessage, step}) {
     const selected = interaction?.selected === 'connect';
     callout.querySelector('code').textContent = manualMessage ? '自由练习' : frame.code;
     callout.querySelector('span').textContent = manualMessage || frame.explanation;
+    invariant.textContent = frame.invariant;
+    if (step !== currentStep) practiceStatus.textContent = '';
     const childHead = state.curr === null ? null : state.child[state.curr];
-    const canConnect = frame.action === 'check' && childHead !== null && frames[step + 1]?.action === 'append';
+    const canConnect = canConnectAt(step);
     connectSource.hidden = !canConnect;
     if (!canConnect) interaction?.clearSelection({notify: false});
     connectSource.setAttribute('aria-pressed', String(selected));
     connectSource.setAttribute('aria-label', canConnect ? `把 tail.next 接到节点 ${childHead}。可拖动，或按 Enter 后选择节点 ${childHead}。` : 'tail.next');
-    branchLabel.hidden = mainOrder(state).length === ids.length;
-    diagram.classList.toggle('is-complete', frame.action === 'return');
+    const order = mainOrder(state);
+    metric.curr.textContent = step < 6 ? '未赋值' : nodeText(state.curr);
+    metric.tail.textContent = state.tail === null ? '未赋值' : nodeText(state.tail);
+    metric.child.textContent = state.curr === null ? '—' : nodeText(state.child[state.curr]);
+    metric.next.textContent = state.tail === null ? '—' : nodeText(state.next[state.tail]);
+    metric.chain.textContent = `${order[0]} … ${order[order.length - 1]}（${order.length} 个）`;
+    for (const [key, el] of Object.entries(metric)) el.classList.toggle('is-changed', CHANGED[frame.action] === key);
     for (const id of ids) {
       const button = nodes.get(id), nextValue = state.next[id] === null ? 'None' : `节点 ${state.next[id]}`, childValue = state.child[id] === null ? 'None' : `节点 ${state.child[id]}`;
-      button.classList.toggle('is-current', id === state.curr);
+      button.classList.toggle('is-available', canConnect && id === childHead);
       button.classList.toggle('is-target', canConnect && selected && id === childHead);
-      button.classList.remove('is-changed');
       button.setAttribute('aria-label', `节点 ${id}，next 指向${nextValue}，child 指向${childValue}${canConnect && id === childHead ? '；这是当前可连接的子链首节点' : ''}`);
     }
-    if (frame.action === 'append') nodes.get(state.tail).classList.add('is-changed');
-    if (frame.action === 'clear') nodes.get(state.curr).classList.add('is-changed');
-    currReference.classList.toggle('is-changed', frame.action === 'curr');
-    tailReference.classList.toggle('is-changed', frame.action === 'tail');
-    diagram.setAttribute('aria-label', `步骤 ${step + 1} / ${frames.length}：${manualMessage || frame.explanation}。从 head 沿 next：${mainSummary(state)}。按左右方向键、Home 或 End 切换步骤。`);
-    transitionTo(state);
+    labels.curr.classList.toggle('is-changed', frame.action === 'curr');
+    labels.tail.classList.toggle('is-changed', frame.action === 'tail');
+    diagram.setAttribute('aria-label', `步骤 ${step + 1} / ${frames.length}：${manualMessage || frame.explanation}。从 head 沿 next：${order.join(' → ')}。按左右方向键、Home 或 End 切换步骤。`);
+    transitionTo(step, step === currentStep || !hasRendered);
+    hasRendered = true;
   }
   function connectTo(id) {
     const frame = trace.frame, expected = trace.state.curr === null ? null : trace.state.child[trace.state.curr];
@@ -372,32 +514,27 @@
   });
   interaction = createManualInteraction({
     root, stage: diagram, sources: [connectSource], targets: () => [...nodes.values()],
-    getTargetPoint: target => shownPositions[Number(target.dataset.target)], getTargetValue: target => Number(target.dataset.target),
+    getTargetPoint: target => layout.positions[Number(target.dataset.target)], getTargetValue: target => Number(target.dataset.target),
     targetReadyClass: 'is-target', maxDistance: 42,
     onSelectionChange: ({selected}) => {
       motion.cancel();
       if (selected) { practiceStatus.textContent = '已选 tail.next；点子链首节点即可接入。'; trace.setPreviewMessage('已选 tail.next；点子链首节点即可接入，也可以直接拖动。'); }
-      else trace.clearPreviewMessage();
+      else { practiceStatus.textContent = ''; trace.clearPreviewMessage(); }
     },
     onPointerStart: () => { motion.cancel(); trace.clearCodeHighlight(); draw(); },
     onPointerMove: () => { practiceStatus.textContent = '拖到子链首节点后松开。'; draw(); },
     onPointerEnd: () => trace.render(), onPointerCancel: () => trace.render(),
     onDrop: ({value}) => connectTo(value)
   });
-  motion.onPreferenceChange(() => {
-    targetLayout = makeLayout(currentState);
-    shownPositions = pointCopy(targetLayout.positions);
-    shownReferences = referencePositions(currentState, shownPositions);
-    draw();
-  });
-  new ResizeObserver(() => {
+  const relayout = () => {
     motion.cancel();
-    targetLayout = makeLayout(currentState);
-    diagram.classList.toggle('is-compact', targetLayout.compact);
-    shownPositions = pointCopy(targetLayout.positions);
-    shownReferences = referencePositions(currentState, shownPositions);
+    layout = makeLayout();
+    targetScene = sceneAt(currentStep);
+    shownLabels = {...targetScene.placed};
     draw();
-  }).observe(diagram);
+  };
+  motion.onPreferenceChange(relayout);
+  new ResizeObserver(relayout).observe(diagram);
   trace.setFrames(frames);
 })();
 </script>

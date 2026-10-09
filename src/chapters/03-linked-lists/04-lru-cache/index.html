@@ -15,7 +15,7 @@
       --soft: #777;
       --border: #b7b7b1;
       --wash: #f5f2e9;
-      --node-size: 68px;
+      --node-size: 64px;
     }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 24px 18px 50px; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
@@ -37,42 +37,45 @@
     .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
     .plain-button, .jump { min-height: 35px; border: 1px solid #858580; border-radius: 3px; background: transparent; padding: 6px 10px; font-size: 13px; }
     .plain-button:hover:not(:disabled), .jump:hover { background: var(--wash); }
-    .step-count { min-width: 68px; text-align: center; font-size: 12px; }
+    .step-count { min-width: 92px; text-align: center; font-size: 12px; white-space: nowrap; }
     .mode-label { margin-left: auto; color: var(--secondary); font-size: 12px; }
     .jump-wrap { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--secondary); }
     .jump { max-width: 250px; }
 
     .visual { border: 1px solid var(--border); background: var(--paper); }
-    .diagram-label { display: flex; justify-content: space-between; gap: 10px; padding: 12px 16px 0; font-size: 12px; color: var(--secondary); }
-    .stage { position: relative; height: 320px; overflow: hidden; touch-action: pan-y; }
+    .metrics-line { display: flex; flex-wrap: wrap; gap: 4px 14px; min-height: 31px; padding: 9px 12px 0; color: var(--secondary); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .metrics-line span { padding: 1px 4px; border: 1px dashed transparent; border-radius: 2px; white-space: nowrap; }
+    .metrics-line span:empty { display: none; }
+    .metrics-line span.is-emph { border-color: var(--ink); color: var(--ink); }
+    .stage { position: relative; height: 250px; overflow: hidden; touch-action: pan-y; }
     .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-    .sentinel, .node { position: absolute; z-index: 1; transform: translate(-50%, -50%); background: var(--paper); }
-    .sentinel { min-width: 60px; padding: 8px 4px; border: 1.5px solid var(--line); border-radius: 3px; text-align: center; font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .sentinel.visual-positioned, .node.visual-positioned { left: 0 !important; top: 0 !important; transform: translate3d(var(--visual-x, 0px), var(--visual-y, 0px), 0) translate(-50%, -50%) !important; }
-    .node { width: var(--node-size); height: var(--node-size); border: 1.8px solid var(--line); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1; padding: 4px; transition: transform 470ms cubic-bezier(.2,.75,.2,1), opacity 200ms; }
-    .node:hover { background: var(--wash); }
-    .node-key { font-size: 20px; }
-    .node.is-long-key .node-key { font-size: 14px; }
-    .node-value { font-size: 11px; color: var(--secondary); }
-    .node-id { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); color: var(--secondary); font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
-    .node.is-focused, .node.is-inspected { outline: 2px solid var(--ink); outline-offset: 4px; }
+    .sentinel, .node, .key-box, .var-label, .stage-text { position: absolute; left: 0; top: 0; z-index: 1; }
+    .sentinel, .node, .key-box, .var-label, .stage-text { transition: transform 470ms cubic-bezier(.2,.75,.2,1), opacity 220ms; }
+    .is-entering { opacity: 0; transition: none !important; }
+    .stage.no-motion * { transition: none !important; }
+    .sentinel { min-width: 60px; padding: 7px 4px; border: 1.5px solid var(--line); border-radius: 3px; background: var(--paper); text-align: center; font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .stage-text { color: var(--secondary); font-size: 11px; white-space: nowrap; }
+    .map-label { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .node { width: var(--node-size); height: var(--node-size); border: 1.6px solid var(--line); border-radius: 50%; background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; line-height: 1; }
+    .node-key { font-size: 19px; }
+    .node.is-long-key .node-key { font-size: 13px; }
+    .node-value { padding: 1px 3px; border: 1px dashed transparent; border-radius: 2px; color: var(--secondary); font-size: 12px; }
+    .node-value.is-changed { border-color: var(--ink); color: var(--ink); font-size: 13px; font-weight: 600; }
     .node.is-detached { border-style: dashed; }
-    .node.is-retired { opacity: .3; }
-    .stage.no-motion .node { transition: none; }
-    .stage-rule { position: absolute; left: 16px; right: 16px; top: 190px; border-top: 1px dashed #d0d0c9; }
-    .map-wrap { border-top: 1px solid var(--border); padding: 12px 16px 14px; }
-    .map-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
-    .map-head h2 { margin: 0; font: 15px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .map-head p { margin: 0; color: var(--secondary); font-size: 12px; }
-    .map-rows { display: flex; flex-wrap: wrap; gap: 7px; min-height: 33px; align-items: flex-start; }
-    .map-entry { min-height: 30px; padding: 5px 9px; border: 1px solid #aaa; border-radius: 3px; background: transparent; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .map-entry:hover { background: var(--wash); }
-    .map-entry.is-focused, .map-entry.is-inspected { outline: 2px solid var(--ink); outline-offset: 2px; }
-    .empty-map { color: var(--soft); font-size: 13px; padding-top: 5px; }
-    .inspection { min-height: 18px; margin: 8px 0 0; color: var(--secondary); font-size: 12px; }
+    .node.is-retired { border-color: #999; }
+    .key-box { display: flex; align-items: center; justify-content: center; min-width: 32px; height: 26px; padding: 0 7px; border: 1px solid #999; border-radius: 4px; background: var(--paper); font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
+    .key-box.is-emph { outline: 1px dashed var(--ink); outline-offset: 3px; }
+    .key-box.is-new { border-color: var(--ink); outline: .6px solid var(--ink); outline-offset: -1.5px; }
+    .key-box.is-deleted { border-style: dashed; color: var(--soft); }
+    .key-box.is-deleted::after { content: ''; position: absolute; left: -5px; right: -5px; top: 50%; border-top: 1.5px solid var(--line); transform: rotate(-32deg); }
+    .key-box.is-ghost { border-style: dashed; color: var(--secondary); font-size: 12px; }
+    .key-box.is-ghost.is-stacked { flex-direction: column; height: auto; padding: 2px 5px; font-size: 10.5px; line-height: 1.15; }
+    .var-label { padding: 3px 7px; border: 1px solid #999; border-radius: 4px; background: var(--paper); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
+    .var-label.is-emph { border-color: var(--ink); outline: .6px solid var(--ink); outline-offset: -1.5px; }
 
-    .callout { margin: 12px 0 0; padding: 11px 13px; border: 1px dashed #999; min-height: 65px; font-size: 14px; line-height: 1.5; }
-    .callout .operation-title { display: block; margin-bottom: 2px; font-size: 13px; color: var(--ink); }
+    .callout { margin: 12px 0 0; padding: 11px 13px; border: 1px dashed #999; min-height: 88px; font-size: 14px; line-height: 1.5; }
+    .callout .operation-title { display: block; margin-bottom: 2px; font-size: 13px; color: var(--ink); overflow-wrap: anywhere; }
+    .callout .op-name { color: var(--secondary); }
     .callout .explanation { color: var(--secondary); }
     .result { display: inline-block; margin-left: 7px; padding: 1px 5px; border: 1px solid var(--border); color: var(--ink); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .practice { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 13px; }
@@ -192,25 +195,28 @@
     .detail-heading { margin-top: 4px; }
     @keyframes overview-arrive { from { opacity: .35; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 480px) {
-      :root { --node-size: 52px; }
+      :root { --node-size: 46px; }
       body { padding: 12px 8px 35px; }
       h1 { font-size: 24px; }
       .toolbar { gap: 6px; }
-      .mode-label { margin-left: 0; flex-basis: 100%; }
+      .mode-label { margin-left: 0; }
       .jump-wrap { width: 100%; }
       .jump { flex: 1; max-width: none; min-width: 0; }
-      .diagram-label { padding: 10px 8px 0; font-size: 10px; }
-      .stage { height: 300px; }
-      .stage-rule { left: 8px; right: 8px; top: 181px; }
-      .sentinel { min-width: 42px; padding: 6px 2px; font-size: 10px; }
-      .node-key { font-size: 17px; }
+      .metrics-line { padding: 8px 6px 0; gap: 3px 8px; font-size: 11px; }
+      .stage { height: 202px; }
+      .sentinel { min-width: 36px; padding: 5px 2px; font-size: 10.5px; }
+      .node-key { font-size: 16px; }
       .node.is-long-key .node-key { font-size: 11px; }
-      .node-value { font-size: 9px; }
-      .node-id { font-size: 10px; top: calc(100% + 4px); }
-      .map-wrap { padding-left: 9px; padding-right: 9px; }
-      .callout { font-size: 13px; }
+      .node-value { font-size: 10.5px; padding: 0 2px; }
+      .node-value.is-changed { font-size: 11.5px; }
+      .key-box { min-width: 28px; height: 24px; padding: 0 5px; font-size: 12px; }
+      .key-box.is-ghost { font-size: 11px; }
+      .map-label { font-size: 11px; }
+      .var-label { padding: 2px 6px; font-size: 11px; }
+      .callout { font-size: 13px; min-height: 104px; }
     }
-    @media (max-width: 340px) { :root { --node-size: 44px; } }
+    @media (max-width: 360px) { .callout { min-height: 124px; } }
+    @media (max-width: 340px) { :root { --node-size: 42px; } }
     @media (max-width: 650px) {
       .helper-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .helper-detail { grid-template-columns: minmax(0, 1fr); }
@@ -228,7 +234,7 @@
     }
     @media (max-width: 480px) { .helper-diagram { min-height: 0; } }
     @media (max-width: 370px) { .overview { padding: 10px; } .overview-bracket { padding-left: 9px; padding-right: 9px; } .overview-node { font-size: 11px; } }
-    @media (prefers-reduced-motion: reduce) { .node { transition: none; } .overview-node.is-new { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .stage * { transition: none !important; } .overview-node.is-new { animation: none; } }
   </style>
 <link rel="stylesheet" href="../assets/guide.css">
 </head>
@@ -275,28 +281,30 @@
     <button class="plain-button" type="button" data-action="previous">← 上一步</button>
     <span class="step-count" data-count aria-live="polite"></span>
     <button class="plain-button" type="button" data-action="next">下一步 →</button>
+    <button class="plain-button" type="button" data-action="copy-link">复制本步骤链接</button>
     <span class="mode-label" data-mode>示例演示</span>
     <label class="jump-wrap">跳到步骤 <select class="jump" data-jump data-step-select aria-label="跳到步骤"></select></label>
   </div>
 
   <section class="visual" aria-label="LRU 缓存状态图">
-    <div class="diagram-label"><span>LRU · 最久未使用</span><span>最近使用 · MRU</span></div>
+    <div class="metrics-line"><span data-metric-len>len = 0</span><span>capacity = 3</span><span data-metric-key></span></div>
     <div class="stage" data-stage role="group" tabindex="0" aria-label="双向链表，从左侧 head 到右侧 tail；可按左右方向键逐行查看">
       <svg data-links aria-hidden="true"></svg>
-      <div class="stage-rule" aria-hidden="true"></div>
-      <div class="sentinel" data-sentinel="head">head</div>
-      <div class="sentinel" data-sentinel="tail">tail</div>
-      <div data-nodes></div>
-    </div>
-    <div class="map-wrap">
-      <div class="map-head"><h2>hashmap</h2><p>键 → 同一链表节点</p></div>
-      <div class="map-rows" data-map></div>
-      <p class="inspection" data-inspection aria-live="polite"></p>
+      <div aria-hidden="true">
+        <span class="stage-text map-label" data-map-label>hashmap</span>
+        <span class="stage-text" data-end="head">最久未使用</span>
+        <span class="stage-text" data-end="tail">最近使用</span>
+        <div class="sentinel" data-sentinel="head">head</div>
+        <div class="sentinel" data-sentinel="tail">tail</div>
+        <div data-keys></div>
+        <div data-nodes></div>
+        <div data-vars></div>
+      </div>
     </div>
   </section>
 
   <div class="callout" aria-live="polite" aria-atomic="true">
-    <span class="operation-title" data-code data-current-code></span>
+    <span class="operation-title"><span class="op-name" data-op></span><span data-code data-current-code></span></span>
     <span class="explanation" data-explanation></span><span data-result></span>
   </div>
   </section>
@@ -451,27 +459,31 @@ class LRUCache:
   const tracePanel = root.querySelector('[data-lru-panel="trace"]');
   const stage = root.querySelector('[data-stage]');
   const svg = root.querySelector('[data-links]');
-  const {createMotionController, createSvgScene, createTrace, position} = window.AlgorithmVisualCore;
+  const {createMotionController, createSvgScene, createTrace} = window.AlgorithmVisualCore;
   const linkMotion = createMotionController();
   const linkScene = createSvgScene(svg);
   const nodeLayer = root.querySelector('[data-nodes]');
-  const mapRows = root.querySelector('[data-map]');
-  const inspection = root.querySelector('[data-inspection]');
+  const keyLayer = root.querySelector('[data-keys]');
+  const varLayer = root.querySelector('[data-vars]');
+  const mapLabel = root.querySelector('[data-map-label]');
+  const endLabels = {head: root.querySelector('[data-end="head"]'), tail: root.querySelector('[data-end="tail"]')};
+  const sentinels = {head: root.querySelector('[data-sentinel="head"]'), tail: root.querySelector('[data-sentinel="tail"]')};
+  const metricLen = root.querySelector('[data-metric-len]');
+  const metricKey = root.querySelector('[data-metric-key]');
+  const opName = root.querySelector('[data-op]');
   const code = root.querySelector('[data-code]');
   const explanation = root.querySelector('[data-explanation]');
   const result = root.querySelector('[data-result]');
-  const count = tracePanel.querySelector('[data-count]');
   const modeLabel = root.querySelector('[data-mode]');
-  const jump = root.querySelector('[data-jump]');
   const practiceStatus = root.querySelector('[data-practice-status]');
   const keyInput = root.querySelector('[data-key]');
   const valueInput = root.querySelector('[data-value]');
-  const previous = tracePanel.querySelector('[data-action="previous"]');
-  const next = tracePanel.querySelector('[data-action="next"]');
   const mainSource = root.querySelector('[data-main-source]');
   const mainCodeScroll = root.querySelector('[data-main-code-scroll]');
   const mainLineStatus = root.querySelector('[data-main-line-status]');
   const nodeElements = new Map();
+  const keyElements = new Map();
+  const varElements = new Map();
   const CAPACITY = 3;
 
   const mainCodeLines = [];
@@ -496,94 +508,122 @@ class LRUCache:
     mainCodeLines.push(row);
   }
 
-  const emptyState = () => ({ order: [], detached: [], nodes: {}, hashmap: {}, nextId: 1, lookup: null, result: null });
-  const clone = s => ({ order: [...s.order], detached: [...s.detached], nodes: Object.fromEntries(Object.entries(s.nodes).map(([id, n]) => [id, {...n}])), hashmap: {...s.hashmap}, nextId: s.nextId, lookup: s.lookup, result: s.result });
-  const initialFrame = () => ({ state: emptyState(), code: 'LRUCache.__init__(capacity=3) 执行后', explanation: 'capacity 是 3，hashmap 为空；哨兵 head.next 指向 tail，tail.prev 指向 head。', opTitle: '初始状态', opIndex: -1, focusId: null, focusKey: null, result: null, sourceId: '__init__|def __init__(self, capacity: int) -> None:' });
+  // State: order = ids between head and tail; detached = ids outside the list.
+  // A detached node keeps its old prev/next in `stale`; `hole` keeps its former
+  // list slot so the neighbours do not move while it is out; `parkAt` parks an
+  // evicted node under a list slot after the list closes up.
+  const emptyState = () => ({ order: [], detached: [], nodes: {}, hashmap: {}, nextId: 1 });
+  const clone = s => ({ order: [...s.order], detached: [...s.detached], nodes: Object.fromEntries(Object.entries(s.nodes).map(([id, n]) => [id, {...n, stale: n.stale ? {...n.stale} : null}])), hashmap: {...s.hashmap}, nextId: s.nextId });
+  const initialFrame = () => ({ state: emptyState(), code: 'LRUCache.__init__(capacity=3) 执行后', explanation: 'hashmap 为空；哨兵 head.next 指向 tail，tail.prev 指向 head。', opTitle: '初始状态', opIndex: -1, key: null, vars: {}, emph: {}, result: null, sourceId: '__init__|def __init__(self, capacity: int) -> None:' });
+
+  const nameOf = (state, ref) => ref === 'head' || ref === 'tail' ? ref : `key ${state.nodes[ref].key} 的节点`;
+  const bothNames = (state, a, b) => {
+    const left = nameOf(state, a), right = nameOf(state, b);
+    return `${left}${/[a-z0-9]$/i.test(left) ? ' ' : ''}和${/^[a-z0-9]/i.test(right) ? ' ' : ''}${right}${/[a-z0-9]$/i.test(right) ? ' ' : ''}`;
+  };
 
   function makeOperation(base, type, key, value, opIndex) {
     const state = clone(base);
+    // The previous put has returned: an evicted node is no longer referenced.
+    for (const id of [...state.detached]) {
+      if (state.nodes[id].retired) { state.detached = state.detached.filter(item => item !== id); delete state.nodes[id]; }
+    }
     const frames = [];
+    const vars = {};
     const title = type === 'get' ? `get(${key})` : `put(${key}, ${value})`;
-    const emit = (line, text, options = {}) => frames.push({
-      state: clone(state), code: line, explanation: text, opTitle: title, opIndex,
-      focusId: options.focusId ?? null, focusKey: options.focusKey ?? null,
-      result: options.result ?? null, sourceId: `${type}|${line.trim()}`
+    const emit = (line, text, emph = {}, extra = {}) => frames.push({
+      state: clone(state), code: line, explanation: text, opTitle: title, opIndex, key,
+      vars: {...vars}, emph, result: extra.result ?? null, sourceId: `${type}|${line.trim()}`
     });
-    state.lookup = key;
-    state.result = null;
+    const detach = id => {
+      const index = state.order.indexOf(id);
+      const prev = index === 0 ? 'head' : state.order[index - 1];
+      const next = index === state.order.length - 1 ? 'tail' : state.order[index + 1];
+      state.order.splice(index, 1);
+      state.detached.push(id);
+      Object.assign(state.nodes[id], {stale: {prev, next}, hole: index});
+      return {prev, next};
+    };
+    const attachToTail = id => {
+      const prevNode = state.order.length ? state.order.at(-1) : 'head';
+      state.detached = state.detached.filter(item => item !== id);
+      for (const other of state.detached) state.nodes[other].hole = null;
+      state.order.push(id);
+      Object.assign(state.nodes[id], {stale: null, hole: null});
+      return [[prevNode, id], [id, 'tail']];
+    };
     const found = state.hashmap[key];
 
     if (type === 'get') {
       emit('if key not in self.hashmap:', found === undefined
         ? `hashmap 没有 key ${key}，条件成立。`
-        : `hashmap[${key}] → #${found}，条件不成立；继续取得这个节点。`,
-        {focusId: found, focusKey: key});
+        : `hashmap 有 key ${key}，条件不成立；继续取节点。`,
+        found === undefined ? {keyMiss: key} : {keyBox: key});
       if (found === undefined) {
-        state.result = -1;
-        emit('return -1', `没有这个键，返回 -1；hashmap 和链表顺序都不变。`, {focusKey: key, result: -1});
-      } else {
-        emit('node = self.hashmap[key]', `局部变量 node 指向 hashmap[${key}] 中的同一个节点 #${found}；链表没有变化。`, {focusId: found, focusKey: key});
-        state.order = state.order.filter(id => id !== found);
-        state.detached.push(found);
-        emit('self.remove_node(node)', `让 #${found} 两侧的邻居直接相连。node 和 hashmap[${key}] 仍指向它；它自身的旧 prev/next 暂未清空。`, {focusId: found, focusKey: key});
-        state.detached = state.detached.filter(id => id !== found);
-        state.order.push(found);
-        emit('self.add_to_tail(node)', `把同一个节点 #${found} 放到 tail 前。它的对象身份不变，现在是最近使用的节点。`, {focusId: found, focusKey: key});
-        state.result = state.nodes[found].value;
-        emit('return node.val', `返回同一节点 #${found} 中的 value ${state.result}。`, {focusId: found, focusKey: key, result: state.result});
+        emit('return -1', '返回 -1；hashmap 和链表都不变。', {}, {result: -1});
+        return frames;
       }
+      vars.node = found;
+      emit('node = self.hashmap[key]', `局部变量 node 指向 hashmap[${key}] 引用的同一个节点；链表不变。`, {varNew: 'node'});
+      const {prev, next} = detach(found);
+      emit('self.remove_node(node)', `${bothNames(state, prev, next)}直接相连，链表绕过这个节点。node 和 hashmap[${key}] 仍指向它。`, {links: [[prev, next]]});
+      const added = attachToTail(found);
+      emit('self.add_to_tail(node)', '把同一个节点接到 tail 前，改写它两侧的 4 个链接；它现在是最近使用的。', {links: added});
+      const val = state.nodes[found].value;
+      emit('return node.val', `返回这个节点的 val ${val}。`, {val: found}, {result: val});
       return frames;
     }
 
     emit('if key in self.hashmap:', found === undefined
-      ? `hashmap 没有 key ${key}，条件不成立；继续检查是否需要淘汰。`
-      : `hashmap[${key}] → 节点 #${found}，条件成立；更新这个节点。`,
-      {focusId: found, focusKey: key});
+      ? `hashmap 没有 key ${key}，条件不成立；继续检查容量。`
+      : `hashmap 有 key ${key}，条件成立；更新已有节点。`,
+      found === undefined ? {keyMiss: key} : {keyBox: key});
     if (found !== undefined) {
-      emit('node = self.hashmap[key]', `局部变量 node 指向节点 #${found}；没有创建新对象。`, {focusId: found, focusKey: key});
+      vars.node = found;
+      emit('node = self.hashmap[key]', `局部变量 node 指向 hashmap[${key}] 引用的节点；不创建新对象。`, {varNew: 'node'});
+      const old = state.nodes[found].value;
       state.nodes[found].value = value;
-      emit('node.val = value', `直接把节点 #${found} 的 value 改为 ${value}。hashmap[${key}] 仍指向同一个对象。`, {focusId: found, focusKey: key});
-      state.order = state.order.filter(id => id !== found);
-      state.detached.push(found);
-      emit('self.remove_node(node)', `从主链摘下节点 #${found}。node 和 hashmap[${key}] 仍指向它；自身旧 prev/next 暂未清空。`, {focusId: found, focusKey: key});
-      state.detached = state.detached.filter(id => id !== found);
-      state.order.push(found);
-      emit('self.add_to_tail(node)', `把同一个节点 #${found} 接到 tail 前，成为 MRU。hashmap 映射和对象身份都没有改变。`, {focusId: found, focusKey: key});
-      emit('return', `这个键已更新，直接结束 put；不会执行后面的淘汰或新节点构造。`, {focusId: found, focusKey: key});
+      emit('node.val = value', `把这个节点的 val 从 ${old} 改为 ${value}；hashmap[${key}] 仍指向同一个对象。`, {val: found});
+      const {prev, next} = detach(found);
+      emit('self.remove_node(node)', `${bothNames(state, prev, next)}直接相连，链表绕过这个节点。node 和 hashmap[${key}] 仍指向它。`, {links: [[prev, next]]});
+      const added = attachToTail(found);
+      emit('self.add_to_tail(node)', '把同一个节点接到 tail 前，它成为最近使用；hashmap 不变。', {links: added});
+      emit('return', '键已更新，put 直接结束；不执行后面的淘汰和建节点。');
       return frames;
     }
 
-    const full = Object.keys(state.hashmap).length === CAPACITY;
+    const size = Object.keys(state.hashmap).length;
+    const full = size === CAPACITY;
     emit('if len(self.hashmap) == self.capacity:', full
-      ? `当前有 ${CAPACITY} 个表项，缓存已满；先移走最久未使用的节点。`
-      : `当前有 ${Object.keys(state.hashmap).length} 个表项，未达到容量 ${CAPACITY}；直接创建新节点。`,
-      {focusKey: key});
+      ? `len = ${size} 等于 capacity，缓存已满；先淘汰最久未使用的节点。`
+      : `len = ${size} 小于 capacity ${CAPACITY}，不需要淘汰。`,
+      {len: true});
     let leastRecent = null;
     if (full) {
       leastRecent = state.order[0];
       const oldKey = state.nodes[leastRecent].key;
-      emit('least_recent = self.head.next', `局部变量 least_recent 指向 head 后面的节点 #${leastRecent}（key ${oldKey}）；节点和表项都尚未改变。`, {focusId: leastRecent, focusKey: oldKey});
-      state.order.shift();
-      state.detached.push(leastRecent);
-      emit('self.remove_node(least_recent)', `主链绕过节点 #${leastRecent}。least_recent 和 hashmap[${oldKey}] 此刻仍指向它；自身旧 prev/next 暂未清空。`, {focusId: leastRecent, focusKey: oldKey});
+      vars.least_recent = leastRecent;
+      emit('least_recent = self.head.next', `head.next 是最久未使用的节点（key ${oldKey}）；局部变量 least_recent 指向它。`, {varNew: 'least_recent'});
+      const {prev, next} = detach(leastRecent);
+      emit('self.remove_node(least_recent)', `${bothNames(state, prev, next)}直接相连，key ${oldKey} 的节点离开链表。least_recent 和 hashmap[${oldKey}] 仍指向它。`, {links: [[prev, next]]});
       delete state.hashmap[oldKey];
-      emit('del self.hashmap[least_recent.key]', `删除 key ${oldKey} 的表项。局部变量 least_recent 暂时仍引用虚线节点 #${leastRecent}。`, {focusId: leastRecent, focusKey: oldKey});
+      state.nodes[leastRecent].retired = true;
+      emit('del self.hashmap[least_recent.key]', `删除表项 key ${oldKey}，len 变为 ${size - 1}。这个节点只剩 least_recent 引用。`, {keyDel: {key: oldKey, id: leastRecent}, len: true});
     }
 
     const id = state.nextId++;
-    state.nodes[id] = {key, value};
+    state.nodes[id] = {key, value, stale: null, hole: null};
     state.detached.push(id);
-    emit('node = DoublyLinkedListNode(key, value)', `创建新对象 #${id}；局部变量 node 指向它。它尚未接入主链。`, {focusId: id, focusKey: key});
+    vars.node = id;
+    emit('node = DoublyLinkedListNode(key, value)', `创建新节点（key ${key}，val ${value}），局部变量 node 指向它；它的 prev/next 都是 None，还不在链表里。`, {varNew: 'node'});
     state.hashmap[key] = id;
-    emit('self.hashmap[key] = node', `建立 key ${key} → 节点 #${id} 的映射；此时新节点仍在链表外。`, {focusId: id, focusKey: key});
-
-    state.detached = state.detached.filter(item => item !== id);
-    state.order.push(id);
-    if (leastRecent !== null) {
-      state.detached = state.detached.filter(item => item !== leastRecent);
-      delete state.nodes[leastRecent];
-    }
-    emit('self.add_to_tail(node)', `把新节点 #${id} 插在 tail 前，成为 MRU。hashmap[${key}] 已经指向它。`, {focusId: id, focusKey: key});
+    emit('self.hashmap[key] = node', `新增表项 key ${key} → 新节点，len 变为 ${Object.keys(state.hashmap).length}；节点仍在链表外。`, {keyNew: key, len: true});
+    const added = attachToTail(id);
+    if (leastRecent !== null) state.nodes[leastRecent].parkAt = 0;
+    emit('self.add_to_tail(node)', leastRecent === null
+      ? '把新节点接到 tail 前，它成为最近使用。'
+      : '把新节点接到 tail 前，它成为最近使用。put 返回后 least_recent 失效，被淘汰的节点不再有引用。',
+      {links: added});
     return frames;
   }
 
@@ -603,142 +643,287 @@ class LRUCache:
   let practiceFrames = [initialFrame()];
   let practiceOpCount = 0;
   let step = 0;
-  let inspectedId = null;
   let trace;
   const frames = () => mode === 'script' ? scriptedFrames : practiceFrames;
   const current = () => frames()[step];
 
-  function refreshJump() { /* createTrace owns the shared direct-step selector. */ }
-
-  function positionOf(id, state, width) {
-    const margin = width < 440 ? 26 : 57;
-    const mainY = width < 440 ? 111 : 115;
-    const parkingY = 235;
-    const index = state.order.indexOf(id);
-    if (index !== -1) {
-      const gap = (width - 2 * margin) / (state.order.length + 1);
-      return {x: margin + gap * (index + 1), y: mainY};
-    }
-    const parked = state.detached.indexOf(id);
-    const gap = Math.min(95, width * .27);
-    return {x: width / 2 + (parked - (state.detached.length - 1) / 2) * gap, y: parkingY};
+  // Matches the phone breakpoint that also shrinks the nodes and the stage height.
+  const compactQuery = window.matchMedia('(max-width: 480px)');
+  function geometry() {
+    const W = stage.clientWidth;
+    return compactQuery.matches
+      ? {W, compact: true, margin: 28, inset: 10, mapY: 18, mainY: 80, parkY: 142, varGap: 20, keyGap: 12, offset: 5}
+      : {W, compact: false, margin: 57, inset: 14, mapY: 22, mainY: 100, parkY: 176, varGap: 22, keyGap: 16, offset: 7};
   }
 
-  function renderNodes(state, frame) {
-    const width = stage.clientWidth;
-    const margin = width < 440 ? 26 : 57;
-    const mainY = width < 440 ? 111 : 115;
-    for (const [name, x] of [['head', margin], ['tail', width - margin]]) {
-      const sentinel = root.querySelector(`[data-sentinel="${name}"]`);
-      position(sentinel, x, mainY);
+  // Slots are fixed for the full capacity, so adding a new node never re-spaces
+  // the nodes already in the list. A new node waits under the slot it will take.
+  function layout(state, g) {
+    const slots = [...state.order];
+    const holes = state.detached.filter(id => state.nodes[id].hole != null)
+      .sort((a, b) => state.nodes[a].hole - state.nodes[b].hole);
+    for (const id of holes) slots.splice(state.nodes[id].hole, 0, {hole: id});
+    const headX = g.margin, tailX = g.W - g.margin;
+    const gap = (tailX - headX) / (CAPACITY + 1);
+    const slotX = index => headX + gap * (index + 1);
+    const pos = {};
+    slots.forEach((slot, index) => {
+      if (typeof slot === 'object') pos[slot.hole] = {x: slotX(index), y: g.parkY};
+      else pos[slot] = {x: slotX(index), y: g.mainY};
+    });
+    for (const id of state.detached) {
+      if (pos[id]) continue;
+      const parkAt = state.nodes[id].parkAt;
+      pos[id] = {x: slotX(parkAt != null ? parkAt : state.order.length), y: g.parkY};
     }
-    const ids = [...state.order, ...state.detached];
-    for (const [id, element] of nodeElements) {
-      if (!ids.includes(Number(id))) { element.remove(); nodeElements.delete(id); }
+    return {pos, headX, tailX};
+  }
+
+  function place(element, x, y, anchor = 'center') {
+    const shift = anchor === 'start' ? '0, -50%' : anchor === 'end' ? '-100%, -50%' : '-50%, -50%';
+    element.style.transform = `translate(${x}px, ${y}px) translate(${shift})`;
+  }
+
+  // New elements appear in place (fading in) instead of sliding from the corner.
+  function ensure(map, id, layer, create) {
+    let element = map.get(id);
+    if (element) return {element, fresh: false};
+    element = create();
+    element.classList.add('moving', 'is-entering');
+    layer.append(element);
+    map.set(id, element);
+    return {element, fresh: true};
+  }
+  function settle(fresh) {
+    if (!fresh.length) return;
+    void stage.offsetWidth;
+    requestAnimationFrame(() => fresh.forEach(element => element.classList.remove('is-entering')));
+  }
+  function prune(map, keep) {
+    for (const [id, element] of map) if (!keep.has(id)) { element.remove(); map.delete(id); }
+  }
+
+  // A missed lookup is drawn as a dashed key in the widest free gap of the hashmap row.
+  function placeGhost(element, key, others, g) {
+    const start = g.inset + mapLabel.offsetWidth + (g.compact ? 8 : 20);
+    const edges = others.filter(other => !other.parked).map(other => [other.x - other.half - 6, other.x + other.half + 6]).sort((a, b) => a[0] - b[0]);
+    const gaps = [];
+    let cursor = start;
+    for (const [left, right] of edges) { if (left > cursor) gaps.push([cursor, left]); cursor = Math.max(cursor, right); }
+    gaps.push([cursor, g.W - g.inset]);
+    const [left, right] = gaps.reduce((best, gap) => gap[1] - gap[0] > best[1] - best[0] ? gap : best);
+    element.classList.remove('is-stacked');
+    element.textContent = `${key} ∉ hashmap`;
+    if (element.offsetWidth > right - left) {
+      // Too narrow for one line: keep the whole expression on two short lines.
+      element.classList.add('is-stacked');
+      element.replaceChildren(document.createTextNode(`${key} ∉`), document.createElement('br'), document.createTextNode('hashmap'));
     }
+    place(element, Math.min((left + right) / 2, g.W - g.inset - element.offsetWidth / 2), g.mapY);
+  }
+
+  function renderStage(frame) {
+    const state = frame.state, emph = frame.emph || {}, g = geometry();
+    const {pos, headX, tailX} = layout(state, g);
+    const fresh = [];
+    place(sentinels.head, headX, g.mainY);
+    place(sentinels.tail, tailX, g.mainY);
+    const endY = g.mainY - (g.compact ? 27 : 31);
+    if (g.compact) { place(endLabels.head, g.inset, endY, 'start'); place(endLabels.tail, g.W - g.inset, endY, 'end'); }
+    else { place(endLabels.head, headX, endY); place(endLabels.tail, tailX, endY); }
+    place(mapLabel, g.inset, g.mapY, 'start');
+    mapLabel.textContent = Object.keys(state.hashmap).length || emph.keyDel ? 'hashmap' : 'hashmap = {}';
+
+    const ids = [...state.order, ...state.detached].filter(id => state.nodes[id]);
+    prune(nodeElements, new Set(ids.map(String)));
     for (const id of ids) {
       const n = state.nodes[id];
-      if (!n) continue;
-      let button = nodeElements.get(String(id));
-      if (!button) {
-        button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'node';
-        button.dataset.nodeId = String(id);
-        button.innerHTML = '<span class="node-key"></span><span class="node-value"></span><span class="node-id"></span>';
-        button.addEventListener('click', () => inspectNode(Number(button.dataset.nodeId)));
-        nodeLayer.append(button);
-        nodeElements.set(String(id), button);
+      const {element, fresh: isNew} = ensure(nodeElements, String(id), nodeLayer, () => {
+        const div = document.createElement('div');
+        div.className = 'node';
+        div.dataset.nodeId = String(id);
+        div.innerHTML = '<span class="node-key"></span><span class="node-value"></span>';
+        return div;
+      });
+      if (isNew) fresh.push(element);
+      element.querySelector('.node-key').textContent = String(n.key);
+      const valueText = element.querySelector('.node-value');
+      valueText.textContent = String(n.value);
+      valueText.classList.toggle('is-changed', emph.val === id);
+      element.classList.toggle('is-long-key', String(n.key).length >= 4);
+      element.classList.toggle('is-detached', state.detached.includes(id));
+      element.classList.toggle('is-retired', Boolean(n.retired));
+      place(element, pos[id].x, pos[id].y);
+    }
+
+    const keys = Object.keys(state.hashmap).map(Number);
+    // An entry whose node is outside the list sits beside that node, so its reference stays short.
+    const keyItem = (k, id, cls, target) => ({id: `k${k}`, key: k, x: pos[id].x, parked: pos[id].y === g.parkY, cls, target});
+    const keyItems = keys.map(k => keyItem(k, state.hashmap[k], emph.keyBox === k ? 'is-emph' : emph.keyNew === k ? 'is-new' : '', state.hashmap[k]));
+    if (emph.keyDel) keyItems.push(keyItem(emph.keyDel.key, emph.keyDel.id, 'is-deleted', null));
+    if (emph.keyMiss != null) keyItems.push({id: 'miss', key: emph.keyMiss, cls: 'is-ghost', target: null});
+    prune(keyElements, new Set(keyItems.map(item => item.id)));
+    const radius = stage.querySelector('.node')?.offsetWidth / 2 || (g.compact ? 23 : 32);
+    for (const item of keyItems) {
+      const element = keyElements.get(item.id);
+      item.half = element && item.cls !== 'is-ghost' && element.textContent === String(item.key) ? element.offsetWidth / 2 : (g.compact ? 9 : 10) + String(item.key).length * (g.compact ? 3.6 : 3.9);
+    }
+    for (const item of keyItems) {
+      const {element, fresh: isNew} = ensure(keyElements, item.id, keyLayer, () => {
+        const div = document.createElement('div');
+        div.className = 'key-box';
+        return div;
+      });
+      if (isNew) fresh.push(element);
+      element.className = `key-box moving${isNew ? ' is-entering' : ''}${item.cls ? ` ${item.cls}` : ''}`;
+      element.dataset.target = item.target == null ? '' : String(item.target);
+      if (item.cls === 'is-ghost') {
+        placeGhost(element, item.key, keyItems.filter(other => other !== item), g);
+        continue;
       }
-      button.querySelector('.node-key').textContent = String(n.key);
-      button.querySelector('.node-value').textContent = String(n.value);
-      button.querySelector('.node-id').textContent = `#${id}`;
-      button.classList.toggle('is-long-key', String(n.key).length >= 4);
-      button.setAttribute('aria-label', `节点 #${id}，key ${n.key}，value ${n.value}${state.detached.includes(id) ? '，暂时脱离链表' : ''}`);
-      button.classList.toggle('is-detached', state.detached.includes(id));
-      button.classList.toggle('is-focused', frame.focusId === id);
-      button.classList.toggle('is-inspected', inspectedId === id);
-      const p = positionOf(id, state, width);
-      position(button, p.x, p.y);
+      element.textContent = String(item.key);
+      element.dataset.parked = item.parked ? 'true' : '';
+      if (item.parked) place(element, item.x - radius - g.keyGap, g.parkY, 'end');
+      else place(element, item.x, g.mapY);
     }
+
+    const byTarget = new Map();
+    for (const [name, id] of Object.entries(frame.vars || {})) {
+      if (!byTarget.has(id)) byTarget.set(id, []);
+      byTarget.get(id).push(name);
+    }
+    const varItems = [];
+    for (const [id, names] of byTarget) {
+      names.forEach((name, index) => varItems.push({name, id, dx: (index - (names.length - 1) / 2) * (g.compact ? 60 : 96)}));
+    }
+    prune(varElements, new Set(varItems.map(item => item.name)));
+    for (const item of varItems) {
+      const {element, fresh: isNew} = ensure(varElements, item.name, varLayer, () => {
+        const div = document.createElement('div');
+        div.className = 'var-label';
+        div.textContent = item.name;
+        return div;
+      });
+      if (isNew) fresh.push(element);
+      element.classList.toggle('is-emph', emph.varNew === item.name);
+      element.dataset.target = String(item.id);
+      const p = pos[item.id];
+      place(element, p.x + item.dx, p.y + radius + g.varGap);
+    }
+    settle(fresh);
+
+    metricLen.textContent = `len = ${keys.length}`;
+    metricLen.classList.toggle('is-emph', Boolean(emph.len));
+    metricKey.textContent = frame.key == null ? '' : `key = ${frame.key}`;
+
+    const chain = ['head', ...state.order.map(id => `key ${state.nodes[id].key}`), 'tail'].join(' ⇄ ');
+    const outside = state.detached.map(id => `key ${state.nodes[id].key}`);
+    stage.setAttribute('aria-label', `双向链表 ${chain}${outside.length ? `；链表外：${outside.join('、')}` : ''}；hashmap 键：${keys.length ? keys.join('、') : '空'}。可按左右方向键逐行查看`);
   }
 
-  function renderMap(state, frame) {
-    mapRows.replaceChildren();
-    const keys = Object.keys(state.hashmap).map(Number).sort((a, b) => a - b);
-    if (!keys.length) {
-      const empty = document.createElement('span');
-      empty.className = 'empty-map';
-      empty.textContent = '∅ 还没有表项';
-      mapRows.append(empty);
-    }
-    for (const key of keys) {
-      const id = state.hashmap[key];
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'map-entry';
-      button.textContent = `${key} → #${id}`;
-      button.setAttribute('aria-label', `hashmap 中 key ${key} 指向节点 #${id}，点击查看同一节点`);
-      button.classList.toggle('is-focused', frame.focusKey === key);
-      button.classList.toggle('is-inspected', inspectedId === id);
-      button.addEventListener('click', () => inspectNode(id));
-      mapRows.append(button);
-    }
-  }
-
-  function inspectNode(id) {
-    inspectedId = id;
-    const state = current().state;
-    const n = state.nodes[id];
-    if (!n) return;
-    const hasMap = state.hashmap[n.key] === id;
-    inspection.textContent = hasMap
-      ? `hashmap[${n.key}] 指向的正是节点 #${id}${state.detached.includes(id) ? '；它此刻暂时脱离链表' : ''}。`
-      : state.detached.includes(id)
-        ? `节点 #${id} 尚未接入或已脱离主链；hashmap[${n.key}] 目前没有指向它。`
-        : `节点 #${id} 目前在链表中；hashmap[${n.key}] 目前没有指向它。`;
-    renderMap(state, current());
-    for (const [nodeId, button] of nodeElements) button.classList.toggle('is-inspected', Number(nodeId) === id);
-  }
-
-  function centerOf(element) {
+  function box(element) {
     const a = element.getBoundingClientRect();
     const b = stage.getBoundingClientRect();
-    return {x: a.left - b.left + a.width / 2, y: a.top - b.top + a.height / 2, r: a.width / 2};
+    return {x: a.left - b.left + a.width / 2, y: a.top - b.top + a.height / 2, hw: a.width / 2, hh: a.height / 2, round: element.classList.contains('node')};
   }
+  // Distance from the centre to the outline along unit direction (ux, uy).
+  function reach(b, ux, uy) {
+    if (b.round) return b.hw;
+    return Math.min(Math.abs(ux) > 1e-6 ? b.hw / Math.abs(ux) : Infinity, Math.abs(uy) > 1e-6 ? b.hh / Math.abs(uy) : Infinity);
+  }
+  const elementFor = ref => ref === 'head' || ref === 'tail' ? sentinels[ref] : nodeElements.get(String(ref));
+  const pairKey = (a, b) => `${a}|${b}`;
+  const f = value => value.toFixed(1);
 
   function drawLinks() {
-    const state = current().state;
-    const chain = [root.querySelector('[data-sentinel="head"]'),
-      ...state.order.map(id => nodeElements.get(String(id))).filter(Boolean),
-      root.querySelector('[data-sentinel="tail"]')];
-    const paths = [];
-    for (let i = 0; i < chain.length - 1; i++) {
-      const a = centerOf(chain[i]), b = centerOf(chain[i + 1]);
-      if (Math.abs(a.y - b.y) > 28) continue;
-      const left = a.x + a.r + 4, right = b.x - b.r - 4;
-      if (right - left < 7) continue;
-      const y1 = (a.y + b.y) / 2 - 8, y2 = (a.y + b.y) / 2 + 8;
-      paths.push({id: `next-${i}`, d: `M ${left} ${y1} L ${right} ${y1}`, marker: 'next-arrow'});
-      paths.push({id: `prev-${i}`, d: `M ${right} ${y2} L ${left} ${y2}`, marker: 'prev-arrow'});
-    }
+    const frame = current();
+    if (!frame) return;
+    const state = frame.state, emph = frame.emph || {}, g = geometry();
     const width = stage.clientWidth, height = stage.clientHeight;
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    linkScene.defineMarker('next-arrow', {fill: '#333', viewBox: '0 0 7 7', refX: 6, refY: 3.5});
-    linkScene.defineMarker('prev-arrow', {fill: '#555', viewBox: '0 0 7 7', refX: 6, refY: 3.5});
-    linkScene.update(({path}) => paths.forEach(item => path(item.id, {d: item.d, fill: 'none', stroke: '#333', 'stroke-width': 1.5, 'marker-end': `url(#${item.marker})`})));
+    const small = g.compact;
+    linkScene.defineMarker('link-arrow', {fill: '#333', viewBox: '0 0 8 8', markerWidth: small ? 5 : 6, markerHeight: small ? 5 : 6});
+    linkScene.defineMarker('link-arrow-strong', {fill: '#333', viewBox: '0 0 8 8', markerWidth: small ? 3.4 : 4, markerHeight: small ? 3.4 : 4});
+    linkScene.defineMarker('ref-arrow', {fill: '#555', viewBox: '0 0 8 8', markerWidth: 6, markerHeight: 6});
+    linkScene.defineMarker('stale-arrow', {fill: '#777', viewBox: '0 0 8 8', markerWidth: 6, markerHeight: 6});
+    const strong = new Set((emph.links || []).flatMap(([a, b]) => [pairKey(a, b), pairKey(b, a)]));
+
+    linkScene.update(({path, text}) => {
+      // Stored links: .next above, .prev below each neighbour pair.
+      const chain = ['head', ...state.order, 'tail'];
+      for (let i = 0; i < chain.length - 1; i++) {
+        const ea = elementFor(chain[i]), eb = elementFor(chain[i + 1]);
+        if (!ea || !eb) continue;
+        const a = box(ea), b = box(eb);
+        const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+        const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
+        const ra = reach(a, ux, uy) + 3, rb = reach(b, ux, uy) + 3;
+        if (len - ra - rb < 8) continue;
+        const isStrong = strong.has(pairKey(chain[i], chain[i + 1]));
+        const style = {fill: 'none', stroke: '#333', 'stroke-width': isStrong ? 2.4 : 1.5, 'stroke-linecap': 'round', 'marker-end': `url(#${isStrong ? 'link-arrow-strong' : 'link-arrow'})`};
+        const o = g.offset;
+        path(`next-${chain[i]}-${chain[i + 1]}`, {...style, d: `M ${f(a.x + ux * ra - nx * o)} ${f(a.y + uy * ra - ny * o)} L ${f(b.x - ux * rb - nx * o)} ${f(b.y - uy * rb - ny * o)}`});
+        path(`prev-${chain[i]}-${chain[i + 1]}`, {...style, d: `M ${f(b.x - ux * rb + nx * o)} ${f(b.y - uy * rb + ny * o)} L ${f(a.x + ux * ra + nx * o)} ${f(a.y + uy * ra + ny * o)}`});
+      }
+
+      // Old prev/next still stored on a detached node.
+      for (const id of state.detached) {
+        const n = state.nodes[id];
+        const element = nodeElements.get(String(id));
+        if (!n?.stale || !element) continue;
+        const from = box(element);
+        for (const field of ['prev', 'next']) {
+          const targetElement = elementFor(n.stale[field]);
+          if (!targetElement) continue;
+          const to = box(targetElement);
+          const dx = to.x - from.x, dy = to.y - from.y, len = Math.hypot(dx, dy) || 1;
+          const ux = dx / len, uy = dy / len;
+          const side = field === 'prev' ? -1 : 1;
+          // Leave the node slightly towards the field's side so prev and next never overlap.
+          const sx = from.x + side * from.hw * .45, sy = from.y - from.hw * .89;
+          const ex = to.x - ux * (reach(to, ux, uy) + 3), ey = to.y - uy * (reach(to, ux, uy) + 3);
+          path(`stale-${id}-${field}`, {d: `M ${f(sx)} ${f(sy)} L ${f(ex)} ${f(ey)}`, fill: 'none', stroke: '#777', 'stroke-width': 1.1, 'stroke-dasharray': '4 4', 'marker-end': 'url(#stale-arrow)'});
+          // Offset the field name away from its arrow, whether the arrow is shallow or steep.
+          const mx = (sx + ex) / 2 + side * (4 + 9 * Math.abs(uy)), my = (sy + ey) / 2 + 4 + 10 * Math.abs(ux);
+          text(`stale-label-${id}-${field}`, {x: f(mx), y: f(my), 'text-anchor': side < 0 ? 'end' : 'start', fill: '#777', 'font-size': small ? 10.5 : 11, 'font-family': 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'}, field);
+        }
+      }
+
+      // hashmap entry → node references (thin gray).
+      for (const [id, element] of keyElements) {
+        const target = element.dataset.target;
+        if (!target) continue;
+        const nodeElement = nodeElements.get(target);
+        if (!nodeElement) continue;
+        const from = box(element), to = box(nodeElement);
+        const isNew = element.classList.contains('is-new');
+        const d = element.dataset.parked
+          ? `M ${f(from.x + from.hw + 1)} ${f(from.y)} L ${f(to.x - to.hw - 3)} ${f(to.y)}`
+          : `M ${f(from.x)} ${f(from.y + from.hh + 1)} L ${f(to.x)} ${f(to.y - to.hw - 3)}`;
+        path(`map-${id}`, {d, fill: 'none', stroke: '#555', 'stroke-width': isNew ? 1.5 : 1.1, 'marker-end': 'url(#ref-arrow)'});
+      }
+
+      // Local variables → node (thin gray, from below).
+      for (const [name, element] of varElements) {
+        const nodeElement = nodeElements.get(element.dataset.target);
+        if (!nodeElement) continue;
+        const from = box(element), to = box(nodeElement);
+        path(`var-${name}`, {d: `M ${f(from.x)} ${f(from.y - from.hh - 1)} L ${f(to.x + (from.x - to.x) * .35)} ${f(to.y + to.hw + 3)}`, fill: 'none', stroke: '#555', 'stroke-width': element.classList.contains('is-emph') ? 1.6 : 1.1, 'marker-end': 'url(#ref-arrow)'});
+      }
+    });
   }
 
   function keepLinksWithMotion() {
     linkMotion.cancel();
     drawLinks();
     if (linkMotion.reduced) return;
-    linkMotion.tween({duration: 520, update: drawLinks});
+    linkMotion.tween({duration: 540, update: drawLinks});
   }
 
   function render() {
-    const all = frames(), frame = current(), state = frame.state;
+    const frame = current();
     modeLabel.textContent = mode === 'script' ? '示例演示' : '自由练习';
+    opName.textContent = frame.opIndex >= 0 ? `${frame.opTitle} · ` : '';
     code.textContent = frame.code;
     explanation.textContent = frame.explanation;
     result.replaceChildren();
@@ -748,13 +933,8 @@ class LRUCache:
       badge.textContent = `返回 ${frame.result}`;
       result.append(badge);
     }
-    inspectedId = null;
     mainLineStatus.textContent = ` 当前步骤：${frame.code}`;
-    inspection.textContent = '';
-    renderNodes(state, frame);
-    renderMap(state, frame);
-    const options = [...jump.options].map(option => Number(option.value));
-    jump.value = String(options.filter(index => index <= step).at(-1) ?? 0);
+    renderStage(frame);
     keepLinksWithMotion();
   }
 
@@ -766,7 +946,7 @@ class LRUCache:
     getCodeLines: () => mainCodeLines,
     getCodeScroll: () => mainCodeScroll,
     getFrameSourceKeys: frame => [sourceKeyBySource.get(frame.sourceId)].filter(Boolean),
-    formatStepOption: frame => frame.opTitle || frame.code,
+    formatStepOption: (frame, index) => `${index + 1}. ${frame.opIndex >= 0 ? `${frame.opTitle} · ` : ''}${frame.code}`,
     onBeforeStep: () => linkMotion.cancel(),
     onRender: context => { step = context.step; render(); }
   });
@@ -808,15 +988,19 @@ class LRUCache:
     const base = practiceFrames.at(-1).state;
     const newFrames = makeOperation(base, type, key, value, practiceOpCount++);
     const initialStep = practiceFrames.length;
-    practiceFrames.push(...newFrames);
+    practiceFrames = [...practiceFrames, ...newFrames];
     trace.setFrames(practiceFrames, {initialStep});
     practiceStatus.textContent = `已加入 ${type === 'get' ? `get(${key})` : `put(${key}, ${value})`}。`;
   }
   root.querySelector('[data-action="get"]').addEventListener('click', () => addPractice('get'));
   root.querySelector('[data-action="put"]').addEventListener('click', () => addPractice('put'));
+  let lastWidth = 0;
   new ResizeObserver(() => {
+    if (!current() || stage.clientWidth === lastWidth) return;
+    lastWidth = stage.clientWidth;
+    linkMotion.cancel();
     stage.classList.add('no-motion');
-    renderNodes(current().state, current());
+    renderStage(current());
     drawLinks();
     requestAnimationFrame(() => stage.classList.remove('no-motion'));
   }).observe(stage);
