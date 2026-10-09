@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="二叉树最大层宽：逐行执行 Python，观察树、变量与返回值。">
+<title>Widest Binary Tree Level · Algorithm Visuals</title>
+<link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
+</head><body>
+<main class="tree-guide tree-lesson" id="lesson">
+<nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+<h1>Widest Binary Tree Level · 二叉树最大层宽</h1>
+<p class="problem">Find the maximum span between the leftmost and rightmost real nodes of a level, including gaps.<span>宽度包括两端之间的空位。最深层有 4 个节点，但图片中的跨度是 7。</span></p>
+<div class="learning-layout" data-learning-layout>
+<section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
+<label class="settings">示例 <select data-case aria-label="最大层宽示例"><option value="original">原图：空位也占宽度</option><option value="empty">空树</option></select></label>
+<div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
+<p class="step-meta" data-phase></p>
+<div class="array-panel" data-arrays></div>
+<p class="diagram-caption" data-caption></p>
+<div class="diagram-workspace">
+<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-label="树节点与指针"></svg></div>
+<div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
+</div>
+<div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+<div class="state-grid"><div class="invariant"><strong>保持什么成立</strong><p data-invariant></p></div><div class="invariant"><strong>返回结果</strong><p class="result" data-result></p></div></div>
+</section>
+<aside class="code-panel" data-code-panel><h2>完整 Python 代码</h2><p class="code-status" data-code-status></p><pre data-code-scroll tabindex="0" aria-label="完整 Python 实现"><code><span class="code-line">from typing import List, Optional</span><span class="code-line"> </span><span class="code-line">class TreeNode:</span><span class="code-line">    def __init__(self, val=0, left=None, right=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.left = left</span><span class="code-line">        self.right = right</span><span class="code-line"> </span><span class="code-line">from collections import deque</span><span class="code-line"> </span><span class="code-line">def widest_binary_tree_level(root: Optional[TreeNode]) -&gt; int:</span><span class="code-line" data-source-key="check">    if not root:</span><span class="code-line" data-source-key="empty">        return 0</span><span class="code-line" data-source-key="max-init">    max_width = 0</span><span class="code-line" data-source-key="queue">    queue = deque([(root, 0)])</span><span class="code-line" data-source-key="while">    while queue:</span><span class="code-line" data-source-key="size">        level_size = len(queue)</span><span class="code-line" data-source-key="leftmost">        leftmost_index = queue[0][1]</span><span class="code-line" data-source-key="rightmost-init">        rightmost_index = leftmost_index</span><span class="code-line" data-source-key="for">        for _ in range(level_size):</span><span class="code-line" data-source-key="pop">            node, i = queue.popleft()</span><span class="code-line" data-source-key="left-check">            if node.left:</span><span class="code-line" data-source-key="left-push">                queue.append((node.left, 2 * i + 1))</span><span class="code-line" data-source-key="right-check">            if node.right:</span><span class="code-line" data-source-key="right-push">                queue.append((node.right, 2 * i + 2))</span><span class="code-line" data-source-key="rightmost">            rightmost_index = i</span><span class="code-line" data-source-key="max-update">        max_width = max(max_width, rightmost_index - leftmost_index + 1)</span><span class="code-line" data-source-key="return">    return max_width</span></code></pre></aside>
+</div>
+<section class="section"><h2>数节点会丢掉中间的空位</h2><p class="section-intro">最深层的值是 8、9、11、14，只有 4 个真实节点。但图片中的位置编号是 7、8、10、13，跨度为 13 − 7 + 1 = 7。空位保留在位置里，不需要真的创建或入队。</p><div class="card-grid"><article class="paper-card"><strong>编号是隐式的完整二叉树位置</strong><p>根是 0。编号 i 的两个孩子占 2*i+1 和 2*i+2。即使左孩子缺失，右孩子也不会挤到左侧，这正是空位仍被保留的原因。</p></article><article class="paper-card"><strong>为什么只需要两端</strong><p>BFS 保持从左到右的队列顺序。层开始时的 queue[0][1] 是左端；本层循环最后一次得到的 i 是右端。它们之间的所有位置都属于宽度。</p></article></div></section><section class="section"><h2>层边界与边缘情况</h2><p class="section-intro">每层先固定 level_size，再逐个出队、分配孩子编号。层结束后更新 max_width。值 val 与位置 i 无关；示例里的 14 恰好位于 i=13。</p><div class="card-grid"><article class="paper-card"><strong>空树与链</strong><p>空树宽度为 0。只有一条链时，无论编号多大，每层都只有同一个左右端，所以宽度为 1；两端之外的空位不计入。</p></article><article class="paper-card"><strong>时间与空间</strong><p>按通常整数运算计 O(n) 时间、O(w) 队列空间，最坏 O(n)。Python 的编号不会溢出，但很深的树会产生大整数；实际整数运算代价会随位数增长。</p></article></div></section>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../rightmost-nodes-of-a-binary-tree/">每层最右节点</a><a href="../binary-tree-columns/">二叉树垂序遍历</a><a href="../">目录</a></nav>
+</main>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script>
+<script>
+(() => {
+'use strict';
+const root=document.querySelector('#lesson');
+const {clone,valueOf,recorder,mount}=window.TreeLesson;
+const selector=root.querySelector('[data-case]');
+if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
+
+function makeFrames(){
+ const empty=selector.value==='empty';
+ const nodes={a:{val:1,left:'b',right:'c'},b:{val:2,left:'d',right:'e'},c:{val:3,left:null,right:'f'},d:{val:4,left:'g',right:'h'},e:{val:5,left:null,right:'i'},f:{val:7,left:'j',right:null},g:{val:8,left:null,right:null},h:{val:9,left:null,right:null},i:{val:11,left:null,right:null},j:{val:14,left:null,right:null}};
+ const indexes={a:0,b:1,c:2,d:3,e:4,f:6,g:7,h:8,i:10,j:13};
+ const state={nodes,indexes,root:empty?null:'a',focus:empty?null:'a',reference:'root',memory:[],memoryType:'queue',memoryTitle:'queue · (节点值, 位置 i)',ghosts:empty?[]:[{depth:2,index:2,heapIndex:5},...[2,4,5].map(index=>({depth:3,index,heapIndex:index+7}))],caption:'圆圈是 val，下方 i 是位置编号；虚线圆圈是跨度内的空位，不入队。',phase:'BFS · 编号保留空位',invariant:'根编号 0；左右孩子分别是 2*i+1、2*i+2。每层宽度用最后编号减最先编号再加 1。'};
+ const {frames,emit}=recorder(state),queue=[];let maxWidth=0,remaining=0,size=0,level=0,leftmost=0,rightmost=0;
+ function sync(){state.memory=queue.map(([id,i],index)=>({label:`(${valueOf(nodes,id)}, ${i})`,next:index>=remaining,detail:index>=remaining?'下一层':'本层'}));state.memoryNote=`level_size=${size}；leftmost_index=${leftmost}；rightmost_index=${rightmost}。虚线框是下一层。`;state.result=`max_width = ${maxWidth}`;}
+ emit('check','if not root',empty?'空树没有层宽。':'编号衡量位置，不能用节点数量代替宽度。');if(empty){emit('empty','return 0','空树最大宽度为 0。',{result:'0'});return frames;}
+ sync();emit('max-init','max_width = 0','保存目前见过的最大跨度。');queue.push(['a',0]);remaining=1;sync();emit('queue','queue = deque([(root, 0)])','只把真实节点及其位置编号入队。');
+ while(queue.length){emit('while','while queue','进入下一层。',{widthLevel:null});size=queue.length;remaining=size;level++;sync();emit('size',`level_size = ${size}`,`第 ${level} 层只有 ${size} 个真实节点，跨度可能更大。`,{phase:`第 ${level} 层 · ${size} 个真实节点`});
+  leftmost=queue[0][1];sync();emit('leftmost',`leftmost_index = ${leftmost}`,'当前队首的编号就是本层最左真实位置。');rightmost=leftmost;sync();emit('rightmost-init','rightmost_index = leftmost_index','先把右端设为左端；单节点层的宽度是 1。');
+  for(let k=0;k<size;k++){emit('for',`for _ in range(${size}) · ${k+1}/${size}`,'冻结本层的处理次数，不处理刚入队的孩子。');const [id,i]=queue.shift();remaining--;sync();emit('pop',`node, i = (${valueOf(nodes,id)}, ${i})`,'节点值和位置编号是两个不同的量。',{focus:id,reference:'node'});
+   emit('left-check','if node.left',`左孩子是 ${valueOf(nodes,nodes[id].left)}。`);if(nodes[id].left){queue.push([nodes[id].left,2*i+1]);sync();emit('left-push',`queue.append((node.left, ${2*i+1}))`,`左孩子的位置是 2*${i}+1，即使前面的空位没入队也不会压缩位置。`);}
+   emit('right-check','if node.right',`右孩子是 ${valueOf(nodes,nodes[id].right)}。`);if(nodes[id].right){queue.push([nodes[id].right,2*i+2]);sync();emit('right-push',`queue.append((node.right, ${2*i+2}))`,`右孩子的位置是 2*${i}+2。`);}
+   rightmost=i;sync();emit('rightmost',`rightmost_index = ${i}`,'左右顺序保证最后出队的编号就是本层右端。');
+  }
+  const width=rightmost-leftmost+1;maxWidth=Math.max(maxWidth,width);sync();const offset=2**(level-1)-1;
+  emit('max-update',`max_width = max(max_width, ${rightmost} - ${leftmost} + 1)`,`这一层宽度为 ${width}。${level===4?'7 到 13 包含三个空位，4 个真实节点的宽度仍为 7。':'两端外面的空位不计入跨度。'}`,{widthLevel:{depth:level-1,left:leftmost-offset,right:rightmost-offset},focus:undefined});
+ }
+ emit('while','while queue','所有层已处理，队列为空。',{focus:undefined});emit('return','return max_width','各层宽度依次为 1、2、4、7，最大值是 7。',{result:'7',memory:[]});return frames;
+}
+mount(root,makeFrames);
+})();
+</script></body></html>

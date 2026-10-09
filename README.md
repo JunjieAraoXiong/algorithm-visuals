@@ -101,6 +101,7 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [Invert Binary Tree / 翻转二叉树](https://junjiearaoxiong.github.io/algorithm-visuals/invert-binary-tree/)
 - [Balanced Binary Tree Validation / 平衡二叉树验证](https://junjiearaoxiong.github.io/algorithm-visuals/balanced-binary-tree-validation/)
 - [Rightmost Nodes of a Binary Tree / 二叉树每层最右节点](https://junjiearaoxiong.github.io/algorithm-visuals/rightmost-nodes-of-a-binary-tree/)
+- [Widest Binary Tree Level / 二叉树最大层宽](https://junjiearaoxiong.github.io/algorithm-visuals/widest-binary-tree-level/)
 
 ### 12 · Graphs / 图
 
