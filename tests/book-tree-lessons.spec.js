@@ -41,3 +41,17 @@ test('balance validation propagates internal imbalance instead of accepting equa
   await finish(page);
   await expect(page.locator('[data-result]')).toContainText('True');
 });
+
+test('right view includes a deeper node from the left subtree and freezes each BFS level', async ({page}) => {
+  await page.goto('/rightmost-nodes-of-a-binary-tree/#step=0');
+  const options=page.locator('[data-step-select] option');
+  const index=await options.evaluateAll(items=>items.findIndex(o=>o.textContent.includes('queue.append(node.left)')));
+  await page.locator('[data-step-select]').selectOption(String(index));
+  await expect(page.locator('[data-memory-items]')).toContainText('下一层');
+  await expect(page.locator('[data-memory-note]')).toContainText('level_size=1');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toHaveText('[1, 3, 6, 11]');
+  await page.locator('[data-case]').selectOption('empty');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toHaveText('[]');
+});

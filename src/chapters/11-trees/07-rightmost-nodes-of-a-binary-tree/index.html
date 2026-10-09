@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="二叉树每层最右节点：逐行执行 Python，观察树、变量与返回值。">
+<title>Rightmost Nodes of a Binary Tree · Algorithm Visuals</title>
+<link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
+</head><body>
+<main class="tree-guide tree-lesson" id="lesson">
+<nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+<h1>Rightmost Nodes of a Binary Tree · 二叉树每层最右节点</h1>
+<p class="problem">Return the rightmost node value at every depth, viewed from the right side.<span>取每一层最右的节点。图片里的 11 比右侧分支更深，所以仍然可见。</span></p>
+<div class="learning-layout" data-learning-layout>
+<section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
+<label class="settings">示例 <select data-case aria-label="右视图示例"><option value="original">原图：最深层的 11 来自左子树</option><option value="empty">空树</option></select></label>
+<div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
+<p class="step-meta" data-phase></p>
+<div class="array-panel" data-arrays></div>
+<p class="diagram-caption" data-caption></p>
+<div class="diagram-workspace">
+<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-label="树节点与指针"></svg></div>
+<div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
+</div>
+<div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+<div class="state-grid"><div class="invariant"><strong>保持什么成立</strong><p data-invariant></p></div><div class="invariant"><strong>返回结果</strong><p class="result" data-result></p></div></div>
+</section>
+<aside class="code-panel" data-code-panel><h2>完整 Python 代码</h2><p class="code-status" data-code-status></p><pre data-code-scroll tabindex="0" aria-label="完整 Python 实现"><code><span class="code-line">from typing import List, Optional</span><span class="code-line"> </span><span class="code-line">class TreeNode:</span><span class="code-line">    def __init__(self, val=0, left=None, right=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.left = left</span><span class="code-line">        self.right = right</span><span class="code-line"> </span><span class="code-line">from collections import deque</span><span class="code-line"> </span><span class="code-line">def rightmost_nodes_of_a_binary_tree(root: Optional[TreeNode]) -&gt; List[int]:</span><span class="code-line" data-source-key="check">    if not root:</span><span class="code-line" data-source-key="empty">        return []</span><span class="code-line" data-source-key="res">    res = []</span><span class="code-line" data-source-key="queue">    queue = deque([root])</span><span class="code-line" data-source-key="while">    while queue:</span><span class="code-line" data-source-key="size">        level_size = len(queue)</span><span class="code-line" data-source-key="for">        for i in range(level_size):</span><span class="code-line" data-source-key="pop">            node = queue.popleft()</span><span class="code-line" data-source-key="left-check">            if node.left:</span><span class="code-line" data-source-key="left-push">                queue.append(node.left)</span><span class="code-line" data-source-key="right-check">            if node.right:</span><span class="code-line" data-source-key="right-push">                queue.append(node.right)</span><span class="code-line" data-source-key="last">            if i == level_size - 1:</span><span class="code-line" data-source-key="append">                res.append(node.val)</span><span class="code-line" data-source-key="return">    return res</span></code></pre></aside>
+</div>
+<section class="section"><h2>最右分支会在 6 提前结束</h2><p class="section-intro">图片中根的右侧分支是 1 → 3 → 6，但左子树还有更深的 11。右视图要求「每个深度的最右节点」，因此答案是 [1, 3, 6, 11]。</p><div class="card-grid"><article class="paper-card"><strong>队列为什么能找到最右节点</strong><p>先加入左孩子，再加入右孩子。若本层从左到右出队，孩子也会从左到右排进下一层；这个顺序从只有根的一层开始一直成立。</p></article><article class="paper-card"><strong>level_size 是本层的边界</strong><p>本层循环只执行开始时的 len(queue) 次。弹出 2 后把 4、5 入队，它们也不能在当前层被处理。i == level_size - 1 才是本层的最后一个。</p></article></div></section><section class="section"><h2>完整过程与边界</h2><p class="section-intro">入队根；冻结一层的大小；依次出队并入队孩子；最后一个值写入 res；队列非空时重复。节点只读，树中的 left、right 没有改变。</p><div class="card-grid"><article class="paper-card"><strong>空树与单侧树</strong><p>空树返回 []。单侧树的每层只有一个节点，因此所有节点都会被记录；不需要特殊遍历分支。</p></article><article class="paper-card"><strong>时间与空间</strong><p>O(n) 时间，每个节点各入队、出队一次。辅助队列 O(w)，w 是最大实际层节点数，最坏 O(n)。输出另占 O(h)，h 是层数。</p></article></div></section>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../binary-tree-columns/">二叉树垂序遍历</a><a href="../invert-binary-tree/">翻转二叉树</a><a href="../">目录</a></nav>
+</main>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script>
+<script>
+(() => {
+'use strict';
+const root=document.querySelector('#lesson');
+const {clone,valueOf,recorder,mount}=window.TreeLesson;
+const selector=root.querySelector('[data-case]');
+if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
+
+function makeFrames(){
+ const empty=selector.value==='empty';
+ const nodes={a:{val:1,left:'b',right:'c'},b:{val:2,left:'d',right:'e'},c:{val:3,left:'f',right:null},d:{val:4,left:'g',right:'h'},e:{val:5,left:null,right:'i'},f:{val:6,left:null,right:null},g:{val:8,left:null,right:null},h:{val:9,left:null,right:null},i:{val:11,left:null,right:null}};
+ const state={nodes,root:empty?null:'a',focus:empty?null:'a',reference:'root',memory:[],memoryType:'queue',memoryTitle:'queue · 左端出队 → 右端入队',labels:{},marked:[],phase:'BFS · 按层冻结边界',caption:'每层按左到右出队；虚线节点已记入 res，虚线队列格属于下一层。',invariant:'一层开始时固定 level_size；随后加入的孩子属于下一层，不延长本层循环。'};
+ const {frames,emit}=recorder(state),queue=[],res=[];let remaining=0,level=0,size=0,i=0;
+ const val=id=>valueOf(nodes,id);
+ function sync(){state.memory=queue.map((id,index)=>({label:val(id),next:index>=remaining,detail:index>=remaining?'下一层':'本层'}));state.memoryNote=`level_size=${size}；i=${i}；本层剩余 ${remaining} 个。虚线框已入队，下一轮才处理。`;state.result=`res = [${res.join(', ')}]`;}
+ emit('check','if not root',empty?'空树没有任何层。':'从根开始逐层看右侧可见节点。');if(empty){emit('empty','return []','没有右侧可见节点。',{result:'[]'});return frames;}
+ sync();emit('res','res = []','先准备输出数组。');queue.push('a');remaining=1;sync();emit('queue','queue = deque([root])','根引用从左端开始排队。');
+ while(queue.length){emit('while','while queue','队列非空，开始新的一层。');size=queue.length;remaining=size;level++;i=0;sync();emit('size',`level_size = ${size}`,`第 ${level} 层固定处理 ${size} 个节点；孩子入队后不会改变这个数。`,{phase:`第 ${level} 层 · level_size = ${size}`});
+  for(i=0;i<size;i++){sync();emit('for',`for i in range(${size}) · i=${i}`,`本层的第 ${i+1} 个位置。`);const id=queue.shift();remaining--;sync();emit('pop','node = queue.popleft()',`从左端取出 ${val(id)}，只移动 node 引用。`,{focus:id,reference:'node'});
+   emit('left-check','if node.left',`左孩子为 ${val(nodes[id].left)}。`);if(nodes[id].left){queue.push(nodes[id].left);sync();emit('left-push','queue.append(node.left)',`${val(nodes[id].left)} 加到右端，属于下一层。`);}
+   emit('right-check','if node.right',`右孩子为 ${val(nodes[id].right)}。`);if(nodes[id].right){queue.push(nodes[id].right);sync();emit('right-push','queue.append(node.right)',`再加入 ${val(nodes[id].right)}，保持下一层的左右顺序。`);}
+   emit('last',`${i} == ${size} - 1`,i===size-1?`${val(id)} 是本层最后出队的节点。`:'后面还有本层节点，这个节点不会写入 res。');
+   if(i===size-1){res.push(nodes[id].val);state.marked.push(id);sync();emit('append','res.append(node.val)',`记录 ${val(id)}。${id==='i'?'更深的 11 来自根的左子树；沿最右分支会漏掉它。':''}`);}
+  }
+ }
+ emit('while','while queue','队列为空，每层都已处理。',{focus:undefined});emit('return','return res','返回每层最右的值，不是沿 right 指针得到的路径。',{result:`[${res.join(', ')}]`,memory:[]});return frames;
+}
+mount(root,makeFrames);
+})();
+</script></body></html>
