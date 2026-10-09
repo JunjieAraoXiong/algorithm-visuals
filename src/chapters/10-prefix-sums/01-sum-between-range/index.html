@@ -12,15 +12,15 @@
       .problem span { display: block; margin-top: 3px; color: var(--quiet); }
       .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
       .step-picker { margin-left: auto; }
-      .stage { height: 252px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .stage { height: 256px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
       .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 10px; margin: 12px 3px; }
       .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
       .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
       .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
-      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 12px/1.45 monospace; }
       .metrics div { display: flex; justify-content: space-between; gap: 10px; }
-      .metrics dt { color: var(--quiet); }
-      .metrics dd { margin: 0; text-align: right; }
+      .metrics dt { color: var(--quiet); white-space: nowrap; }
+      .metrics dd { margin: 0; text-align: right; white-space: nowrap; }
       .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
       .section h2 { margin: 0 0 8px; font-size: 20px; }
       .section-intro { max-width: 900px; color: var(--quiet); }
@@ -67,9 +67,10 @@
           <div class="state-grid">
             <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
             <dl class="metrics">
-              <div><dt><code>i</code></dt><dd data-m-i></dd></div>
-              <div><dt><code>j</code></dt><dd data-m-j></dd></div>
-              <div><dt><code>result</code></dt><dd data-m-result></dd></div>
+              <div><dt><code data-m-k0></code></dt><dd data-m-v0></dd></div>
+              <div><dt><code data-m-k1></code></dt><dd data-m-v1></dd></div>
+              <div><dt><code data-m-k2></code></dt><dd data-m-v2></dd></div>
+              <div><dt><code data-m-k3></code></dt><dd data-m-v3></dd></div>
               <div><dt><code>output</code></dt><dd data-m-output></dd></div>
             </dl>
           </div>
@@ -152,7 +153,7 @@ prefix_sum = [ 3  -4  2  2   0  5 ]</pre>
         <p class="section-intro">前缀和数组里的每一项都是「从 0 开始」的区间和，而查询区间 [i, j] 一般不从 0 开始：把它向前补到 0，再减去多算的那一段即可。<span lang="zh-CN">Every prefix entry sums a range that starts at 0. Stretch the query range back to 0, then subtract the extra part.</span></p>
         <pre class="formula">sum_range(0, j) = prefix_sum[j]                          # i == 0，直接读取</pre>
         <pre class="formula">sum_range(i, j) = prefix_sum[j] - prefix_sum[i - 1]      # i &gt; 0，减去补上的前缀</pre>
-        <p class="small">减去的部分 sum[0 : i-1] 就是 prefix_sum[i-1]（斜线区域），剩下的灰色部分正好是 nums[i..j]。The hatched part sum[0 : i-1] is prefix_sum[i-1]; what remains is exactly nums[i..j].</p>
+        <p class="small">减去的部分 nums[0..i-1] 就是 prefix_sum[i-1]（斜线区域），剩下的灰色部分正好是 nums[i..j]。The hatched part nums[0..i-1] is prefix_sum[i-1]; what remains is exactly nums[i..j].</p>
       </section>
 
       <section class="section" aria-labelledby="sum-edge">
@@ -185,9 +186,8 @@ prefix_sum = [ 3  -4  2  2   0  5 ]</pre>
         const svg = root.querySelector('[data-lines]');
         const phaseEl = root.querySelector('[data-phase]');
         const invariantEl = root.querySelector('[data-invariant]');
-        const mI = root.querySelector('[data-m-i]');
-        const mJ = root.querySelector('[data-m-j]');
-        const mResult = root.querySelector('[data-m-result]');
+        const metricKeys = [0, 1, 2, 3].map(k => root.querySelector(`[data-m-k${k}]`));
+        const metricVals = [0, 1, 2, 3].map(k => root.querySelector(`[data-m-v${k}]`));
         const mOutput = root.querySelector('[data-m-output]');
         const expressionEl = root.querySelector('[data-expression]');
         const explanationEl = root.querySelector('[data-explanation]');
@@ -205,146 +205,169 @@ prefix_sum = [ 3  -4  2  2   0  5 ]</pre>
           buildSteps.push({ i, prev, add: NUMS[i], value: prev + NUMS[i] });
           prefixSum.push(prev + NUMS[i]);
         }
-        function sumRange(i, j) {
-          if (i === 0) return { branch: 'first', value: prefixSum[j] };
-          return { branch: 'sub', value: prefixSum[j] - prefixSum[i - 1] };
-        }
-        const answers = QUERIES.map(([i, j]) => sumRange(i, j));
-
+        const answers = QUERIES.map(([i, j]) => (i === 0 ? prefixSum[j] : prefixSum[j] - prefixSum[i - 1]));
+        const P = prefixSum;
         const paren = v => (v < 0 ? `(${v})` : `${v}`);
-        const prefixPartial = k => [
-          ...prefixSum.slice(0, k + 1),
-          ...Array.from({ length: N - k - 1 }, () => null)
-        ];
+        const prefixPartial = k => [...P.slice(0, k + 1), ...Array.from({ length: N - k - 1 }, () => null)];
+
+        // Metric rows change meaning with the scope: the loop counter i of __init__
+        // and the parameter i of sum_range are different variables.
+        const BUILD_KEYS = ['i (for)', '读 prefix_sum[-1]', 'nums[i]', '新写入的值'];
+        const QUERY_KEYS = ['sum_range(i, j)', 'prefix_sum[j]', 'prefix_sum[i-1]', 'result'];
+
         const base = () => ({
+          phase: 'build',
           prefix: prefixPartial(0),
-          mi: null,
-          mj: null,
+          scope: null,         // caption override; '' hides it
+          labels: [],          // [{ name, at, emph }]
+          runNums: null,       // [0, i-1]: already inside the running total
+          rangeNums: null,     // [i, j]: the queried range
+          hatchNums: null,     // [0, i-1]: the part subtracted
           focusNums: null,
           readPrefix: null,
-          focusPrefix: null,
-          shade: null,
-          hatchNums: null,
-          bracket: null,
-          subBrackets: [],
-          circlePrefix: null,
           hatchPrefix: null,
-          downArrow: null,
-          queryNum: 0,
-          output: [],
-          result: null,
-          done: false
+          strongPrefix: null,
+          seed: false,         // prefix_sum = [nums[0]]
+          add: null,           // build: index i of prefix_sum[i-1] + nums[i]
+          sub: null,           // query: { j, k, value } of prefix_sum[j] - prefix_sum[k]
+          brackets: [],        // [{ b, level, leader }] — every bracket starts at 0
+          result: '',
+          metrics: ['—', '—', '—', '—'],
+          output: []
         });
-        const INV_BUILD = '构造中：prefix_sum[k] = nums[0] + … + nums[k]，逐项累加。';
-        const INV_SUB = 'sum_range(i, j) = prefix_sum[j] - prefix_sum[i - 1]（i > 0）。';
+        const INV_BUILD = 'prefix_sum[k] = nums[0] + … + nums[k]：每一项都是从下标 0 开始的累加和。';
+        const INV_SUB = 'sum_range(i, j) = prefix_sum[j] - prefix_sum[i - 1]：长前缀减去多出的短前缀。';
+        const INV_FIRST = '区间从 0 开始时，它本身就是一个前缀：答案就是 prefix_sum[j]。';
+        const q = (n, text) => `查询 ${n}/${QUERIES.length} · ${text}`;
+        const all = () => [...P];
 
         const FRAMES = [
           {
-            stepLabel: '初始化 · prefix_sum = [3]',
+            stepLabel: `初始化 · prefix_sum = [${NUMS[0]}]`,
             sourceKeys: ['class', 'init-def', 'init-first'],
-            line: `self.prefix_sum = [nums[0]]  # prefix_sum = [${NUMS[0]}]`,
-            en: 'The constructor seeds prefix_sum with nums[0] = 3; every later entry extends this running total by one more element.',
-            zh: '构造函数先把 prefix_sum 初始化为 [3]，也就是 nums[0]；后面的每一项都在这个累加和上再多加一格。',
+            line: `self.prefix_sum = [nums[0]]  # [${NUMS[0]}]`,
+            en: `The constructor seeds prefix_sum with nums[0] = ${NUMS[0]}. No loop variable exists yet; prefix_sum[0] covers just nums[0].`,
+            zh: `构造函数先把 nums[0] = ${NUMS[0]} 复制下来作为 prefix_sum[0]。此时循环还没开始，没有 i；prefix_sum[0] 只覆盖 nums[0]。`,
             invariant: INV_BUILD,
-            state: { ...base(), mi: 0, focusNums: 0, focusPrefix: 0 }
+            state: { ...base(), focusNums: 0, strongPrefix: 0, seed: true, result: `prefix_sum = [nums[0]] = [${NUMS[0]}]`, metrics: ['—', '—', '—', String(NUMS[0])] }
           },
-          ...buildSteps.map((s, k) => ({
-            stepLabel: `i = ${s.i} · prefix_sum[${s.i}] = ${s.value}`,
+          ...buildSteps.map(s => ({
+            stepLabel: `i = ${s.i} · prefix_sum[${s.i}] = ${s.prev} + ${paren(s.add)} = ${s.value}`,
             sourceKeys: ['init-loop', 'init-append'],
-            line: `self.prefix_sum.append(self.prefix_sum[-1] + nums[i])  # prefix_sum[${s.i - 1}] + nums[${s.i}] = ${s.prev} + ${paren(s.add)} = ${s.value}`,
-            en: `i = ${s.i}: append prefix_sum[-1] + nums[${s.i}] = ${s.prev} + ${paren(s.add)} = ${s.value}, extending the running total by one cell.${s.add < 0 ? ' Negative values are allowed, so the total may shrink.' : ''}`,
-            zh: `i = ${s.i}：追加 prefix_sum[-1] + nums[${s.i}] = ${s.prev} + ${paren(s.add)} = ${s.value}。${s.add < 0 ? '数组里有负数，累加和可能变小。' : ''}`,
+            line: `self.prefix_sum.append(self.prefix_sum[-1] + nums[i])  # ${s.prev} + ${paren(s.add)} = ${s.value}`,
+            en: `i = ${s.i}: prefix_sum[-1] is the last entry so far, prefix_sum[${s.i - 1}] = ${s.prev}, the total of the shaded nums[0..${s.i - 1}]. Adding nums[${s.i}] = ${s.add} appends prefix_sum[${s.i}] = ${s.value}, which now covers nums[0..${s.i}].${s.add < 0 ? ' nums[i] is negative, so the running total gets smaller.' : ''}`,
+            zh: `i = ${s.i}：prefix_sum[-1] 是目前最后一项 prefix_sum[${s.i - 1}] = ${s.prev}，即灰色的 nums[0..${s.i - 1}] 之和；再加上 nums[${s.i}] = ${s.add}，追加 prefix_sum[${s.i}] = ${s.value}，它覆盖 nums[0..${s.i}]。${s.add < 0 ? 'nums[i] 是负数，累加和变小。' : ''}`,
             invariant: INV_BUILD,
-            state: { ...base(), mi: s.i, prefix: prefixPartial(s.i), focusNums: s.i, readPrefix: s.i - 1, focusPrefix: s.i }
+            state: {
+              ...base(),
+              prefix: prefixPartial(s.i),
+              labels: [{ name: 'i', at: s.i }],
+              runNums: [0, s.i - 1],
+              focusNums: s.i,
+              readPrefix: s.i - 1,
+              strongPrefix: s.i,
+              add: s.i,
+              result: `prefix_sum[${s.i - 1}] + nums[${s.i}] = ${s.prev} + ${paren(s.add)} = ${s.value}`,
+              metrics: [String(s.i), String(s.prev), String(s.add), String(s.value)]
+            }
           })),
           {
-            stepLabel: '构造完成 · 预处理 O(n)',
+            stepLabel: `range(1, ${N}) 已取完 (1..${N - 1}) · 循环结束`,
             sourceKeys: ['init-loop'],
-            line: `for i in range(1, len(nums)):  # i = ${N}，循环结束`,
-            en: `i = ${N} reaches len(nums), the loop ends. The prefix row [${prefixSum.join(', ')}] is built once and never changes afterwards.`,
-            zh: `i = ${N} 等于 len(nums)，循环结束。前缀和数组 [${prefixSum.join(', ')}] 一次建好，之后不再修改。`,
-            invariant: 'prefix_sum 已就绪，sum_range 只读取它，不再修改。',
-            state: { ...base(), mi: N, prefix: [...prefixSum] }
+            line: `for i in range(1, len(nums)):  # range 耗尽，i 停在 ${N - 1}`,
+            en: `range(1, ${N}) has produced 1..${N - 1} and is exhausted, so the loop ends; i keeps its last value ${N - 1}. The last entry prefix_sum[${N - 1}] = ${P[N - 1]} covers all of nums[0..${N - 1}]; the table is built once in O(n) and never changes.`,
+            zh: `range(1, ${N}) 已经给出 1..${N - 1}，取完了，循环结束；i 停在最后一个值 ${N - 1}。最后一项 prefix_sum[${N - 1}] = ${P[N - 1]} 覆盖了整个 nums[0..${N - 1}]；整张表 O(n) 建好，之后只读不改。`,
+            invariant: 'prefix_sum 已就绪：prefix_sum[k] 覆盖 nums[0..k]，查询只读取它。',
+            state: {
+              ...base(),
+              prefix: all(),
+              labels: [{ name: 'i', at: N - 1 }],
+              runNums: [0, N - 1],
+              strongPrefix: N - 1,
+              brackets: [{ b: N - 1, level: 1, leader: true }],
+              result: `prefix_sum[${N - 1}] = ${P[N - 1]} = nums[0] + … + nums[${N - 1}]`,
+              metrics: [`${N - 1} (range 已耗尽)`, '—', '—', '—']
+            }
           },
           {
-            stepLabel: '查询 1 · sum_range(0, 3)',
+            stepLabel: '查询 1 · sum_range(0, 3) · i == 0 → True',
             sourceKeys: ['range-def', 'cond'],
             line: 'if i == 0:  # i = 0 → True',
-            en: 'First query sum_range(0, 3): the range starts at index 0, so its sum is exactly one entry of the prefix row.',
-            zh: '第一次查询 sum_range(0, 3)：区间从下标 0 开始，它的和恰好就是前缀和数组中的一项。',
-            invariant: '区间从 0 开始时，答案就是前缀和本身。',
-            state: { ...base(), mi: 0, mj: 3, prefix: [...prefixSum], shade: [0, 3], bracket: { a: 0, b: 3, label: 'sum_range(0, 3)' }, queryNum: 1 }
+            en: 'First query sum_range(0, 3). Here i is the left bound of the query, not the loop counter. i == 0, so the shaded range already starts at index 0.',
+            zh: '第一次查询 sum_range(0, 3)。这里的 i 是查询的左端点，不是构造时的循环变量。i == 0：灰色区间本身就从下标 0 开始。',
+            invariant: INV_FIRST,
+            state: { ...base(), phase: 'query', prefix: all(), labels: [{ name: 'i', at: 0, emph: true }, { name: 'j', at: 3 }], rangeNums: [0, 3], result: q(1, 'sum_range(0, 3) · i == 0 → True'), metrics: ['(0, 3)', '—', '—', '—'] }
           },
           {
-            stepLabel: `返回 prefix_sum[3] = ${answers[0].value}`,
+            stepLabel: `查询 1 · 返回 prefix_sum[3] = ${answers[0]}`,
             sourceKeys: ['return-first'],
-            line: `return self.prefix_sum[j]  # prefix_sum[3] = ${answers[0].value}`,
-            en: 'sum_range(0, j) = prefix_sum[j]: read index j = 3 of the prefix row — the circled value — and return it.',
-            zh: 'sum_range(0, j) = prefix_sum[j]：直接读前缀和第 j = 3 项（圈出的值）并返回。',
-            invariant: '区间从 0 开始时，答案就是前缀和本身。',
-            state: { ...base(), mi: 0, mj: 3, prefix: [...prefixSum], shade: [0, 3], bracket: { a: 0, b: 3, label: `sum = ${answers[0].value}` }, downArrow: 3, circlePrefix: 3, queryNum: 1, output: [answers[0].value], result: answers[0].value }
+            line: `return self.prefix_sum[j]  # prefix_sum[3] = ${answers[0]}`,
+            en: `prefix_sum[3] covers nums[0..3] — exactly the shaded range — so one read answers the query: return ${answers[0]}.`,
+            zh: `prefix_sum[3] 覆盖 nums[0..3]，正好就是灰色区间，读一个格子就得到答案：返回 ${answers[0]}。`,
+            invariant: INV_FIRST,
+            state: { ...base(), phase: 'query', prefix: all(), labels: [{ name: 'i', at: 0 }, { name: 'j', at: 3 }], rangeNums: [0, 3], brackets: [{ b: 3, level: 1, leader: true }], strongPrefix: 3, result: q(1, `return prefix_sum[3] = ${answers[0]}`), metrics: ['(0, 3)', String(P[3]), '不读 (i==0)', String(answers[0])], output: [answers[0]] }
           },
           {
-            stepLabel: '查询 2 · sum_range(2, 4)',
+            stepLabel: '查询 2 · sum_range(2, 4) · i == 0 → False',
             sourceKeys: ['range-def', 'cond'],
             line: 'if i == 0:  # i = 2 → False',
-            en: 'Second query sum_range(2, 4): i = 2 ≠ 0, so no single prefix entry equals the sum of this range.',
-            zh: '第二次查询 sum_range(2, 4)：i = 2 ≠ 0，前缀和数组里没有任何一项直接等于这段区间的和。',
+            en: 'Second query sum_range(2, 4): i = 2 ≠ 0. Every prefix entry starts at index 0, so no single cell equals the shaded range.',
+            zh: '第二次查询 sum_range(2, 4)：i = 2 ≠ 0。每个前缀和都从下标 0 开始，没有哪一格恰好等于灰色区间。',
             invariant: INV_SUB,
-            state: { ...base(), mi: 2, mj: 4, prefix: [...prefixSum], shade: [2, 4], bracket: { a: 2, b: 4, label: 'sum_range(2, 4)' }, queryNum: 2 }
+            state: { ...base(), phase: 'query', prefix: all(), labels: [{ name: 'i', at: 2, emph: true }, { name: 'j', at: 4 }], rangeNums: [2, 4], result: q(2, 'sum_range(2, 4) · i == 0 → False'), metrics: ['(2, 4)', '—', '—', '—'], output: [answers[0]] }
           },
           {
-            stepLabel: '减去前缀 · prefix_sum[4] - prefix_sum[1]',
+            stepLabel: '查询 2 · prefix_sum[j] - prefix_sum[i-1]',
             sourceKeys: ['return-sub'],
             line: 'return self.prefix_sum[j] - self.prefix_sum[i - 1]  # prefix_sum[4] - prefix_sum[1]',
-            en: 'Stretch the range back to index 0: the whole bracket is sum[0 : 4] = prefix_sum[4]; the hatched part sum[0 : 1] = prefix_sum[1] must be subtracted, leaving the shaded sum[2 : 4].',
-            zh: '把区间向前补到 0：整个括号是 sum[0 : 4] = prefix_sum[4]；斜线部分 sum[0 : 1] = prefix_sum[1] 是要减去的部分，剩下的灰色区域 sum[2 : 4] 就是答案。',
+            en: 'Stretch the range back to 0: prefix_sum[4] covers nums[0..4] (long bracket). The hatched nums[0..1] is extra, and that is exactly prefix_sum[1] (short bracket). Long minus short leaves the shaded nums[2..4].',
+            zh: '把区间向前补到 0：prefix_sum[4] 覆盖 nums[0..4]（长括号）。斜线部分 nums[0..1] 是多算的，它正好是 prefix_sum[1]（短括号）。长前缀减短前缀，剩下灰色的 nums[2..4]。',
             invariant: INV_SUB,
-            state: { ...base(), mi: 2, mj: 4, prefix: [...prefixSum], hatchNums: [0, 1], shade: [2, 4], bracket: { a: 0, b: 4, label: 'sum[0 : 4]' }, subBrackets: [{ a: 0, b: 1, label: 'sum[0 : 1]' }, { a: 2, b: 4, label: 'sum[2 : 4]' }], hatchPrefix: 1, circlePrefix: 4, queryNum: 2 }
+            state: { ...base(), phase: 'query', prefix: all(), labels: [{ name: 'i', at: 2 }, { name: 'j', at: 4 }], rangeNums: [2, 4], hatchNums: [0, 1], brackets: [{ b: 4, level: 1, leader: true }, { b: 1, level: 2, leader: true }], strongPrefix: 4, hatchPrefix: 1, result: q(2, 'prefix_sum[4] - prefix_sum[1]'), metrics: ['(2, 4)', String(P[4]), String(P[1]), '—'], output: [answers[0]] }
           },
           {
-            stepLabel: `${prefixSum[4]} - (${prefixSum[1]}) = ${answers[1].value}`,
+            stepLabel: `查询 2 · prefix_sum[4] - prefix_sum[1] = ${answers[1]}`,
             sourceKeys: ['return-sub'],
-            line: `return self.prefix_sum[j] - self.prefix_sum[i - 1]  # = ${prefixSum[4]} - (${prefixSum[1]}) = ${answers[1].value}`,
-            en: `Both operands are ready-made prefix entries: ${prefixSum[4]} - (${prefixSum[1]}) = ${answers[1].value}. Return ${answers[1].value}; the output so far is [2, 4].`,
-            zh: `两个操作数都是现成的前缀和：${prefixSum[4]} - (${prefixSum[1]}) = ${answers[1].value}，返回 ${answers[1].value}；目前输出为 [2, 4]。`,
+            line: `return self.prefix_sum[j] - self.prefix_sum[i - 1]  # ${P[4]} - ${paren(P[1])} = ${answers[1]}`,
+            en: `Two reads and one subtraction: ${P[4]} - ${paren(P[1])} = ${answers[1]}, which equals 6 + 0 + (-2). Return ${answers[1]}.`,
+            zh: `读两格、减一次：${P[4]} - ${paren(P[1])} = ${answers[1]}，与 6 + 0 + (-2) 相同。返回 ${answers[1]}。`,
             invariant: INV_SUB,
-            state: { ...base(), mi: 2, mj: 4, prefix: [...prefixSum], hatchNums: [0, 1], shade: [2, 4], bracket: { a: 0, b: 4, label: 'sum[0 : 4]' }, subBrackets: [{ a: 0, b: 1, label: 'sum[0 : 1]' }, { a: 2, b: 4, label: `sum[2 : 4] = ${answers[1].value}` }], hatchPrefix: 1, circlePrefix: 4, queryNum: 2, output: [2, 4], result: answers[1].value }
+            state: { ...base(), phase: 'query', prefix: all(), labels: [{ name: 'i', at: 2 }, { name: 'j', at: 4 }], rangeNums: [2, 4], hatchNums: [0, 1], brackets: [{ b: 4, level: 1, leader: true }, { b: 1, level: 2, leader: true }], strongPrefix: 4, hatchPrefix: 1, sub: { j: 4, k: 1, value: answers[1] }, result: `prefix_sum[4] - prefix_sum[1] = ${P[4]} - ${paren(P[1])} = ${answers[1]}`, metrics: ['(2, 4)', String(P[4]), String(P[1]), String(answers[1])], output: answers.slice(0, 2) }
           },
           {
-            stepLabel: '查询 3 · sum_range(2, 2)',
+            stepLabel: '查询 3 · sum_range(2, 2) · i == 0 → False',
             sourceKeys: ['range-def', 'cond'],
             line: 'if i == 0:  # i = 2 → False',
-            en: 'Third query sum_range(2, 2): a single element. i = 2 ≠ 0, so the subtraction branch handles it too.',
-            zh: '第三次查询 sum_range(2, 2)：区间只剩一个元素。i = 2 ≠ 0，仍走减法分支。',
+            en: 'Third query sum_range(2, 2): i and j point at the same cell. i = 2 ≠ 0, so the subtraction branch handles it too.',
+            zh: '第三次查询 sum_range(2, 2)：i 和 j 指向同一格。i = 2 ≠ 0，仍走减法分支。',
             invariant: INV_SUB,
-            state: { ...base(), mi: 2, mj: 2, prefix: [...prefixSum], shade: [2, 2], bracket: { a: 2, b: 2, label: 'sum_range(2, 2)' }, queryNum: 3 }
+            state: { ...base(), phase: 'query', prefix: all(), labels: [{ name: 'i', at: 2, emph: true }, { name: 'j', at: 2 }], rangeNums: [2, 2], result: q(3, 'sum_range(2, 2) · i == 0 → False'), metrics: ['(2, 2)', '—', '—', '—'], output: answers.slice(0, 2) }
           },
           {
-            stepLabel: `${prefixSum[2]} - (${prefixSum[1]}) = ${answers[2].value}`,
+            stepLabel: `查询 3 · prefix_sum[2] - prefix_sum[1] = ${answers[2]}`,
             sourceKeys: ['return-sub'],
-            line: `return self.prefix_sum[j] - self.prefix_sum[i - 1]  # prefix_sum[2] - prefix_sum[1] = ${prefixSum[2]} - (${prefixSum[1]}) = ${answers[2].value}`,
-            en: `sum[0 : 2] - sum[0 : 1] leaves exactly the cell at index 2: ${prefixSum[2]} - (${prefixSum[1]}) = ${answers[2].value}. Return ${answers[2].value}; output is [2, 4, 6].`,
-            zh: `sum[0 : 2] 减去 sum[0 : 1]，剩下的正好是下标 2 这一格：${prefixSum[2]} - (${prefixSum[1]}) = ${answers[2].value}，返回 ${answers[2].value}；输出 [2, 4, 6]。`,
+            line: `return self.prefix_sum[j] - self.prefix_sum[i - 1]  # ${P[2]} - ${paren(P[1])} = ${answers[2]}`,
+            en: `The two brackets differ by exactly one cell, nums[2]: prefix_sum[2] - prefix_sum[1] = ${P[2]} - ${paren(P[1])} = ${answers[2]} = nums[2]. Return ${answers[2]}.`,
+            zh: `两个括号只差一格 nums[2]：prefix_sum[2] - prefix_sum[1] = ${P[2]} - ${paren(P[1])} = ${answers[2]}，正是 nums[2]。返回 ${answers[2]}。`,
             invariant: INV_SUB,
-            state: { ...base(), mi: 2, mj: 2, prefix: [...prefixSum], hatchNums: [0, 1], shade: [2, 2], bracket: { a: 0, b: 2, label: 'sum[0 : 2]' }, subBrackets: [{ a: 0, b: 1, label: 'sum[0 : 1]' }, { a: 2, b: 2, label: `sum[2 : 2] = ${answers[2].value}` }], hatchPrefix: 1, circlePrefix: 2, queryNum: 3, output: [2, 4, 6], result: answers[2].value }
+            state: { ...base(), phase: 'query', prefix: all(), labels: [{ name: 'i', at: 2 }, { name: 'j', at: 2 }], rangeNums: [2, 2], hatchNums: [0, 1], brackets: [{ b: 2, level: 1, leader: true }, { b: 1, level: 2, leader: true }], strongPrefix: 2, hatchPrefix: 1, sub: { j: 2, k: 1, value: answers[2] }, result: `prefix_sum[2] - prefix_sum[1] = ${P[2]} - ${paren(P[1])} = ${answers[2]}`, metrics: ['(2, 2)', String(P[2]), String(P[1]), String(answers[2])], output: [...answers] }
           },
           {
-            stepLabel: `输出 [${answers.map(a => a.value).join(', ')}]`,
+            stepLabel: `输出 [${answers.join(', ')}]`,
             sourceKeys: ['return-first', 'return-sub'],
-            line: `output = [${answers.map(a => a.value).join(', ')}]  # 一次 O(n) 预处理，三次 O(1) 查询`,
-            en: 'One O(n) preprocessing pass plus three O(1) lookups answer every query: output = [2, 4, 6].',
-            zh: '一次 O(n) 预处理加三次 O(1) 查询，得到全部答案：output = [2, 4, 6]。',
+            line: `output = [${answers.join(', ')}]  # O(n) 预处理 + 每次 O(1)`,
+            en: `One O(n) pass built prefix_sum; the three queries read only 1 + 2 + 2 = 5 cells in total: output = [${answers.join(', ')}].`,
+            zh: `一次 O(n) 预处理建好 prefix_sum；三次查询总共只读了 1 + 2 + 2 = 5 个格子：output = [${answers.join(', ')}]。`,
             invariant: 'O(n) 预处理一次，之后每个查询 O(1)。',
-            state: { ...base(), prefix: [...prefixSum], output: answers.map(a => a.value), result: answers[2].value, done: true }
+            state: { ...base(), phase: 'query', scope: '', prefix: all(), result: `output = [${answers.join(', ')}] · 三次查询共读取 5 格`, output: [...answers] }
           }
         ];
 
         const scene = core.createSvgScene(svg);
         const hatchDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-        hatchDefs.innerHTML = '<pattern id="sum-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M 0 7 L 7 0" stroke="#8f8f88" stroke-width="1.1"/></pattern>';
+        hatchDefs.innerHTML = '<pattern id="sum-hatch" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M 0 6 L 6 0 M -1 1 L 1 -1 M 5 7 L 7 5" stroke="#8f8f88" stroke-width="1.1"/></pattern>';
         svg.prepend(hatchDefs);
-        scene.defineMarker('sum-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 5, refY: 3 });
+        scene.defineMarker('sum-arrow', { fill: '#555', markerWidth: 6, markerHeight: 6, refX: 6.5, refY: 4 });
 
         const motion = core.createMotionController();
         let geom = {};
@@ -355,179 +378,236 @@ prefix_sum = [ 3  -4  2  2   0  5 ]</pre>
           return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
         }
 
+        // One fixed grid for every frame: label band, nums, operation band, prefix_sum, result line.
         function layout() {
           const width = stage.clientWidth;
           const compact = width < 520;
-          const padL = compact ? 4 : 8;
-          const labelW = compact ? 78 : 104;
-          const glyphW = compact ? 10 : 14;
-          const cellGap = compact ? 4 : 7;
-          const cellH = compact ? 30 : 34;
-          const cellsX = padL + labelW + glyphW + 4;
-          const cellsW = width - cellsX - glyphW - (compact ? 8 : 14);
-          const cellW = (cellsW - (N - 1) * cellGap) / N;
-          const bracketLabelY = compact ? 15 : 19;
-          const bracketY = compact ? 29 : 34;
-          const numsY = compact ? 39 : 48;
-          const idxY = numsY + cellH + (compact ? 13 : 16);
-          const subY = idxY + (compact ? 16 : 19);
-          const subLabelY = subY + (compact ? 14 : 16);
-          const prefixY = subLabelY + (compact ? 12 : 14);
-          const pIdxY = prefixY + cellH + (compact ? 13 : 16);
-          const bottomY = pIdxY + (compact ? 20 : 25);
-          const stageH = bottomY + (compact ? 15 : 19);
+          const V = compact
+            ? { cellsX: 72, reserve: 30, gap: 4, cellH: 32, boxW: 18, boxH: 16, boxY: 4, numsY: 32, idxY: 78, l1: 88, l2: 104, opY: 102, opR: 7, prefixY: 120, pIdxY: 166, subY: 190, resultY: 216, stageH: 226, val: 12.5, idx: 10.5, lab: 10.5, pair: 11 }
+            : { cellsX: 88, reserve: 56, gap: 8, cellH: 36, boxW: 22, boxH: 18, boxY: 6, numsY: 38, idxY: 90, l1: 102, l2: 120, opY: 116, opR: 8, prefixY: 140, pIdxY: 192, subY: 218, resultY: 246, stageH: 256, val: 15, idx: 12, lab: 12, pair: 13 };
+          const cellW = Math.min(84, (width - V.cellsX - V.reserve - (N - 1) * V.gap) / N);
           const cells = Array.from({ length: N }, (_, i) => {
-            const x = cellsX + i * (cellW + cellGap);
+            const x = V.cellsX + i * (cellW + V.gap);
             return { x, cx: x + cellW / 2, right: x + cellW };
           });
-          geom = {
-            width, compact, labelEndX: cellsX - glyphW - 4, cellsX, cellW, cellH,
-            bracketLabelY, bracketY, numsY, idxY, subY, subLabelY, prefixY, pIdxY, bottomY, stageH, cells
+          geom = { ...V, width, compact, cellW, cells };
+          svg.setAttribute('viewBox', `0 0 ${width} ${V.stageH}`);
+          stage.style.height = `${V.stageH}px`;
+        }
+
+        const has = v => v !== null && v !== undefined;
+        const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+        // Overlay marks keyed by content: a mark present in both frames stays put,
+        // otherwise it fades in or out. Nothing slides between different cells.
+        function marks(state, g) {
+          const out = [];
+          const add = (key, layer, fn) => out.push({ key, layer, fn });
+          const spanRect = (a, b, padTop, padBottom) => {
+            const x1 = g.cells[a].x - 3;
+            const x2 = g.cells[b].right + 3;
+            return rectPath(x1, g.numsY - padTop, x2 - x1, g.cellH + padTop + padBottom);
           };
-          svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
-          stage.style.height = `${Math.ceil(stageH)}px`;
+          if (state.runNums) {
+            const [a, b] = state.runNums;
+            add(`run-${a}-${b}`, 'n-under', (op, api) => api.path(`run-${a}-${b}`, { d: spanRect(a, b, 3, 3), fill: '#e3e1d8', opacity: 0.85 * op }));
+          }
+          if (state.rangeNums) {
+            const [a, b] = state.rangeNums;
+            add(`range-${a}-${b}`, 'n-under', (op, api) => api.path(`range-${a}-${b}`, { d: spanRect(a, b, 3, 3), fill: '#8f8f88', opacity: 0.3 * op }));
+          }
+          if (state.hatchNums) {
+            const [a, b] = state.hatchNums;
+            add(`hn-${a}-${b}`, 'n-under', (op, api) => api.path(`hn-${a}-${b}`, { d: spanRect(a, b, 3, 3), fill: 'url(#sum-hatch)', opacity: 0.6 * op }));
+          }
+          if (has(state.readPrefix)) {
+            const k = state.readPrefix;
+            const c = g.cells[k];
+            add(`rp-${k}`, 'p-under', (op, api) => api.path(`rp-${k}`, { d: rectPath(c.x, g.prefixY, g.cellW, g.cellH), fill: '#e3e1d8', opacity: 0.85 * op }));
+          }
+          if (has(state.hatchPrefix)) {
+            const k = state.hatchPrefix;
+            const c = g.cells[k];
+            add(`hp-${k}`, 'p-under', (op, api) => api.path(`hp-${k}`, { d: rectPath(c.x, g.prefixY, g.cellW, g.cellH), fill: 'url(#sum-hatch)', opacity: 0.6 * op }));
+          }
+          if (has(state.focusNums)) {
+            const k = state.focusNums;
+            const c = g.cells[k];
+            add(`fn-${k}`, 'outline', (op, api) => api.path(`fn-${k}`, { d: rectPath(c.x - 4, g.numsY - 4, g.cellW + 8, g.cellH + 8, 3), fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '4 3', opacity: op }));
+          }
+          if (has(state.strongPrefix)) {
+            const k = state.strongPrefix;
+            const c = g.cells[k];
+            add(`sp-${k}`, 'outline', (op, api) => api.path(`sp-${k}`, { d: rectPath(c.x, g.prefixY, g.cellW, g.cellH), fill: 'none', stroke: '#272727', 'stroke-width': 2.4, opacity: op }));
+          }
+          const arrow = { stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#sum-arrow)' };
+          if (state.seed) {
+            const c = g.cells[0];
+            add('seed', 'over', (op, api) => api.path('seed-arrow', { d: `M ${c.cx} ${g.idxY + 6} V ${g.prefixY - 3}`, ...arrow, opacity: op }));
+          }
+          if (has(state.add)) {
+            const i = state.add;
+            const c = g.cells[i];
+            const p = g.cells[i - 1];
+            const r = g.opR;
+            add(`add-${i}`, 'over', (op, api) => {
+              api.path(`add-${i}-a`, { d: `M ${c.cx} ${g.idxY + 6} V ${g.opY - r - 1.5}`, ...arrow, opacity: op });
+              const sx = p.cx + g.cellW * 0.18;
+              const sy = g.prefixY - 2;
+              api.path(`add-${i}-b`, { d: `M ${sx} ${sy} Q ${sx + g.cellW * 0.12} ${g.opY} ${c.cx - r - 1.5} ${g.opY}`, ...arrow, opacity: op });
+              api.circle(`add-${i}-node`, { cx: c.cx, cy: g.opY, r, fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2, opacity: op });
+              api.text(`add-${i}-plus`, { x: c.cx, y: g.opY + g.lab * 0.36, 'text-anchor': 'middle', 'font-size': g.lab, fill: '#272727', 'font-family': MONO, opacity: op }, '+');
+              api.path(`add-${i}-out`, { d: `M ${c.cx} ${g.opY + r + 0.5} V ${g.prefixY - 3}`, ...arrow, opacity: op });
+            });
+          }
+          if (state.sub) {
+            // prefix_sum[j] drops straight into the minus node; prefix_sum[i-1] joins from the side.
+            const { j, k, value } = state.sub;
+            const cj = g.cells[j];
+            const ck = g.cells[k];
+            const r = g.opR;
+            const key = `sub-${j}-${k}`;
+            add(key, 'over', (op, api) => {
+              const top = g.pIdxY + 5;
+              api.path(`${key}-a`, { d: `M ${cj.cx} ${top} V ${g.subY - r - 1.5}`, ...arrow, opacity: op });
+              api.path(`${key}-b`, { d: `M ${ck.cx} ${top} Q ${ck.cx + g.cellW * 0.1} ${g.subY} ${cj.cx - r - 1.5} ${g.subY}`, ...arrow, opacity: op });
+              api.circle(`${key}-node`, { cx: cj.cx, cy: g.subY, r, fill: '#fffdf8', stroke: '#555', 'stroke-width': 1.2, opacity: op });
+              api.text(`${key}-minus`, { x: cj.cx, y: g.subY + g.lab * 0.36, 'text-anchor': 'middle', 'font-size': g.lab, fill: '#272727', 'font-family': MONO, opacity: op }, '−');
+              const ox = cj.cx + r + (g.compact ? 14 : 20);
+              api.path(`${key}-out`, { d: `M ${cj.cx + r + 0.5} ${g.subY} H ${ox}`, ...arrow, opacity: op });
+              api.text(`${key}-val`, { x: ox + 4, y: g.subY + g.val * 0.34, 'font-size': g.val, 'font-weight': 700, fill: '#272727', 'font-family': MONO, opacity: op }, String(value));
+            });
+          }
+          state.brackets.forEach(br => {
+            const key = `br${br.level}-${br.b}${br.leader ? 'L' : ''}`;
+            const y = br.level === 1 ? g.l1 : g.l2;
+            const x1 = g.cells[0].x + 1;
+            const x2 = g.cells[br.b].right - 1;
+            const lineAttrs = { stroke: '#555', 'stroke-width': 1.2, fill: 'none' };
+            add(key, 'over', (op, api) => {
+              if (br.level === 2) api.path(`${key}-hatch`, { d: rectPath(x1, y - 5, x2 - x1, 5), fill: 'url(#sum-hatch)', opacity: 0.55 * op });
+              api.path(`${key}-line`, { d: `M ${x1} ${y - 5} V ${y} H ${x2} V ${y - 5}`, ...lineAttrs, opacity: op });
+              if (br.leader) {
+                const lx = g.cells[br.b].cx;
+                api.path(`${key}-leader`, { d: `M ${lx} ${y} V ${g.prefixY - 3}`, ...arrow, opacity: op });
+              }
+            });
+          });
+          return out;
+        }
+
+        function labelPositions(state, g) {
+          const xs = {};
+          state.labels.forEach(l => {
+            const shared = state.labels.filter(o => o.at === l.at);
+            const cx = g.cells[l.at].cx;
+            const k = shared.indexOf(l);
+            xs[l.name] = { x: shared.length > 1 ? cx + (k === 0 ? -g.pair : g.pair) : cx, cx };
+          });
+          return xs;
         }
 
         function draw(state, t = 1, from = null) {
           if (!geom.cells || !state) return;
           const g = geom;
-          const lerp = (a, b) => a + (b - a) * t;
-          const presence = (was, is) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
-          const F = g.compact
-            ? { val: 12.5, idx: 9, lab: 10, lbl: 10 }
-            : { val: 15, idx: 10.5, lab: 11.5, lbl: 12 };
-          const valDy = g.compact ? 4.2 : 5;
+          const order = [];
+          scene.update(raw => {
+            const wrap = kind => (id, attrs, value) => { const node = raw[kind](id, attrs, value); order.push(node); return node; };
+            const api = { path: wrap('path'), text: wrap('text'), circle: wrap('circle') };
+            const { path, text } = api;
+            const nameX = g.cellsX - (g.compact ? 6 : 10);
+            const mono = (size, fill = '#272727') => ({ 'font-size': size, fill, 'font-family': MONO });
 
-          scene.update(({ path, text, circle }) => {
-            text('row-label-nums', { x: g.labelEndX, y: g.numsY + g.cellH / 2 + 4, 'text-anchor': 'end', 'font-size': F.lbl, fill: '#272727', 'font-family': MONO }, 'nums =');
-            text('row-label-prefix', { x: g.labelEndX, y: g.prefixY + g.cellH / 2 + 4, 'text-anchor': 'end', 'font-size': F.lbl, fill: '#272727', 'font-family': MONO }, 'prefix_sum =');
-            text('glyph-open-nums', { x: g.cells[0].x - 8, y: g.numsY + g.cellH - 7, 'text-anchor': 'middle', 'font-size': g.cellH * 0.8, fill: '#272727' }, '[');
-            text('glyph-close-nums', { x: g.cells[N - 1].right + 9, y: g.numsY + g.cellH - 7, 'text-anchor': 'middle', 'font-size': g.cellH * 0.8, fill: '#272727' }, ']');
-            text('glyph-open-prefix', { x: g.cells[0].x - 8, y: g.prefixY + g.cellH - 7, 'text-anchor': 'middle', 'font-size': g.cellH * 0.8, fill: '#272727' }, '[');
-            text('glyph-close-prefix', { x: g.cells[N - 1].right + 9, y: g.prefixY + g.cellH - 7, 'text-anchor': 'middle', 'font-size': g.cellH * 0.8, fill: '#272727' }, ']');
+            // Scope caption + row names.
+            const scope = has(state.scope) ? state.scope : state.phase === 'build' ? '__init__' : 'sum_range';
+            text('scope', { x: 2, y: g.boxY + g.boxH - 4, ...mono(g.lab, '#8a8a84') }, scope);
+            text('row-nums', { x: nameX, y: g.numsY + g.cellH / 2 + g.lab * 0.36, 'text-anchor': 'end', ...mono(g.lab, '#555') }, 'nums');
+            text('row-prefix', { x: nameX, y: g.prefixY + g.cellH / 2 + g.lab * 0.36, 'text-anchor': 'end', ...mono(g.lab, '#555') }, 'prefix_sum');
 
-            for (let i = 0; i < N; i++) {
-              const c = g.cells[i];
-              path(`ncell-${i}`, { d: rectPath(c.x, g.numsY, g.cellW, g.cellH), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3 });
-            }
+            const toMarks = marks(state, g);
+            const fromMarks = from ? marks(from, g) : [];
+            const toKeys = new Set(toMarks.map(m => m.key));
+            const fromKeys = new Set(fromMarks.map(m => m.key));
+            const layered = [
+              ...toMarks.map(m => ({ m, op: from && !fromKeys.has(m.key) ? t : 1 })),
+              ...fromMarks.filter(m => !toKeys.has(m.key)).map(m => ({ m, op: 1 - t }))
+            ];
+            const layer = name => layered.filter(x => x.m.layer === name && x.op > 0.001).forEach(x => x.m.fn(x.op, api));
 
-            const spanRect = (id, to, was, fill, baseOp) => {
-              if (!to && !was) return;
-              const op = presence(Boolean(was), Boolean(to));
-              const a = to ? to[0] : was[0];
-              const b = to ? to[1] : was[1];
-              const af = was ? was[0] : a;
-              const bf = was ? was[1] : b;
-              const x1 = lerp(g.cells[af].x, g.cells[a].x) - 3;
-              const x2 = lerp(g.cells[bf].right, g.cells[b].right) + 3;
-              path(id, { d: rectPath(x1, g.numsY - 3, x2 - x1, g.idxY + 4 - (g.numsY - 3)), fill, opacity: baseOp * op, stroke: 'none' });
-            };
-            spanRect('shade-nums', state.shade, from ? from.shade : null, '#8f8f88', 0.3);
-            spanRect('hatch-nums', state.hatchNums, from ? from.hatchNums : null, 'url(#sum-hatch)', 0.6);
-
-            const idxBox = (id, toIdx, wasIdx, y, attrs) => {
-              const hasTo = toIdx !== null && toIdx !== undefined;
-              const hasWas = wasIdx !== null && wasIdx !== undefined;
-              if (!hasTo && !hasWas) return;
-              const baseOp = attrs.baseOpacity ?? 1;
-              const op = presence(hasWas, hasTo) * baseOp;
-              const cTo = hasTo ? g.cells[toIdx] : g.cells[wasIdx];
-              const cWas = hasWas ? g.cells[wasIdx] : cTo;
-              const x = lerp(cWas.cx, cTo.cx);
-              const { baseOpacity, ...rest } = attrs;
-              path(id, { d: rectPath(x - g.cellW / 2 - 4, y - 4, g.cellW + 8, g.cellH + 8, 3), opacity: op, stroke: 'none', ...rest });
-            };
-            idxBox('focus-nums', state.focusNums, from ? from.focusNums : null, g.numsY, { fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
-
-            for (let i = 0; i < N; i++) {
-              const c = g.cells[i];
-              text(`nval-${i}`, { x: c.cx, y: g.numsY + g.cellH / 2 + valDy, 'text-anchor': 'middle', 'font-size': F.val, fill: '#272727', 'font-family': MONO }, String(NUMS[i]));
-              text(`nidx-${i}`, { x: c.cx, y: g.idxY, 'text-anchor': 'middle', 'font-size': F.idx, fill: '#555', 'font-family': MONO }, String(i));
-            }
-
-            const bracket = (id, toB, wasB, y, dir, size) => {
-              const hasTo = Boolean(toB);
-              const hasWas = Boolean(wasB);
-              if (!hasTo && !hasWas) return;
-              const op = presence(hasWas, hasTo);
-              const a = hasTo ? toB.a : wasB.a;
-              const b = hasTo ? toB.b : wasB.b;
-              const af = hasWas ? wasB.a : a;
-              const bf = hasWas ? wasB.b : b;
-              const x1 = lerp(g.cells[af].cx, g.cells[a].cx);
-              const x2 = lerp(g.cells[bf].cx, g.cells[b].cx);
-              const mid = (x1 + x2) / 2;
-              path(`${id}-line`, { d: `M ${x1} ${y} L ${x2} ${y}`, stroke: '#333', 'stroke-width': 1.1, fill: 'none', opacity: op });
-              path(`${id}-tick-l`, { d: `M ${x1} ${y} L ${x1} ${y + dir * 5}`, stroke: '#333', 'stroke-width': 1.1, fill: 'none', opacity: op });
-              path(`${id}-tick-r`, { d: `M ${x2} ${y} L ${x2} ${y + dir * 5}`, stroke: '#333', 'stroke-width': 1.1, fill: 'none', opacity: op });
-              path(`${id}-caret`, { d: dir > 0 ? `M ${mid - 3} ${y} L ${mid + 3} ${y} L ${mid} ${y + 5} Z` : `M ${mid - 3} ${y} L ${mid + 3} ${y} L ${mid} ${y - 5} Z`, fill: '#333', opacity: op });
-              const label = hasTo ? toB.label : wasB.label;
-              text(`${id}-label`, { x: mid, y: dir > 0 ? y - 6 : y + 14, 'text-anchor': 'middle', 'font-size': size, fill: '#272727', 'font-family': MONO, opacity: op }, label);
-            };
-            bracket('mbracket', state.bracket, from ? from.bracket : null, g.bracketY, 1, F.lab);
-            const subLen = Math.max(state.subBrackets.length, from ? from.subBrackets.length : 0);
-            for (let k = 0; k < subLen; k++) {
-              bracket(`sbracket-${k}`, state.subBrackets[k] || null, from && from.subBrackets[k] ? from.subBrackets[k] : null, g.subY, -1, F.lab - 0.5);
-            }
-
-            const hasArrow = state.downArrow !== null;
-            const hadArrow = Boolean(from) && from.downArrow !== null && from.downArrow !== undefined;
-            if (hasArrow || hadArrow) {
-              const op = presence(hadArrow, hasArrow);
-              const toI = hasArrow ? state.downArrow : from.downArrow;
-              const fromI = hadArrow ? from.downArrow : toI;
-              const x = lerp(g.cells[fromI].cx, g.cells[toI].cx);
-              path('down-arrow', { d: `M ${x} ${g.idxY + 6} L ${x} ${g.prefixY - 4}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#sum-arrow)', opacity: op });
-            }
-
-            for (let i = 0; i < N; i++) {
-              const c = g.cells[i];
-              const built = state.prefix[i] !== null && state.prefix[i] !== undefined;
-              const wasBuilt = from ? (from.prefix[i] !== null && from.prefix[i] !== undefined) : built;
+            g.cells.forEach((c, i) => path(`ncell-${i}`, { d: rectPath(c.x, g.numsY, g.cellW, g.cellH), fill: '#fffdf8', stroke: '#333', 'stroke-width': 1.3 }));
+            layer('n-under');
+            g.cells.forEach((c, i) => {
+              const built = has(state.prefix[i]);
               path(`pcell-${i}`, { d: rectPath(c.x, g.prefixY, g.cellW, g.cellH), fill: '#fffdf8', stroke: built ? '#333' : '#999', 'stroke-width': built ? 1.3 : 1, 'stroke-dasharray': built ? null : '4 3' });
-            }
-            idxBox('read-p', state.readPrefix, from ? from.readPrefix : null, g.prefixY, { fill: '#f0eee6' });
-            idxBox('hatch-p', state.hatchPrefix, from ? from.hatchPrefix : null, g.prefixY, { fill: 'url(#sum-hatch)', baseOpacity: 0.55 });
+            });
+            layer('p-under');
+            layer('outline');
 
-            const circTo = state.circlePrefix !== null ? g.cells[state.circlePrefix] : null;
-            const circWas = from && from.circlePrefix !== null && from.circlePrefix !== undefined ? g.cells[from.circlePrefix] : null;
-            if (circTo || circWas) {
-              const op = presence(Boolean(circWas), Boolean(circTo));
-              const cx = lerp(circWas ? circWas.cx : circTo.cx, circTo ? circTo.cx : circWas.cx);
-              circle('circle-p', { cx, cy: g.prefixY + g.cellH / 2, r: g.cellH / 2 - 1, fill: '#efede4', stroke: '#555', 'stroke-width': 1.1, opacity: op });
-            }
-            idxBox('focus-p', state.focusPrefix, from ? from.focusPrefix : null, g.prefixY, { fill: 'none', stroke: '#555', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' });
-
-            for (let i = 0; i < N; i++) {
-              const c = g.cells[i];
-              const built = state.prefix[i] !== null && state.prefix[i] !== undefined;
-              const wasBuilt = from ? (from.prefix[i] !== null && from.prefix[i] !== undefined) : built;
+            // Values sit above every fill and outline so they always stay readable.
+            const valDy = g.val * 0.34;
+            g.cells.forEach((c, i) => {
+              text(`nval-${i}`, { x: c.cx, y: g.numsY + g.cellH / 2 + valDy, 'text-anchor': 'middle', ...mono(g.val) }, String(NUMS[i]));
+              text(`nidx-${i}`, { x: c.cx, y: g.idxY, 'text-anchor': 'middle', ...mono(g.idx, '#555') }, String(i));
+              const built = has(state.prefix[i]);
+              const wasBuilt = from ? has(from.prefix[i]) : built;
               if (built || wasBuilt) {
-                const v = built ? state.prefix[i] : from.prefix[i];
-                const emphasized = state.circlePrefix === i || state.hatchPrefix === i;
-                text(`pval-${i}`, { x: c.cx, y: g.prefixY + g.cellH / 2 + valDy, 'text-anchor': 'middle', 'font-size': F.val, 'font-weight': emphasized ? 700 : 400, fill: '#272727', 'font-family': MONO, opacity: presence(wasBuilt, built) }, String(v));
+                const op = built && wasBuilt ? 1 : built ? t : 1 - t;
+                const bold = state.strongPrefix === i || state.hatchPrefix === i;
+                text(`pval-${i}`, { x: c.cx, y: g.prefixY + g.cellH / 2 + valDy, 'text-anchor': 'middle', 'font-weight': bold ? 700 : 400, opacity: op, ...mono(g.val) }, String(built ? state.prefix[i] : from.prefix[i]));
               }
-              text(`pidx-${i}`, { x: c.cx, y: g.pIdxY, 'text-anchor': 'middle', 'font-size': F.idx, fill: '#555', 'font-family': MONO }, String(i));
-            }
+              text(`pidx-${i}`, { x: c.cx, y: g.pIdxY, 'text-anchor': 'middle', ...mono(g.idx, '#555') }, String(i));
+            });
+            layer('over');
 
-            if (state.queryNum && !state.done) {
-              text('qtag', { x: g.width - 6, y: g.bottomY, 'text-anchor': 'end', 'font-size': F.idx + 0.5, fill: '#555', 'font-family': MONO }, `查询 ${state.queryNum} / ${QUERIES.length}`);
-            }
-            const wasDone = Boolean(from) && from.done;
-            if (state.done || wasDone) {
-              const op = presence(wasDone, state.done);
-              const out = state.output.length ? state.output : (from ? from.output : []);
-              text('output-tag', { x: g.width / 2, y: g.bottomY, 'text-anchor': 'middle', 'font-size': F.lab, fill: '#272727', 'font-family': MONO, opacity: op }, `output = [ ${out.join(', ')} ]`);
-            }
+            // Variable labels: rounded box + short gray reference. They slide only for a
+            // one-cell move inside the build loop; any other change fades.
+            const toX = labelPositions(state, g);
+            const fromX = from ? labelPositions(from, g) : {};
+            const varLabel = (name, pos, op, emph) => {
+              const { x, cx } = pos;
+              const top = g.boxY;
+              const bottom = g.boxY + g.boxH;
+              path(`lab-${name}-box`, { d: rectPath(x - g.boxW / 2, top, g.boxW, g.boxH, 3), fill: '#fffdf8', stroke: emph ? '#272727' : '#777', 'stroke-width': emph ? 2 : 1, opacity: op });
+              text(`lab-${name}-name`, { x, y: top + g.boxH / 2 + g.lab * 0.36, 'text-anchor': 'middle', opacity: op, ...mono(g.lab) }, name);
+              path(`lab-${name}-ref`, { d: `M ${x} ${bottom + 1} L ${x + (cx - x) * 0.45} ${g.numsY - 3}`, stroke: '#555', 'stroke-width': 1.2, fill: 'none', 'marker-end': 'url(#sum-arrow)', opacity: op });
+            };
+            const mix = (a, b) => ({ x: a.x + (b.x - a.x) * t, cx: a.cx + (b.cx - a.cx) * t });
+            const names = new Set([...Object.keys(toX), ...Object.keys(fromX)]);
+            names.forEach(name => {
+              const lt = state.labels.find(l => l.name === name);
+              const lf = from ? from.labels.find(l => l.name === name) : null;
+              const emph = Boolean(lt && lt.emph);
+              if (lt && !from) { varLabel(name, toX[name], 1, emph); return; }
+              if (lt && lf) {
+                const slide = state.phase === 'build' && from.phase === 'build' && Math.abs(lt.at - lf.at) <= 1;
+                if (toX[name].x === fromX[name].x) varLabel(name, toX[name], 1, emph);
+                else if (slide) varLabel(name, mix(fromX[name], toX[name]), 1, emph);
+                else if (t < 0.5) varLabel(name, fromX[name], 1 - 2 * t, Boolean(lf.emph));
+                else varLabel(name, toX[name], 2 * t - 1, emph);
+              } else if (lt) varLabel(name, toX[name], t, emph);
+              else if (lf) varLabel(name, fromX[name], 1 - t, Boolean(lf.emph));
+            });
+
+            // Result line: the operation of the current line, spelled out once.
+            const rx = g.compact ? 2 : g.cellsX;
+            const node = text('result', { x: rx, y: g.resultY, ...mono(g.lab) }, state.result);
+            const avail = g.width - rx - 4;
+            const w = node.getComputedTextLength ? node.getComputedTextLength() : 0;
+            if (w > avail) node.setAttribute('font-size', String(Math.max(8, g.lab * avail / w)));
+          });
+          // Keep paint order equal to call order, so fills never cover values.
+          let prev = hatchDefs;
+          order.forEach(node => {
+            if (prev.nextElementSibling !== node) prev.after(node);
+            prev = node;
           });
         }
 
         function render({ frame, state, step, frames }) {
           phaseEl.textContent = frame.stepLabel;
           invariantEl.textContent = frame.invariant;
-          mI.textContent = state.mi === null ? '—' : String(state.mi);
-          mJ.textContent = state.mj === null ? '—' : String(state.mj);
-          mResult.textContent = state.result === null ? '—' : String(state.result);
+          const keys = state.phase === 'build' ? BUILD_KEYS : QUERY_KEYS;
+          keys.forEach((k, n) => { metricKeys[n].textContent = k; metricVals[n].textContent = state.metrics[n]; });
           mOutput.textContent = state.output.length ? `[${state.output.join(', ')}]` : '—';
           expressionEl.textContent = frame.line;
           explanationEl.textContent = frame.en;
@@ -546,9 +626,9 @@ prefix_sum = [ 3  -4  2  2   0  5 ]</pre>
           onTransition: ({ state }) => {
             const from = transitionFrom;
             transitionFrom = null;
-            if (!from || motion.reduced) { draw(state, 1, from); return; }
+            if (!from || motion.reduced || same(from, state)) { draw(state, 1, null); return; }
             motion.tween({
-              duration: 400,
+              duration: 300,
               update: eased => draw(state, eased, from),
               complete: () => draw(state, 1, null)
             });
