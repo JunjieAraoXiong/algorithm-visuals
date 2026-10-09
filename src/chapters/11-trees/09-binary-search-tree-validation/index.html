@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="二叉搜索树验证：逐行执行 Python，观察树、变量与返回值。">
+<title>Binary Search Tree Validation · Algorithm Visuals</title>
+<link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
+</head><body>
+<main class="tree-guide tree-lesson" id="lesson">
+<nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+<h1>Binary Search Tree Validation · 二叉搜索树验证</h1>
+<p class="problem">Validate a strict binary search tree: every value must satisfy all ancestor bounds.<span>保持原图的两处错误：左子树里的 6 超过根 5，右子树出现重复 7。</span></p>
+<div class="learning-layout" data-learning-layout>
+<section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
+<label class="settings">示例 <select data-case aria-label="BST 验证示例"><option value="original">原图：6 越界，右侧短路跳过</option><option value="duplicate">只保留重复 7</option><option value="valid">修正两处错误</option><option value="empty">空树</option></select></label>
+<div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
+<p class="step-meta" data-phase></p>
+<div class="array-panel" data-arrays></div>
+<p class="diagram-caption" data-caption></p>
+<div class="diagram-workspace">
+<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-label="树节点与指针"></svg></div>
+<div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
+</div>
+<div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+<div class="state-grid"><div class="invariant"><strong>保持什么成立</strong><p data-invariant></p></div><div class="invariant"><strong>返回结果</strong><p class="result" data-result></p></div></div>
+</section>
+<aside class="code-panel" data-code-panel><h2>完整 Python 代码</h2><p class="code-status" data-code-status></p><pre data-code-scroll tabindex="0" aria-label="完整 Python 实现"><code><span class="code-line">from typing import List, Optional</span><span class="code-line"> </span><span class="code-line">class TreeNode:</span><span class="code-line">    def __init__(self, val=0, left=None, right=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.left = left</span><span class="code-line">        self.right = right</span><span class="code-line"> </span><span class="code-line">def binary_search_tree_validation(root: Optional[TreeNode]) -&gt; bool:</span><span class="code-line" data-source-key="answer">    return is_within_bounds(root, float(&#x27;-inf&#x27;), float(&#x27;inf&#x27;))</span><span class="code-line"> </span><span class="code-line">def is_within_bounds(node: Optional[TreeNode], lower_bound: float, upper_bound: float) -&gt; bool:</span><span class="code-line" data-source-key="check">    if not node:</span><span class="code-line" data-source-key="empty">        return True</span><span class="code-line" data-source-key="bounds">    if not lower_bound &lt; node.val &lt; upper_bound:</span><span class="code-line" data-source-key="invalid">        return False</span><span class="code-line" data-source-key="left">    if not is_within_bounds(node.left, lower_bound, node.val):</span><span class="code-line" data-source-key="left-false">        return False</span><span class="code-line" data-source-key="right">    return is_within_bounds(node.right, node.val, upper_bound)</span></code></pre></aside>
+</div>
+<section class="section"><h2>父子大小正确，仍然可能不是 BST</h2><p class="section-intro">图片中的 6 大于父节点 2，局部看起来正确。但 6 位于根 5 的左子树，所有这些后代都必须小于 5。另外右侧还包含两个 7，严格 BST 不允许相等。</p><div class="card-grid"><article class="paper-card"><strong>边界携带祖先的限制</strong><p>根从 (-∞, ∞) 开始。走左侧保留下界、把上界换成当前 val；走右侧保留上界、把下界换成当前 val。到 6 时边界是 (2,5)，祖先 5 的限制没有丢失。</p></article><article class="paper-card"><strong>调用栈不是另一棵树</strong><p>栈中的 node 是引用，lower_bound、upper_bound 是这一层调用的局部值。返回到父调用时，父的边界仍然保留；树中的 left、right 从不改变。</p></article></div></section><section class="section"><h2>严格不等式与短路顺序</h2><p class="section-intro">先检查当前值，再验证左子树；左侧失败便直接返回 False，右侧跳过。原图首先发现 6 越界，所以实际执行不会再访问右侧的重复 7。切换「只保留重复 7」可以单独看到相等边界失败。</p><div class="card-grid"><article class="paper-card"><strong>为什么能覆盖整棵子树</strong><p>如果当前值在边界内，并且左右子树在收紧后的边界内也都正确，那么它们每个后代都符合当前节点及所有祖先的要求。None 返回 True，让叶子自然结束。</p></article><article class="paper-card"><strong>时间与空间</strong><p>最多访问 n 个节点，O(n) 时间；发现错误可提前返回。递归栈 O(h)，最坏 O(n)。用 ±∞ 表示无边界，允许正常的负数节点值。</p></article></div></section>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../kth-smallest-number-in-a-binary-search-tree/">BST 中第 K 小的数</a><a href="../balanced-binary-tree-validation/">平衡二叉树验证</a><a href="../">目录</a></nav>
+</main>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script>
+<script>
+(() => {
+'use strict';
+const root=document.querySelector('#lesson');
+const {clone,valueOf,recorder,mount}=window.TreeLesson;
+const selector=root.querySelector('[data-case]');
+if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
+
+function makeFrames(){
+ const mode=selector.value;
+ const nodes={a:{val:5,left:'b',right:'c'},b:{val:2,left:'d',right:'e'},c:{val:7,left:'f',right:'g'},d:{val:1,left:null,right:null},e:{val:mode==='original'?6:4,left:null,right:null},f:{val:mode==='valid'?6:7,left:null,right:null},g:{val:9,left:null,right:null}};
+ const state={nodes,rowGap:96,root:mode==='empty'?null:'a',focus:mode==='empty'?null:'a',reference:'root',memory:[],labels:{},marked:[],phase:'DFS · 祖先边界逐层收紧',caption:'节点下方是本次调用的开区间；栈保存尚未返回的 node 与边界。',invariant:'下界 < node.val < 上界。进入左子树收紧上界；进入右子树收紧下界。边界来自所有祖先，不只父节点。'};
+ const {frames,emit}=recorder(state),stack=[];const bound=x=>x===Infinity?'∞':x===-Infinity?'-∞':String(x),val=id=>valueOf(nodes,id);
+ function sync(){state.memory=stack.map(c=>({label:`node = ${val(c.id)}`,detail:`${bound(c.lo)} < val < ${bound(c.hi)}`}));}
+ emit('answer',"is_within_bounds(root, -inf, inf)",'根最初没有有限边界。');
+ function visit(id,lo,hi){stack.push({id,lo,hi});sync();if(id)state.labels[id]=`(${bound(lo)},${bound(hi)})`;
+  emit('check','if not node',id?`进入 ${val(id)}，继承边界 (${bound(lo)}, ${bound(hi)})。`:'空子树不会破坏 BST 条件。',{focus:id,reference:'node'});
+  if(!id){emit('empty','return True','空子树通过验证。');stack.pop();sync();return true;}
+  const valid=lo<nodes[id].val&&nodes[id].val<hi;
+  emit('bounds',`${bound(lo)} < ${val(id)} < ${bound(hi)}`,valid?'值严格落在所有祖先共同限制的范围内。':`${val(id)} 不满足严格边界；${id==='e'?'虽然 6 > 父节点 2，但它属于 5 的左子树，必须小于 5。':'等于上界也不允许，重复的 7 违反严格 BST 条件。'}`);
+  if(!valid){state.marked=[id];emit('invalid','return False','当前调用立即失败，不再访问它的孩子。');stack.pop();sync();return false;}
+  emit('left','is_within_bounds(node.left, lower_bound, node.val)',`左子树上界收紧到 ${val(id)}；下界保留 ${bound(lo)}。`);
+  const left=visit(nodes[id].left,lo,nodes[id].val);
+  emit('left',`if not ${left?'True':'False'}`,`回到 ${val(id)}，左侧返回 ${left?'True':'False'}。`,{focus:id,returnEdge:nodes[id].left?{from:nodes[id].left,to:id,text:left?'T':'F'}:null});
+  if(!left){if(nodes[id].right)state.labels[nodes[id].right]='跳过';emit('left-false','return False','左侧失败后立刻返回，右子树不会执行；静态图中的另一个错误并不代表已访问。');stack.pop();sync();return false;}
+  emit('right','is_within_bounds(node.right, node.val, upper_bound)',`右子树下界收紧到 ${val(id)}；上界保留 ${bound(hi)}。`);
+  const right=visit(nodes[id].right,nodes[id].val,hi);
+  emit('right',`return ${right?'True':'False'}`,`回到 ${val(id)}，直接返回右子树结果。`,{focus:id,returnEdge:nodes[id].right?{from:nodes[id].right,to:id,text:right?'T':'F'}:null});
+  stack.pop();sync();return right;
+ }
+ const answer=visit(state.root,-Infinity,Infinity);emit('answer',`return ${answer?'True':'False'}`,answer?'所有访问到的节点都符合祖先边界。':'失败结果一路返回根。',{focus:state.root,reference:'root',memory:[],result:answer?'True':'False'});return frames;
+}
+mount(root,makeFrames);
+})();
+</script></body></html>
