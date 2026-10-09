@@ -302,17 +302,17 @@
       if (codeStatus) codeStatus.textContent = `当前执行：${activeLines.map(line => line.textContent.trim()).join('；')}`;
       const codeScroll = resolveCodeScroll();
       if (!codeScroll) return;
-      const first = activeLines[0];
       // `offsetTop` is relative to the nearest positioned ancestor, which is
       // often the document rather than the scrolling <pre> after the mobile
       // layout stacks the code panel. Convert viewport coordinates back into
-      // the scroller's content coordinates instead.
-      const lineRect = first.getBoundingClientRect();
+      // the scroller's content coordinates and include every active line.
+      const lineRects = activeLines.map(line => line.getBoundingClientRect());
       const scrollRect = codeScroll.getBoundingClientRect();
-      const top = lineRect.top - scrollRect.top - codeScroll.clientTop + codeScroll.scrollTop;
-      const bottom = top + lineRect.height;
+      const contentOffset = codeScroll.scrollTop - scrollRect.top - codeScroll.clientTop;
+      const top = Math.min(...lineRects.map(rect => rect.top)) + contentOffset;
+      const bottom = Math.max(...lineRects.map(rect => rect.bottom)) + contentOffset;
       if (top < codeScroll.scrollTop || bottom > codeScroll.scrollTop + codeScroll.clientHeight) {
-        const targetTop = Math.max(0, top - (codeScroll.clientHeight - first.offsetHeight) / 2);
+        const targetTop = Math.max(0, top - Math.max(0, (codeScroll.clientHeight - (bottom - top)) / 2));
         const reducedMotion = motion?.reduced ?? window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         codeScroll.scrollTo({top: targetTop, behavior: reducedMotion ? 'auto' : 'smooth'});
       }

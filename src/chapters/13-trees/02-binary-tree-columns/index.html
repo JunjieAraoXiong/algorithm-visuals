@@ -7,41 +7,12 @@
     <title>Binary Tree Columns · 二叉树的垂序遍历 · Algorithm Visuals</title>
     <link rel="stylesheet" href="../assets/guide.css" />
     <link rel="stylesheet" href="../assets/visual.css" />
-    <style>
-      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
-      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
-      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
-      .step-picker { margin-left: auto; }
-      .stage { overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
-      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 10px; margin: 12px 3px; }
-      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
-      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
-      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
-      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; }
-      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
-      .metrics dt { color: var(--quiet); }
-      .metrics dd { margin: 0; text-align: right; }
-      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
-      .section h2 { margin: 0 0 8px; font-size: 20px; }
-      .section-intro { max-width: 900px; color: var(--quiet); }
-      .card-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
-      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
-      .paper-card p:last-child { margin-bottom: 0; }
-      .paper-card strong { font: 13px/1.4 monospace; }
-      .paper-card p { color: var(--quiet); font-size: 13px; line-height: 1.5; }
-      .small { color: var(--quiet); font-size: 12px; }
-      @media (max-width: 700px) {
-        .state-grid, .card-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
-        .step-picker { width: 100%; margin-left: 0; }
-        .step-picker select { width: 100%; }
-      }
-    </style>
   </head>
   <body>
-    <main id="btcol-lab">
+    <main class="tree-guide" id="btcol-lab">
       <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
       <header class="heading"><div><h1>Binary Tree Columns · <span lang="zh-CN">二叉树的垂序遍历</span></h1></div></header>
-      <p class="problem">Given the root of a binary tree, return a list of arrays where each array represents a vertical column of the tree. Nodes in the same column should be ordered from top to bottom. Nodes in the same row and column should be ordered from left to right. Example: the tree below returns <code>[[2],[9],[5,1,4],[3],[7]]</code>.<span lang="zh-CN">给定二叉树根节点，按“竖直列”输出整棵树：同一列的节点自上而下排列；同一行又同一列的节点从左到右排列。书例如下，答案是 [[2],[9],[5,1,4],[3],[7]]——注意 5、1、4 同处第 0 列：5 是根在最上，1 和 4 同行，1 在左先出现。</span></p>
+      <p class="problem">Return nodes column by column, from left to right. Within a column, order top to bottom; ties in a row go left to right.<span lang="zh-CN">按列输出二叉树：同列从上到下；同行同列从左到右。下图输出 <code>[[2],[9],[5,1,4],[3],[7]]</code>，其中 1 必须在 4 前面。</span></p>
 
       <div class="learning-layout" data-learning-layout>
         <section class="animation-panel" data-animation-panel aria-label="二叉树垂序遍历 BFS 演示 / binary tree columns trace">
@@ -55,8 +26,9 @@
           <div class="stage" data-stage tabindex="0" aria-label="二叉树垂序遍历 BFS 演示">
             <svg class="lines" data-lines aria-hidden="true"></svg>
           </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
           <div class="state-grid">
-            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
+            <article class="invariant"><strong>这一刻为什么成立 / Invariant</strong><p data-invariant></p></article>
             <dl class="metrics">
               <div><dt>当前出队</dt><dd data-m-curr></dd></div>
               <div><dt><code>queue</code> 长度</dt><dd data-m-queue></dd></div>
@@ -64,21 +36,19 @@
               <div><dt><code>leftmost</code> / <code>rightmost</code></dt><dd data-m-bounds></dd></div>
             </dl>
           </div>
-          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
         </section>
 
         <aside class="code-panel" data-code-panel aria-labelledby="btcol-code-title">
           <h2 id="btcol-code-title">完整 Python 代码</h2>
           <p class="code-status" data-code-status></p>
           <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def binary_tree_columns(root: TreeNode) -&gt; List[List[int]]:</span><span class="code-line" data-source-key="if-empty">    if not root:</span><span class="code-line" data-source-key="return-empty">        return []</span><span class="code-line" data-source-key="map-init">    column_map = defaultdict(list)</span><span class="code-line" data-source-key="bounds-init">    leftmost_column = rightmost_column = 0</span><span class="code-line" data-source-key="queue-init">    queue = deque([(root, 0)])</span><span class="code-line" data-source-key="while">    while queue:</span><span class="code-line" data-source-key="pop">        node, column = queue.popleft()</span><span class="code-line" data-source-key="if-node">        if node:</span><span class="code-line">            # Add the current node's value to its corresponding list in the hash</span><span class="code-line">            # map.</span><span class="code-line" data-source-key="append-map">            column_map[column].append(node.val)</span><span class="code-line" data-source-key="update-left">            leftmost_column = min(leftmost_column, column)</span><span class="code-line" data-source-key="update-right">            rightmost_column = max(rightmost_column, column)</span><span class="code-line">            # Add the current node's children to the queue with their respective</span><span class="code-line">            # column ids.</span><span class="code-line" data-source-key="enqueue-left">            queue.append((node.left, column - 1))</span><span class="code-line" data-source-key="enqueue-right">            queue.append((node.right, column + 1))</span><span class="code-line">    # Construct the output list by collecting values from each column in the hash</span><span class="code-line">    # map in the correct order.</span><span class="code-line" data-source-key="return-collect">    return [column_map[i] for i in range(leftmost_column, rightmost_column + 1)]</span></code></pre>
-          <p class="note">圆圈内是节点值；节点下方的 <code>col = …</code> 是它的列编号，五条竖色带即列 −2…+2。下方左侧面板是 <code>queue</code>（队首在左，<code>null</code> 条目是虚线格），右侧五个槽位是 <code>column_map</code> 按列号的排布（入桶顺序即自上而下），旁边常显 <code>leftmost</code> / <code>rightmost</code>。</p>
         </aside>
       </div>
 
       <section class="section" aria-labelledby="btcol-intuition">
         <h2 id="btcol-intuition">直觉：给每个节点一个列编号 / Column id</h2>
         <p class="section-intro">把根放在第 0 列：每向左走一步列编号 −1，向右走一步 +1。于是一条竖直线上的所有节点同列——9 在 −1 列，2 在 −2 列，1 和 4 都落在 0 列，7 在 +2 列。遍历每个节点时把它的值丢进哈希表 <code>column_map[column]</code> 对应的桶里，分列就完成了。</p>
-        <p class="section-intro">哈希表本身无序，输出却要“从左到右按列”。代码用一对边界变量解决：<code>leftmost_column</code> / <code>rightmost_column</code> 在遍历中记录见过的最小、最大列号，收尾时 <code>range(leftmost, rightmost + 1)</code> 逐个取值，顺序就有了保证。</p>
+        <p class="section-intro">Python 字典保留插入顺序，但第一次遇到各列的顺序不是列号顺序。输出要“从左到右按列”。代码用一对边界变量解决：<code>leftmost_column</code> / <code>rightmost_column</code> 在遍历中记录见过的最小、最大列号，收尾时 <code>range(leftmost, rightmost + 1)</code> 逐个取值，顺序就有了保证。</p>
       </section>
 
       <section class="section" aria-labelledby="btcol-bfs">
@@ -96,7 +66,7 @@
           <article class="paper-card"><strong>空树</strong><p><code>if not root: return []</code> 在第一行就返回空列表——垂序遍历没有列可言。这是唯一的显式特判。</p></article>
           <article class="paper-card"><strong>单列树</strong><p>只有根节点时，所有节点都在 0 列，leftmost = rightmost = 0，输出 [[5]] 这样的单桶列表；range 只扫一列。</p></article>
           <article class="paper-card"><strong>斜树</strong><p>全左斜链的列号一路 −1,−2,−3…，leftmost 每层左移一格；全右斜链则 rightmost 右移。边界跟随遍历扩张，range 覆盖整段。</p></article>
-          <article class="paper-card"><strong>null 条目翻倍队列流量</strong><p>每个节点入队两次（两个孩子），其中叶子贡献的全是 null。队列流量是 2n 而不是 n，但每个条目仍是 O(1) 处理，复杂度不变。</p></article>
+          <article class="paper-card"><strong>null 条目翻倍队列流量</strong><p>每个真实节点只入队一次；每次处理真实节点又加入两个孩子条目。加上最初的根，共出队 2n+1 个条目，其中 n+1 个为空。总时间仍是 O(n)。</p></article>
         </div>
       </section>
 
@@ -108,7 +78,7 @@
         </div>
       </section>
 
-      <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../flatten-multilevel-linked-list/">扁平化多级链表</a><a href="../happy-number/">快乐数</a><a href="../">全部题目</a></nav>
+      <nav class="related-nav" aria-label="同章题目">Trees · 同章题目：<a href="../binary-tree-symmetry/">二叉树对称性</a><a href="../kth-smallest-number-in-a-binary-search-tree/">BST 第 K 小</a><a href="../serialize-and-deserialize-a-binary-tree/">序列化与反序列化</a><a href="../">全部题目</a></nav>
     </main>
 
     <script src="../assets/core.js"></script>
@@ -220,6 +190,7 @@
         // SIM-END
 
         const EVENTS = simulateBinaryTreeColumns(TREE_SPEC);
+        const BFS_ORDER = new Map(EVENTS.filter(e => e.type === 'pop' && e.node !== null).map((e, i) => [e.node, i + 1]));
         const MAX_QUEUE = Math.max(...EVENTS.map(e => (e.queue ? e.queue.length : 0)));
         const COLS = [-2, -1, 0, 1, 2];
         const textW = (s, fs) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? fs : fs * 0.62), 0);
@@ -234,7 +205,7 @@
           pop: 'queue 是 FIFO：popleft 取出的永远是最老的条目——正是当前最上、最左的待处理节点。',
           nullPop: 'null 条目出队即丢：if node 为假，什么都不做。null 来自“孩子无条件入队”。',
           append: '同列自上而下 = BFS 逐层顺序；同行同列从左到右 = 每层从左到右出队。入桶顺序即输出顺序。',
-          bounds: '哈希表无序，输出靠 leftmost/rightmost 这对边界定序：只在见到新列时扩张。',
+          bounds: '插入顺序不等于列号顺序，输出靠 leftmost/rightmost 这对边界定序：只在见到新列时扩张。',
           enqueue: '左孩子带着 col − 1 先入队，右孩子带着 col + 1 后入队——同层永远左先右后。',
           collect: 'range(leftmost, rightmost + 1) 从左到右扫哈希表，逐列拼出输出。'
         };
@@ -375,7 +346,7 @@
                   note = `leftmost = min(0, ${ev.column}) = ${ev.leftmost}，rightmost = max(0, ${ev.column}) = ${ev.rightmost}——根在 0 列，范围没动。这对边界就是最后输出时从左到右扫哈希表的端点。`;
                 } else if (flash) {
                   const side = flash === 'left' ? 'leftmost' : flash === 'right' ? 'rightmost' : '边界';
-                  note = `见到新列 ${ev.column}：${side} 更新，范围扩到 [${ev.leftmost}, ${ev.rightmost}]。哈希表自己记不住顺序，全靠这对边界。`;
+                  note = `见到新列 ${ev.column}：${side} 更新，范围扩到 [${ev.leftmost}, ${ev.rightmost}]。字典的插入顺序不等于列号顺序，全靠这对边界。`;
                 } else {
                   note = `列 ${ev.column} 已在 [${ev.leftmost}, ${ev.rightmost}] 之内，边界不变：min/max 原样写回。`;
                 }
@@ -426,7 +397,7 @@
                   };
                   const note = last
                     ? `column_map[${col}] = [${ev.result[k].join(', ')}] 入列——收集完毕，输出 [[2],[9],[5,1,4],[3],[7]]，与书例逐字一致。复盘：BFS 层序给出同列的上下次序，队列的 FIFO 给出同行的左右次序，边界 range 给出列的左右次序。`
-                    : `range(${ev.leftmost}, ${ev.rightmost + 1}) 扫到列 ${col}：column_map[${col}] = [${ev.result[k].join(', ')}]，成为输出第 ${k + 1} 列。哈希表无序没关系——下标走的是 range，不是哈希表。`;
+                    : `range(${ev.leftmost}, ${ev.rightmost + 1}) 扫到列 ${col}：column_map[${col}] = [${ev.result[k].join(', ')}]，成为输出第 ${k + 1} 列。字典的插入顺序不影响结果——这里按 range 的列号取值。`;
                   fr(`收集列 ${col} → ${fmtList(ev.result[k])}`, '按列收集', ['return-collect'],
                     `return [column_map[i] for i in range(${ev.leftmost}, ${ev.rightmost + 1})]  # i = ${col}`,
                     note, INV.collect, s);
@@ -457,7 +428,7 @@
           const narrow = W < 620;
           const tiny = W < 400;
           const pad = narrow ? 10 : 18;
-          const fs = narrow ? 8.5 : 10;
+          const fs = 11;
           const fsNode = narrow ? 11 : 13;
           const cx = W / 2;
           const r = narrow ? 13 : 15;
@@ -469,26 +440,24 @@
           const treeH = topY + 2 * rowPitch + r + labelSpace + 4;
 
           const qY = treeH + (narrow ? 12 : 16);
-          const fsQ = narrow ? 8.5 : 9.5;
-          const cellH = narrow ? 19 : 22;
+          const fsQ = 10.5;
+          const cellH = 25;
           const cellGap = 5;
           const nullW = textW('(null, -3)', fsQ) + 12;
           const perRow = Math.max(1, Math.floor((W - pad * 2 + cellGap) / (nullW + cellGap)));
           const qRows = Math.max(1, Math.ceil(MAX_QUEUE / perRow));
-          const ghostH = cellH + 6;
-          const qH = 12 + ghostH + qRows * cellH + (qRows - 1) * 4 + 14;
+          const ghostH = cellH + 14;
+          const qH = 12 + ghostH + qRows * cellH + (qRows - 1) * 16 + 18;
 
           const bY = qY + qH + (narrow ? 12 : 16);
           const slotGap = narrow ? 4 : 8;
-          const mapW = narrow ? W - pad * 2 : Math.min(W * 0.52, 5 * 78);
+          const mapW = W - pad * 2;
           const slotW = (mapW - 4 * slotGap) / 5;
-          const buckH = 15;
+          const buckH = 20;
           const mapBlockH = 12 + 13 + 3 * (buckH + 2) + 6;
 
           const outBoxH = 20;
-          const bottomH = narrow
-            ? mapBlockH + 6 + 26 + 26 + 4 + outBoxH + 6
-            : Math.max(mapBlockH, 4 + 26 + 26 + 6 + outBoxH) + 6;
+          const bottomH = mapBlockH + 6 + 52 + 20 + outBoxH + 14;
 
           const introH = {
             intro1: treeH + (narrow ? 66 : 60),
@@ -505,7 +474,7 @@
           stage.style.height = `${H}px`;
         }
 
-        const nodeX = n => geom.cx + (n.col + (n.val === 1 ? -0.3 : n.val === 4 ? 0.3 : 0)) * geom.colPitch;
+        const nodeX = n => geom.cx + n.col * geom.colPitch + (n.val === 1 ? -geom.r - 7 : n.val === 4 ? geom.r + 7 : 0);
         const nodeY = n => geom.topY + n.depth * geom.rowPitch;
         const colX = c => geom.cx + c * geom.colPitch;
 
@@ -579,7 +548,7 @@
           const boxH = g.narrow ? 20 : 22;
           text('i1-out-lab', { x: g.cx, y: g.treeH + (g.narrow ? 14 : 13), 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, '书例输出 Output →');
           const y = g.treeH + (g.narrow ? 22 : 20);
-          const fsA = g.narrow ? 8.5 : 9.5;
+          const fsA = 10;
           answers.forEach((vals, k) => {
             const label = fmtList(vals);
             const w = textW(label, fsA) + 14;
@@ -598,7 +567,7 @@
           const g = geom;
           drawTreeBase(prims, { bands: true, headers: true });
           // the root's two edges carry the rule: bold them
-          for (const n of [NODES[1], NODES[2]]) {
+          for (const n of [NODES[NODES[0].left], NODES[NODES[0].right]]) {
             const p = NODES[n.parent];
             path(`i2-e-${n.id}`, {
               d: `M ${nodeX(p)} ${nodeY(p) + g.r} L ${nodeX(n)} ${nodeY(n) - g.r}`,
@@ -615,8 +584,8 @@
             text(`${id}-t`, { x: bx + w / 2, y: y + 3.5, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, str);
           };
           const ry = nodeY(root);
-          chip('i2-cl', nodeX(root) - g.r - 8, ry, '左 → col − 1', 'end');
-          chip('i2-cr', nodeX(root) + g.r + 8, ry, '右 → col + 1', 'start');
+          chip('i2-cl', nodeX(root) - g.r - 8, ry, '左：col − 1', 'end');
+          chip('i2-cr', nodeX(root) + g.r + 8, ry, '右：col + 1', 'start');
           // per-node column labels: above for shallow nodes, below for depth-2
           for (const n of NODES) {
             text(`i2-c-${n.id}`, {
@@ -628,7 +597,7 @@
           const y = g.treeH + (g.narrow ? 16 : 14);
           text('i2-note', {
             x: g.cx, y, 'text-anchor': 'middle', 'font-size': g.fs, fill: '#555', 'font-family': MONO
-          }, g.narrow ? '根 = 0；向左 −1，向右 +1；同列即同一竖条' : '列编号：根 = 0，向左 col − 1，向右 col + 1；同一条竖直线上的节点同列（1 与 4 都在 0 列）');
+          }, g.narrow ? '根为 0 · 左 −1 · 右 +1' : '列编号：根 = 0，向左 col − 1，向右 col + 1；同一条竖直线上的节点同列（1 与 4 都在 0 列）');
         }
 
         function drawIntro3(prims) {
@@ -641,20 +610,11 @@
             const bx = Math.max(14, Math.min(g.W - 14, nodeX(n) + side * (g.r + 9)));
             const by = nodeY(n) - g.r - 2;
             circleSafe(prims, `i3-o-${n.id}`, bx, by, 7.5, '#fffdf8', '#272727');
-            text(`i3-ov-${n.id}`, { x: bx, y: by + 3, 'text-anchor': 'middle', 'font-size': g.fs - 1, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, String(n.id + 1));
+            text(`i3-ov-${n.id}`, { x: bx, y: by + 3, 'text-anchor': 'middle', 'font-size': g.fs - 1, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, String(BFS_ORDER.get(n.val)));
           }
-          const fit = (str, base) => {
-            let f = base;
-            while (f > 6.5 && textW(str, f) > g.W - g.pad * 2) f -= 0.5;
-            return f;
-          };
-          const y = g.treeH + (g.narrow ? 16 : 14);
-          const line1 = '① 同列自上而下：BFS 按层展开——0 列的 5（第 0 层）先于 1、4（第 2 层）入桶';
-          const line2 = '② 同行同列从左到右：9 先于 3 出队 ⇒ 1 先于 4——队列 FIFO 锁定左右次序';
-          const line3 = '节点旁小圆 = BFS 出队次序 ①…⑦；DFS 先序不保证层序，两条要求会翻车';
-          text('i3-a', { x: g.cx, y, 'text-anchor': 'middle', 'font-size': fit(line1, g.fs), fill: '#272727', 'font-family': MONO }, line1);
-          text('i3-b', { x: g.cx, y: y + 15, 'text-anchor': 'middle', 'font-size': fit(line2, g.fs), fill: '#272727', 'font-family': MONO }, line2);
-          text('i3-c', { x: g.cx, y: y + (g.narrow ? 31 : 29), 'text-anchor': 'middle', 'font-size': fit(line3, g.fs - 0.5), fill: '#555', 'font-family': MONO }, line3);
+          const y = g.treeH + 16;
+          const captions = ['出队顺序：5 → 9 → 3 → 2 → 1 → 4 → 7', '按层访问：5 在 1、4 之前进入第 0 列', '先左后右入队：同层同列的 1 在 4 前面'];
+          captions.forEach((label, i) => text(`i3-caption-${i}`, { x: g.cx, y: y + i * 18, 'text-anchor': 'middle', 'font-size': g.fs, fill: i === 0 ? '#272727' : '#555', 'font-family': MONO }, label));
         }
 
         function circleSafe(prims, id, cxp, cyp, r, fill, stroke) {
@@ -666,7 +626,7 @@
           const g = geom;
           const y0 = g.qY;
           text('q-title', { x: g.pad, y: y0 + 9, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'queue');
-          text('q-hint', { x: g.pad + textW('queue', g.fs) + 8, y: y0 + 9, 'font-size': g.fs - 0.5, fill: '#777', 'font-family': MONO }, '(节点, 列号) · 队首在左 · popleft / append');
+          text('q-hint', { x: g.pad + textW('queue', g.fs) + 8, y: y0 + 9, 'font-size': g.fs - 0.5, fill: '#777', 'font-family': MONO }, '(节点, 列号) · 先入先出');
           const cellY = y0 + 12 + g.ghostH;
           const newVals = state.enqueued ? state.enqueued.map(e => `${e.val}@${e.col}`) : [];
           let x = g.pad;
@@ -675,7 +635,7 @@
             const label = e.isNull ? `(null, ${e.col})` : `(${e.val}, ${e.col})`;
             const w = textW(label, g.fsQ) + 12;
             if (x + w > g.W - g.pad && x > g.pad) { x = g.pad; row += 1; }
-            const y = cellY + row * (g.cellH + 4);
+            const y = cellY + row * (g.cellH + 16);
             const isNew = from && newVals.includes(`${e.val}@${e.col}`) && !from.queue.some(f => f.val === e.val && f.col === e.col);
             const op = isNew ? t : 1;
             const stroke = e.isNull ? '#999' : '#555';
@@ -704,7 +664,7 @@
             const label = state.ghost.val === null ? `(null, ${state.ghost.col})` : `(${state.ghost.val}, ${state.ghost.col})`;
             const w = textW(label, g.fsQ) + 12;
             const gx = g.pad + w / 2;
-            const gt = y0 + 10;
+            const gt = y0 + 17;
             path('q-ghost', { d: rectPath(gx - w / 2, gt, w, g.cellH, 3), fill: '#fffdf8', stroke: state.ghost.val === null ? '#999' : '#272727', 'stroke-width': 1.3, 'stroke-dasharray': state.ghost.val === null ? '4 3' : 'none', opacity: t });
             text('q-ghost-v', { x: gx, y: gt + g.cellH / 2 + 3.2, 'text-anchor': 'middle', 'font-size': g.fsQ, fill: state.ghost.val === null ? '#777' : '#272727', 'font-family': MONO, 'font-weight': 'bold', opacity: t }, label);
             text('q-ghost-cap', { x: gx + w / 2 + 8, y: gt + g.cellH / 2 + 3.2, 'font-size': g.fs - 0.5, fill: '#555', 'font-family': MONO, opacity: t }, 'popleft() 弹出');
@@ -716,7 +676,7 @@
           const g = geom;
           const y0 = g.bY;
           text('m-title', { x: g.pad, y: y0 + 9, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'column_map');
-          text('m-hint', { x: g.pad + textW('column_map', g.fs) + 8, y: y0 + 9, 'font-size': g.fs - 0.5, fill: '#777', 'font-family': MONO }, '列号 → 值列表（自上而下 = 入桶顺序）');
+          text('m-hint', { x: g.pad + textW('column_map', g.fs) + 8, y: y0 + 9, 'font-size': g.fs - 0.5, fill: '#777', 'font-family': MONO }, '按列保存 · 保持入桶顺序');
           const headY = y0 + 15;
           COLS.forEach((c, k) => {
             const x = g.pad + k * (g.slotW + g.slotGap);
@@ -752,9 +712,8 @@
           });
 
           // bounds badges
-          const wideSide = !g.narrow;
-          const bx = wideSide ? g.pad + g.mapW + 22 : g.pad;
-          const byy = wideSide ? y0 + 4 : y0 + g.mapBlockH + 6;
+          const bx = g.pad;
+          const byy = y0 + g.mapBlockH + 6;
           const badge = (id, x, y, label, flash) => {
             const w = textW(label, g.fs) + 12;
             path(`${id}-box`, { d: rectPath(x, y, w, 20, 3), fill: '#fffdf8', stroke: flash ? '#272727' : '#999', 'stroke-width': flash ? 1.6 : 1.1, 'stroke-dasharray': flash ? '4 3' : 'none' });
@@ -764,23 +723,18 @@
           badge('bd-l', bx, byy, `leftmost_column = ${state.leftmost}`, state.boundsFlash === 'left' || state.boundsFlash === 'both');
           badge('bd-r', bx, byy + 26, `rightmost_column = ${state.rightmost}`, state.boundsFlash === 'right' || state.boundsFlash === 'both');
 
-          // output row (collect frames)
-          const oy = wideSide ? byy + 26 + 26 + 6 : byy + 52 + 4;
+          // Reserve a full-width output row; align each result with its column.
+          const oy = byy + 52 + 20;
           if (state.output) {
-            text('out-lab', { x: bx, y: oy + g.outBoxH / 2 + 3.5, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'output →');
-            let ox = bx + textW('output →', g.fs) + 10;
-            const fsO = g.narrow ? 8.5 : 9.5;
+            text('out-lab', { x: g.pad, y: oy - 7, 'font-size': g.fs, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold' }, 'output · 从左到右收集');
             state.output.forEach((vals, k) => {
-              const label = fmtList(vals);
-              const w = textW(label, fsO) + 12;
+              const label = `[${vals.join(',')}]`;
+              const ox = g.pad + k * (g.slotW + g.slotGap);
               const isNew = from && from.output && from.output.length === k;
               const op = isNew ? t : 1;
-              path(`out-${k}`, { d: rectPath(ox, oy + (isNew ? (1 - t) * 5 : 0), w, g.outBoxH, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.2, opacity: op });
-              text(`out-v-${k}`, { x: ox + w / 2, y: oy + (isNew ? (1 - t) * 5 : 0) + g.outBoxH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': fsO, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold', opacity: op }, label);
-              ox += w + 6;
+              path(`out-${k}`, { d: rectPath(ox, oy, g.slotW, g.outBoxH, 3), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.2, opacity: op });
+              text(`out-v-${k}`, { x: ox + g.slotW / 2, y: oy + g.outBoxH / 2 + 3.5, 'text-anchor': 'middle', 'font-size': 10.5, fill: '#272727', 'font-family': MONO, 'font-weight': 'bold', opacity: op }, label);
             });
-          } else if (wideSide) {
-            text('out-hint', { x: bx, y: oy + g.outBoxH / 2 + 3.5, 'font-size': g.fs - 1, fill: '#c0bdb2', 'font-family': MONO }, 'output →（循环结束后按列收集）');
           }
         }
 
