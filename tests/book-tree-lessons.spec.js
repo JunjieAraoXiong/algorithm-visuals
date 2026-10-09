@@ -26,3 +26,18 @@ test('both inversion methods mirror entire subtrees and accept an empty tree', a
   await expect(page.locator('[data-result]')).toHaveText('None');
   await expect(page.locator('svg .node')).toHaveCount(0);
 });
+
+test('balance validation propagates internal imbalance instead of accepting equal root heights', async ({page}) => {
+  await page.goto('/balanced-binary-tree-validation/#step=0');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toContainText('False');
+  await expect(page.locator('[data-visual-element="label-c"]')).toHaveText('h=-1');
+  await expect(page.locator('[data-visual-element="label-a"]')).toHaveText('h=-1');
+  await page.locator('[data-case]').selectOption('balanced');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toContainText('True');
+  await expect(page.locator('[data-visual-element="label-a"]')).toHaveText('h=4');
+  await page.locator('[data-case]').selectOption('empty');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toContainText('True');
+});
