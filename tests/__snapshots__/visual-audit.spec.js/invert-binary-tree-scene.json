@@ -1,0 +1,1494 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "算法逐步执行"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "label",
+      "attributes": [
+        [
+          "class",
+          "settings"
+        ]
+      ],
+      "children": [
+        "方法",
+        {
+          "tag": "select",
+          "attributes": [
+            [
+              "aria-label",
+              "翻转方法"
+            ],
+            [
+              "data-case",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "recursive"
+                ]
+              ],
+              "children": [
+                "递归：先左后右"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "iterative"
+                ]
+              ],
+              "children": [
+                "栈：后进先出"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "empty"
+                ]
+              ],
+              "children": [
+                "空树"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 45"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "1 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "2 · root.left, root.right = root.right, root.left"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "3 · invert_binary_tree_recursive(root.left)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "4 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "5 · root.left, root.right = root.right, root.left"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "6 · invert_binary_tree_recursive(root.left)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "7 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "8 · root.left, root.right = root.right, root.left"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "9 · invert_binary_tree_recursive(root.left)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "10 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "11 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "12 · invert_binary_tree_recursive(root.right)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "13 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "14 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "15 · return root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "16 · invert_binary_tree_recursive(root.right)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "17 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "18 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "19 · return root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "19"
+                    ]
+                  ],
+                  "children": [
+                    "20 · invert_binary_tree_recursive(root.right)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "20"
+                    ]
+                  ],
+                  "children": [
+                    "21 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "21"
+                    ]
+                  ],
+                  "children": [
+                    "22 · root.left, root.right = root.right, root.left"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "22"
+                    ]
+                  ],
+                  "children": [
+                    "23 · invert_binary_tree_recursive(root.left)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "23"
+                    ]
+                  ],
+                  "children": [
+                    "24 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "24"
+                    ]
+                  ],
+                  "children": [
+                    "25 · root.left, root.right = root.right, root.left"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "25"
+                    ]
+                  ],
+                  "children": [
+                    "26 · invert_binary_tree_recursive(root.left)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "26"
+                    ]
+                  ],
+                  "children": [
+                    "27 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "27"
+                    ]
+                  ],
+                  "children": [
+                    "28 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "28"
+                    ]
+                  ],
+                  "children": [
+                    "29 · invert_binary_tree_recursive(root.right)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "29"
+                    ]
+                  ],
+                  "children": [
+                    "30 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "30"
+                    ]
+                  ],
+                  "children": [
+                    "31 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "31"
+                    ]
+                  ],
+                  "children": [
+                    "32 · return root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "32"
+                    ]
+                  ],
+                  "children": [
+                    "33 · invert_binary_tree_recursive(root.right)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "33"
+                    ]
+                  ],
+                  "children": [
+                    "34 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "34"
+                    ]
+                  ],
+                  "children": [
+                    "35 · root.left, root.right = root.right, root.left"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "35"
+                    ]
+                  ],
+                  "children": [
+                    "36 · invert_binary_tree_recursive(root.left)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "36"
+                    ]
+                  ],
+                  "children": [
+                    "37 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "37"
+                    ]
+                  ],
+                  "children": [
+                    "38 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "38"
+                    ]
+                  ],
+                  "children": [
+                    "39 · invert_binary_tree_recursive(root.right)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "39"
+                    ]
+                  ],
+                  "children": [
+                    "40 · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "40"
+                    ]
+                  ],
+                  "children": [
+                    "41 · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "41"
+                    ]
+                  ],
+                  "children": [
+                    "42 · return root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "42"
+                    ]
+                  ],
+                  "children": [
+                    "43 · return root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "43"
+                    ]
+                  ],
+                  "children": [
+                    "44 · return root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "44"
+                    ]
+                  ],
+                  "children": [
+                    "45 · return root"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ],
+        [
+          "data-phase",
+          ""
+        ]
+      ],
+      "children": [
+        "递归 · 先交换，再向下"
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "array-panel"
+        ],
+        [
+          "data-arrays",
+          ""
+        ]
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "diagram-caption"
+        ],
+        [
+          "data-caption",
+          ""
+        ]
+      ],
+      "children": [
+        "输入：5 的左子树是 1（7、6），右子树是 8（右孩子 4）。"
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "diagram-workspace"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "aria-label",
+              "递归调用的 root 指向 5。"
+            ],
+            [
+              "class",
+              "stage"
+            ],
+            [
+              "data-stage",
+              ""
+            ],
+            [
+              "role",
+              "group"
+            ],
+            [
+              "style",
+              "height: 294px;"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "svg",
+              "attributes": [
+                [
+                  "aria-label",
+                  "树节点与指针"
+                ],
+                [
+                  "role",
+                  "img"
+                ],
+                [
+                  "viewBox",
+                  "0 0 520 294"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "defs",
+                  "children": [
+                    {
+                      "tag": "marker",
+                      "attributes": [
+                        [
+                          "viewBox",
+                          "0 0 8 8"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "d",
+                              "M0 0 L8 4 L0 8 Z"
+                            ],
+                            [
+                              "fill",
+                              "#333"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "marker",
+                      "attributes": [
+                        [
+                          "viewBox",
+                          "0 0 8 8"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "d",
+                              "M0 0 L8 4 L0 8 Z"
+                            ],
+                            [
+                              "fill",
+                              "#555"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M245.96404109448616,79.59123858543445 L155.68724818851547,141.28038040451443"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-a-left"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M274.03595890551384,79.59123858543445 L364.31275181148453,141.28038040451443"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-a-right"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M129.9613300954683,165.7195155361933 L91.21968989330013,218.66642381248982"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-b-left"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M150.0386699045317,165.7195155361933 L188.7803101066999,218.66642381248982"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-b-right"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M390.0386699045317,165.7195155361933 L428.78031010669986,218.66642381248982"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-c-right"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node active"
+                    ],
+                    [
+                      "cx",
+                      "260"
+                    ],
+                    [
+                      "cy",
+                      "70"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-a"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-a"
+                    ],
+                    [
+                      "x",
+                      "260"
+                    ],
+                    [
+                      "y",
+                      "71"
+                    ]
+                  ],
+                  "children": [
+                    "5"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "140"
+                    ],
+                    [
+                      "cy",
+                      "152"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-b"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-b"
+                    ],
+                    [
+                      "x",
+                      "140"
+                    ],
+                    [
+                      "y",
+                      "153"
+                    ]
+                  ],
+                  "children": [
+                    "1"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "380"
+                    ],
+                    [
+                      "cy",
+                      "152"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-c"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-c"
+                    ],
+                    [
+                      "x",
+                      "380"
+                    ],
+                    [
+                      "y",
+                      "153"
+                    ]
+                  ],
+                  "children": [
+                    "8"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "80"
+                    ],
+                    [
+                      "cy",
+                      "234"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-d"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-d"
+                    ],
+                    [
+                      "x",
+                      "80"
+                    ],
+                    [
+                      "y",
+                      "235"
+                    ]
+                  ],
+                  "children": [
+                    "7"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "200"
+                    ],
+                    [
+                      "cy",
+                      "234"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-e"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-e"
+                    ],
+                    [
+                      "x",
+                      "200"
+                    ],
+                    [
+                      "y",
+                      "235"
+                    ]
+                  ],
+                  "children": [
+                    "6"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "440"
+                    ],
+                    [
+                      "cy",
+                      "234"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-f"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-f"
+                    ],
+                    [
+                      "x",
+                      "440"
+                    ],
+                    [
+                      "y",
+                      "235"
+                    ]
+                  ],
+                  "children": [
+                    "4"
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "reference-box"
+                    ],
+                    [
+                      "d",
+                      "M239,15 h42 v20 h-42 Z"
+                    ],
+                    [
+                      "data-visual-element",
+                      "reference-box"
+                    ],
+                    [
+                      "opacity",
+                      "1"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "class",
+                      "annotation"
+                    ],
+                    [
+                      "data-visual-element",
+                      "reference-label"
+                    ],
+                    [
+                      "opacity",
+                      "1"
+                    ],
+                    [
+                      "x",
+                      "260"
+                    ],
+                    [
+                      "y",
+                      "25"
+                    ]
+                  ],
+                  "children": [
+                    "root"
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "reference"
+                    ],
+                    [
+                      "d",
+                      "M260,35 V51"
+                    ],
+                    [
+                      "data-visual-element",
+                      "reference"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#return-arrow)"
+                    ],
+                    [
+                      "opacity",
+                      "1"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "memory"
+            ],
+            [
+              "data-memory",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "h3",
+              "children": [
+                "调用栈 · 最后一个是栈顶"
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "memory-items"
+                ],
+                [
+                  "data-memory-items",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "memory-item current"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "div",
+                      "children": [
+                        "root = 5"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "class",
+                  "memory-note"
+                ],
+                [
+                  "data-memory-note",
+                  ""
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "if not root"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "递归调用的 root 指向 5。"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "保持什么成立"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "每个已处理节点都交换左右子指针；值不变，整个子树随引用换边。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "返回结果"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "class",
+                  "result"
+                ],
+                [
+                  "data-result",
+                  ""
+                ]
+              ],
+              "children": [
+                "结果：尚未返回"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
