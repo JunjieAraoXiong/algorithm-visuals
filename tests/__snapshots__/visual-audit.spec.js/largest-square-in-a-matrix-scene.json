@@ -1,0 +1,1637 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "最大正方形 DP 演示 / largest square DP trace"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 32"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "1. 检查输入"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "2. 建 dp 表"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "3. max_len = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "4. 第 0 行 · j = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "5. 第 0 行 · j = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "6. 第 0 行 · j = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "7. 第 0 行 · j = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "8. 第 0 行 · j = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "9. 第 0 列 · i = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "10. 第 0 列 · i = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "11. 第 0 列 · i = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "12. 第 0 列 · i = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "13. 第 0 列 · i = 4"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "14. (1, 1) · 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "15. (1, 2) · dp = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "16. (1, 3) · dp = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "17. max_len → 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "18. (1, 4) · dp = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "19. (2, 1) · dp = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "19"
+                    ]
+                  ],
+                  "children": [
+                    "20. (2, 2) · dp = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "20"
+                    ]
+                  ],
+                  "children": [
+                    "21. (2, 3) · dp = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "21"
+                    ]
+                  ],
+                  "children": [
+                    "22. (2, 4) · 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "22"
+                    ]
+                  ],
+                  "children": [
+                    "23. (3, 1) · dp = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "23"
+                    ]
+                  ],
+                  "children": [
+                    "24. (3, 2) · dp = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "24"
+                    ]
+                  ],
+                  "children": [
+                    "25. (3, 3) · 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "25"
+                    ]
+                  ],
+                  "children": [
+                    "26. (3, 4) · dp = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "26"
+                    ]
+                  ],
+                  "children": [
+                    "27. (4, 1) · dp = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "27"
+                    ]
+                  ],
+                  "children": [
+                    "28. (4, 2) · dp = 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "28"
+                    ]
+                  ],
+                  "children": [
+                    "29. max_len → 3"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "29"
+                    ]
+                  ],
+                  "children": [
+                    "30. (4, 3) · 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "30"
+                    ]
+                  ],
+                  "children": [
+                    "31. (4, 4) · dp = 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "31"
+                    ]
+                  ],
+                  "children": [
+                    "32. 返回 9"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-phase",
+              ""
+            ]
+          ],
+          "children": [
+            "检查输入"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "第 1 / 32 步。矩阵非空，共 5 行 5 列。"
+        ],
+        [
+          "class",
+          "stage"
+        ],
+        [
+          "data-stage",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "boards"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "board matrix"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "p",
+                  "attributes": [
+                    [
+                      "class",
+                      "board-title"
+                    ]
+                  ],
+                  "children": [
+                    "matrix",
+                    {
+                      "tag": "span",
+                      "children": [
+                        "输入"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "board-body"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span"
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "col-index"
+                        ],
+                        [
+                          "data-col-index",
+                          "matrix"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "span",
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "2"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "3"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "4"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "row-index"
+                        ],
+                        [
+                          "data-row-index",
+                          "matrix"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "span",
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "2"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "3"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "4"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "grid"
+                        ],
+                        [
+                          "data-grid",
+                          "matrix"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell zero"
+                            ]
+                          ],
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell zero"
+                            ]
+                          ],
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell zero"
+                            ]
+                          ],
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell zero"
+                            ]
+                          ],
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell zero"
+                            ]
+                          ],
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell zero"
+                            ]
+                          ],
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell zero"
+                            ]
+                          ],
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell one"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "square now"
+                            ],
+                            [
+                              "hidden",
+                              ""
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "square best"
+                            ],
+                            [
+                              "hidden",
+                              ""
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "attributes": [
+                    [
+                      "class",
+                      "board-caption"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "data-best-caption",
+                          ""
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "data-now-caption",
+                          ""
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "board dp"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "p",
+                  "attributes": [
+                    [
+                      "class",
+                      "board-title"
+                    ]
+                  ],
+                  "children": [
+                    "dp",
+                    {
+                      "tag": "span",
+                      "children": [
+                        "最大边长"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "board-body"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span"
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "col-index"
+                        ],
+                        [
+                          "data-col-index",
+                          "dp"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "span",
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "2"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "3"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "4"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "row-index"
+                        ],
+                        [
+                          "data-row-index",
+                          "dp"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "span",
+                          "children": [
+                            "0"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "2"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "3"
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "children": [
+                            "4"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "grid"
+                        ],
+                        [
+                          "data-grid",
+                          "dp"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "span",
+                          "attributes": [
+                            [
+                              "class",
+                              "cell"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "attributes": [
+                    [
+                      "class",
+                      "board-caption"
+                    ],
+                    [
+                      "data-dp-caption",
+                      ""
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "article",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "dp[i][j] 的含义"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "dp[i][j] = 以 (i, j) 为右下角、全部由 1 组成的最大正方形的边长。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "dl",
+          "attributes": [
+            [
+              "class",
+              "metrics"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "i, j"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-ij",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "matrix[i][j]"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-cell",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "dp[i][j]"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-dp",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "children": [
+                {
+                  "tag": "dt",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "children": [
+                        "max_len"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "dd",
+                  "attributes": [
+                    [
+                      "data-max",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "—"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "m, n = 5, 5"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "矩阵非空，共 5 行 5 列。"
+          ]
+        }
+      ]
+    }
+  ]
+}

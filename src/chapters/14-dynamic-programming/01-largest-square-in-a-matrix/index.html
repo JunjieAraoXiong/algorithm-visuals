@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Interactive bilingual visualization of the largest square of 1s in a binary matrix with a bottom-up DP table. 最大正方形：dp[i][j] = 1 + min(上, 左, 左上)。" />
+    <title>Largest Square in a Matrix · Algorithm Visuals</title>
+    <link rel="stylesheet" href="../assets/guide.css" />
+    <link rel="stylesheet" href="../assets/visual.css" />
+    <style>
+      :root { --ls-wash: #f0ecdd; --ls-faint: #b9b7ae; }
+      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem span { display: block; margin-top: 3px; color: var(--quiet); }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; }
+      .stage { container-type: inline-size; overflow: hidden; padding: 14px 0 18px; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
+      .boards { --cell: clamp(27px, calc((100cqw - 108px) / 10), 50px); --gap: 4px; display: flex; padding: 0 4px; flex-wrap: wrap; justify-content: center; gap: 22px 26px; }
+      .board { min-width: 0; }
+      .board-title { margin: 0 0 6px 18px; font: 13px/1.3 monospace; }
+      .board-title span { color: var(--quiet); font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+      .board-body { display: grid; grid-template-columns: 14px auto; grid-template-rows: 14px auto; gap: 3px 4px; }
+      .col-index, .row-index { display: grid; gap: var(--gap); color: var(--quiet); font: 10px/1 monospace; }
+      .col-index { grid-column: 2; grid-template-columns: repeat(5, var(--cell)); text-align: center; }
+      .row-index { grid-row: 2; grid-template-rows: repeat(5, var(--cell)); align-items: center; }
+      .grid { position: relative; display: grid; grid-template-columns: repeat(5, var(--cell)); grid-auto-rows: var(--cell); gap: var(--gap); }
+      .cell { display: grid; place-items: center; border: 1px solid #999; background: var(--paper); font: calc(var(--cell) * .42)/1 monospace; }
+      .matrix .cell.one { background: var(--ls-wash); border-color: #777; }
+      .matrix .cell.zero { color: #999; }
+      .dp .cell { color: var(--ink); }
+      .dp .cell.unset { color: var(--ls-faint); }
+      .cell.current { outline: 2px dashed #555; outline-offset: 2px; position: relative; z-index: 2; }
+      .dp .cell.written { border: 2px solid var(--ink); }
+      .dp .cell.neighbor { outline: 1px dashed #777; outline-offset: 2px; position: relative; z-index: 1; }
+      .dp .cell.neighbor::after { content: attr(data-tag); position: absolute; left: 2px; top: 1px; color: #444; font: 10px/1 monospace; }
+      .dp .cell.limit { outline: 2px solid #555; }
+      .square { position: absolute; z-index: 3; pointer-events: none; left: calc(var(--c) * (var(--cell) + var(--gap)) - 3px); top: calc(var(--r) * (var(--cell) + var(--gap)) - 3px); width: calc(var(--s) * var(--cell) + (var(--s) - 1) * var(--gap) + 6px); height: calc(var(--s) * var(--cell) + (var(--s) - 1) * var(--gap) + 6px); transition: left .3s ease, top .3s ease, width .3s ease, height .3s ease; }
+      .square.now { border: 1.5px dashed #555; }
+      .square.best { border: 2.5px solid var(--ink); }
+      .board-caption { contain: inline-size; display: flex; flex-wrap: wrap; gap: 2px 14px; min-height: 18px; margin: 8px 0 0 18px; color: var(--quiet); font: 11px/1.4 monospace; }
+      .board-caption .key { display: inline-block; width: 14px; height: 9px; margin-right: 5px; vertical-align: -1px; }
+      .board-caption .key.best { border: 2px solid var(--ink); }
+      .board-caption .key.now { border: 1.5px dashed #555; }
+      .dp .cell.pop { animation: ls-pop .36s ease; }
+      @keyframes ls-pop { from { transform: scale(1.18); } to { transform: none; } }
+      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 10px; margin: 12px 3px; }
+      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
+      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
+      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
+      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; align-content: start; }
+      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
+      .metrics dt { color: var(--quiet); }
+      .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+      .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
+      .section h2 { margin: 0 0 8px; font-size: 20px; }
+      .section-intro { max-width: 900px; color: var(--quiet); }
+      .card-grid, .edge-grid, .complexity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+      .paper-card { min-width: 0; padding: 12px; border: 1px solid var(--rule); }
+      .paper-card strong { font: 13px/1.4 monospace; }
+      .paper-card p { margin: 8px 0 0; }
+      .reason-list { margin: 8px 0 0; padding-left: 24px; }
+      .reason-list li { margin: 6px 0; }
+      .mini { display: inline-grid; grid-template-columns: repeat(3, 30px); gap: 3px; margin: 10px 0 4px; font: 13px/1 monospace; }
+      .mini span { display: grid; place-items: center; height: 30px; border: 1px solid #999; }
+      .mini .hole { color: #999; }
+      .mini .here { border: 2px solid var(--ink); }
+      @media (max-width: 700px) {
+        .state-grid, .card-grid, .edge-grid, .complexity { grid-template-columns: 1fr; }
+        .step-picker { width: 100%; margin-left: 0; }
+        .step-picker select { width: 100%; }
+      }
+      @media (prefers-reduced-motion: reduce) { .square { transition: none; } .dp .cell.pop { animation: none; } }
+    </style>
+  </head>
+  <body>
+    <main id="square-lab">
+      <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+      <header class="heading"><div><h1>Largest Square in a Matrix · 矩阵中的最大正方形</h1></div></header>
+      <p class="problem">Given a binary matrix, return the area of the largest square made only of <code>1</code>s.<span lang="zh-CN">给定一个只含 0 和 1 的矩阵，返回全部由 1 组成的最大正方形的面积。</span></p>
+
+      <div class="learning-layout" data-learning-layout>
+        <section class="animation-panel" data-animation-panel aria-label="最大正方形 DP 演示 / largest square DP trace">
+          <div class="controls">
+            <button type="button" data-action="previous">← 上一步</button>
+            <output data-count></output>
+            <button type="button" data-action="next">下一步 →</button>
+            <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
+          </div>
+          <div class="step-meta"><span data-phase></span></div>
+          <div class="stage" data-stage tabindex="0" aria-label="Algorithm trace / 算法演示">
+            <div class="boards">
+              <div class="board matrix">
+                <p class="board-title">matrix <span>输入</span></p>
+                <div class="board-body"><span></span><div class="col-index" data-col-index="matrix"></div><div class="row-index" data-row-index="matrix"></div><div class="grid" data-grid="matrix"></div></div>
+                <p class="board-caption"><span data-best-caption></span><span data-now-caption></span></p>
+              </div>
+              <div class="board dp">
+                <p class="board-title">dp <span>最大边长</span></p>
+                <div class="board-body"><span></span><div class="col-index" data-col-index="dp"></div><div class="row-index" data-row-index="dp"></div><div class="grid" data-grid="dp"></div></div>
+                <p class="board-caption" data-dp-caption></p>
+              </div>
+            </div>
+          </div>
+          <div class="state-grid">
+            <article class="invariant"><strong>dp[i][j] 的含义</strong><p data-invariant></p></article>
+            <dl class="metrics"><div><dt><code>i, j</code></dt><dd data-ij></dd></div><div><dt><code>matrix[i][j]</code></dt><dd data-cell></dd></div><div><dt><code>dp[i][j]</code></dt><dd data-dp></dd></div><div><dt><code>max_len</code></dt><dd data-max></dd></div></dl>
+          </div>
+          <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+        </section>
+
+        <aside class="code-panel" data-code-panel aria-labelledby="square-code-title">
+          <h2 id="square-code-title">Final Python / 最终代码</h2>
+          <p class="code-status" data-code-status></p>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="signature">def largest_square_in_a_matrix(matrix: List[List[int]]) -&gt; int:</span><span class="code-line" data-source-key="empty">    if not matrix:</span><span class="code-line" data-source-key="empty-return">        return 0</span><span class="code-line" data-source-key="dims">    m, n = len(matrix), len(matrix[0])</span><span class="code-line" data-source-key="dp-init">    dp = [[0] * n for _ in range(m)]</span><span class="code-line" data-source-key="max-init">    max_len = 0</span><span class="code-line" data-source-key="c-row0">    # 基础情况：第 0 行的 1 只能构成 1×1 正方形</span><span class="code-line" data-source-key="row0-loop">    for j in range(n):</span><span class="code-line" data-source-key="row0-check">        if matrix[0][j] == 1:</span><span class="code-line" data-source-key="row0-set">            dp[0][j] = 1</span><span class="code-line" data-source-key="row0-max">            max_len = 1</span><span class="code-line" data-source-key="c-col0">    # 基础情况：第 0 列的 1 只能构成 1×1 正方形</span><span class="code-line" data-source-key="col0-loop">    for i in range(m):</span><span class="code-line" data-source-key="col0-check">        if matrix[i][0] == 1:</span><span class="code-line" data-source-key="col0-set">            dp[i][0] = 1</span><span class="code-line" data-source-key="col0-max">            max_len = 1</span><span class="code-line" data-source-key="c-fill">    # 其余格子：边长受上、左、左上三个邻居限制</span><span class="code-line" data-source-key="i-loop">    for i in range(1, m):</span><span class="code-line" data-source-key="j-loop">        for j in range(1, n):</span><span class="code-line" data-source-key="inner-check">            if matrix[i][j] == 1:</span><span class="code-line" data-source-key="inner-set">                dp[i][j] = 1 + min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])</span><span class="code-line" data-source-key="inner-max">            max_len = max(max_len, dp[i][j])</span><span class="code-line" data-source-key="return">    return max_len ** 2</span></code></pre>
+          <p class="note">右侧 <code>dp</code> 表只存“边长”，面积在最后一行才平方。</p>
+        </aside>
+      </div>
+
+      <section class="section" aria-labelledby="square-idea"><h2 id="square-idea">Subproblem / 子问题</h2><p class="section-intro">直接枚举每个正方形太慢。换一个问法：<strong>以 (i, j) 为右下角</strong>的全 1 正方形，边长最大是多少？把这个值存进 <code>dp[i][j]</code>，答案就是整张表里的最大值的平方。</p><div class="card-grid"><article class="paper-card"><strong>matrix[i][j] == 0</strong><p>任何以 0 为右下角的正方形都不全是 1，所以 <code>dp[i][j] = 0</code>（表初始化时已经是 0）。</p></article><article class="paper-card"><strong>matrix[i][j] == 1</strong><p>想扩成边长 <code>k</code>，上方、左方、左上方各自都必须至少撑起边长 <code>k − 1</code> 的正方形。</p></article></div></section>
+      <section class="section" aria-labelledby="square-why"><h2 id="square-why">Why the minimum / 为什么取最小值</h2><p class="section-intro">三个邻居各自边长 k − 1 的正方形叠在一起，正好覆盖以 (i, j) 为右下角、边长 <code>k</code> 的正方形除了 (i, j) 本身以外的所有格子。只要有一个邻居短，就会留下一个“洞”。</p><div class="card-grid"><article class="paper-card"><strong>top = 2, left = 2, diag = 1</strong><div class="mini" aria-label="左上角缺一个 1 的 3×3 示意"><span class="hole">0</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span class="here">?</span></div><p>左上邻居只有 1，说明 3×3 的左上角缺了一个 1，所以只能得到 <code>1 + 1 = 2</code>。</p></article><article class="paper-card"><strong>top = 2, left = 2, diag = 2</strong><div class="mini" aria-label="全部为 1 的 3×3 示意"><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span>1</span><span class="here">?</span></div><p>三个 2×2 正方形合起来覆盖整个 3×3 的其余部分，得到 <code>1 + 2 = 3</code>。</p></article></div><ol class="reason-list"><li>按行从上到下、每行从左到右填表，计算 (i, j) 时三个邻居都已经算好。</li><li>第 0 行、第 0 列没有完整的三个邻居，单独作为基础情况：是 1 就是 1。</li><li><code>max_len</code> 记录目前见过的最大边长；返回前平方得到面积。</li></ol></section>
+      <section class="section" aria-labelledby="square-edge"><h2 id="square-edge">Edge cases / 边界情况</h2><div class="edge-grid"><article class="paper-card"><code>[]</code><p>空矩阵直接返回 0。</p></article><article class="paper-card"><code>[[0, 0], [0, 0]]</code><p>没有 1，<code>max_len</code> 保持 0，面积 0。</p></article><article class="paper-card"><code>[[1, 1, 1]]</code><p>只有基础情况会执行，内层循环不运行，答案是 1。</p></article><article class="paper-card">空间优化<p>计算第 i 行只用到第 i − 1 行，所以可以只保留两行，把额外空间降到 O(n)。</p></article></div></section>
+      <section class="section" aria-labelledby="square-complexity"><h2 id="square-complexity">Complexity / 复杂度</h2><div class="complexity"><article class="paper-card"><strong>Time · O(m · n)</strong><p>每个格子只计算一次，每次 O(1)。</p></article><article class="paper-card"><strong>Space · O(m · n)</strong><p><code>dp</code> 表与输入同样大小；只保留两行时为 O(n)。</p></article></div></section>
+      <nav class="related-nav" aria-label="Related visuals"><strong>相关题目：</strong><a href="../matrix-search/">搜索二维矩阵</a><a href="../sum-between-range/">区间求和</a><a href="../">返回目录</a></nav>
+    </main>
+
+    <script src="../assets/core.js"></script>
+    <script>
+      (() => {
+        const root = document.querySelector('#square-lab');
+        const matrix = [
+          [1, 0, 1, 1, 0],
+          [0, 0, 1, 1, 1],
+          [1, 1, 1, 1, 0],
+          [1, 1, 1, 0, 1],
+          [1, 1, 1, 0, 1]
+        ];
+        const m = matrix.length;
+        const n = matrix[0].length;
+        const $ = selector => root.querySelector(selector);
+        const stage = $('[data-stage]');
+        const matrixGrid = $('[data-grid="matrix"]');
+        const dpGrid = $('[data-grid="dp"]');
+        const clone = value => JSON.parse(JSON.stringify(value));
+        const motion = AlgorithmVisualCore.createMotionController();
+
+        function buildFrames() {
+          const frames = [];
+          const state = { dp: null, maxLen: null, best: null, cur: null, neighbors: null, written: null, now: null, done: false };
+          const add = (keys, label, line, text) => frames.push({ sourceKeys: keys, stepLabel: label, line, text, state: clone(state) });
+          const reset = () => { state.cur = null; state.neighbors = null; state.written = null; state.now = null; };
+
+          add(['empty', 'dims'], '检查输入', `m, n = ${m}, ${n}`, `矩阵非空，共 ${m} 行 ${n} 列。`);
+          state.dp = matrix.map(row => row.map(() => 0));
+          add(['dp-init'], '建 dp 表', 'dp = [[0] * n for _ in range(m)]', 'dp 表全部初始化为 0。值为 0 的格子之后不必再写。');
+          state.maxLen = 0;
+          add(['max-init'], 'max_len = 0', 'max_len = 0', '还没有找到任何全 1 正方形。');
+
+          for (let j = 0; j < n; j += 1) {
+            reset();
+            state.cur = [0, j];
+            if (matrix[0][j] === 1) {
+              state.dp[0][j] = 1;
+              state.written = [0, j];
+              state.now = [0, j, 1];
+              const grew = state.maxLen < 1;
+              state.maxLen = 1;
+              if (grew) state.best = [0, j, 1];
+              add(['row0-loop', 'row0-check', 'row0-set', 'row0-max'], `第 0 行 · j = ${j}`, `matrix[0][${j}] == 1  →  dp[0][${j}] = 1, max_len = 1`, '第 0 行上方没有格子，最多只能是 1×1 正方形。');
+            } else {
+              add(['row0-loop', 'row0-check'], `第 0 行 · j = ${j}`, `matrix[0][${j}] == 0  →  dp[0][${j}] 保持 0`, '这里是 0，不能作为任何正方形的右下角。');
+            }
+          }
+          for (let i = 0; i < m; i += 1) {
+            reset();
+            state.cur = [i, 0];
+            if (matrix[i][0] === 1) {
+              const already = state.dp[i][0] === 1;
+              state.dp[i][0] = 1;
+              state.written = [i, 0];
+              state.now = [i, 0, 1];
+              if (state.maxLen < 1) state.best = [i, 0, 1];
+              state.maxLen = 1;
+              add(['col0-loop', 'col0-check', 'col0-set', 'col0-max'], `第 0 列 · i = ${i}`, `matrix[${i}][0] == 1  →  dp[${i}][0] = 1, max_len = 1`, already ? '(0, 0) 在第 0 行已经写过 1，这里再写一次结果不变。' : '第 0 列左边没有格子，最多只能是 1×1 正方形。');
+            } else {
+              add(['col0-loop', 'col0-check'], `第 0 列 · i = ${i}`, `matrix[${i}][0] == 0  →  dp[${i}][0] 保持 0`, '这里是 0，dp 保持 0。');
+            }
+          }
+          for (let i = 1; i < m; i += 1) {
+            for (let j = 1; j < n; j += 1) {
+              reset();
+              state.cur = [i, j];
+              if (matrix[i][j] === 0) {
+                add(['j-loop', 'inner-check', 'inner-max'], `(${i}, ${j}) · 0`, `matrix[${i}][${j}] == 0  →  max_len = max(${state.maxLen}, 0) = ${state.maxLen}`, `(${i}, ${j}) 是 0，dp[${i}][${j}] 保持 0；max_len 不变。`);
+                continue;
+              }
+              const top = state.dp[i - 1][j];
+              const left = state.dp[i][j - 1];
+              const diag = state.dp[i - 1][j - 1];
+              const low = Math.min(top, left, diag);
+              const value = 1 + low;
+              state.dp[i][j] = value;
+              state.written = [i, j];
+              state.now = [i, j, value];
+              state.neighbors = [
+                { r: i - 1, c: j, tag: '↑', limit: top === low },
+                { r: i, c: j - 1, tag: '←', limit: left === low },
+                { r: i - 1, c: j - 1, tag: '↖', limit: diag === low }
+              ];
+              const limiterList = [top === low && '上', left === low && '左', diag === low && '左上'].filter(Boolean);
+              const limiters = limiterList.length === 3 ? '三个邻居一样大' : `最短的是${limiterList.join('、')}`;
+              const grew = value > state.maxLen;
+              const why = low === 0
+                ? `${limiterList.join('、')}邻居为 0，周围拼不出更大的正方形，只能是 1×1。`
+                : `三个邻居都至少能撑起 ${low}×${low}，所以可以扩成 ${value}×${value}（${limiters}）。`;
+              if (grew) {
+                add(['j-loop', 'inner-check', 'inner-set'], `(${i}, ${j}) · dp = ${value}`, `dp[${i}][${j}] = 1 + min(${top}, ${left}, ${diag}) = ${value}`, why);
+                state.neighbors = null;
+                state.written = null;
+                const before = state.maxLen;
+                state.maxLen = value;
+                state.best = [i, j, value];
+                add(['inner-max'], `max_len → ${value}`, `max_len = max(${before}, ${value}) = ${value}`, `新的最大正方形：以 (${i}, ${j}) 为右下角，边长 ${value}。`);
+              } else {
+                add(['j-loop', 'inner-check', 'inner-set', 'inner-max'], `(${i}, ${j}) · dp = ${value}`, `dp[${i}][${j}] = 1 + min(${top}, ${left}, ${diag}) = ${value};  max_len = max(${state.maxLen}, ${value}) = ${state.maxLen}`, `${why}${value} 没有超过 max_len = ${state.maxLen}，max_len 不变。`);
+              }
+            }
+          }
+          reset();
+          state.done = true;
+          add(['return'], `返回 ${state.maxLen ** 2}`, `return max_len ** 2  # ${state.maxLen}² = ${state.maxLen ** 2}`, `最大全 1 正方形边长 ${state.maxLen}，面积 ${state.maxLen ** 2}。`);
+          return frames;
+        }
+
+        function buildBoard(grid, kind, withSquares) {
+          const cells = [];
+          for (let i = 0; i < m; i += 1) {
+            for (let j = 0; j < n; j += 1) {
+              const cell = document.createElement('span');
+              cell.className = 'cell';
+              grid.append(cell);
+              cells.push(cell);
+            }
+          }
+          root.querySelector(`[data-col-index="${kind}"]`).replaceChildren(...matrix[0].map((_, j) => Object.assign(document.createElement('span'), { textContent: j })));
+          root.querySelector(`[data-row-index="${kind}"]`).replaceChildren(...matrix.map((_, i) => Object.assign(document.createElement('span'), { textContent: i })));
+          if (!withSquares) return { cells };
+          const now = document.createElement('span');
+          now.className = 'square now';
+          const best = document.createElement('span');
+          best.className = 'square best';
+          grid.append(now, best);
+          return { cells, now, best };
+        }
+
+        const matrixBoard = buildBoard(matrixGrid, 'matrix', true);
+        const dpBoard = buildBoard(dpGrid, 'dp', false);
+        matrixBoard.cells.forEach((cell, index) => {
+          const value = matrix[Math.floor(index / n)][index % n];
+          cell.textContent = value;
+          cell.classList.add(value ? 'one' : 'zero');
+        });
+
+        function placeSquare(element, square) {
+          element.hidden = !square;
+          if (!square) return;
+          const [i, j, side] = square;
+          element.style.setProperty('--r', i - side + 1);
+          element.style.setProperty('--c', j - side + 1);
+          element.style.setProperty('--s', side);
+        }
+
+        const same = (a, b) => a && b && a[0] === b[0] && a[1] === b[1];
+
+        function render({ frame, state, step, frames }) {
+          $('[data-phase]').textContent = frame.stepLabel;
+          matrixBoard.cells.forEach((cell, index) => cell.classList.toggle('current', same(state.cur, [Math.floor(index / n), index % n])));
+          dpBoard.cells.forEach((cell, index) => {
+            const i = Math.floor(index / n);
+            const j = index % n;
+            const neighbor = state.neighbors?.find(item => item.r === i && item.c === j);
+            cell.textContent = state.dp ? state.dp[i][j] : '';
+            cell.classList.toggle('unset', Boolean(state.dp) && state.dp[i][j] === 0);
+            cell.classList.toggle('current', same(state.cur, [i, j]));
+            cell.classList.toggle('written', same(state.written, [i, j]));
+            cell.classList.toggle('neighbor', Boolean(neighbor));
+            cell.classList.toggle('limit', Boolean(neighbor?.limit));
+            if (neighbor) cell.dataset.tag = neighbor.tag; else delete cell.dataset.tag;
+          });
+          const showNow = state.now && !(state.best && same(state.now, state.best) && state.now[2] === state.best[2] && !state.neighbors);
+          placeSquare(matrixBoard.now, showNow ? state.now : null);
+          placeSquare(matrixBoard.best, state.best);
+          $('[data-best-caption]').innerHTML = state.best ? `<span class="key best"></span>max_len = ${state.best[2]}` : '';
+          $('[data-dp-caption]').textContent = state.neighbors ? `↑ ← ↖ 邻居 · 实线框 = min ${Math.min(...state.neighbors.map(item => state.dp[item.r][item.c]))}` : '';
+          $('[data-now-caption]').innerHTML = showNow ? `<span class="key now"></span>当前 ${state.now[2]}×${state.now[2]}` : '';
+          const [ci, cj] = state.cur || [];
+          $('[data-ij]').textContent = state.cur ? `${ci}, ${cj}` : '—';
+          $('[data-cell]').textContent = state.cur ? matrix[ci][cj] : '—';
+          $('[data-dp]').textContent = state.cur && state.dp ? state.dp[ci][cj] : '—';
+          $('[data-max]').textContent = state.maxLen === null ? '—' : state.done ? `${state.maxLen} → 面积 ${state.maxLen ** 2}` : state.maxLen;
+          $('[data-invariant]').textContent = state.now
+            ? `dp[${state.now[0]}][${state.now[1]}] = ${state.now[2]}：matrix 里${showNow ? '虚线' : '实线'}框就是以 (${state.now[0]}, ${state.now[1]}) 为右下角的最大全 1 正方形。`
+            : state.done
+              ? `实线框是全表最大的正方形：边长 ${state.maxLen}，面积 ${state.maxLen ** 2}。`
+              : 'dp[i][j] = 以 (i, j) 为右下角、全部由 1 组成的最大正方形的边长。';
+          $('[data-expression]').textContent = frame.line;
+          $('[data-explanation]').textContent = frame.text;
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.text}`);
+        }
+
+        function popWritten({ state }) {
+          if (motion.reduced || !state.written) return;
+          const cell = dpBoard.cells[state.written[0] * n + state.written[1]];
+          cell.classList.remove('pop');
+          void cell.offsetWidth;
+          cell.classList.add('pop');
+          cell.addEventListener('animationend', () => cell.classList.remove('pop'), { once: true });
+        }
+
+        AlgorithmVisualCore.createTrace({
+          root,
+          cloneState: clone,
+          motion,
+          onRender: render,
+          onTransition: popWritten,
+          formatStepOption: (frame, index) => `${index + 1}. ${frame.stepLabel}`
+        }).setFrames(buildFrames());
+      })();
+    </script>
+  </body>
+</html>

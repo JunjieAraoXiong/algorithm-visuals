@@ -109,6 +109,10 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [Combinations of a Sum / 组合总和](https://junjiearaoxiong.github.io/algorithm-visuals/combinations-of-a-sum/)
 - [Phone Keypad Combinations / 电话号码字母组合](https://junjiearaoxiong.github.io/algorithm-visuals/phone-keypad-combinations/)
 
+### 14 · Dynamic Programming / 动态规划
+
+- [Largest Square in a Matrix / 矩阵中的最大正方形](https://junjiearaoxiong.github.io/algorithm-visuals/largest-square-in-a-matrix/)
+
 ## Development
 
 - `npm run build` validates the registry, catalog, README inventory, and internal links, then writes the ignored `_site/` directory.
