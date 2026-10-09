@@ -44,6 +44,7 @@
       const height = 70 + deepest * (state.rowGap || 82) + (state.indexes || state.widthLevel != null ? 90 : 60);
       stage.style.height = `${height}px`;
       svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      const pathNodes = new Set((state.paths || []).flat());
       const visible = id => id != null && (!state.visible || state.visible.includes(id));
       scene.update(({path, circle, text}) => {
         for (const [index, route] of (state.paths || []).entries()) {
@@ -71,7 +72,7 @@
         for (const [id, node] of Object.entries(state.nodes)) {
           if (!visible(id) || !points[id]) continue;
           const p = points[id];
-          circle(`node-${id}`, {cx:p.x,cy:p.y,r:16,class:`node${state.focus===id ? ' active' : ''}${(state.marked||[]).includes(id)?' marked':''}`});
+          circle(`node-${id}`, {cx:p.x,cy:p.y,r:16,class:`node${pathNodes.has(id)?' on-path':''}${state.focus===id ? ' active' : ''}${(state.marked||[]).includes(id)?' marked':''}`});
           text(`value-${id}`,{x:p.x,y:p.y+1},node.val);
           if (state.labels?.[id] != null) text(`label-${id}`,{x:p.x,y:p.y+31,class:'annotation'},state.labels[id]);
           if (state.indexes?.[id] != null) text(`index-${id}`,{x:p.x,y:p.y+31,class:'annotation'},`i=${state.indexes[id]}`);

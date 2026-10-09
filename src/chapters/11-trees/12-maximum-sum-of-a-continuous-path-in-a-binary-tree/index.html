@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="二叉树最大路径和：逐行执行 Python，观察树、变量与返回值。">
+<title>Maximum Sum of a Continuous Path in a Binary Tree · Algorithm Visuals</title>
+<link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
+</head><body>
+<main class="tree-guide tree-lesson" id="lesson">
+<nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
+<h1>Maximum Sum of a Continuous Path in a Binary Tree · 二叉树最大路径和</h1>
+<p class="problem">Find the greatest sum of a nonempty simple path in a binary tree. The path may start and end anywhere.<span>路径连续且不能分叉，也不必经过根。图片中的最佳路径 9 → 8 → 7 → 6，和为 30。</span></p>
+<div class="learning-layout" data-learning-layout>
+<section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
+<label class="settings">示例 <select data-case aria-label="最大路径和示例"><option value="original">原图：最高点在 8</option><option value="negative">全负树：-5、-2、-8</option></select></label>
+<div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
+<p class="step-meta" data-phase></p>
+<div class="array-panel" data-arrays></div>
+<p class="diagram-caption" data-caption></p>
+<div class="diagram-workspace">
+<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-label="树节点与指针"></svg></div>
+<div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
+</div>
+<div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
+<div class="state-grid"><div class="invariant"><strong>保持什么成立</strong><p data-invariant></p></div><div class="invariant"><strong>返回结果</strong><p class="result" data-result></p></div></div>
+</section>
+<aside class="code-panel" data-code-panel><h2>完整 Python 代码</h2><p class="code-status" data-code-status></p><pre data-code-scroll tabindex="0" aria-label="完整 Python 实现"><code><span class="code-line">from typing import List, Optional</span><span class="code-line"> </span><span class="code-line">class TreeNode:</span><span class="code-line">    def __init__(self, val=0, left=None, right=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.left = left</span><span class="code-line">        self.right = right</span><span class="code-line"> </span><span class="code-line">max_sum = float(&#x27;-inf&#x27;)</span><span class="code-line"> </span><span class="code-line">def max_path_sum(root: TreeNode) -&gt; int:</span><span class="code-line">    global max_sum</span><span class="code-line" data-source-key="reset">    max_sum = float(&#x27;-inf&#x27;)  # Reset for each nonempty input tree.</span><span class="code-line" data-source-key="call">    max_path_sum_helper(root)</span><span class="code-line" data-source-key="answer">    return max_sum</span><span class="code-line"> </span><span class="code-line">def max_path_sum_helper(node: Optional[TreeNode]) -&gt; int:</span><span class="code-line">    global max_sum</span><span class="code-line" data-source-key="check">    if not node:</span><span class="code-line" data-source-key="empty">        return 0</span><span class="code-line" data-source-key="left">    left_sum = max(max_path_sum_helper(node.left), 0)</span><span class="code-line" data-source-key="right">    right_sum = max(max_path_sum_helper(node.right), 0)</span><span class="code-line" data-source-key="update">    max_sum = max(max_sum, node.val + left_sum + right_sum)</span><span class="code-line" data-source-key="gain">    return node.val + max(left_sum, right_sum)</span></code></pre></aside>
+</div>
+<section class="section"><h2>每条合法路径都有一个最高点</h2><p class="section-intro">一条不重复节点的路径向上走到最高点，再沿另一侧向下。在那个节点处，左右两臂可以合成一个完整候选，所以遍历每个最高点就不会漏掉任何答案。图片中最佳路径是 9 → 8 → 7 → 6，和为 30。</p><div class="card-grid"><article class="paper-card"><strong>候选：允许左右两臂</strong><p>在 8，left_sum=9，right_sum=13（7+6）。候选 8+9+13=30 可以更新全局 max_sum；这是在当前节点结束组合的一条合法路径。</p></article><article class="paper-card"><strong>返回：父节点还要接一条边</strong><p>向上只能返回 8+max(9,13)=21。这个值表示以 8 为端点的最好单臂路径，保留一个端点才能继续接到父节点。</p></article></div></section><section class="section"><h2>把 30 向上传，会出现三条分支</h2><p class="section-intro">根 5 左侧可返回 2。如果错误地使用右侧完整候选 30，就会得到 5+2+30=37；在节点 8 同时接父节点、9、7，已不是一条连续路径。正确的根候选是 5+2+21=28，因此全局答案仍是 30。</p><div class="card-grid"><article class="paper-card"><strong>错误：在 8 出现三个方向</strong><p><svg viewBox="0 0 260 240" style="width:100%;height:auto;max-width:280px;display:block;margin:8px auto" role="img" aria-label="错误地把两臂路径接给父节点会在 8 分叉"><path class="path-band" d="M130 30 L130 100 M60 165 L130 100 L200 165 L220 215"/><path class="stored-edge" marker-end="url(#tree-arrow)" d="M130 46 V84 M119 112 L71 154 M141 112 L189 154 M206 180 L214 200"/><text class="annotation" x="50" y="25">left_sum=2</text><circle class="node on-path" cx="130" cy="30" r="16"/><text x="130" y="31">5</text><circle class="node on-path" cx="130" cy="100" r="16"/><text x="130" y="101">8</text><circle class="node on-path" cx="60" cy="165" r="16"/><text x="60" y="166">9</text><circle class="node on-path" cx="200" cy="165" r="16"/><text x="200" y="166">7</text><circle class="node on-path" cx="220" cy="215" r="16"/><text x="220" y="216">6</text></svg>两臂候选已经用掉 8 的两个方向，再接父节点会分叉。</p></article><article class="paper-card"><strong>正确：8 只返回一臂 21</strong><p><svg viewBox="0 0 260 240" style="width:100%;height:auto;max-width:280px;display:block;margin:8px auto" role="img" aria-label="合法的向上返回路径只保留 8 到 7 到 6"><path class="path-band" d="M130 100 L200 165 L220 215"/><path class="stored-edge" marker-end="url(#tree-arrow)" d="M130 46 V84 M119 112 L71 154 M141 112 L189 154 M206 180 L214 200"/><text class="annotation" x="50" y="25">left_sum=2</text><circle class="node" cx="130" cy="30" r="16"/><text x="130" y="31">5</text><circle class="node on-path" cx="130" cy="100" r="16"/><text x="130" y="101">8</text><circle class="node" cx="60" cy="165" r="16"/><text x="60" y="166">9</text><circle class="node on-path" cx="200" cy="165" r="16"/><text x="200" y="166">7</text><circle class="node on-path" cx="220" cy="215" r="16"/><text x="220" y="216">6</text></svg>单臂返回留出与父节点相连的方向；灰带表示 8+7+6。</p></article></div></section><section class="section"><h2>负分支可以舍弃，节点本身不能凭空消失</h2><p class="section-intro">父调用用 max(child_return,0) 去掉负贡献；当前节点仍必须计入。全负输入从 -∞ 更新，所以会选最大的负数，而不是不存在的空路径 0。</p><div class="card-grid"><article class="paper-card"><strong>完整过程与状态重置</strong><p>递归左右得到单臂和；把负臂截为 0；用当前值＋两臂更新 max_sum；返回当前值＋较大单臂。保留图片中的全局策略，并在每次外层调用重置 max_sum，连续计算不会继承旧答案。</p></article><article class="paper-card"><strong>复杂度与输入前提</strong><p>题目保证树非空。None 只是递归孩子的边界，返回 0。每个节点处理一次，O(n) 时间、O(h) 栈空间，最坏 O(n)。示例中的完整候选 30 与根返回值 26 是不同量。</p></article></div></section>
+<nav class="related-nav" aria-label="相关题目">相关题目：<a href="../lowest-common-ancestor/">最近公共祖先</a><a href="../balanced-binary-tree-validation/">平衡二叉树验证</a><a href="../">目录</a></nav>
+</main>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script>
+<script>
+(() => {
+'use strict';
+const root=document.querySelector('#lesson');
+const {clone,valueOf,recorder,mount}=window.TreeLesson;
+const selector=root.querySelector('[data-case]');
+if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
+
+function makeFrames(){
+ const negative=selector.value==='negative';
+ const nodes=negative?{a:{val:-5,left:'b',right:'c'},b:{val:-2,left:null,right:null},c:{val:-8,left:null,right:null}}:{a:{val:5,left:'b',right:'c'},b:{val:-10,left:'d',right:'e'},c:{val:8,left:'f',right:'g'},d:{val:1,left:'h',right:null},e:{val:-7,left:'i',right:null},f:{val:9,left:null,right:null},g:{val:7,left:'j',right:'k'},h:{val:11,left:null,right:null},i:{val:-1,left:null,right:null},j:{val:6,left:null,right:null},k:{val:-3,left:null,right:null}};
+ const state={nodes,root:'a',focus:'a',reference:'root',memory:[],labels:{},phase:'后序 · 候选可两臂，返回只一臂',caption:'灰色标记是本步骤计算的路径；↑ 是向父调用返回的单臂和。max_sum 单独保存全局答案。',invariant:'当前节点可把左右两臂合成完整候选；向父节点只能带一臂，否则路径会分叉。负的子树返回值在父调用被截为 0。'};
+ const {frames,emit}=recorder(state),stack=[];let best=-Infinity,bestPath=[];
+ const val=id=>valueOf(nodes,id),show=x=>x===-Infinity?'-∞':String(x);
+ function sync(){state.memory=stack.map(c=>({label:`node = ${val(c.id)}`,detail:`left_sum=${c.L??'?'} / right_sum=${c.R??'?'}`}));state.result=`max_sum = ${show(best)}`;state.memoryNote='';}
+ sync();emit('reset',"max_sum = float('-inf')",'答案从负无穷开始。路径至少包含一个节点，不能用 0 掩盖全负的输入。');emit('call','max_path_sum_helper(root)','计算可向上传的路径，同时检查每个节点作为最高点的候选。');
+ function visit(id){const c={id,L:null,R:null};stack.push(c);sync();emit('check','if not node',id?`进入 ${val(id)}，先取得两个孩子的单臂返回值。`:'None 给父调用返回 0。',{focus:id,reference:'node',paths:[]});
+  if(!id){emit('empty','return 0','空子树不提供额外路径和。');stack.pop();sync();return {gain:0,path:[]};}
+  emit('left','left_sum = max(max_path_sum_helper(node.left), 0)','先取得左孩子返回值，再和 0 比较。',{paths:[]});const left=visit(nodes[id].left);c.L=Math.max(left.gain,0);sync();emit('left',`left_sum = max(${left.gain}, 0) = ${c.L}`,left.gain<0?'接上左臂会使和减小，所以舍弃；left_sum=0。':'左臂可以贡献这个非负和。',{focus:id,paths:c.L>0?[left.path]:[],returnEdge:nodes[id].left?{from:nodes[id].left,to:id,text:String(left.gain)}:null});
+  emit('right','right_sum = max(max_path_sum_helper(node.right), 0)','再取得右孩子的单臂返回值。',{paths:[]});const right=visit(nodes[id].right);c.R=Math.max(right.gain,0);sync();emit('right',`right_sum = max(${right.gain}, 0) = ${c.R}`,right.gain<0?'右臂是负贡献，不接上它。':'右臂可供当前节点使用。',{focus:id,paths:c.R>0?[right.path]:[],returnEdge:nodes[id].right?{from:nodes[id].right,to:id,text:String(right.gain)}:null});
+  const candidate=nodes[id].val+c.L+c.R,candidatePath=(c.L>0?left.path.slice().reverse():[]).concat([id],c.R>0?right.path:[]),improved=candidate>best;
+  if(improved){best=candidate;bestPath=candidatePath;}
+  sync();state.memoryNote=`候选 = ${candidate}；max_sum ${improved?'更新':'保留'}为 ${show(best)}。`;
+  emit('update',`max_sum = max(max_sum, ${nodes[id].val} + ${c.L} + ${c.R})`,`${val(id)} 作为路径最高点，可以同时接左右两臂。${!negative&&id==='c'?'9 → 8 → 7 → 6 的和是 30。':''}`,{paths:[candidatePath]});
+  const child=c.L>=c.R?left:right,chosen=Math.max(c.L,c.R),gain=nodes[id].val+chosen,gainPath=[id].concat(chosen>0?child.path:[]);state.labels[id]=`↑${gain}`;state.memoryNote=`向上返回 ${gain}；max_sum 仍是 ${show(best)}。`;
+  emit('gain',`return ${nodes[id].val} + max(${c.L}, ${c.R})`,`${val(id)} 留一臂给父节点。${!negative&&id==='c'?'返回 21，而不是两臂候选 30；否则再接 5 会在 8 分叉。':''}`,{paths:[gainPath]});stack.pop();sync();return {gain,path:gainPath};
+ }
+ visit('a');emit('answer','return max_sum',negative?'全负树返回 -2，路径只包含这个节点。':'返回 30；最佳路径的最高点是 8，并不需要经过根 5。',{focus:undefined,paths:[bestPath],memory:[],memoryNote:'',result:`${best} · 路径 ${bestPath.map(id=>nodes[id].val).join(' → ')}`});return frames;
+}
+mount(root,makeFrames);
+})();
+</script></body></html>

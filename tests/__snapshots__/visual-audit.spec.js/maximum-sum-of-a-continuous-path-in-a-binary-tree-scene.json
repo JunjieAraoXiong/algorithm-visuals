@@ -1,0 +1,2504 @@
+{
+  "tag": "section",
+  "attributes": [
+    [
+      "aria-label",
+      "算法逐步执行"
+    ],
+    [
+      "class",
+      "animation-panel"
+    ],
+    [
+      "data-animation-panel",
+      ""
+    ]
+  ],
+  "children": [
+    {
+      "tag": "label",
+      "attributes": [
+        [
+          "class",
+          "settings"
+        ]
+      ],
+      "children": [
+        "示例",
+        {
+          "tag": "select",
+          "attributes": [
+            [
+              "aria-label",
+              "最大路径和示例"
+            ],
+            [
+              "data-case",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "original"
+                ]
+              ],
+              "children": [
+                "原图：最高点在 8"
+              ]
+            },
+            {
+              "tag": "option",
+              "attributes": [
+                [
+                  "value",
+                  "negative"
+                ]
+              ],
+              "children": [
+                "全负树：-5、-2、-8"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "previous"
+            ],
+            [
+              "disabled",
+              ""
+            ]
+          ],
+          "children": [
+            "← 上一步"
+          ]
+        },
+        {
+          "tag": "output",
+          "attributes": [
+            [
+              "data-count",
+              ""
+            ]
+          ],
+          "children": [
+            "步骤 1 / 104"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "next"
+            ]
+          ],
+          "children": [
+            "下一步 →"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-action",
+              "copy-link"
+            ]
+          ],
+          "children": [
+            "复制本步骤链接"
+          ]
+        },
+        {
+          "tag": "label",
+          "attributes": [
+            [
+              "class",
+              "step-picker"
+            ]
+          ],
+          "children": [
+            "跳到步骤",
+            {
+              "tag": "select",
+              "attributes": [
+                [
+                  "aria-label",
+                  "跳到步骤"
+                ],
+                [
+                  "data-step-select",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "1 · max_sum = float('-inf')"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "2 · max_path_sum_helper(root)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "2"
+                    ]
+                  ],
+                  "children": [
+                    "3 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "4 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "5 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "6 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "7 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "8 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "8"
+                    ]
+                  ],
+                  "children": [
+                    "9 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "9"
+                    ]
+                  ],
+                  "children": [
+                    "10 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "10"
+                    ]
+                  ],
+                  "children": [
+                    "11 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "11"
+                    ]
+                  ],
+                  "children": [
+                    "12 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "13 · left_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "14 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "15 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "16 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "17 · right_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "18 · max_sum = max(max_sum, 11 + 0 + 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "19 · return 11 + max(0, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "19"
+                    ]
+                  ],
+                  "children": [
+                    "20 · left_sum = max(11, 0) = 11"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "20"
+                    ]
+                  ],
+                  "children": [
+                    "21 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "21"
+                    ]
+                  ],
+                  "children": [
+                    "22 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "22"
+                    ]
+                  ],
+                  "children": [
+                    "23 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "23"
+                    ]
+                  ],
+                  "children": [
+                    "24 · right_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "24"
+                    ]
+                  ],
+                  "children": [
+                    "25 · max_sum = max(max_sum, 1 + 11 + 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "25"
+                    ]
+                  ],
+                  "children": [
+                    "26 · return 1 + max(11, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "26"
+                    ]
+                  ],
+                  "children": [
+                    "27 · left_sum = max(12, 0) = 12"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "27"
+                    ]
+                  ],
+                  "children": [
+                    "28 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "28"
+                    ]
+                  ],
+                  "children": [
+                    "29 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "29"
+                    ]
+                  ],
+                  "children": [
+                    "30 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "30"
+                    ]
+                  ],
+                  "children": [
+                    "31 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "31"
+                    ]
+                  ],
+                  "children": [
+                    "32 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "32"
+                    ]
+                  ],
+                  "children": [
+                    "33 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "33"
+                    ]
+                  ],
+                  "children": [
+                    "34 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "34"
+                    ]
+                  ],
+                  "children": [
+                    "35 · left_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "35"
+                    ]
+                  ],
+                  "children": [
+                    "36 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "36"
+                    ]
+                  ],
+                  "children": [
+                    "37 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "37"
+                    ]
+                  ],
+                  "children": [
+                    "38 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "38"
+                    ]
+                  ],
+                  "children": [
+                    "39 · right_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "39"
+                    ]
+                  ],
+                  "children": [
+                    "40 · max_sum = max(max_sum, -1 + 0 + 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "40"
+                    ]
+                  ],
+                  "children": [
+                    "41 · return -1 + max(0, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "41"
+                    ]
+                  ],
+                  "children": [
+                    "42 · left_sum = max(-1, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "42"
+                    ]
+                  ],
+                  "children": [
+                    "43 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "43"
+                    ]
+                  ],
+                  "children": [
+                    "44 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "44"
+                    ]
+                  ],
+                  "children": [
+                    "45 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "45"
+                    ]
+                  ],
+                  "children": [
+                    "46 · right_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "46"
+                    ]
+                  ],
+                  "children": [
+                    "47 · max_sum = max(max_sum, -7 + 0 + 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "47"
+                    ]
+                  ],
+                  "children": [
+                    "48 · return -7 + max(0, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "48"
+                    ]
+                  ],
+                  "children": [
+                    "49 · right_sum = max(-7, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "49"
+                    ]
+                  ],
+                  "children": [
+                    "50 · max_sum = max(max_sum, -10 + 12 + 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "50"
+                    ]
+                  ],
+                  "children": [
+                    "51 · return -10 + max(12, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "51"
+                    ]
+                  ],
+                  "children": [
+                    "52 · left_sum = max(2, 0) = 2"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "52"
+                    ]
+                  ],
+                  "children": [
+                    "53 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "53"
+                    ]
+                  ],
+                  "children": [
+                    "54 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "54"
+                    ]
+                  ],
+                  "children": [
+                    "55 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "55"
+                    ]
+                  ],
+                  "children": [
+                    "56 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "56"
+                    ]
+                  ],
+                  "children": [
+                    "57 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "57"
+                    ]
+                  ],
+                  "children": [
+                    "58 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "58"
+                    ]
+                  ],
+                  "children": [
+                    "59 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "59"
+                    ]
+                  ],
+                  "children": [
+                    "60 · left_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "60"
+                    ]
+                  ],
+                  "children": [
+                    "61 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "61"
+                    ]
+                  ],
+                  "children": [
+                    "62 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "62"
+                    ]
+                  ],
+                  "children": [
+                    "63 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "63"
+                    ]
+                  ],
+                  "children": [
+                    "64 · right_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "64"
+                    ]
+                  ],
+                  "children": [
+                    "65 · max_sum = max(max_sum, 9 + 0 + 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "65"
+                    ]
+                  ],
+                  "children": [
+                    "66 · return 9 + max(0, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "66"
+                    ]
+                  ],
+                  "children": [
+                    "67 · left_sum = max(9, 0) = 9"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "67"
+                    ]
+                  ],
+                  "children": [
+                    "68 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "68"
+                    ]
+                  ],
+                  "children": [
+                    "69 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "69"
+                    ]
+                  ],
+                  "children": [
+                    "70 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "70"
+                    ]
+                  ],
+                  "children": [
+                    "71 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "71"
+                    ]
+                  ],
+                  "children": [
+                    "72 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "72"
+                    ]
+                  ],
+                  "children": [
+                    "73 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "73"
+                    ]
+                  ],
+                  "children": [
+                    "74 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "74"
+                    ]
+                  ],
+                  "children": [
+                    "75 · left_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "75"
+                    ]
+                  ],
+                  "children": [
+                    "76 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "76"
+                    ]
+                  ],
+                  "children": [
+                    "77 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "77"
+                    ]
+                  ],
+                  "children": [
+                    "78 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "78"
+                    ]
+                  ],
+                  "children": [
+                    "79 · right_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "79"
+                    ]
+                  ],
+                  "children": [
+                    "80 · max_sum = max(max_sum, 6 + 0 + 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "80"
+                    ]
+                  ],
+                  "children": [
+                    "81 · return 6 + max(0, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "81"
+                    ]
+                  ],
+                  "children": [
+                    "82 · left_sum = max(6, 0) = 6"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "82"
+                    ]
+                  ],
+                  "children": [
+                    "83 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "83"
+                    ]
+                  ],
+                  "children": [
+                    "84 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "84"
+                    ]
+                  ],
+                  "children": [
+                    "85 · left_sum = max(max_path_sum_helper(node.left), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "85"
+                    ]
+                  ],
+                  "children": [
+                    "86 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "86"
+                    ]
+                  ],
+                  "children": [
+                    "87 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "87"
+                    ]
+                  ],
+                  "children": [
+                    "88 · left_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "88"
+                    ]
+                  ],
+                  "children": [
+                    "89 · right_sum = max(max_path_sum_helper(node.right), 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "89"
+                    ]
+                  ],
+                  "children": [
+                    "90 · if not node"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "90"
+                    ]
+                  ],
+                  "children": [
+                    "91 · return 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "91"
+                    ]
+                  ],
+                  "children": [
+                    "92 · right_sum = max(0, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "92"
+                    ]
+                  ],
+                  "children": [
+                    "93 · max_sum = max(max_sum, -3 + 0 + 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "93"
+                    ]
+                  ],
+                  "children": [
+                    "94 · return -3 + max(0, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "94"
+                    ]
+                  ],
+                  "children": [
+                    "95 · right_sum = max(-3, 0) = 0"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "95"
+                    ]
+                  ],
+                  "children": [
+                    "96 · max_sum = max(max_sum, 7 + 6 + 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "96"
+                    ]
+                  ],
+                  "children": [
+                    "97 · return 7 + max(6, 0)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "97"
+                    ]
+                  ],
+                  "children": [
+                    "98 · right_sum = max(13, 0) = 13"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "98"
+                    ]
+                  ],
+                  "children": [
+                    "99 · max_sum = max(max_sum, 8 + 9 + 13)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "99"
+                    ]
+                  ],
+                  "children": [
+                    "100 · return 8 + max(9, 13)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "100"
+                    ]
+                  ],
+                  "children": [
+                    "101 · right_sum = max(21, 0) = 21"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "101"
+                    ]
+                  ],
+                  "children": [
+                    "102 · max_sum = max(max_sum, 5 + 2 + 21)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "102"
+                    ]
+                  ],
+                  "children": [
+                    "103 · return 5 + max(2, 21)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "103"
+                    ]
+                  ],
+                  "children": [
+                    "104 · return max_sum"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "step-meta"
+        ],
+        [
+          "data-phase",
+          ""
+        ]
+      ],
+      "children": [
+        "后序 · 候选可两臂，返回只一臂"
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "array-panel"
+        ],
+        [
+          "data-arrays",
+          ""
+        ]
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "diagram-caption"
+        ],
+        [
+          "data-caption",
+          ""
+        ]
+      ],
+      "children": [
+        "灰色标记是本步骤计算的路径；↑ 是向父调用返回的单臂和。max_sum 单独保存全局答案。"
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "diagram-workspace"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "aria-label",
+              "答案从负无穷开始。路径至少包含一个节点，不能用 0 掩盖全负的输入。"
+            ],
+            [
+              "class",
+              "stage"
+            ],
+            [
+              "data-stage",
+              ""
+            ],
+            [
+              "role",
+              "group"
+            ],
+            [
+              "style",
+              "height: 376px;"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "svg",
+              "attributes": [
+                [
+                  "aria-label",
+                  "树节点与指针"
+                ],
+                [
+                  "role",
+                  "img"
+                ],
+                [
+                  "viewBox",
+                  "0 0 520 376"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "defs",
+                  "children": [
+                    {
+                      "tag": "marker",
+                      "attributes": [
+                        [
+                          "viewBox",
+                          "0 0 8 8"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "d",
+                              "M0 0 L8 4 L0 8 Z"
+                            ],
+                            [
+                              "fill",
+                              "#333"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "marker",
+                      "attributes": [
+                        [
+                          "viewBox",
+                          "0 0 8 8"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "d",
+                              "M0 0 L8 4 L0 8 Z"
+                            ],
+                            [
+                              "fill",
+                              "#555"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M245.96404109448616,79.59123858543445 L155.68724818851547,141.28038040451443"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-a-left"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M274.03595890551384,79.59123858543445 L364.31275181148453,141.28038040451443"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-a-right"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M129.9613300954683,165.7195155361933 L91.21968989330013,218.66642381248982"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-b-left"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M150.0386699045317,165.7195155361933 L188.7803101066999,218.66642381248982"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-b-right"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M369.9613300954683,165.7195155361933 L331.21968989330014,218.66642381248982"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-c-left"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M390.0386699045317,165.7195155361933 L428.78031010669986,218.66642381248982"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-c-right"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M74.15911396851995,249.96508848604546 L56.52804909400711,298.1566658097139"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-d-left"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M194.15911396851996,249.96508848604546 L176.52804909400712,298.1566658097139"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-e-left"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M434.15911396851993,249.96508848604546 L416.5280490940071,298.1566658097139"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-g-left"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "stored-edge"
+                    ],
+                    [
+                      "d",
+                      "M445.84088603148007,249.96508848604546 L463.4719509059929,298.1566658097139"
+                    ],
+                    [
+                      "data-visual-element",
+                      "edge-g-right"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#tree-arrow)"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node active"
+                    ],
+                    [
+                      "cx",
+                      "260"
+                    ],
+                    [
+                      "cy",
+                      "70"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-a"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-a"
+                    ],
+                    [
+                      "x",
+                      "260"
+                    ],
+                    [
+                      "y",
+                      "71"
+                    ]
+                  ],
+                  "children": [
+                    "5"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "140"
+                    ],
+                    [
+                      "cy",
+                      "152"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-b"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-b"
+                    ],
+                    [
+                      "x",
+                      "140"
+                    ],
+                    [
+                      "y",
+                      "153"
+                    ]
+                  ],
+                  "children": [
+                    "-10"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "380"
+                    ],
+                    [
+                      "cy",
+                      "152"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-c"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-c"
+                    ],
+                    [
+                      "x",
+                      "380"
+                    ],
+                    [
+                      "y",
+                      "153"
+                    ]
+                  ],
+                  "children": [
+                    "8"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "80"
+                    ],
+                    [
+                      "cy",
+                      "234"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-d"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-d"
+                    ],
+                    [
+                      "x",
+                      "80"
+                    ],
+                    [
+                      "y",
+                      "235"
+                    ]
+                  ],
+                  "children": [
+                    "1"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "200"
+                    ],
+                    [
+                      "cy",
+                      "234"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-e"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-e"
+                    ],
+                    [
+                      "x",
+                      "200"
+                    ],
+                    [
+                      "y",
+                      "235"
+                    ]
+                  ],
+                  "children": [
+                    "-7"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "320"
+                    ],
+                    [
+                      "cy",
+                      "234"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-f"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-f"
+                    ],
+                    [
+                      "x",
+                      "320"
+                    ],
+                    [
+                      "y",
+                      "235"
+                    ]
+                  ],
+                  "children": [
+                    "9"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "440"
+                    ],
+                    [
+                      "cy",
+                      "234"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-g"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-g"
+                    ],
+                    [
+                      "x",
+                      "440"
+                    ],
+                    [
+                      "y",
+                      "235"
+                    ]
+                  ],
+                  "children": [
+                    "7"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "50"
+                    ],
+                    [
+                      "cy",
+                      "316"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-h"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-h"
+                    ],
+                    [
+                      "x",
+                      "50"
+                    ],
+                    [
+                      "y",
+                      "317"
+                    ]
+                  ],
+                  "children": [
+                    "11"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "170"
+                    ],
+                    [
+                      "cy",
+                      "316"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-i"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-i"
+                    ],
+                    [
+                      "x",
+                      "170"
+                    ],
+                    [
+                      "y",
+                      "317"
+                    ]
+                  ],
+                  "children": [
+                    "-1"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "410"
+                    ],
+                    [
+                      "cy",
+                      "316"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-j"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-j"
+                    ],
+                    [
+                      "x",
+                      "410"
+                    ],
+                    [
+                      "y",
+                      "317"
+                    ]
+                  ],
+                  "children": [
+                    "6"
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "node"
+                    ],
+                    [
+                      "cx",
+                      "470"
+                    ],
+                    [
+                      "cy",
+                      "316"
+                    ],
+                    [
+                      "data-visual-element",
+                      "node-k"
+                    ],
+                    [
+                      "r",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-visual-element",
+                      "value-k"
+                    ],
+                    [
+                      "x",
+                      "470"
+                    ],
+                    [
+                      "y",
+                      "317"
+                    ]
+                  ],
+                  "children": [
+                    "-3"
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "reference-box"
+                    ],
+                    [
+                      "d",
+                      "M239,15 h42 v20 h-42 Z"
+                    ],
+                    [
+                      "data-visual-element",
+                      "reference-box"
+                    ],
+                    [
+                      "opacity",
+                      "1"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "class",
+                      "annotation"
+                    ],
+                    [
+                      "data-visual-element",
+                      "reference-label"
+                    ],
+                    [
+                      "opacity",
+                      "1"
+                    ],
+                    [
+                      "x",
+                      "260"
+                    ],
+                    [
+                      "y",
+                      "25"
+                    ]
+                  ],
+                  "children": [
+                    "root"
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "reference"
+                    ],
+                    [
+                      "d",
+                      "M260,35 V51"
+                    ],
+                    [
+                      "data-visual-element",
+                      "reference"
+                    ],
+                    [
+                      "marker-end",
+                      "url(#return-arrow)"
+                    ],
+                    [
+                      "opacity",
+                      "1"
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "memory"
+            ],
+            [
+              "data-memory",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "h3",
+              "children": [
+                "调用栈 · 最后一个是栈顶"
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "memory-items"
+                ],
+                [
+                  "data-memory-items",
+                  ""
+                ]
+              ],
+              "children": [
+                "∅"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "class",
+                  "memory-note"
+                ],
+                [
+                  "data-memory-note",
+                  ""
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "operation"
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-expression",
+              ""
+            ]
+          ],
+          "children": [
+            "max_sum = float('-inf')"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-explanation",
+              ""
+            ]
+          ],
+          "children": [
+            "答案从负无穷开始。路径至少包含一个节点，不能用 0 掩盖全负的输入。"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "state-grid"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "保持什么成立"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "data-invariant",
+                  ""
+                ]
+              ],
+              "children": [
+                "当前节点可把左右两臂合成完整候选；向父节点只能带一臂，否则路径会分叉。负的子树返回值在父调用被截为 0。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "invariant"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "strong",
+              "children": [
+                "返回结果"
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "class",
+                  "result"
+                ],
+                [
+                  "data-result",
+                  ""
+                ]
+              ],
+              "children": [
+                "max_sum = -∞"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
