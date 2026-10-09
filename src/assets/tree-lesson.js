@@ -15,7 +15,7 @@
     const layout = state.layout || state.nodes;
     function walk(id, depth, index) {
       if (id == null) return;
-      result[id] = {x: 20 + (width - 40) * (index + .5) / (2 ** depth), y: 70 + depth * 82, depth, index};
+      result[id] = {x: 20 + (width - 40) * (index + .5) / (2 ** depth), y: 70 + depth * (state.rowGap || 82), depth, index};
       walk(layout[id].left, depth + 1, index * 2);
       walk(layout[id].right, depth + 1, index * 2 + 1);
     }
@@ -41,7 +41,7 @@
         points[id] = { ...p, x: previous.x + (p.x - previous.x) * progress, y: previous.y + (p.y - previous.y) * progress };
       }
       const deepest = Math.max(0, ...Object.values(current).map(p => p.depth));
-      const height = 70 + deepest * 82 + (state.indexes || state.widthLevel != null ? 90 : 60);
+      const height = 70 + deepest * (state.rowGap || 82) + (state.indexes || state.widthLevel != null ? 90 : 60);
       stage.style.height = `${height}px`;
       svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       const visible = id => id != null && (!state.visible || state.visible.includes(id));

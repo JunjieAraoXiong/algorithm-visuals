@@ -68,3 +68,21 @@ test('width includes interior gaps but enqueues only real nodes', async ({page})
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('0');
 });
+
+test('BST bounds reject ancestor violations, short-circuit the right subtree, and reject equality', async ({page}) => {
+  await page.goto('/binary-search-tree-validation/#step=0');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toHaveText('False');
+  await expect(page.locator('[data-visual-element="label-e"]')).toHaveText('(2,5)');
+  await expect(page.locator('[data-visual-element="label-c"]')).toHaveText('跳过');
+  await expect(page.locator('[data-visual-element="label-f"]')).toHaveCount(0);
+  await page.locator('[data-case]').selectOption('duplicate');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toHaveText('False');
+  await expect(page.locator('[data-visual-element="label-f"]')).toHaveText('(5,7)');
+  for (const mode of ['valid','empty']) {
+    await page.locator('[data-case]').selectOption(mode);
+    await finish(page);
+    await expect(page.locator('[data-result]')).toHaveText('True');
+  }
+});
