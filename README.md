@@ -105,6 +105,7 @@ Source folders are ordered for repository browsing. The build keeps the public U
 - [Binary Search Tree Validation / 二叉搜索树验证](https://junjiearaoxiong.github.io/algorithm-visuals/binary-search-tree-validation/)
 - [Lowest Common Ancestor / 最近公共祖先](https://junjiearaoxiong.github.io/algorithm-visuals/lowest-common-ancestor/)
 - [Build Binary Tree From Preorder and Inorder Traversals / 从前序与中序遍历构建二叉树](https://junjiearaoxiong.github.io/algorithm-visuals/build-binary-tree-from-preorder-and-inorder-traversals/)
+- [Maximum Sum of a Continuous Path in a Binary Tree / 二叉树最大路径和](https://junjiearaoxiong.github.io/algorithm-visuals/maximum-sum-of-a-continuous-path-in-a-binary-tree/)
 
 ### 12 · Graphs / 图
 

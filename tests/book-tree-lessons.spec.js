@@ -116,3 +116,20 @@ test('reconstruction creates roots before connecting returned children and consu
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('None');
 });
+
+test('maximum path separates the two-arm candidate 30 from gain 21 and accepts all-negative input', async ({page}) => {
+  await page.goto('/maximum-sum-of-a-continuous-path-in-a-binary-tree/#step=0');
+  const index=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('return 8 + max(9, 13)')));
+  await page.locator('[data-step-select]').selectOption(String(index));
+  await expect(page.locator('[data-result]')).toHaveText('max_sum = 30');
+  await expect(page.locator('[data-visual-element="label-c"]')).toHaveText('↑21');
+  const d=await page.locator('[data-visual-element="band-0"]').getAttribute('d');
+  expect(d.split('L')).toHaveLength(3);
+  await finish(page);
+  await expect(page.locator('[data-result]')).toHaveText('30 · 路径 9 → 8 → 7 → 6');
+  await page.locator('[data-case]').selectOption('negative');
+  await finish(page);
+  await expect(page.locator('[data-result]')).toHaveText('-2 · 路径 -2');
+  await expect(page.locator('[data-visual-element="node-b"]')).toHaveClass(/on-path/);
+  await expect(page.locator('[data-visual-element="node-a"]')).not.toHaveClass(/on-path/);
+});
