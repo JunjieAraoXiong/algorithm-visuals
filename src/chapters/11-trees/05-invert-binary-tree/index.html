@@ -41,7 +41,7 @@ if(selector) {const saved=new URLSearchParams(location.search).get('case');if([.
 function makeFrames() {
  const mode=selector.value, iterative=mode==='iterative', empty=mode==='empty';
  const nodes={a:{val:5,left:'b',right:'c'},b:{val:1,left:'d',right:'e'},c:{val:8,left:null,right:'f'},d:{val:7,left:null,right:null},e:{val:6,left:null,right:null},f:{val:4,left:null,right:null}};
- const state={nodes,root:empty?null:'a',focus:empty?null:'a',reference:iterative?'node':'root',memory:[],labels:{},phase:iterative?'迭代 · 后进先出':'递归 · 先交换，再向下',invariant:'每个已处理节点都交换左右子指针；值不变，整个子树随引用换边。',caption:'输入：5 的左子树是 1（7、6），右子树是 8（右孩子 4）。'};
+ const state={nodes,root:empty?null:'a',focus:empty?null:'a',reference:'root',memoryTitle:iterative?'stack · 最后一个是栈顶':'调用栈 · 最后一个是栈顶',memory:[],labels:{},phase:iterative?'迭代 · 后进先出':'递归 · 先交换，再向下',invariant:'每个已处理节点都交换左右子指针；值不变，整个子树随引用换边。',caption:'输入：5 的左子树是 1（7、6），右子树是 8（右孩子 4）。'};
  const {frames,emit}=recorder(state), val=id=>valueOf(nodes,id);
  const stack=[];
  function sync(){state.memory=stack.map(id=>({label:`${iterative?'node':'root'} = ${val(id)}`}));}
@@ -51,13 +51,13 @@ function makeFrames() {
  if(iterative){
   stack.push('a');sync();state.memoryTitle='stack · 最后一个是栈顶';state.memoryNote='这里存的是节点引用；圆圈中的 val 仍留在树上。';
   emit('i-init','stack = [root]','把根节点引用入栈。');
-  while(stack.length){emit('i-while','while stack',`栈还有 ${stack.length} 个引用。`);const id=stack.pop();sync();emit('i-pop','node = stack.pop()',`弹出 ${val(id)}，node 改指向它；树的子指针未改变。`,{focus:id});swap(id,'i-swap');
+  while(stack.length){emit('i-while','while stack',`栈还有 ${stack.length} 个引用。`);const id=stack.pop();sync();emit('i-pop','node = stack.pop()',`弹出 ${val(id)}，node 改指向它；树的子指针未改变。`,{focus:id,reference:'node'});swap(id,'i-swap');
    emit('i-left-check','if node.left',`交换后的左孩子是 ${val(nodes[id].left)}。`);
    if(nodes[id].left){stack.push(nodes[id].left);sync();emit('i-left-push','stack.append(node.left)',`先把 ${val(nodes[id].left)} 入栈。`);}
    emit('i-right-check','if node.right',`交换后的右孩子是 ${val(nodes[id].right)}。`);
    if(nodes[id].right){stack.push(nodes[id].right);sync();emit('i-right-push','stack.append(node.right)',`后把 ${val(nodes[id].right)} 入栈；所以它先被弹出。`);}
   }
-  emit('i-while','while stack','栈为空，所有节点均已交换。',{focus:null});
+  emit('i-while','while stack','栈为空，所有节点均已交换；node 仍指向最后弹出的 4。');
   emit('i-return','return root','返回原来的根引用 5，树结构已镜像。',{focus:'a',reference:'root',result:'5 → [8, 1]；8 → [4, None]；1 → [6, 7]'});
  } else {
   function visit(id){stack.push(id);sync();emit('r-check','if not root',id?`递归调用的 root 指向 ${val(id)}。`:'当前子树为空。',{focus:id});
