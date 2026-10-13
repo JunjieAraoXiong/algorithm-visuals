@@ -49,7 +49,7 @@
             ]
           ],
           "children": [
-            "步骤 1 / 12"
+            "步骤 1 / 17"
           ]
         },
         {
@@ -108,7 +108,7 @@
                     ]
                   ],
                   "children": [
-                    "初始化 res = [1, 1, 1, 1, 1]"
+                    "初始化 res：乘法起点 1"
                   ]
                 },
                 {
@@ -120,7 +120,7 @@
                     ]
                   ],
                   "children": [
-                    "左积 res[1] = 1 × 2 = 2"
+                    "存左积：res[1] = 1 × 2"
                   ]
                 },
                 {
@@ -132,7 +132,7 @@
                     ]
                   ],
                   "children": [
-                    "左积 res[2] = 2 × 3 = 6"
+                    "存左积：res[2] = 2 × 3"
                   ]
                 },
                 {
@@ -144,7 +144,7 @@
                     ]
                   ],
                   "children": [
-                    "左积 res[3] = 6 × 1 = 6"
+                    "存左积：res[3] = 6 × 1"
                   ]
                 },
                 {
@@ -156,7 +156,7 @@
                     ]
                   ],
                   "children": [
-                    "左积 res[4] = 6 × 4 = 24"
+                    "存左积：res[4] = 6 × 4"
                   ]
                 },
                 {
@@ -168,7 +168,7 @@
                     ]
                   ],
                   "children": [
-                    "右积扫描 · right_product = 1, i = 4"
+                    "从右往左：right_product = 1"
                   ]
                 },
                 {
@@ -180,7 +180,7 @@
                     ]
                   ],
                   "children": [
-                    "右积 res[4] = 24 × 1 = 24"
+                    "先写答案：res[4] = 24 × 1"
                   ]
                 },
                 {
@@ -192,7 +192,7 @@
                     ]
                   ],
                   "children": [
-                    "右积 res[3] = 6 × 5 = 30"
+                    "再扩右积：1 × 5 = 5"
                   ]
                 },
                 {
@@ -204,7 +204,7 @@
                     ]
                   ],
                   "children": [
-                    "右积 res[2] = 6 × 20 = 120"
+                    "先写答案：res[3] = 6 × 5"
                   ]
                 },
                 {
@@ -216,7 +216,7 @@
                     ]
                   ],
                   "children": [
-                    "右积 res[1] = 2 × 20 = 40"
+                    "再扩右积：5 × 4 = 20"
                   ]
                 },
                 {
@@ -228,7 +228,7 @@
                     ]
                   ],
                   "children": [
-                    "右积 res[0] = 1 × 60 = 60"
+                    "先写答案：res[2] = 6 × 20"
                   ]
                 },
                 {
@@ -240,7 +240,67 @@
                     ]
                   ],
                   "children": [
-                    "return [60, 40, 120, 30, 24]"
+                    "再扩右积：20 × 1 = 20"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "先写答案：res[1] = 2 × 20"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "13"
+                    ]
+                  ],
+                  "children": [
+                    "再扩右积：20 × 3 = 60"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "14"
+                    ]
+                  ],
+                  "children": [
+                    "先写答案：res[0] = 1 × 60"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "再扩右积：60 × 2 = 120"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "16"
+                    ]
+                  ],
+                  "children": [
+                    "返回 res = [60, 40, 120, 30, 24]"
                   ]
                 }
               ]
@@ -267,7 +327,55 @@
             ]
           ],
           "children": [
-            "初始化 res = [1, 1, 1, 1, 1]"
+            "准备"
+          ]
+        },
+        {
+          "tag": "span",
+          "children": [
+            {
+              "tag": "code",
+              "children": [
+                "i"
+              ]
+            },
+            "=",
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "data-m-i",
+                  ""
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "span",
+          "children": [
+            {
+              "tag": "code",
+              "children": [
+                "right_product"
+              ]
+            },
+            "=",
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "data-m-rp",
+                  ""
+                ]
+              ],
+              "children": [
+                "—"
+              ]
+            }
           ]
         }
       ]
@@ -277,7 +385,7 @@
       "attributes": [
         [
           "aria-label",
-          "除自身以外数组的乘积演示：第 1 / 12 步。把输出数组先全部填成 1：1 是乘法单位元，作为累乘的起点，乘上它不会改变任何结果。"
+          "第 1 / 17 步。空乘积是 1。先填入乘法起点，尚未计算每个位置的左积。"
         ],
         [
           "class",
@@ -289,17 +397,13 @@
         ],
         [
           "style",
-          "height: 356px;"
+          "height: 282px;"
         ]
       ],
       "children": [
         {
           "tag": "svg",
           "attributes": [
-            [
-              "aria-hidden",
-              "true"
-            ],
             [
               "class",
               "lines"
@@ -309,8 +413,12 @@
               ""
             ],
             [
+              "role",
+              "img"
+            ],
+            [
               "viewBox",
-              "0 0 731 355.5"
+              "0 0 731 282"
             ]
           ],
           "children": [
@@ -335,7 +443,7 @@
                         ],
                         [
                           "fill",
-                          "#333"
+                          "var(--arrow)"
                         ]
                       ]
                     }
@@ -344,23 +452,35 @@
               ]
             },
             {
+              "tag": "title",
+              "children": [
+                "左边全部 × 右边全部，跳过当前元素"
+              ]
+            },
+            {
+              "tag": "desc",
+              "children": [
+                "res = [1, 1, 1, 1, 1]。"
+              ]
+            },
+            {
               "tag": "text",
               "attributes": [
                 [
                   "data-visual-element",
-                  "rowlab-nums"
+                  "nums-label"
                 ],
                 [
                   "fill",
-                  "#272727"
+                  "var(--ink)"
                 ],
                 [
                   "x",
-                  "192.5"
+                  "131.5"
                 ],
                 [
                   "y",
-                  "78.5"
+                  "70"
                 ]
               ],
               "children": [
@@ -372,19 +492,19 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "rowlab-res"
+                  "res-label"
                 ],
                 [
                   "fill",
-                  "#272727"
+                  "var(--ink)"
                 ],
                 [
                   "x",
-                  "192.5"
+                  "131.5"
                 ],
                 [
                   "y",
-                  "166.5"
+                  "192"
                 ]
               ],
               "children": [
@@ -392,123 +512,27 @@
               ]
             },
             {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "br-nl"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "x",
-                  "207.5"
-                ],
-                [
-                  "y",
-                  "79.5"
-                ]
-              ],
-              "children": [
-                "["
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "br-nr"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "x",
-                  "579.5"
-                ],
-                [
-                  "y",
-                  "79.5"
-                ]
-              ],
-              "children": [
-                "]"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "br-rl"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "x",
-                  "207.5"
-                ],
-                [
-                  "y",
-                  "167.5"
-                ]
-              ],
-              "children": [
-                "["
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "br-rr"
-                ],
-                [
-                  "fill",
-                  "#555"
-                ],
-                [
-                  "x",
-                  "579.5"
-                ],
-                [
-                  "y",
-                  "167.5"
-                ]
-              ],
-              "children": [
-                "]"
-              ]
-            },
-            {
               "tag": "path",
               "attributes": [
                 [
                   "d",
-                  "M 219.5 56 H 271.5 Q 274.5 56 274.5 59 V 89 Q 274.5 92 271.5 92 H 219.5 Q 216.5 92 216.5 89 V 59 Q 216.5 56 219.5 56 Z"
+                  "M 139.5 44 h 88 v 40 h -88 Z"
                 ],
                 [
                   "data-visual-element",
-                  "n-cell-0"
+                  "nums-0"
                 ],
                 [
                   "fill",
-                  "none"
+                  "var(--paper)"
                 ],
                 [
                   "stroke",
-                  "#777"
+                  "var(--ink)"
                 ],
                 [
                   "stroke-width",
-                  "1.2"
+                  "1"
                 ]
               ]
             },
@@ -517,19 +541,19 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "n-val-0"
+                  "nums-value-0"
                 ],
                 [
                   "fill",
-                  "#272727"
+                  "var(--ink)"
                 ],
                 [
                   "x",
-                  "245.5"
+                  "183.5"
                 ],
                 [
                   "y",
-                  "79"
+                  "70"
                 ]
               ],
               "children": [
@@ -537,27 +561,55 @@
               ]
             },
             {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "index-0"
+                ],
+                [
+                  "fill",
+                  "var(--quiet)"
+                ],
+                [
+                  "x",
+                  "183.5"
+                ],
+                [
+                  "y",
+                  "36"
+                ]
+              ],
+              "children": [
+                "0"
+              ]
+            },
+            {
               "tag": "path",
               "attributes": [
                 [
                   "d",
-                  "M 293.5 56 H 345.5 Q 348.5 56 348.5 59 V 89 Q 348.5 92 345.5 92 H 293.5 Q 290.5 92 290.5 89 V 59 Q 290.5 56 293.5 56 Z"
+                  "M 139.5 166 h 88 v 40 h -88 Z"
                 ],
                 [
                   "data-visual-element",
-                  "n-cell-1"
+                  "res-0"
                 ],
                 [
                   "fill",
-                  "none"
+                  "var(--paper)"
                 ],
                 [
                   "stroke",
-                  "#777"
+                  "var(--ink)"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
                 ],
                 [
                   "stroke-width",
-                  "1.2"
+                  "1"
                 ]
               ]
             },
@@ -566,19 +618,92 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "n-val-1"
+                  "res-value-0"
                 ],
                 [
                   "fill",
-                  "#272727"
+                  "var(--ink)"
                 ],
                 [
                   "x",
-                  "319.5"
+                  "183.5"
                 ],
                 [
                   "y",
-                  "79"
+                  "193"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "res-role-0"
+                ],
+                [
+                  "fill",
+                  "var(--quiet)"
+                ],
+                [
+                  "x",
+                  "183.5"
+                ],
+                [
+                  "y",
+                  "224"
+                ]
+              ],
+              "children": [
+                "左积"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 239.5 44 h 88 v 40 h -88 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "nums-1"
+                ],
+                [
+                  "fill",
+                  "var(--paper)"
+                ],
+                [
+                  "stroke",
+                  "var(--ink)"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-value-1"
+                ],
+                [
+                  "fill",
+                  "var(--ink)"
+                ],
+                [
+                  "x",
+                  "283.5"
+                ],
+                [
+                  "y",
+                  "70"
                 ]
               ],
               "children": [
@@ -586,48 +711,23 @@
               ]
             },
             {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 367.5 56 H 419.5 Q 422.5 56 422.5 59 V 89 Q 422.5 92 419.5 92 H 367.5 Q 364.5 92 364.5 89 V 59 Q 364.5 56 367.5 56 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "n-cell-2"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#777"
-                ],
-                [
-                  "stroke-width",
-                  "1.2"
-                ]
-              ]
-            },
-            {
               "tag": "text",
               "attributes": [
                 [
                   "data-visual-element",
-                  "n-val-2"
+                  "index-1"
                 ],
                 [
                   "fill",
-                  "#272727"
+                  "var(--quiet)"
                 ],
                 [
                   "x",
-                  "393.5"
+                  "283.5"
                 ],
                 [
                   "y",
-                  "79"
+                  "36"
                 ]
               ],
               "children": [
@@ -639,23 +739,27 @@
               "attributes": [
                 [
                   "d",
-                  "M 441.5 56 H 493.5 Q 496.5 56 496.5 59 V 89 Q 496.5 92 493.5 92 H 441.5 Q 438.5 92 438.5 89 V 59 Q 438.5 56 441.5 56 Z"
+                  "M 239.5 166 h 88 v 40 h -88 Z"
                 ],
                 [
                   "data-visual-element",
-                  "n-cell-3"
+                  "res-1"
                 ],
                 [
                   "fill",
-                  "none"
+                  "var(--paper)"
                 ],
                 [
                   "stroke",
-                  "#777"
+                  "var(--ink)"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
                 ],
                 [
                   "stroke-width",
-                  "1.2"
+                  "1"
                 ]
               ]
             },
@@ -664,23 +768,47 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "n-val-3"
+                  "res-value-1"
                 ],
                 [
                   "fill",
-                  "#272727"
+                  "var(--ink)"
                 ],
                 [
                   "x",
-                  "467.5"
+                  "283.5"
                 ],
                 [
                   "y",
-                  "79"
+                  "193"
                 ]
               ],
               "children": [
-                "4"
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "res-role-1"
+                ],
+                [
+                  "fill",
+                  "var(--quiet)"
+                ],
+                [
+                  "x",
+                  "283.5"
+                ],
+                [
+                  "y",
+                  "224"
+                ]
+              ],
+              "children": [
+                "起点 1"
               ]
             },
             {
@@ -688,23 +816,23 @@
               "attributes": [
                 [
                   "d",
-                  "M 515.5 56 H 567.5 Q 570.5 56 570.5 59 V 89 Q 570.5 92 567.5 92 H 515.5 Q 512.5 92 512.5 89 V 59 Q 512.5 56 515.5 56 Z"
+                  "M 339.5 44 h 88 v 40 h -88 Z"
                 ],
                 [
                   "data-visual-element",
-                  "n-cell-4"
+                  "nums-2"
                 ],
                 [
                   "fill",
-                  "none"
+                  "var(--paper)"
                 ],
                 [
                   "stroke",
-                  "#777"
+                  "var(--ink)"
                 ],
                 [
                   "stroke-width",
-                  "1.2"
+                  "1"
                 ]
               ]
             },
@@ -713,19 +841,319 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "n-val-4"
+                  "nums-value-2"
                 ],
                 [
                   "fill",
-                  "#272727"
+                  "var(--ink)"
                 ],
                 [
                   "x",
-                  "541.5"
+                  "383.5"
                 ],
                 [
                   "y",
-                  "79"
+                  "70"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "index-2"
+                ],
+                [
+                  "fill",
+                  "var(--quiet)"
+                ],
+                [
+                  "x",
+                  "383.5"
+                ],
+                [
+                  "y",
+                  "36"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 339.5 166 h 88 v 40 h -88 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "res-2"
+                ],
+                [
+                  "fill",
+                  "var(--paper)"
+                ],
+                [
+                  "stroke",
+                  "var(--ink)"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "res-value-2"
+                ],
+                [
+                  "fill",
+                  "var(--ink)"
+                ],
+                [
+                  "x",
+                  "383.5"
+                ],
+                [
+                  "y",
+                  "193"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "res-role-2"
+                ],
+                [
+                  "fill",
+                  "var(--quiet)"
+                ],
+                [
+                  "x",
+                  "383.5"
+                ],
+                [
+                  "y",
+                  "224"
+                ]
+              ],
+              "children": [
+                "起点 1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 439.5 44 h 88 v 40 h -88 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "nums-3"
+                ],
+                [
+                  "fill",
+                  "var(--paper)"
+                ],
+                [
+                  "stroke",
+                  "var(--ink)"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-value-3"
+                ],
+                [
+                  "fill",
+                  "var(--ink)"
+                ],
+                [
+                  "x",
+                  "483.5"
+                ],
+                [
+                  "y",
+                  "70"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "index-3"
+                ],
+                [
+                  "fill",
+                  "var(--quiet)"
+                ],
+                [
+                  "x",
+                  "483.5"
+                ],
+                [
+                  "y",
+                  "36"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 439.5 166 h 88 v 40 h -88 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "res-3"
+                ],
+                [
+                  "fill",
+                  "var(--paper)"
+                ],
+                [
+                  "stroke",
+                  "var(--ink)"
+                ],
+                [
+                  "stroke-dasharray",
+                  "4 3"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "res-value-3"
+                ],
+                [
+                  "fill",
+                  "var(--ink)"
+                ],
+                [
+                  "x",
+                  "483.5"
+                ],
+                [
+                  "y",
+                  "193"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "res-role-3"
+                ],
+                [
+                  "fill",
+                  "var(--quiet)"
+                ],
+                [
+                  "x",
+                  "483.5"
+                ],
+                [
+                  "y",
+                  "224"
+                ]
+              ],
+              "children": [
+                "起点 1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "d",
+                  "M 539.5 44 h 88 v 40 h -88 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "nums-4"
+                ],
+                [
+                  "fill",
+                  "var(--paper)"
+                ],
+                [
+                  "stroke",
+                  "var(--ink)"
+                ],
+                [
+                  "stroke-width",
+                  "1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "nums-value-4"
+                ],
+                [
+                  "fill",
+                  "var(--ink)"
+                ],
+                [
+                  "x",
+                  "583.5"
+                ],
+                [
+                  "y",
+                  "70"
                 ]
               ],
               "children": [
@@ -737,115 +1165,19 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "idx-0"
+                  "index-4"
                 ],
                 [
                   "fill",
-                  "#a3a199"
+                  "var(--quiet)"
                 ],
                 [
                   "x",
-                  "245.5"
+                  "583.5"
                 ],
                 [
                   "y",
-                  "198"
-                ]
-              ],
-              "children": [
-                "0"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "idx-1"
-                ],
-                [
-                  "fill",
-                  "#a3a199"
-                ],
-                [
-                  "x",
-                  "319.5"
-                ],
-                [
-                  "y",
-                  "198"
-                ]
-              ],
-              "children": [
-                "1"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "idx-2"
-                ],
-                [
-                  "fill",
-                  "#a3a199"
-                ],
-                [
-                  "x",
-                  "393.5"
-                ],
-                [
-                  "y",
-                  "198"
-                ]
-              ],
-              "children": [
-                "2"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "idx-3"
-                ],
-                [
-                  "fill",
-                  "#a3a199"
-                ],
-                [
-                  "x",
-                  "467.5"
-                ],
-                [
-                  "y",
-                  "198"
-                ]
-              ],
-              "children": [
-                "3"
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "idx-4"
-                ],
-                [
-                  "fill",
-                  "#a3a199"
-                ],
-                [
-                  "x",
-                  "541.5"
-                ],
-                [
-                  "y",
-                  "198"
+                  "36"
                 ]
               ],
               "children": [
@@ -857,68 +1189,19 @@
               "attributes": [
                 [
                   "d",
-                  "M 219.5 144 H 271.5 Q 274.5 144 274.5 147 V 177 Q 274.5 180 271.5 180 H 219.5 Q 216.5 180 216.5 177 V 147 Q 216.5 144 219.5 144 Z"
+                  "M 539.5 166 h 88 v 40 h -88 Z"
                 ],
                 [
                   "data-visual-element",
-                  "r-cell-0"
+                  "res-4"
                 ],
                 [
                   "fill",
-                  "#fffdf8"
+                  "var(--paper)"
                 ],
                 [
                   "stroke",
-                  "#272727"
-                ],
-                [
-                  "stroke-width",
-                  "1.8"
-                ]
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "r-val-0"
-                ],
-                [
-                  "fill",
-                  "#272727"
-                ],
-                [
-                  "x",
-                  "245.5"
-                ],
-                [
-                  "y",
-                  "167"
-                ]
-              ],
-              "children": [
-                "1"
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 293.5 144 H 345.5 Q 348.5 144 348.5 147 V 177 Q 348.5 180 345.5 180 H 293.5 Q 290.5 180 290.5 177 V 147 Q 290.5 144 293.5 144 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "r-cell-1"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#c4c2ba"
+                  "var(--ink)"
                 ],
                 [
                   "stroke-dasharray",
@@ -926,7 +1209,7 @@
                 ],
                 [
                   "stroke-width",
-                  "1.1"
+                  "1"
                 ]
               ]
             },
@@ -935,52 +1218,23 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "r-val-1"
+                  "res-value-4"
                 ],
                 [
                   "fill",
-                  "var(--pa-faint)"
+                  "var(--ink)"
                 ],
                 [
                   "x",
-                  "319.5"
+                  "583.5"
                 ],
                 [
                   "y",
-                  "167"
+                  "193"
                 ]
               ],
               "children": [
                 "1"
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 367.5 144 H 419.5 Q 422.5 144 422.5 147 V 177 Q 422.5 180 419.5 180 H 367.5 Q 364.5 180 364.5 177 V 147 Q 364.5 144 367.5 144 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "r-cell-2"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#c4c2ba"
-                ],
-                [
-                  "stroke-dasharray",
-                  "4 3"
-                ],
-                [
-                  "stroke-width",
-                  "1.1"
-                ]
               ]
             },
             {
@@ -988,129 +1242,51 @@
               "attributes": [
                 [
                   "data-visual-element",
-                  "r-val-2"
+                  "res-role-4"
                 ],
                 [
                   "fill",
-                  "var(--pa-faint)"
+                  "var(--quiet)"
                 ],
                 [
                   "x",
-                  "393.5"
+                  "583.5"
                 ],
                 [
                   "y",
-                  "167"
+                  "224"
                 ]
               ],
               "children": [
-                "1"
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 441.5 144 H 493.5 Q 496.5 144 496.5 147 V 177 Q 496.5 180 493.5 180 H 441.5 Q 438.5 180 438.5 177 V 147 Q 438.5 144 441.5 144 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "r-cell-3"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#c4c2ba"
-                ],
-                [
-                  "stroke-dasharray",
-                  "4 3"
-                ],
-                [
-                  "stroke-width",
-                  "1.1"
-                ]
+                "起点 1"
               ]
             },
             {
               "tag": "text",
               "attributes": [
                 [
+                  "data-factor-equation",
+                  ""
+                ],
+                [
                   "data-visual-element",
-                  "r-val-3"
+                  "factor-equation"
                 ],
                 [
                   "fill",
-                  "var(--pa-faint)"
+                  "var(--ink)"
                 ],
                 [
                   "x",
-                  "467.5"
+                  "365.5"
                 ],
                 [
                   "y",
-                  "167"
+                  "263"
                 ]
               ],
               "children": [
-                "1"
-              ]
-            },
-            {
-              "tag": "path",
-              "attributes": [
-                [
-                  "d",
-                  "M 515.5 144 H 567.5 Q 570.5 144 570.5 147 V 177 Q 570.5 180 567.5 180 H 515.5 Q 512.5 180 512.5 177 V 147 Q 512.5 144 515.5 144 Z"
-                ],
-                [
-                  "data-visual-element",
-                  "r-cell-4"
-                ],
-                [
-                  "fill",
-                  "none"
-                ],
-                [
-                  "stroke",
-                  "#c4c2ba"
-                ],
-                [
-                  "stroke-dasharray",
-                  "4 3"
-                ],
-                [
-                  "stroke-width",
-                  "1.1"
-                ]
-              ]
-            },
-            {
-              "tag": "text",
-              "attributes": [
-                [
-                  "data-visual-element",
-                  "r-val-4"
-                ],
-                [
-                  "fill",
-                  "var(--pa-faint)"
-                ],
-                [
-                  "x",
-                  "541.5"
-                ],
-                [
-                  "y",
-                  "167"
-                ]
-              ],
-              "children": [
-                "1"
+                "先存左积，再从右边乘入右积"
               ]
             }
           ]
@@ -1121,135 +1297,149 @@
       "tag": "div",
       "attributes": [
         [
+          "aria-label",
+          "查看每个答案的左右因子"
+        ],
+        [
           "class",
-          "state-grid"
+          "result-inspector"
+        ],
+        [
+          "data-result-inspector",
+          ""
+        ],
+        [
+          "hidden",
+          ""
+        ],
+        [
+          "role",
+          "group"
         ]
       ],
       "children": [
         {
-          "tag": "article",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
+          "tag": "span",
           "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "不变量 / Invariant"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "data-invariant",
-                  ""
-                ]
-              ],
-              "children": [
-                "res 先全部置 1（乘法单位元），等待两遍扫描逐步覆盖。"
-              ]
-            }
+            "查看 res"
           ]
         },
         {
-          "tag": "dl",
+          "tag": "button",
           "attributes": [
             [
-              "class",
-              "metrics"
+              "aria-label",
+              "查看 res[0] 的左右因子"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "data-result-index",
+              "0"
             ]
           ],
           "children": [
-            {
-              "tag": "div",
-              "children": [
-                {
-                  "tag": "dt",
-                  "children": [
-                    {
-                      "tag": "code",
-                      "children": [
-                        "i"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "dd",
-                  "attributes": [
-                    [
-                      "data-m-i",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "—"
-                  ]
-                }
-              ]
-            },
-            {
-              "tag": "div",
-              "children": [
-                {
-                  "tag": "dt",
-                  "children": [
-                    {
-                      "tag": "code",
-                      "children": [
-                        "right_product"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "dd",
-                  "attributes": [
-                    [
-                      "data-m-rp",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "—"
-                  ]
-                }
-              ]
-            },
-            {
-              "tag": "div",
-              "children": [
-                {
-                  "tag": "dt",
-                  "children": [
-                    {
-                      "tag": "code",
-                      "children": [
-                        "res"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "dd",
-                  "attributes": [
-                    [
-                      "data-m-res",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "[1, 1, 1, 1, 1]"
-                  ]
-                }
-              ]
-            }
+            "[0]"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "查看 res[1] 的左右因子"
+            ],
+            [
+              "aria-pressed",
+              "true"
+            ],
+            [
+              "data-result-index",
+              "1"
+            ]
+          ],
+          "children": [
+            "[1]"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "查看 res[2] 的左右因子"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "data-result-index",
+              "2"
+            ]
+          ],
+          "children": [
+            "[2]"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "查看 res[3] 的左右因子"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "data-result-index",
+              "3"
+            ]
+          ],
+          "children": [
+            "[3]"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-label",
+              "查看 res[4] 的左右因子"
+            ],
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "data-result-index",
+              "4"
+            ]
+          ],
+          "children": [
+            "[4]"
           ]
         }
+      ]
+    },
+    {
+      "tag": "p",
+      "attributes": [
+        [
+          "class",
+          "sr-only"
+        ],
+        [
+          "data-m-res",
+          ""
+        ]
+      ],
+      "children": [
+        "[1, 1, 1, 1, 1]"
       ]
     },
     {
@@ -1274,7 +1464,7 @@
             ]
           ],
           "children": [
-            "n = len(nums) # 5 · res = [1] * n # [1, 1, 1, 1, 1]"
+            "res = [1] * n"
           ]
         },
         {
@@ -1286,7 +1476,7 @@
             ]
           ],
           "children": [
-            "The output starts as five 1s. Seeding with 1 (not 0) keeps the running multiplication intact — 1 is the multiplicative identity."
+            "An empty product is 1."
           ]
         },
         {
@@ -1298,7 +1488,7 @@
             ]
           ],
           "children": [
-            "把输出数组先全部填成 1：1 是乘法单位元，作为累乘的起点，乘上它不会改变任何结果。"
+            "空乘积是 1。先填入乘法起点，尚未计算每个位置的左积。"
           ]
         }
       ]

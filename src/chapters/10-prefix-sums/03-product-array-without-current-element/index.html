@@ -9,23 +9,23 @@
     <link rel="stylesheet" href="../assets/visual.css" />
     <style>
       :root {
-        --pa-wash: #f0ecdd;
-        --pa-faint: #b9b7ae;
-        --pa-ring: #a3a199;
+        --pa-wash: color-mix(in srgb, var(--paper) 88%, var(--ink));
       }
-      .problem { max-width: 860px; margin: 0 3px 12px; color: #41413e; }
+      .problem { max-width: 860px; margin: 0 3px 12px; color: var(--quiet); font-size: 14px; }
       .problem span { display: block; margin-top: 3px; color: var(--quiet); }
-      .step-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
-      .step-picker { margin-left: auto; }
-      .stage { height: 350px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
-      .state-grid { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 10px; margin: 12px 3px; }
-      .invariant, .metrics { padding: 10px 12px; border: 1px solid var(--rule); }
-      .invariant strong { display: block; margin-bottom: 5px; font: 12px/1.4 monospace; }
-      .invariant p { margin: 0; color: var(--quiet); font-size: 13px; }
-      .metrics { display: grid; gap: 5px; margin: 0; font: 11px/1.45 monospace; align-content: start; }
-      .metrics div { display: flex; justify-content: space-between; gap: 10px; }
-      .metrics dt { color: var(--quiet); }
-      .metrics dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+      .step-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; min-height: 26px; margin: 8px 3px 0; color: var(--quiet); font: 12px/1.5 monospace; }
+      .step-picker { margin-left: auto; min-width: 0; }
+      .step-picker select { max-width: 100%; }
+      .result-inspector { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 6px 3px; font: 12px monospace; }
+      .result-inspector[hidden] { display: none; }
+      .result-inspector button { min-width: 34px; min-height: 30px; border: 1px solid var(--rule); background: transparent; border-radius: 2px; cursor: pointer; }
+      .result-inspector button[aria-pressed="true"] { border-color: var(--ink); outline: 1px dashed var(--ink); outline-offset: 2px; }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+      .operation [data-explanation] { color: var(--quiet); font-size: 12px; }
+      .controls .step-picker { flex: 1 0 100%; display: flex; gap: 6px; }
+      .controls .step-picker select { flex: 1; min-width: 0; }
+
+      .stage { height: 280px; overflow: hidden; border-bottom: 1px solid var(--rule); touch-action: pan-y; }
       .section { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--rule); }
       .section h2 { margin: 0 0 8px; font-size: 20px; }
       .section-intro { max-width: 900px; color: var(--quiet); }
@@ -40,8 +40,12 @@
       .reason-list { margin: 8px 0 0; padding-left: 24px; }
       .reason-list li { margin: 6px 0; }
       .small { color: var(--quiet); font-size: 12px; }
+      @media (max-width: 520px) {
+        .step-meta { min-height: 44px; }
+        .step-meta [data-phase] { flex-basis: 100%; }
+      }
       @media (max-width: 700px) {
-        .state-grid, .case-grid, .edge-grid, .complexity, .example-grid { grid-template-columns: 1fr; }
+        .case-grid, .edge-grid, .complexity, .example-grid { grid-template-columns: 1fr; }
         .step-picker { width: 100%; margin-left: 0; }
         .step-picker select { width: 100%; }
       }
@@ -51,7 +55,7 @@
     <main id="product-lab">
       <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
       <header class="heading"><div><h1>Product Array Without Current Element · 除自身以外数组的乘积</h1></div></header>
-      <p class="problem">Given an array of integers, return an array <code>res</code> so that <code>res[i]</code> is the product of all elements of the input except <code>nums[i]</code> itself — without using division.<span lang="zh-CN">给定整数数组 nums，返回数组 res：res[i] 等于除 nums[i] 以外所有元素的乘积，并且不能用除法。</span></p>
+      <p class="problem">Return the product of every value except <code>nums[i]</code>, without division.<span lang="zh-CN"><code>res[i]</code> = 左边全部 × 右边全部，跳过 <code>nums[i]</code>。不用除法。</span></p>
 
       <div class="learning-layout" data-learning-layout>
         <section class="animation-panel" data-animation-panel aria-label="除自身以外数组的乘积演示 / product array trace">
@@ -61,28 +65,43 @@
             <button type="button" data-action="next">下一步 →</button>
             <label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label>
           </div>
-          <div class="step-meta"><span data-phase></span></div>
+          <div class="step-meta"><span data-phase></span><span><code>i</code> = <span data-m-i></span></span><span><code>right_product</code> = <span data-m-rp></span></span></div>
           <div class="stage" data-stage tabindex="0" aria-label="除自身以外数组的乘积算法演示">
-            <svg class="lines" data-lines aria-hidden="true"></svg>
+            <svg class="lines" data-lines role="img" aria-labelledby="product-scene-title product-scene-desc"><title id="product-scene-title">左边全部 × 右边全部，跳过当前元素</title><desc id="product-scene-desc"></desc></svg>
           </div>
-          <div class="state-grid">
-            <article class="invariant"><strong>不变量 / Invariant</strong><p data-invariant></p></article>
-            <dl class="metrics">
-              <div><dt><code>i</code></dt><dd data-m-i></dd></div>
-              <div><dt><code>right_product</code></dt><dd data-m-rp></dd></div>
-              <div><dt><code>res</code></dt><dd data-m-res></dd></div>
-            </dl>
-          </div>
+          <div class="result-inspector" data-result-inspector hidden role="group" aria-label="查看每个答案的左右因子"><span>查看 res</span></div>
+          <p class="sr-only" data-m-res></p>
           <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><span lang="zh-CN" data-explanation-zh></span></div>
         </section>
 
         <aside class="code-panel" data-code-panel aria-labelledby="product-code-title">
           <h2 id="product-code-title">完整 Python 代码</h2>
           <p class="code-status" data-code-status></p>
-          <pre data-code-scroll tabindex="0"><code><span class="code-line" data-source-key="func">def product_array_without_current_element(nums: List[int]) -&gt; List[int]:</span><span class="code-line" data-source-key="n-len">    n = len(nums)</span><span class="code-line" data-source-key="init">    res = [1] * n</span><span class="code-line">    # Populate the output with the running left product.</span><span class="code-line" data-source-key="left-loop">    for i in range(1, n):</span><span class="code-line" data-source-key="left-set">        res[i] = res[i - 1] * nums[i - 1]</span><span class="code-line">    # Multiply the output with the running right product, from right to</span><span class="code-line">    # left.</span><span class="code-line" data-source-key="rp-init">    right_product = 1</span><span class="code-line" data-source-key="right-loop">    for i in range(n - 1, -1, -1):</span><span class="code-line" data-source-key="res-mul">        res[i] *= right_product</span><span class="code-line" data-source-key="rp-mul">        right_product *= nums[i]</span><span class="code-line" data-source-key="ret">    return res</span></code></pre>
+          <pre data-code-scroll tabindex="0"><code><span class="code-line">from typing import List</span><span class="code-line" data-source-key="func">def product_array_without_current_element(nums: List[int]) -&gt; List[int]:</span><span class="code-line" data-source-key="n-len">    n = len(nums)</span><span class="code-line" data-source-key="init">    res = [1] * n</span><span class="code-line">    # Populate the output with the running left product.</span><span class="code-line" data-source-key="left-loop">    for i in range(1, n):</span><span class="code-line" data-source-key="left-set">        res[i] = res[i - 1] * nums[i - 1]</span><span class="code-line">    # Multiply the output with the running right product, from right to</span><span class="code-line">    # left.</span><span class="code-line" data-source-key="rp-init">    right_product = 1</span><span class="code-line" data-source-key="right-loop">    for i in range(n - 1, -1, -1):</span><span class="code-line" data-source-key="res-mul">        res[i] *= right_product</span><span class="code-line" data-source-key="rp-mul">        right_product *= nums[i]</span><span class="code-line" data-source-key="ret">    return res</span></code></pre>
           <p class="note">res 兼任输出数组与工作数组：第一遍存左积，第二遍原地乘入右积，不建 left_products / right_products。</p>
         </aside>
       </div>
+
+      <section class="section" aria-labelledby="product-insight">
+        <h2 id="product-insight">关键洞察：res[i] = 左积 × 右积 / Left product × right product</h2>
+        <p class="section-intro">“除自身以外”可以拆成两段互不重叠的数：<strong>它左边的全部 × 它右边的全部</strong>。以下标 2（值 1）为例：左边 2×3 = 6，右边 4×5 = 20，res[2] = 6 × 20 = 120，当前的 1 不在任何一段里。先写答案，再把 nums[i] 加入 right_product，供下一个位置使用。</p>
+        <svg class="book-fig" viewBox="0 0 400 150" role="img" aria-label="下标 i 左边的 2、3 乘积为 6，右边的 4、5 乘积为 20，res[i] = 6 × 20 = 120">
+          <rect x="128" y="44" width="80" height="30" fill="url(#pa-hatch)" stroke="#999" stroke-width="0.8"/>
+          <rect x="260" y="44" width="80" height="30" fill="url(#pa-hatch)" stroke="#999" stroke-width="0.8"/>
+          <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+            <text x="122" y="64" font-size="14" fill="#555">[</text>
+            <rect x="128" y="44" width="36" height="30" fill="none" stroke="#555" stroke-width="1.1"/><rect x="172" y="44" width="36" height="30" fill="none" stroke="#555" stroke-width="1.1"/><rect x="216" y="44" width="36" height="30" fill="none" stroke="#272727" stroke-width="1.8"/><rect x="260" y="44" width="36" height="30" fill="none" stroke="#555" stroke-width="1.1"/><rect x="304" y="44" width="36" height="30" fill="none" stroke="#555" stroke-width="1.1"/>
+            <text x="146" y="64" text-anchor="middle" font-size="14" fill="#272727">2</text><text x="190" y="64" text-anchor="middle" font-size="14" fill="#272727">3</text><text x="234" y="64" text-anchor="middle" font-size="14" fill="#272727" font-weight="600">1</text><text x="278" y="64" text-anchor="middle" font-size="14" fill="#272727">4</text><text x="322" y="64" text-anchor="middle" font-size="14" fill="#272727">5</text>
+            <text x="346" y="64" font-size="14" fill="#555">]</text>
+            <rect x="225" y="8" width="18" height="18" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="234" y="21" text-anchor="middle" font-size="12" fill="#272727">i</text>
+            <path d="M 234 26 L 234 40" stroke="#333" stroke-width="1.3" fill="none" marker-end="url(#pa-fig-arrow)"/>
+            <text x="168" y="94" text-anchor="middle" font-size="11.5" fill="#555">product = 6</text>
+            <text x="300" y="94" text-anchor="middle" font-size="11.5" fill="#555">product = 20</text>
+            <path d="M 128 104 C 128 112, 226 108, 234 116 C 242 108, 340 112, 340 104" stroke="#333" stroke-width="1.2" fill="none"/>
+            <text x="234" y="138" text-anchor="middle" font-size="12.5" fill="#272727">res[i] = 6 * 20 = 120</text>
+          </g>
+        </svg>
+      </section>
 
       <section class="section" aria-labelledby="product-intuition">
         <h2 id="product-intuition">直觉：总乘积 120，再逐个相除 / Total product, then divide</h2>
@@ -128,30 +147,9 @@
         <p class="fig-note">这是 O(n) 时间、O(1) 空间的做法——但面试官的经典追问是：<strong>如果不能用除法呢？</strong>（而且 nums 含 0 时除法直接失效。）下面的方法不依赖除法。</p>
       </section>
 
-      <section class="section" aria-labelledby="product-insight">
-        <h2 id="product-insight">关键洞察：res[i] = 左积 × 右积 / Left product × right product</h2>
-        <p class="section-intro">“除自身以外”可以拆成两段互不重叠的数：<strong>它左边的全部 × 它右边的全部</strong>。以下标 2（值 1）为例：左边 2×3 = 6，右边 4×5 = 20，两段各自累乘后再相乘，res[2] = 6 × 20 = 120——nums[2] 自己永远不在任何一段里。</p>
-        <svg class="book-fig" viewBox="0 0 400 150" role="img" aria-label="下标 i 左边的 2、3 乘积为 6，右边的 4、5 乘积为 20，res[i] = 6 × 20 = 120">
-          <rect x="128" y="44" width="80" height="30" fill="url(#pa-hatch)" stroke="#999" stroke-width="0.8"/>
-          <rect x="260" y="44" width="80" height="30" fill="url(#pa-hatch)" stroke="#999" stroke-width="0.8"/>
-          <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
-            <text x="122" y="64" font-size="14" fill="#555">[</text>
-            <rect x="128" y="44" width="36" height="30" fill="none" stroke="#555" stroke-width="1.1"/><rect x="172" y="44" width="36" height="30" fill="none" stroke="#555" stroke-width="1.1"/><rect x="216" y="44" width="36" height="30" fill="none" stroke="#272727" stroke-width="1.8"/><rect x="260" y="44" width="36" height="30" fill="none" stroke="#555" stroke-width="1.1"/><rect x="304" y="44" width="36" height="30" fill="none" stroke="#555" stroke-width="1.1"/>
-            <text x="146" y="64" text-anchor="middle" font-size="14" fill="#272727">2</text><text x="190" y="64" text-anchor="middle" font-size="14" fill="#272727">3</text><text x="234" y="64" text-anchor="middle" font-size="14" fill="#272727" font-weight="600">1</text><text x="278" y="64" text-anchor="middle" font-size="14" fill="#272727">4</text><text x="322" y="64" text-anchor="middle" font-size="14" fill="#272727">5</text>
-            <text x="346" y="64" font-size="14" fill="#555">]</text>
-            <rect x="225" y="8" width="18" height="18" fill="#fffdf8" stroke="#333" stroke-width="1.2"/><text x="234" y="21" text-anchor="middle" font-size="12" fill="#272727">i</text>
-            <path d="M 234 26 L 234 40" stroke="#333" stroke-width="1.3" fill="none" marker-end="url(#pa-fig-arrow)"/>
-            <text x="168" y="94" text-anchor="middle" font-size="11.5" fill="#555">product = 6</text>
-            <text x="300" y="94" text-anchor="middle" font-size="11.5" fill="#555">product = 20</text>
-            <path d="M 128 104 C 128 112, 226 108, 234 116 C 242 108, 340 112, 340 104" stroke="#333" stroke-width="1.2" fill="none"/>
-            <text x="234" y="138" text-anchor="middle" font-size="12.5" fill="#272727">res[i] = 6 * 20 = 120</text>
-          </g>
-        </svg>
-      </section>
-
       <section class="section" aria-labelledby="product-prefix">
         <h2 id="product-prefix">前缀积：左右乘积各存一行 / Prefix products</h2>
-        <p class="section-intro">两个数组都可以“边走边乘”得到：<code>left_products</code> 从左到右累乘（<code>left_products[i]</code> = i 左边所有数的乘积），<code>right_products</code> 从右到左同理。这就是前缀积——和前缀和一样，只是把累加换成累乘，初值从 0 改成 1（乘 0 会把所有累积结果清零）。逐列相乘即得答案。</p>
+        <p class="section-intro">两个数组都可以“边走边乘”得到：<code>left_products</code> 从左到右累乘（<code>left_products[i]</code> = i 左边所有数的乘积），<code>right_products</code> 从右到左同理。这两行只是概念对照，动画中的代码不分配这两个数组。前缀积和前缀和一样，只是把累加换成累乘，初值从 0 改成 1（乘 0 会把所有累积结果清零）。逐列相乘即得答案。</p>
         <svg class="book-fig" viewBox="0 0 400 140" role="img" aria-label="nums、left_products、right_products、res 四行对照，left_products 与 right_products 逐列相乘得到 res">
           <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
             <text x="128" y="28" text-anchor="end" font-size="12" fill="#333">nums =</text>
@@ -194,7 +192,7 @@
             <text x="140" y="86" font-size="13" fill="#555">[</text>
             <g font-size="13" fill="#272727" font-weight="600"><text x="152" y="86" text-anchor="middle">1</text><text x="196" y="86" text-anchor="middle">2</text><text x="240" y="86" text-anchor="middle">6</text><text x="284" y="86" text-anchor="middle">6</text><text x="328" y="86" text-anchor="middle">24</text></g>
             <text x="340" y="86" font-size="13" fill="#555">]</text>
-            <path d="M 314 98 L 362 98" stroke="#555" stroke-width="1.3" fill="none" marker-end="url(#pa-fig-arrow)"/>
+            <path d="M 362 98 L 314 98" stroke="#555" stroke-width="1.3" fill="none" marker-end="url(#pa-fig-arrow)"/>
           </g>
         </svg>
         <p class="fig-note">第一步完成后 res = [1, 2, 6, 6, 24]，箭头表示它已就位、等待从右往左乘入 <code>right_product</code>；浅灰的 left_products 行只是对照，不再需要真的存储。</p>
@@ -203,8 +201,8 @@
       <section class="section" aria-labelledby="product-edge">
         <h2 id="product-edge">边界情况 / Edge cases</h2>
         <div class="edge-grid">
-          <article class="paper-card"><strong>nums 含 0 · zeros in nums</strong><p>除法方案遇到 <code>nums[i] = 0</code> 直接失效；左积 × 右积不受影响——0 只会让它自己的位置变成非零、其余位置为 0。如 <code>[2, 0, 4] → [0, 8, 0]</code>。</p></article>
-          <article class="paper-card"><strong>n = 1 · single element</strong><p>两个循环都不执行，返回 <code>[1]</code>：唯一的元素左边、右边都没有数，空乘积按乘法单位元 1 计。</p></article>
+          <article class="paper-card"><strong>nums 含 0 · zeros in nums</strong><p>除法方案遇到 <code>nums[i] = 0</code> 直接失效；左积 × 右积不受影响——恰好一个 0 时，只有它所在位置可能非零，如 <code>[2, 0, 4] → [0, 8, 0]</code>；两个或更多 0 时，所有答案都是 0。</p></article>
+          <article class="paper-card"><strong>n = 1 · single element</strong><p>左积循环不执行；右积循环执行一次，先乘空乘积 1，仍返回 <code>[1]</code>。唯一元素的两侧都没有数，空乘积为 1。</p></article>
           <article class="paper-card"><strong>为什么用 1 初始化 · seed with 1</strong><p>前缀积从 1 起步而不是 0：任何数乘 0 都会塌成 0，累乘就失去意义。<code>res = [1] * n</code> 让这个初值天然就位。</p></article>
           <article class="paper-card"><strong>不能用除法 · no division</strong><p>面试官的跟进追问。左积 × 右积的方案全程只有乘法，天然满足这个约束。</p></article>
         </div>
@@ -228,286 +226,166 @@
         const root = document.getElementById('product-lab');
         const stage = root.querySelector('[data-stage]');
         const svg = root.querySelector('[data-lines]');
-        const phaseEl = root.querySelector('[data-phase]');
-        const invariantEl = root.querySelector('[data-invariant]');
-        const mI = root.querySelector('[data-m-i]');
-        const mRp = root.querySelector('[data-m-rp]');
-        const mRes = root.querySelector('[data-m-res]');
-        const expressionEl = root.querySelector('[data-expression]');
-        const explanationEl = root.querySelector('[data-explanation]');
-        const explanationZhEl = root.querySelector('[data-explanation-zh]');
-
+        const inspector = root.querySelector('[data-result-inspector]');
         const NUMS = [2, 3, 1, 4, 5];
         const N = NUMS.length;
         const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
         const fmt = a => `[${a.join(', ')}]`;
 
-        // Simulate the real algorithm on the book's example data; every frame's
-        // state, expression, and annotation come from this run.
-        function simulate() {
+        // Each right-pass assignment gets its own snapshot: the output write
+        // reads the old suffix; only the following assignment includes nums[i].
+        function simulate(nums = NUMS) {
+          const n = nums.length;
           const frames = [];
-          const res = Array(N).fill(1);
-
-          frames.push({
-            stepLabel: '初始化 res = [1, 1, 1, 1, 1]',
-            kind: 'init',
-            sourceKeys: ['func', 'n-len', 'init'],
-            line: 'n = len(nums)  # 5 · res = [1] * n  # [1, 1, 1, 1, 1]',
-            en: 'The output starts as five 1s. Seeding with 1 (not 0) keeps the running multiplication intact — 1 is the multiplicative identity.',
-            zh: '把输出数组先全部填成 1：1 是乘法单位元，作为累乘的起点，乘上它不会改变任何结果。',
-            invariant: 'res 先全部置 1（乘法单位元），等待两遍扫描逐步覆盖。',
-            state: { phase: 'init', res: [...res], i: null, rp: null, calc: null }
-          });
-
-          for (let i = 1; i < N; i += 1) {
-            const lp = res[i - 1];
-            const num = NUMS[i - 1];
-            const prod = lp * num;
+          const res = Array(n).fill(1);
+          frames.push({ kind: 'init', stepLabel: '初始化 res：乘法起点 1', sourceKeys: ['n-len', 'init'],
+            line: 'res = [1] * n', en: 'An empty product is 1.', zh: '空乘积是 1。先填入乘法起点，尚未计算每个位置的左积。',
+            state: { phase: 'init', res: [...res], i: null, rp: null, completedFrom: n, calc: null } });
+          for (let i = 1; i < n; i += 1) {
+            const lp = res[i - 1], num = nums[i - 1], prod = lp * num;
             res[i] = prod;
-            frames.push({
-              stepLabel: `左积 res[${i}] = ${lp} × ${num} = ${prod}`,
-              kind: 'left',
-              sourceKeys: ['left-loop', 'left-set'],
-              line: `res[i] = res[i - 1] * nums[i - 1]  # res[${i}] = ${lp} * ${num} = ${prod}`,
-              en: `res[${i}] = res[${i - 1}] × nums[${i - 1}] = ${lp} × ${num} = ${prod} — the product of everything left of index ${i}.`,
-              zh: `res[${i}] = res[${i - 1}] × nums[${i - 1}] = ${lp} × ${num} = ${prod}：每个位置存“它左边所有数的乘积”。`,
-              invariant: '从左到右累乘：res[i-1] 已是 i-1 左侧的乘积，乘上 nums[i-1] 即得 i 左侧的乘积。',
-              state: { phase: 'left', res: [...res], i, rp: null, calc: { lp, num, prod } }
-            });
+            frames.push({ kind: 'left', stepLabel: `存左积：res[${i}] = ${lp} × ${num}`, sourceKeys: ['left-loop', 'left-set'],
+              line: 'res[i] = res[i - 1] * nums[i - 1]', en: `Only the values before index ${i} are included.`,
+              zh: `已有左积 ${lp} 再乘 nums[${i - 1}] = ${num}，得到 res[${i}] = ${prod}。nums[${i}] 还没有乘进去。`,
+              state: { phase: 'left', res: [...res], i, rp: null, completedFrom: n, calc: { lp, num, prod } } });
           }
-
           let rp = 1;
-          frames.push({
-            stepLabel: '右积扫描 · right_product = 1, i = 4',
-            kind: 'right-start',
-            sourceKeys: ['rp-init', 'right-loop'],
-            line: 'right_product = 1 · for i in range(n - 1, -1, -1)  # i 从 4 开始',
-            en: 'Now walk from right to left. right_product starts at 1: there is nothing to the right of the last index, and an empty product is 1.',
-            zh: '改为从右向左扫描。right_product 从 1 起步：最后一个下标的右边没有任何数，空乘积记为 1。',
-            invariant: 'right_product 始终等于“i 右侧所有数的乘积”，进入循环前为 1。',
-            state: { phase: 'right', res: [...res], i: N - 1, rp, calc: null }
-          });
-
-          for (let i = N - 1; i >= 0; i -= 1) {
-            const before = res[i];
-            const rpBefore = rp;
-            const after = before * rpBefore;
-            const rpAfter = rpBefore * NUMS[i];
-            const lines = [
-              'res[i] = res[i] * right_product',
-              `     = ${before} * ${rpBefore}`,
-              `     = ${after}`,
-              'right_product = right_product * nums[i]',
-              `     = ${rpBefore} * ${NUMS[i]}`,
-              `     = ${rpAfter}`
-            ];
-            if (i === N - 1) lines.unshift('right_product = 1');
+          frames.push({ kind: 'right-start', stepLabel: '从右往左：right_product = 1', sourceKeys: ['rp-init'],
+            line: 'right_product = 1', en: 'The last position has an empty right side.', zh: 'res 已存好各位置的左积。最右侧没有数，所以 right_product 从 1 开始。',
+            state: { phase: 'right-start', res: [...res], i: n ? n - 1 : null, rp, completedFrom: n, calc: null } });
+          for (let i = n - 1; i >= 0; i -= 1) {
+            const before = res[i], rpBefore = rp, after = before * rpBefore, num = nums[i];
             res[i] = after;
-            rp = rpAfter;
-            frames.push({
-              stepLabel: `右积 res[${i}] = ${before} × ${rpBefore} = ${after}`,
-              kind: 'right',
-              sourceKeys: ['right-loop', 'res-mul', 'rp-mul'],
-              line: `res[i] *= right_product  # res[${i}] = ${before} * ${rpBefore} = ${after} · right_product *= nums[i]  # ${rpBefore} * ${NUMS[i]} = ${rpAfter}`,
-              en: `res[${i}] already holds the left product ${before}; right_product = ${rpBefore} is the product of everything to its right. ${before} × ${rpBefore} = ${after}. Then fold nums[${i}] = ${NUMS[i]} into the right side: ${rpBefore} × ${NUMS[i]} = ${rpAfter}.`,
-              zh: `res[${i}] 存的是左积 ${before}，right_product = ${rpBefore} 是它右边所有数的乘积：${before} × ${rpBefore} = ${after}。再把 nums[${i}] = ${NUMS[i]} 并入右侧：right_product = ${rpBefore} × ${NUMS[i]} = ${rpAfter}。`,
-              invariant: '从右到左：res[i]（左积）× right_product（右积）= 除自身外所有数的乘积。',
-              state: { phase: 'right', res: [...res], i, rp, calc: { before, rpBefore, after, rpAfter, lines } }
-            });
+            frames.push({ kind: 'right-write', stepLabel: `先写答案：res[${i}] = ${before} × ${rpBefore}`, sourceKeys: ['res-mul'],
+              line: 'res[i] *= right_product', en: 'Use the right product before including the current value.',
+              zh: `左积 ${before} × 右积 ${rpBefore} = ${after}，写入 res[${i}]。跳过 nums[${i}] = ${num}；right_product 仍是 ${rpBefore}。`,
+              state: { phase: 'right-write', res: [...res], i, rp, completedFrom: i, calc: { before, rpBefore, after, num } } });
+            rp *= num;
+            frames.push({ kind: 'right-fold', stepLabel: `再扩右积：${rpBefore} × ${num} = ${rp}`, sourceKeys: ['rp-mul'],
+              line: 'right_product *= nums[i]', en: 'The answer stays fixed; extend the suffix for the next position.',
+              zh: i ? `res[${i}] 已完成，不再改动。把 nums[${i}] = ${num} 加入右积：${rpBefore} × ${num} = ${rp}，供下一轮 i = ${i - 1} 使用。` : `所有答案已完成。这一行仍按原代码执行，right_product 变为 ${rp}，随后不再用于答案。`,
+              state: { phase: 'right-fold', res: [...res], i, rp, completedFrom: i, calc: { before, rpBefore, after, rpAfter: rp, num } } });
           }
-
-          frames.push({
-            stepLabel: `return ${fmt(res)}`,
-            kind: 'done',
-            sourceKeys: ['ret'],
-            line: `return res  # ${fmt(res)}`,
-            en: 'Every index multiplied its left product by its right product, skipping exactly itself. This is the final output.',
-            zh: '每个位置都拿“左积 × 右积”，恰好跳过了自己。返回 res。',
-            invariant: 'res[i] = (i 左侧的乘积) × (i 右侧的乘积) = 除 nums[i] 外所有元素的乘积。',
-            state: { phase: 'done', res: [...res], i: null, rp, calc: null }
-          });
+          frames.push({ kind: 'done', stepLabel: `返回 res = ${fmt(res)}`, sourceKeys: ['ret'], line: 'return res',
+            en: 'Each answer contains every factor except its own value.', zh: '每个答案都由左右两段相乘，恰好跳过自己。选择一个位置，查看它的因子。',
+            state: { phase: 'done', res: [...res], i: null, rp, completedFrom: 0, calc: null } });
           return frames;
         }
 
         const FRAMES = simulate();
         const scene = core.createSvgScene(svg);
-        scene.defineMarker('pa-arrow', { fill: '#333', markerWidth: 7, markerHeight: 7, refX: 6, refY: 3.5 });
+        scene.defineMarker('pa-arrow', { fill: 'var(--arrow)', markerWidth: 6, markerHeight: 6 });
         const motion = core.createMotionController();
-        let geom = {};
-        let transitionFrom = null;
+        let geom = {}, inspectIndex = 1, transitionFrom = null;
+        const product = values => values.reduce((a, b) => a * b, 1);
+        const factors = values => values.length ? values.join(' × ') : '空积 1';
 
-        function rectPath(x, y, w, h, r = 0) {
-          if (!r) return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`;
-          return `M ${x + r} ${y} H ${x + w - r} Q ${x + w} ${y} ${x + w} ${y + r} V ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} H ${x + r} Q ${x} ${y + h} ${x} ${y + h - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z`;
-        }
+        NUMS.forEach((_, index) => {
+          const button = document.createElement('button');
+          button.type = 'button'; button.dataset.resultIndex = index;
+          button.textContent = `[${index}]`;
+          button.setAttribute('aria-label', `查看 res[${index}] 的左右因子`);
+          button.addEventListener('click', () => { inspectIndex = index; motion.cancel(); render({ frame: FRAMES[trace.step], state: trace.state, step: trace.step, frames: FRAMES }); });
+          inspector.append(button);
+        });
 
         function layout() {
-          const width = stage.clientWidth;
-          const compact = width < 520;
-          const cellW = compact ? 42 : 58;
-          const gap = compact ? 6 : 16;
-          const cellH = compact ? 32 : 36;
-          const labelW = compact ? 34 : 48;
+          const width = stage.clientWidth, compact = width < 520;
+          const gap = compact ? 6 : 12;
+          const cellW = Math.min(88, (width - 56 - (N - 1) * gap) / N);
           const rowW = N * cellW + (N - 1) * gap;
-          const totalW = labelW + 8 + 14 + rowW + 14;
-          const startX = Math.max(6, (width - totalW) / 2) + labelW + 8 + 14;
-          const numsY = compact ? 48 : 56;
-          const resY = numsY + cellH + (compact ? 44 : 52);
-          const idxY = resY + cellH + (compact ? 13 : 15);
-          const centers = Array.from({ length: N }, (_, i) => startX + i * (cellW + gap) + cellW / 2);
-          const boxW = Math.min(width - 20, 316);
-          const boxY = idxY + (compact ? 12 : 14);
-          const lineH = compact ? 14 : 15.5;
-          const boxH = 7 * lineH + (compact ? 18 : 22);
-          const stageH = boxY + boxH + (compact ? 12 : 16);
-          geom = { width, compact, cellW, cellH, startX, rowEnd: startX + rowW, numsY, resY, idxY, centers, boxW, boxY, lineH, boxH };
-          svg.setAttribute('viewBox', `0 0 ${width} ${stageH}`);
-          stage.style.height = `${Math.ceil(stageH)}px`;
+          const startX = (width - rowW + 36) / 2;
+          geom = { width, compact, cellW, gap, startX, rowW, numsY: 44, resY: 166, cellH: 40,
+            centers: Array.from({ length: N }, (_, i) => startX + i * (cellW + gap) + cellW / 2) };
+          stage.style.height = '282px'; svg.setAttribute('viewBox', `0 0 ${width} 282`);
         }
 
+        function rect(x, y, w, h) { return `M ${x} ${y} h ${w} v ${h} h ${-w} Z`; }
         function draw(state, t = 1, from = null) {
-          if (!geom.centers || !state) return;
-          const g = geom;
-          const lerp = (a, b) => a + (b - a) * t;
-          const presence = (was, is) => (was && is ? 1 : is ? t : was ? 1 - t : 0);
-          const fs = n => (g.compact ? n - 1.5 : n);
-          const rowMid = y => y + g.cellH / 2;
-
-          const isLeft = state.phase === 'left';
-          const wasLeft = Boolean(from && from.phase === 'left');
-          const leftOp = presence(wasLeft, isLeft);
-          const isRight = state.phase === 'right';
-          const wasRight = Boolean(from && from.phase === 'right' && from.i !== null);
-          const rightOp = presence(wasRight, isRight && state.i !== null);
-          const boxOp = presence(wasRight, isRight);
-          const isDone = state.phase === 'done';
-          const doneOp = presence(Boolean(from && from.phase === 'done'), isDone);
-          const solidCount = state.phase === 'init' ? 1 : state.phase === 'left' ? state.i + 1 : N;
-
+          if (!geom.centers) return;
+          const g = geom, done = state.phase === 'done', init = state.phase === 'init';
+          const i = done ? inspectIndex : state.i;
+          const folding = state.phase === 'right-fold', leftPass = state.phase === 'left';
+          const left = i === null ? [] : NUMS.slice(0, i);
+          const right = i === null ? [] : NUMS.slice(i + (folding ? 0 : 1));
+          const fs = g.compact ? 15 : 20;
+          const labelFs = g.compact ? 10 : 12;
           scene.update(({ path, text }) => {
-            text('rowlab-nums', { x: g.startX - 24, y: rowMid(g.numsY) + fs(4.5), 'text-anchor': 'end', 'font-size': fs(13), fill: '#272727', 'font-family': MONO }, 'nums');
-            text('rowlab-res', { x: g.startX - 24, y: rowMid(g.resY) + fs(4.5), 'text-anchor': 'end', 'font-size': fs(13), fill: '#272727', 'font-family': MONO }, 'res');
-            text('br-nl', { x: g.startX - 9, y: rowMid(g.numsY) + fs(5.5), 'text-anchor': 'middle', 'font-size': fs(15), fill: '#555', 'font-family': MONO }, '[');
-            text('br-nr', { x: g.rowEnd + 9, y: rowMid(g.numsY) + fs(5.5), 'text-anchor': 'middle', 'font-size': fs(15), fill: '#555', 'font-family': MONO }, ']');
-            text('br-rl', { x: g.startX - 9, y: rowMid(g.resY) + fs(5.5), 'text-anchor': 'middle', 'font-size': fs(15), fill: '#555', 'font-family': MONO }, '[');
-            text('br-rr', { x: g.rowEnd + 9, y: rowMid(g.resY) + fs(5.5), 'text-anchor': 'middle', 'font-size': fs(15), fill: '#555', 'font-family': MONO }, ']');
-
-            NUMS.forEach((v, i) => {
-              const c = g.centers[i];
-              const touched = (isLeft && state.i - 1 === i) || (isRight && state.i === i);
-              path(`n-cell-${i}`, { d: rectPath(c - g.cellW / 2, g.numsY, g.cellW, g.cellH, 3), fill: touched ? 'var(--pa-wash)' : 'none', stroke: '#777', 'stroke-width': 1.2 });
-              text(`n-val-${i}`, { x: c, y: rowMid(g.numsY) + fs(5), 'text-anchor': 'middle', 'font-size': fs(14.5), fill: '#272727', 'font-family': MONO }, String(v));
+            const tx = (id, x, y, value, extra = {}) => text(id, { x, y, 'text-anchor': 'middle', 'font-size': labelFs, fill: 'var(--ink)', 'font-family': MONO, ...extra }, value);
+            const scope = (id, a, b, label, dashed = false) => {
+              if (a > b) return;
+              const x = g.centers[a] - g.cellW / 2, w = g.centers[b] - g.centers[a] + g.cellW;
+              path(id, { d: `M ${x} 94 v 7 h ${w} v -7`, stroke: 'var(--quiet)', 'stroke-width': 1.3, 'stroke-dasharray': dashed ? '4 3' : null, fill: 'none' });
+              tx(`${id}-label`, x + w / 2, 117, label);
+            };
+            tx('nums-label', g.startX - 8, 70, 'nums', { 'text-anchor': 'end', 'font-size': 12 });
+            tx('res-label', g.startX - 8, 192, 'res', { 'text-anchor': 'end', 'font-size': 12 });
+            if (i !== null) {
+              if (!folding) scope('left-range', 0, i - 1, leftPass ? '已累乘' : `${g.compact ? '左' : '左边'} ${product(left)}`);
+              if (!leftPass) scope('right-range', i + (folding ? 0 : 1), N - 1, folding ? `${i === 0 ? '最终右积' : g.compact ? '右积' : '下一轮右积'} ${state.rp}` : `${g.compact ? '右' : '右边'} ${product(right)}`, true);
+            }
+            NUMS.forEach((value, j) => {
+              const x = g.centers[j], active = j === i;
+              const used = i !== null && (leftPass ? j < i : folding ? j >= i : j !== i);
+              path(`nums-${j}`, { d: rect(x - g.cellW / 2, g.numsY, g.cellW, g.cellH), fill: used ? 'var(--pa-wash)' : 'var(--paper)', stroke: 'var(--ink)', 'stroke-width': active || leftPass && j === i - 1 ? 2 : 1, 'stroke-dasharray': active && !folding ? '4 3' : null });
+              tx(`nums-value-${j}`, x, 70, String(value), { 'font-size': fs });
+              tx(`index-${j}`, x, 36, String(j), { fill: 'var(--quiet)', 'font-size': 11 });
+              if (active && !init) tx('current-role', x, 135, folding ? '加入右积' : '跳过自己');
+              const completed = !init && j >= state.completedFrom;
+              const ready = !init && (!leftPass || j <= i);
+              const changed = (leftPass || state.phase === 'right-write') && active;
+              path(`res-${j}`, { d: rect(x - g.cellW / 2, g.resY, g.cellW, g.cellH), fill: leftPass && j === i - 1 ? 'var(--pa-wash)' : 'var(--paper)', stroke: 'var(--ink)', 'stroke-width': changed || leftPass && j === i - 1 || done && active ? 2 : 1, 'stroke-dasharray': ready ? null : '4 3' });
+              tx(`res-value-${j}`, x, 193, String(state.res[j]), { 'font-size': fs, 'font-weight': changed ? 600 : 400 });
+              tx(`res-role-${j}`, x, 224, completed ? '答案' : leftPass && j === i - 1 ? '读取左积' : ready || j === 0 ? '左积' : '起点 1', { fill: 'var(--quiet)', 'font-size': labelFs });
+              if (done && active) path('selected-result', { d: `M ${x - g.cellW / 2} 211 h ${g.cellW}`, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 2 });
             });
-
-            for (let i = 0; i < N; i += 1) {
-              text(`idx-${i}`, { x: g.centers[i], y: g.idxY + 3, 'text-anchor': 'middle', 'font-size': fs(9.5), fill: '#a3a199', 'font-family': MONO }, String(i));
+            if (i !== null && !done) {
+              const oldI = from?.i ?? i, x = g.centers[oldI] + (g.centers[i] - g.centers[oldI]) * t;
+              tx('i-label', x, 13, 'i', { 'font-size': 12 });
+              path('i-arrow', { d: `M ${x} 17 v 8`, stroke: 'var(--quiet)', fill: 'none', 'stroke-width': 1.2, 'marker-end': 'url(#pa-arrow)' });
             }
-
-            state.res.forEach((v, i) => {
-              const c = g.centers[i];
-              const solid = i < solidCount;
-              const isNew = (isLeft || isRight) && state.i === i;
-              if (isNew) path(`r-halo-${i}`, { d: rectPath(c - g.cellW / 2 - 5, g.resY - 5, g.cellW + 10, g.cellH + 10, 5), fill: 'none', stroke: 'var(--pa-ring)', 'stroke-width': 1.3 });
-              const fill = !solid ? 'none' : isLeft && i === state.i - 1 ? 'var(--pa-wash)' : '#fffdf8';
-              path(`r-cell-${i}`, { d: rectPath(c - g.cellW / 2, g.resY, g.cellW, g.cellH, 3), fill, stroke: solid ? '#272727' : '#c4c2ba', 'stroke-width': solid ? 1.8 : 1.1, 'stroke-dasharray': solid ? null : '4 3' });
-              text(`r-val-${i}`, { x: c, y: rowMid(g.resY) + fs(5), 'text-anchor': 'middle', 'font-size': fs(14.5), fill: solid ? '#272727' : 'var(--pa-faint)', 'font-family': MONO, 'font-weight': isNew ? 600 : 400 }, String(v));
-            });
-
-            if (leftOp > 0) {
-              const iTo = isLeft ? state.i : from.i;
-              const iFrom = wasLeft ? from.i : iTo;
-              const J = i => {
-                const cPrev = g.centers[i - 1];
-                const cCur = g.centers[i];
-                return {
-                  ax: cPrev + g.cellW * 0.3, ay: g.numsY + g.cellH,
-                  bx: cPrev + g.cellW * 0.3, by: g.resY,
-                  jx: (cPrev + cCur) / 2, jy: (g.numsY + g.cellH + g.resY) / 2,
-                  tx: cCur, ty: g.resY
-                };
-              };
-              const A = J(iFrom);
-              const B = J(iTo);
-              const jx = lerp(A.jx, B.jx);
-              const jy = lerp(A.jy, B.jy);
-              const ax = lerp(A.ax, B.ax);
-              const ay = lerp(A.ay, B.ay);
-              const bx = lerp(A.bx, B.bx);
-              const by = lerp(A.by, B.by);
-              const tx = lerp(A.tx, B.tx);
-              const ty = lerp(A.ty, B.ty);
-              path('jn-a', { d: `M ${ax} ${ay} Q ${ax + 20} ${ay - 6}, ${jx - 8} ${jy - 3}`, stroke: '#333', 'stroke-width': 1.4, fill: 'none', 'marker-end': 'url(#pa-arrow)', opacity: leftOp });
-              path('jn-b', { d: `M ${bx} ${by} Q ${bx + 20} ${by + 6}, ${jx - 8} ${jy + 3}`, stroke: '#333', 'stroke-width': 1.4, fill: 'none', 'marker-end': 'url(#pa-arrow)', opacity: leftOp });
-              text('jn-star', { x: jx, y: jy + fs(5.5), 'text-anchor': 'middle', 'font-size': fs(20), fill: '#272727', 'font-family': MONO, 'font-weight': 600, opacity: leftOp }, '*');
-              path('jn-out', { d: `M ${jx + 10} ${jy} Q ${jx + 20} ${jy}, ${tx - 5} ${ty + 1}`, stroke: '#333', 'stroke-width': 1.6, fill: 'none', 'marker-end': 'url(#pa-arrow)', opacity: leftOp });
-            }
-
-            if (rightOp > 0) {
-              const iTo = isRight ? state.i : from.i;
-              if (iTo !== null && iTo !== undefined) {
-                const xTo = g.centers[iTo];
-                const xFrom = wasRight && from.i !== iTo ? g.centers[from.i] : xTo;
-                const x = lerp(xFrom, xTo);
-                const by = g.numsY - (g.compact ? 27 : 31);
-                path('i-box', { d: rectPath(x - 9, by, 18, 18, 2), fill: '#fffdf8', stroke: '#272727', 'stroke-width': 1.4, opacity: rightOp });
-                text('i-label', { x, y: by + 13, 'text-anchor': 'middle', 'font-size': 12, fill: '#272727', 'font-family': MONO, opacity: rightOp }, 'i');
-                path('i-arrow', { d: `M ${x} ${by + 18} L ${x} ${g.numsY - 4}`, stroke: '#333', 'stroke-width': 1.3, fill: 'none', 'marker-end': 'url(#pa-arrow)', opacity: rightOp });
-              }
-            }
-
-            if (boxOp > 0) {
-              const calc = (isRight && state.calc) ? state.calc : (from && from.calc) || null;
-              const bx = (g.width - g.boxW) / 2;
-              path('calc-box', { d: rectPath(bx, g.boxY, g.boxW, g.boxH, 8), fill: '#fffdf8', stroke: '#999', 'stroke-width': 1.2, 'stroke-dasharray': '7 5', opacity: boxOp });
-              if (calc && calc.lines) {
-                calc.lines.forEach((ln, k) => {
-                  text(`calc-l-${k}`, { x: bx + 14, y: g.boxY + (g.compact ? 19 : 22) + k * g.lineH, 'font-size': fs(11.5), fill: '#333', 'font-family': MONO, opacity: boxOp }, ln);
-                });
-              }
-            }
-
-            if (doneOp > 0) {
-              path('done-rule', { d: `M ${g.startX} ${g.resY + g.cellH + 6} L ${g.rowEnd} ${g.resY + g.cellH + 6}`, stroke: '#272727', 'stroke-width': 2, opacity: doneOp });
-              text('done-tag', { x: g.width / 2, y: g.boxY + (g.compact ? 17 : 19), 'text-anchor': 'middle', 'font-size': fs(12.5), fill: '#272727', 'font-family': MONO, opacity: doneOp }, 'res 即返回值 · return res');
-            }
+            let equation = '先存左积，再从右边乘入右积';
+            if (leftPass) equation = `${state.calc.lp} × ${state.calc.num} → res[${i}] = ${state.calc.prod}`;
+            if (state.phase === 'right-start') equation = '最右侧为空：right_product = 1';
+            if (state.phase === 'right-write') equation = `${state.calc.before} × ${state.calc.rpBefore} → res[${i}] = ${state.calc.after}`;
+            if (folding) equation = `${state.calc.rpBefore} × ${state.calc.num} → right_product = ${state.rp}`;
+            if (done) equation = `${product(left)} × ${product(right)} = ${state.res[i]} → res[${i}]`;
+            tx('factor-equation', g.width / 2, 263, equation, { 'font-size': g.compact ? 12 : 16, 'data-factor-equation': '' });
           });
         }
 
         function render({ frame, state, step, frames }) {
-          phaseEl.textContent = frame.stepLabel;
-          invariantEl.textContent = frame.invariant;
-          mI.textContent = state.i === null ? '—' : state.i;
-          mRp.textContent = state.rp === null ? '—' : state.rp;
-          mRes.textContent = fmt(state.res);
-          expressionEl.textContent = frame.line;
-          explanationEl.textContent = frame.en;
-          explanationZhEl.textContent = frame.zh;
-          stage.setAttribute('aria-label', `除自身以外数组的乘积演示：第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
-          draw(state, 1, null);
+          const done = frame.kind === 'done';
+          const focusI = done ? inspectIndex : state.i;
+          const phases = { init: '准备', left: '第一遍：存左积 →', 'right-start': '第二遍：乘右积 ←', 'right-write': '先写答案，跳过自己', 'right-fold': '再扩右积，供下一轮', done: '完成：查看答案的因子' };
+          root.querySelector('[data-phase]').textContent = frame.kind === 'right-fold' && state.i === 0 ? '最后一次更新，扫描结束' : phases[frame.kind];
+          root.querySelector('[data-m-i]').textContent = state.i ?? '—';
+          root.querySelector('[data-m-rp]').textContent = done ? '扫描结束' : state.rp ?? '—';
+          root.querySelector('[data-m-res]').textContent = fmt(state.res);
+          root.querySelector('[data-expression]').textContent = frame.line;
+          root.querySelector('[data-explanation]').textContent = frame.en;
+          root.querySelector('[data-explanation-zh]').textContent = done ? `查看 res[${focusI}]：左边 ${factors(NUMS.slice(0, focusI))}，右边 ${factors(NUMS.slice(focusI + 1))}。跳过 nums[${focusI}] = ${NUMS[focusI]}，得到 ${state.res[focusI]}。` : frame.zh;
+          if (!done && inspector.contains(document.activeElement)) stage.focus({ preventScroll: true });
+          inspector.hidden = !done;
+          inspector.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.resultIndex) === inspectIndex)));
+          const ownership = focusI === null ? '' : `位置 ${focusI}，左边 ${factors(NUMS.slice(0, focusI))}，${state.phase === 'right-fold' ? '更新后的右积包含当前值' : `跳过 ${NUMS[focusI]}`}，右边 ${factors(NUMS.slice(focusI + (state.phase === 'right-fold' ? 0 : 1)))}。`;
+          stage.setAttribute('aria-label', `第 ${step + 1} / ${frames.length} 步。${frame.zh}`);
+          root.querySelector('#product-scene-desc').textContent = `${ownership}res = ${fmt(state.res)}。`;
+          draw(state);
         }
 
-        const cloneState = s => ({ ...s, res: [...s.res], calc: s.calc ? { ...s.calc, lines: s.calc.lines ? [...s.calc.lines] : null } : null });
-        const trace = core.createTrace({
-          root,
-          cloneState,
-          motion,
+        const trace = core.createTrace({ root, motion,
+          cloneState: s => ({ ...s, res: [...s.res], calc: s.calc ? { ...s.calc } : null }),
           onRender: render,
           onBeforeStep: ({ beforeState }) => { motion.cancel(); transitionFrom = beforeState; },
           onTransition: ({ state }) => {
-            const from = transitionFrom;
-            transitionFrom = null;
-            if (!from || motion.reduced) { draw(state, 1, from); return; }
-            motion.tween({
-              duration: 420,
-              update: eased => draw(state, eased, from),
-              complete: () => draw(state, 1, null)
-            });
-          },
-          formatStepOption: frame => frame.stepLabel
+            const from = transitionFrom; transitionFrom = null;
+            if (!from || from.i === null || state.i === null || motion.reduced) return;
+            motion.tween({ duration: 220, update: t => draw(state, t, from), complete: () => draw(state) });
+          }, formatStepOption: frame => frame.stepLabel
         });
-
         layout();
-        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state, 1, null); }).observe(stage);
+        new ResizeObserver(() => { motion.cancel(); layout(); draw(trace.state); }).observe(stage);
         trace.setFrames(FRAMES);
       })();
     </script>
