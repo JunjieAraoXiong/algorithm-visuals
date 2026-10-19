@@ -119,3 +119,15 @@ h1 { margin: 0; font-size: clamp(21px, 2.2vw, 26px) !important; font-weight: 500
   .tree-guide .operation { font-size: 14px; }
   .tree-guide .section { margin-top: 24px; }
 }
+
+/* Shared, always-visible recursive / iterative choices. */
+.method-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 6px; }
+.method-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; flex: 1 1 340px; min-width: 0; }
+.method-choice { display: block; text-align: center; text-decoration: none; min-height: 44px; border: 2px solid var(--rule); border-radius: 2px; padding: 8px; color: var(--ink); background: var(--paper); cursor: pointer; font: 14px/1.4 Arial, sans-serif; }
+.method-switch small { display: block; margin-top: 3px; color: var(--quiet); font-size: 12px; }
+.method-choice[aria-pressed="true"] { border-color: var(--ink); background: var(--node-active, var(--theme-e9e5d9, #e9e5d9)); }
+.method-choice[aria-pressed="true"] > span { text-decoration: underline; text-underline-offset: 4px; }
+.method-choice:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.empty-case { font-size: 12px; }
+.method-choice[aria-current="page"] { border-color: var(--ink); background: var(--node-active, var(--theme-e9e5d9, #e9e5d9)); }
+.method-choice[aria-current="page"] > span { text-decoration: underline; text-underline-offset: 4px; }

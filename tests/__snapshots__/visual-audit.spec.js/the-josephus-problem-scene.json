@@ -3,7 +3,7 @@
   "attributes": [
     [
       "aria-label",
-      "约瑟夫问题递归演示 / Josephus recursion trace"
+      "约瑟夫问题的递归与迭代演示"
     ],
     [
       "class",
@@ -15,6 +15,106 @@
     ]
   ],
   "children": [
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "method-controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "aria-label",
+              "解法切换"
+            ],
+            [
+              "class",
+              "method-switch"
+            ],
+            [
+              "role",
+              "group"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "button",
+              "attributes": [
+                [
+                  "aria-label",
+                  "递归 Recursive"
+                ],
+                [
+                  "aria-pressed",
+                  "true"
+                ],
+                [
+                  "class",
+                  "method-choice"
+                ],
+                [
+                  "data-method",
+                  "recursive"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "span",
+                  "children": [
+                    "递归 Recursive"
+                  ]
+                },
+                {
+                  "tag": "small",
+                  "children": [
+                    "缩小规模 · 逐层返回"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "button",
+              "attributes": [
+                [
+                  "aria-label",
+                  "迭代 Iterative"
+                ],
+                [
+                  "aria-pressed",
+                  "false"
+                ],
+                [
+                  "class",
+                  "method-choice"
+                ],
+                [
+                  "data-method",
+                  "iterative"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "span",
+                  "children": [
+                    "迭代 Iterative"
+                  ]
+                },
+                {
+                  "tag": "small",
+                  "children": [
+                    "自底向上 · 只保存 res"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
     {
       "tag": "div",
       "attributes": [
@@ -320,6 +420,10 @@
           "stage"
         ],
         [
+          "data-method",
+          "recursive"
+        ],
+        [
           "data-stage",
           ""
         ]
@@ -330,7 +434,7 @@
           "attributes": [
             [
               "aria-label",
-              "每一行是一个递归调用：圆圈里的字母是原来的人，下方数字是这一层的新编号"
+              "每一行是一个递归调用：字母是同一个人，数字是这一层的编号。"
             ],
             [
               "data-scene",
@@ -877,6 +981,12 @@
           "children": [
             {
               "tag": "strong",
+              "attributes": [
+                [
+                  "data-invariant-title",
+                  ""
+                ]
+              ],
               "children": [
                 "重新编号 / Renumbering"
               ]
@@ -909,6 +1019,12 @@
               "children": [
                 {
                   "tag": "dt",
+                  "attributes": [
+                    [
+                      "data-call-label",
+                      ""
+                    ]
+                  ],
                   "children": [
                     "当前调用"
                   ]
@@ -932,6 +1048,12 @@
               "children": [
                 {
                   "tag": "dt",
+                  "attributes": [
+                    [
+                      "data-depth-label",
+                      ""
+                    ]
+                  ],
                   "children": [
                     "调用栈深度"
                   ]
@@ -955,6 +1077,12 @@
               "children": [
                 {
                   "tag": "dt",
+                  "attributes": [
+                    [
+                      "data-result-label",
+                      ""
+                    ]
+                  ],
                   "children": [
                     "返回值"
                   ]

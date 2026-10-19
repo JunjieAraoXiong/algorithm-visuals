@@ -66,6 +66,7 @@ test('BST: return to the correct ancestor and show right-pointer movement', asyn
   await expect(mark(page, 'sl-result')).toHaveCount(0);
   await selectStep(page, 'return sorted_list[4] = 6 ✓');
   await expect(mark(page, 'sl-result')).toHaveText('return sorted_list[k-1] = sorted_list[4] = 6 ✓');
+  await page.getByRole('button',{name:'迭代 Iterative',exact:true}).click();
   await selectStep(page, 'push 2 · 一路向左');
   await expect(page.locator('[data-m-node]')).toHaveText('None');
   await selectStep(page, 'node → 8 · 转向右子树');
@@ -74,7 +75,7 @@ test('BST: return to the correct ancestor and show right-pointer movement', asyn
   await expect(page.locator('[data-m-visited]')).toHaveText('4 / 7');
   await selectStep(page, '✦ pop 6 · k = 0');
   await expect(page.locator('[data-m-visited]')).toHaveText('5 / 7');
-  await selectStep(page, '⑤ 两版对比');
+  await page.getByRole('button',{name:'两版对比',exact:true}).click();
   await expect(page.locator('[data-m-visited]')).toHaveText('递归 7 · 迭代 5');
 });
 
