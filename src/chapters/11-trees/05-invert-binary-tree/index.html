@@ -5,20 +5,38 @@
 <meta name="description" content="翻转二叉树：逐行执行 Python，观察树、变量与返回值。">
 <title>Invert Binary Tree · Algorithm Visuals</title>
 <link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
+<style>
+#lesson .return-flow { border: 1px dashed var(--rule); padding: 8px 10px; margin: 8px 0; min-height: 82px; box-sizing: border-box; }
+#lesson .return-flow p { margin: 0; }
+#lesson .return-flow [data-return-route] { font: 15px/1.6 monospace; overflow-wrap: anywhere; }
+#lesson .return-flow [data-return-detail] { margin-top: 5px; font-size: 13px; color: var(--quiet); }
+#lesson .return-flow [data-return-kind] { display: block; font-size: 12px; color: var(--quiet); margin-bottom: 3px; }
+#lesson .memory-items { min-height: 260px; }
+#lesson .memory-item { line-height: 1.5; }
+#lesson .memory-note { padding-top: 6px; }
+#lesson .diagram-caption, #lesson .step-meta, #lesson .array-panel:empty { display: none; }
+#lesson .problem { margin-bottom: 12px; }
+@media (max-width: 700px) {
+ #lesson .memory-items { flex-direction: column; min-height: 0; }
+ #lesson .memory-item { flex: none; }
+ #lesson .return-flow { min-height: 118px; }
+}
+</style>
 </head><body>
 <main class="tree-guide tree-lesson" id="lesson">
 <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
 <h1>Invert Binary Tree · 翻转二叉树</h1>
-<p class="problem">Invert a binary tree by swapping every node’s left and right subtrees.<span>把整棵树左右镜像。示例保持图片中的 5、1、8、7、6、4；节点值不变。</span></p>
+<p class="problem">Invert a binary tree by swapping every node’s left and right subtrees.<span>把整棵树左右镜像。递归由 Python 保存调用栈；迭代用 stack 保存待处理节点。两者都交换子树引用，节点值不变。</span></p>
 <div class="learning-layout" data-learning-layout>
 <section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
-<label class="settings">方法 <select data-case aria-label="翻转方法"><option value="recursive">递归：先左后右</option><option value="iterative">栈：后进先出</option><option value="empty">空树</option></select></label>
+<label class="settings">方法 <select data-case aria-label="翻转方法"><option value="recursive">递归 DFS：调用与返回</option><option value="iterative">迭代 DFS：显式栈</option><option value="empty">空树</option></select></label>
 <div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
 <p class="step-meta" data-phase></p>
+<div class="return-flow" data-return-flow role="status" aria-live="polite"><span data-return-kind></span><p data-return-route></p><p data-return-detail></p></div>
 <div class="array-panel" data-arrays></div>
 <p class="diagram-caption" data-caption></p>
 <div class="diagram-workspace">
-<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-label="树节点与指针"></svg></div>
+<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-labelledby="invert-tree-title invert-tree-description"><title id="invert-tree-title">翻转中的二叉树与当前 root 引用</title><desc id="invert-tree-description">实线连接节点保存的左右孩子；短箭头表示当前调用的 root。旁边的调用栈显示各层的 root 和暂停位置；返回交接区显示接收返回值的直接调用者。</desc></svg></div>
 <div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
 </div>
 <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
@@ -26,6 +44,12 @@
 </section>
 <aside class="code-panel" data-code-panel><h2>完整 Python 代码</h2><p class="code-status" data-code-status></p><pre data-code-scroll tabindex="0" aria-label="完整 Python 实现"><code><span class="code-line">from typing import List, Optional</span><span class="code-line"> </span><span class="code-line">class TreeNode:</span><span class="code-line">    def __init__(self, val=0, left=None, right=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.left = left</span><span class="code-line">        self.right = right</span><span class="code-line"> </span><span class="code-line">def invert_binary_tree_recursive(root: Optional[TreeNode]) -&gt; Optional[TreeNode]:</span><span class="code-line" data-source-key="r-check">    if not root:</span><span class="code-line" data-source-key="r-empty">        return None</span><span class="code-line" data-source-key="r-swap">    root.left, root.right = root.right, root.left</span><span class="code-line" data-source-key="r-left">    invert_binary_tree_recursive(root.left)</span><span class="code-line" data-source-key="r-right">    invert_binary_tree_recursive(root.right)</span><span class="code-line" data-source-key="r-return">    return root</span><span class="code-line"> </span><span class="code-line">def invert_binary_tree_iterative(root: Optional[TreeNode]) -&gt; Optional[TreeNode]:</span><span class="code-line" data-source-key="i-check">    if not root:</span><span class="code-line" data-source-key="i-empty">        return None</span><span class="code-line" data-source-key="i-init">    stack = [root]</span><span class="code-line" data-source-key="i-while">    while stack:</span><span class="code-line" data-source-key="i-pop">        node = stack.pop()</span><span class="code-line" data-source-key="i-swap">        node.left, node.right = node.right, node.left</span><span class="code-line" data-source-key="i-left-check">        if node.left:</span><span class="code-line" data-source-key="i-left-push">            stack.append(node.left)</span><span class="code-line" data-source-key="i-right-check">        if node.right:</span><span class="code-line" data-source-key="i-right-push">            stack.append(node.right)</span><span class="code-line" data-source-key="i-return">    return root</span></code></pre></aside>
 </div>
+<section class="section"><h2>return None 后，究竟回到哪里？</h2>
+<p class="section-intro">每次递归调用都有自己的一份 root，以及「子调用结束后从哪里继续」的位置。调用子函数时，当前这一层暂停；子函数 return 时，只弹出最上面那一层，恢复直接调用它的那一层。None 是返回值；决定回到哪里的是调用栈保存的位置。</p>
+<div class="card-grid"><article class="paper-card"><strong>左调用返回 → 继续右调用</strong><p>以叶子 4 为例：root = 4 那一层的 invert_binary_tree_recursive(root.left) 调用到 None，执行 return None。回到 root = 4 的那一层，左调用语句结束，接下来执行 invert_binary_tree_recursive(root.right)。不是直接回到整棵树的根。</p></article>
+<article class="paper-card"><strong>右调用返回 → 当前层 return root</strong><p>4 的右空孩子也返回 None 后，root = 4 的那一层才执行 return root，把节点 4 的引用返回给 root = 8 的那一层。8 从自己的左调用后继续；如果它还有右调用，就先完成它。</p></article>
+<article class="paper-card"><strong>返回值和原地修改是两回事</strong><p>这份代码没有写 root.left = invert_binary_tree_recursive(root.left)。子调用的返回值不用于赋值；左右引用早已在 root.left, root.right = root.right, root.left 中原地修改。返回时不再交换，不重新创建树。最外层 return root 把翻转后的整棵树入口交回调用者。</p></article>
+<article class="paper-card"><strong>迭代栈保存的内容不同</strong><p>递归栈保存每层的 root 和暂停位置；显式 stack 只保存待处理的节点引用。这份迭代代码不把 None 入栈，因此不会为每个空孩子执行 return None。栈清空后统一 return root。</p></article></div></section>
 <section class="section"><h2>镜像从一对引用开始</h2><p class="section-intro">对称轴两边交换的是位置。先交换根的左右入口，原来 1 下方的 7、6 会一起换边；随后在每个子树内做同样的交换，才能得到完整镜像。</p><div class="card-grid"><article class="paper-card"><strong>递归：把问题交给两个子树</strong><p>每次调用保证「返回时，这个 root 下方已经翻转」。空树直接返回；非空树交换后，递归处理新的左、右子树。两个更小的问题完成后，当前子树也完成。</p></article><article class="paper-card"><strong>栈：保存尚未处理的入口</strong><p>pop 一个节点，交换它的两条子指针，再将非空孩子入栈。先入左、再入右，所以右孩子先处理；遍历次序不同，但每个节点恰好交换一次。</p></article></div></section><section class="section"><h2>哪些状态真的改变</h2><p class="section-intro">node 或递归 root 改指向只改变变量。交换 left、right 才修改节点保存的边；val 从未被修改。两次完整翻转会恢复原树。</p><div class="card-grid"><article class="paper-card"><strong>空树与叶子</strong><p>None 返回 None。叶子的两条 None 引用互换后仍是叶子，不需要特判。</p></article><article class="paper-card"><strong>时间与空间</strong><p>两种方法都是 O(n) 时间。递归占 O(h) 调用栈；显式 DFS 栈也至多 O(h)，最坏 O(n)。h 为树高，不包含原树本身。</p></article></div></section>
 <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../binary-tree-symmetry/">二叉树对称性</a><a href="../serialize-and-deserialize-a-binary-tree/">序列化与反序列化</a><a href="../">目录</a></nav>
 </main>
@@ -34,19 +58,22 @@
 (() => {
 'use strict';
 const root=document.querySelector('#lesson');
-const {clone,valueOf,recorder,mount}=window.TreeLesson;
+const {valueOf,recorder,mount}=window.TreeLesson;
 const selector=root.querySelector('[data-case]');
 if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
 
 function makeFrames() {
  const mode=selector.value, iterative=mode==='iterative', empty=mode==='empty';
  const nodes={a:{val:5,left:'b',right:'c'},b:{val:1,left:'d',right:'e'},c:{val:8,left:null,right:'f'},d:{val:7,left:null,right:null},e:{val:6,left:null,right:null},f:{val:4,left:null,right:null}};
- const state={nodes,root:empty?null:'a',focus:empty?null:'a',reference:'root',memoryTitle:iterative?'stack · 最后一个是栈顶':'调用栈 · 最后一个是栈顶',memory:[],labels:{},phase:iterative?'迭代 · 后进先出':'递归 · 先交换，再向下',invariant:'每个已处理节点都交换左右子指针；值不变，整个子树随引用换边。',caption:'输入：5 的左子树是 1（7、6），右子树是 8（右孩子 4）。'};
+ const state={rowGap:82,nodes,root:empty?null:'a',focus:empty?null:'a',reference:'root',memoryTitle:iterative?'stack · 最后一个是栈顶':'调用栈 · 最后一个是栈顶',memory:[],labels:{},phase:iterative?'迭代 · 后进先出':'递归 · 先交换，再向下',invariant:'每个已处理节点都交换左右子指针；值不变，整个子树随引用换边。',caption:'输入：5 的左子树是 1（7、6），右子树是 8（右孩子 4）。'};
  const {frames,emit}=recorder(state), val=id=>valueOf(nodes,id);
  const stack=[];
- function sync(){state.memory=stack.map(id=>({label:`${iterative?'node':'root'} = ${val(id)}`}));}
+ function sync(){state.memory=stack.map(id=>({label:`node = ${val(id)}`}));}
+ state.returnFlow=iterative
+  ? {kind:'显式栈 · 待处理节点',route:'stack 保存节点引用',detail:'pop 后继续同一个 while 循环；没有为每个孩子创建函数调用。'}
+  : {kind:'开始调用',route:`外部调用者 → root = ${empty?'None':'5'} · 第 1 层`,detail:'每层都有自己的 root；调用子函数时，上一层暂停并保留继续位置。'};
  if(iterative||empty) emit(iterative?'i-check':'r-check', 'if not root',empty?'空树没有需要交换的引用。':'root 指向 5，进入翻转。');
- if(empty){emit('r-empty','return None','空树翻转后仍然是空树。',{focus:null,result:'None'});return frames;}
+ if(empty){emit('r-empty','return None','最外层就是空树：返回 None 给外部调用者，没有父层可以继续。',{focus:null,result:'None',returnFlow:{kind:'最外层返回',route:'root = None → 外部调用者',detail:'返回值 None；整个函数结束。'}});return frames;}
  function swap(id,key){[nodes[id].left,nodes[id].right]=[nodes[id].right,nodes[id].left];emit(key,`${iterative?'node':'root'}.left, ${iterative?'node':'root'}.right = ${iterative?'node':'root'}.right, ${iterative?'node':'root'}.left`,`${val(id)} 的两条子指针互换；交换的是整棵子树的入口，不是两个 val。`,{focus:id,edited:id});}
  if(iterative){
   stack.push('a');sync();state.memoryTitle='stack · 最后一个是栈顶';state.memoryNote='这里存的是节点引用；圆圈中的 val 仍留在树上。';
@@ -60,13 +87,52 @@ function makeFrames() {
   emit('i-while','while stack','栈为空，所有节点均已交换；node 仍指向最后弹出的 4。');
   emit('i-return','return root','返回原来的根引用 5，树结构已镜像。',{focus:'a',reference:'root',result:'5 → [8, 1]；8 → [4, None]；1 → [6, 7]'});
  } else {
-  function visit(id){stack.push(id);sync();emit('r-check','if not root',id?`递归调用的 root 指向 ${val(id)}。`:'当前子树为空。',{focus:id});
-   if(!id){emit('r-empty','return None','空孩子返回，不创建节点。');stack.pop();sync();return;}
-   swap(id,'r-swap');emit('r-left','invert_binary_tree_recursive(root.left)',`进入交换后的左子树 ${val(nodes[id].left)}。`);visit(nodes[id].left);
-   emit('r-right','invert_binary_tree_recursive(root.right)',`回到 ${val(id)}，进入交换后的右子树 ${val(nodes[id].right)}。`,{focus:id});visit(nodes[id].right);
-   emit('r-return','return root',`${val(id)} 的两个子树都已翻转，返回它的引用。`,{focus:id});stack.pop();sync();
+  const calls=[];
+  function snapshot(){
+   state.memory=calls.map((call,index)=>({label:`第 ${index+1} 层 root = ${val(call.id)}`,detail:call.status}));
+   state.memoryNote=calls.length ? `调用深度 ${calls.length}；底部是当前调用，上方各层保留各自的 root 和继续位置。` : '调用栈已清空；最外层调用结束。';
   }
-  visit('a');emit('r-return','return root','根 5 的整个子树已镜像。',{focus:'a',memory:[],result:'5 → [8, 1]；8 → [4, None]；1 → [6, 7]'});
+  function record(key,expression,explanation,flow,changes={}){
+   snapshot();
+   emit(key,expression,explanation,{returnFlow:flow,...changes});
+   frames[frames.length-1].stepLabel=`${frames.length} · root = ${val(state.focus)} · ${expression}`;
+  }
+  function visit(id,caller=null,side=null){
+   const call={id,status:'检查 root 是否为 None'};
+   calls.push(call);
+   const depth=calls.length;
+   record('r-check','if not root',id?`进入第 ${depth} 层，自己的 root 指向 ${val(id)}。${caller?'上一层暂停。':'这是最外层调用。'}`:`进入第 ${depth} 层，自己的 root = None，满足终止条件。`,
+    {kind:'向下调用 · 新的一层',route:`${caller?`root = ${val(caller.id)}`:'外部调用者'} → root = ${val(id)} · 第 ${depth} 层`,detail:caller?`上一层暂停在 ${side==='left'?'左':'右'}子调用；它的 root 仍指向 ${val(caller.id)}。`:'创建最外层调用。'},{focus:id});
+   if(id){
+    call.status='执行左右引用交换';snapshot();
+    state.returnFlow={kind:'当前层执行',route:`第 ${depth} 层 · root = ${val(id)}`,detail:'交换节点保存的两条子引用；随后依次处理交换后的左、右子树。'};
+    swap(id,'r-swap');
+    for(const childSide of ['left','right']){
+     call.status=`等${childSide==='left'?'左':'右'}调用；之后${childSide==='left'?'处理右边':'return root'}`;
+     record(childSide==='left'?'r-left':'r-right',`invert_binary_tree_recursive(root.${childSide})`,
+      `root = ${val(id)} 这一层暂停，调用交换后的${childSide==='left'?'左':'右'}孩子 ${val(nodes[id][childSide])}。`,
+      {kind:'保存继续位置',route:`root = ${val(id)} → ${childSide==='left'?'左':'右'}孩子 ${val(nodes[id][childSide])}`,detail:`子调用结束后，回到这一层；接着${childSide==='left'?'处理右孩子':'执行 return root'}。`},{focus:id});
+     visit(nodes[id][childSide],call,childSide);
+    }
+   }
+   const key=id?'r-return':'r-empty', value=val(id);
+   if(id) state.labels[id]='已翻转';
+   call.status=`正在返回 ${value}；这一层即将出栈`;
+   record(key,id?'return root':'return None',id?`${value} 的左右调用都已完成，返回当前节点引用；这一行不再交换。`:'只结束当前空子树调用，返回值为 None；不会结束仍在等待的父调用。',
+    {kind:'向上返回 · 当前层结束',route:`第 ${depth} 层 · root = ${value} → ${caller?`第 ${depth-1} 层 · root = ${val(caller.id)}`:'外部调用者'}`,detail:`返回值：${value}。${caller?`接收方暂停在${side==='left'?'左':'右'}子调用。`:'这是整棵翻转后树的入口。'}`},{focus:id});
+   calls.pop();
+   if(caller){
+    caller.status=`${side==='left'?'左':'右'}调用已返回 ${value}；接着${side==='left'?'处理右边':'执行 return root'}`;
+    record(side==='left'?'r-left':'r-right',`invert_binary_tree_recursive(root.${side}) → ${value}`,
+     `回到 root = ${val(caller.id)} 的第 ${depth-1} 层。${side==='left'?'左调用已经结束，接下来调用右孩子。':'右调用也已结束，接下来执行这一层的 return root。'}子调用的返回值没有赋给任何变量；树的原地修改保留。`,
+     {kind:'恢复调用者 · 只退一层',route:`返回 ${value} → 恢复 root = ${val(caller.id)} · 第 ${depth-1} 层`,detail:`刚完成：${side==='left'?'左':'右'}子调用。下一行：${side==='left'?'invert_binary_tree_recursive(root.right)':'return root'}。`},{focus:caller.id});
+   } else {
+    record('r-return','return root','调用栈清空，外部调用者收到原来的根引用 5；它下方已经是镜像。',
+     {kind:'递归完成',route:'节点 5 的引用 → 外部调用者',detail:'返回值是树的入口；所有左右引用交换早已在向下访问节点时完成。'},
+     {focus:'a',result:'5 → [8, 1]；8 → [4, None]；1 → [6, 7]'});
+   }
+  }
+  visit('a');
  }
  return frames;
 }
