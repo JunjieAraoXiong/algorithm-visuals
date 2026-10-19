@@ -20,6 +20,131 @@
       "attributes": [
         [
           "class",
+          "method-controls"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "aria-label",
+              "解法切换"
+            ],
+            [
+              "class",
+              "method-switch"
+            ],
+            [
+              "role",
+              "group"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "button",
+              "attributes": [
+                [
+                  "aria-label",
+                  "递归 Recursive"
+                ],
+                [
+                  "aria-pressed",
+                  "true"
+                ],
+                [
+                  "class",
+                  "method-choice"
+                ],
+                [
+                  "data-method",
+                  "recursive"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "span",
+                  "children": [
+                    "递归 Recursive"
+                  ]
+                },
+                {
+                  "tag": "small",
+                  "children": [
+                    "完整中序列表"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "button",
+              "attributes": [
+                [
+                  "aria-label",
+                  "迭代 Iterative"
+                ],
+                [
+                  "aria-pressed",
+                  "false"
+                ],
+                [
+                  "class",
+                  "method-choice"
+                ],
+                [
+                  "data-method",
+                  "iterative"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "span",
+                  "children": [
+                    "迭代 Iterative"
+                  ]
+                },
+                {
+                  "tag": "small",
+                  "children": [
+                    "显式栈 · 提前返回"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "class",
+              "method-choice empty-case"
+            ],
+            [
+              "data-method",
+              "compare"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "span",
+              "children": [
+                "两版对比"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
           "controls"
         ]
       ],
@@ -49,7 +174,7 @@
             ]
           ],
           "children": [
-            "步骤 1 / 36"
+            "步骤 1 / 19"
           ]
         },
         {
@@ -326,210 +451,6 @@
                   "children": [
                     "return sorted_list[4] = 6 ✓"
                   ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "19"
-                    ]
-                  ],
-                  "children": [
-                    "④ 迭代版 · 初始化"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "20"
-                    ]
-                  ],
-                  "children": [
-                    "push 5 · 一路向左"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "21"
-                    ]
-                  ],
-                  "children": [
-                    "push 3 · 一路向左"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "22"
-                    ]
-                  ],
-                  "children": [
-                    "push 2 · 一路向左"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "23"
-                    ]
-                  ],
-                  "children": [
-                    "pop 2 · k 5→4"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "24"
-                    ]
-                  ],
-                  "children": [
-                    "node → None · 转向右子树"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "25"
-                    ]
-                  ],
-                  "children": [
-                    "pop 3 · k 4→3"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "26"
-                    ]
-                  ],
-                  "children": [
-                    "node → 4 · 转向右子树"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "27"
-                    ]
-                  ],
-                  "children": [
-                    "push 4 · 一路向左"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "28"
-                    ]
-                  ],
-                  "children": [
-                    "pop 4 · k 3→2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "29"
-                    ]
-                  ],
-                  "children": [
-                    "node → None · 转向右子树"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "30"
-                    ]
-                  ],
-                  "children": [
-                    "pop 5 · k 2→1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "31"
-                    ]
-                  ],
-                  "children": [
-                    "node → 8 · 转向右子树"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "32"
-                    ]
-                  ],
-                  "children": [
-                    "push 8 · 一路向左"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "33"
-                    ]
-                  ],
-                  "children": [
-                    "push 6 · 一路向左"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "34"
-                    ]
-                  ],
-                  "children": [
-                    "✦ pop 6 · k = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "35"
-                    ]
-                  ],
-                  "children": [
-                    "⑤ 两版对比"
-                  ]
                 }
               ]
             }
@@ -565,7 +486,7 @@
       "attributes": [
         [
           "aria-label",
-          "二叉搜索树中第 K 小的数演示：第 1 / 36 步。题目：给定 BST 的根 root 与 k = 5，找第 5 小的节点值。示例树共 7 个节点，中序为 [2,3,4,5,6,8,9]，所以答案是 6。下面先看清\"中序 = 升序\"这个事实，再演示两种实现：递归基线版，与能提前退出的迭代版。"
+          "二叉搜索树中第 K 小的数演示：第 1 / 19 步。题目：给定 BST 的根 root 与 k = 5，找第 5 小的节点值。示例树共 7 个节点，中序为 [2,3,4,5,6,8,9]，所以答案是 6。下面先看清\"中序 = 升序\"这个事实，再演示两种实现：递归基线版，与能提前退出的迭代版。"
         ],
         [
           "class",

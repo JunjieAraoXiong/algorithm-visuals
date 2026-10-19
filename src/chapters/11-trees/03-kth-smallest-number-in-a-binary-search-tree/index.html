@@ -16,6 +16,10 @@
 
       <div class="learning-layout" data-learning-layout>
         <section class="animation-panel" data-animation-panel aria-label="二叉搜索树中第 K 小的数演示 / kth smallest in a BST trace">
+          <div class="method-controls"><div class="method-switch" role="group" aria-label="解法切换">
+<button type="button" class="method-choice" data-method="recursive" aria-label="递归 Recursive" aria-pressed="true"><span>递归 Recursive</span><small>完整中序列表</small></button>
+<button type="button" class="method-choice" data-method="iterative" aria-label="迭代 Iterative" aria-pressed="false"><span>迭代 Iterative</span><small>显式栈 · 提前返回</small></button>
+</div><button type="button" class="method-choice empty-case" data-method="compare" aria-pressed="false"><span>两版对比</span></button></div>
           <div class="controls">
             <button type="button" data-action="previous">← 上一步</button>
             <output data-count aria-live="polite"></output>
@@ -78,6 +82,7 @@
     </main>
 
     <script src="../assets/core.js"></script>
+    <script src="../assets/method-switch.js"></script>
     <script>
       (() => {
         const core = window.AlgorithmVisualCore;
@@ -580,7 +585,22 @@
         });
 
         new ResizeObserver(() => { motion.cancel(); layout(trace.state); draw(trace.state, 1, null); }).observe(stage);
-        trace.setFrames(FRAMES);
+        const methodFrames = {
+          recursive: FRAMES.filter(frame => frame.state.mode.startsWith('intro') || frame.state.mode === 'rec'),
+          iterative: FRAMES.filter(frame => frame.state.mode === 'iter'),
+          compare: FRAMES.filter(frame => frame.state.mode === 'compare')
+        };
+        // Old #step links address the former combined trace. Keep them meaningful.
+        const hasMethod = new URLSearchParams(location.search).has('method');
+        const oldStep = new URLSearchParams(location.hash.slice(1)).get('step');
+        const oldFrame = !hasMethod && /^\d+$/.test(oldStep || '') ? FRAMES[Number(oldStep)] : null;
+        const oldMethod = oldFrame?.state.mode === 'iter' ? 'iterative' : oldFrame?.state.mode === 'compare' ? 'compare' : 'recursive';
+        const methods = AlgorithmVisualMethods.create({root, defaultMethod:oldMethod, onChange:method => {
+          motion.cancel();
+          trace.setFrames(methodFrames[method], {initialStep:0});
+        }});
+        const initial = oldFrame ? {initialStep:methodFrames[methods.value].indexOf(oldFrame)} : {};
+        trace.setFrames(methodFrames[methods.value], initial);
       })();
     </script>
   </body>
