@@ -997,6 +997,87 @@
       ]
     },
     {
+      "tag": "nav",
+      "attributes": [
+        [
+          "aria-label",
+          "按层查看"
+        ],
+        [
+          "class",
+          "layer-nav"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "children": [
+            "直接看"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-level-jump",
+              "0"
+            ]
+          ],
+          "children": [
+            "第 1 层"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-level-jump",
+              "1"
+            ]
+          ],
+          "children": [
+            "第 2 层"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-level-jump",
+              "2"
+            ]
+          ],
+          "children": [
+            "第 3 层"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-level-jump",
+              "3"
+            ]
+          ],
+          "children": [
+            "第 4 层"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "data-finish",
+              ""
+            ]
+          ],
+          "children": [
+            "看结果"
+          ]
+        }
+      ]
+    },
+    {
       "tag": "p",
       "attributes": [
         [
@@ -1009,36 +1090,1502 @@
         ]
       ],
       "children": [
-        "BFS · 按层冻结边界"
+        "从右侧观察 · 每层只记录最后出队的节点"
       ]
     },
     {
       "tag": "div",
       "attributes": [
         [
-          "class",
-          "array-panel"
+          "aria-label",
+          "二叉树执行状态"
         ],
         [
-          "data-arrays",
-          ""
-        ]
-      ]
-    },
-    {
-      "tag": "p",
-      "attributes": [
-        [
           "class",
-          "diagram-caption"
+          "stage"
         ],
         [
-          "data-caption",
+          "data-stage",
           ""
+        ],
+        [
+          "role",
+          "group"
         ]
       ],
       "children": [
-        "每层按左到右出队；虚线节点已记入 res，虚线队列格属于下一层。"
+        {
+          "tag": "svg",
+          "attributes": [
+            [
+              "role",
+              "img"
+            ],
+            [
+              "viewBox",
+              "0 0 731 360"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "defs",
+              "children": [
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "var(--arrow)"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "marker",
+                  "attributes": [
+                    [
+                      "viewBox",
+                      "0 0 8 8"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "d",
+                          "M0 0 L8 4 L0 8 Z"
+                        ],
+                        [
+                          "fill",
+                          "var(--quiet)"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "title",
+              "children": [
+                "二叉树与逐层右视图"
+              ]
+            },
+            {
+              "tag": "desc",
+              "children": [
+                "每条横行是一个深度；右侧空格会随着 res 的写入填上值。 已记录 0 层，res = []。"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "level-band"
+                ],
+                [
+                  "d",
+                  "M2,47 H729 v55 H2 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "active-level"
+                ],
+                [
+                  "opacity",
+                  "0"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "class",
+                  "annotation"
+                ],
+                [
+                  "data-visual-element",
+                  "depth-heading"
+                ],
+                [
+                  "x",
+                  "18"
+                ],
+                [
+                  "y",
+                  "16"
+                ]
+              ],
+              "children": [
+                "层"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "class",
+                  "annotation"
+                ],
+                [
+                  "data-visual-element",
+                  "tree-heading"
+                ],
+                [
+                  "x",
+                  "282.6"
+                ],
+                [
+                  "y",
+                  "16"
+                ]
+              ],
+              "children": [
+                "原树 · 节点不移动"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "class",
+                  "annotation view-heading"
+                ],
+                [
+                  "data-visual-element",
+                  "view-heading"
+                ],
+                [
+                  "x",
+                  "729"
+                ],
+                [
+                  "y",
+                  "16"
+                ]
+              ],
+              "children": [
+                "← 从右侧看"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "level-rule"
+                ],
+                [
+                  "d",
+                  "M35,104 H728"
+                ],
+                [
+                  "data-visual-element",
+                  "level-rule-0"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "class",
+                  "annotation"
+                ],
+                [
+                  "data-visual-element",
+                  "level-0"
+                ],
+                [
+                  "x",
+                  "18"
+                ],
+                [
+                  "y",
+                  "72"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "sight-line"
+                ],
+                [
+                  "d",
+                  "M687,72 H455.35"
+                ],
+                [
+                  "data-visual-element",
+                  "sight-0"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-reference-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "view-slot"
+                ],
+                [
+                  "d",
+                  "M689,55 h34 v34 h-34 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "view-slot-0"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-depth-result",
+                  "0"
+                ],
+                [
+                  "data-visual-element",
+                  "view-value-0"
+                ],
+                [
+                  "x",
+                  "706"
+                ],
+                [
+                  "y",
+                  "72"
+                ]
+              ],
+              "children": [
+                "·"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "level-rule"
+                ],
+                [
+                  "d",
+                  "M35,182 H728"
+                ],
+                [
+                  "data-visual-element",
+                  "level-rule-1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "class",
+                  "annotation"
+                ],
+                [
+                  "data-visual-element",
+                  "level-1"
+                ],
+                [
+                  "x",
+                  "18"
+                ],
+                [
+                  "y",
+                  "150"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "sight-line"
+                ],
+                [
+                  "d",
+                  "M687,150 H623.07"
+                ],
+                [
+                  "data-visual-element",
+                  "sight-1"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-reference-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "view-slot"
+                ],
+                [
+                  "d",
+                  "M689,133 h34 v34 h-34 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "view-slot-1"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-depth-result",
+                  "1"
+                ],
+                [
+                  "data-visual-element",
+                  "view-value-1"
+                ],
+                [
+                  "x",
+                  "706"
+                ],
+                [
+                  "y",
+                  "150"
+                ]
+              ],
+              "children": [
+                "·"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "level-rule"
+                ],
+                [
+                  "d",
+                  "M35,260 H728"
+                ],
+                [
+                  "data-visual-element",
+                  "level-rule-2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "class",
+                  "annotation"
+                ],
+                [
+                  "data-visual-element",
+                  "level-2"
+                ],
+                [
+                  "x",
+                  "18"
+                ],
+                [
+                  "y",
+                  "228"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "sight-line"
+                ],
+                [
+                  "d",
+                  "M687,228 H575.15"
+                ],
+                [
+                  "data-visual-element",
+                  "sight-2"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-reference-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "view-slot"
+                ],
+                [
+                  "d",
+                  "M689,211 h34 v34 h-34 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "view-slot-2"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-depth-result",
+                  "2"
+                ],
+                [
+                  "data-visual-element",
+                  "view-value-2"
+                ],
+                [
+                  "x",
+                  "706"
+                ],
+                [
+                  "y",
+                  "228"
+                ]
+              ],
+              "children": [
+                "·"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "level-rule"
+                ],
+                [
+                  "d",
+                  "M35,338 H728"
+                ],
+                [
+                  "data-visual-element",
+                  "level-rule-3"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "class",
+                  "annotation"
+                ],
+                [
+                  "data-visual-element",
+                  "level-3"
+                ],
+                [
+                  "x",
+                  "18"
+                ],
+                [
+                  "y",
+                  "306"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "sight-line"
+                ],
+                [
+                  "d",
+                  "M687,306 H437.38"
+                ],
+                [
+                  "data-visual-element",
+                  "sight-3"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-reference-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "view-slot"
+                ],
+                [
+                  "d",
+                  "M689,289 h34 v34 h-34 Z"
+                ],
+                [
+                  "data-visual-element",
+                  "view-slot-3"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-depth-result",
+                  "3"
+                ],
+                [
+                  "data-visual-element",
+                  "view-value-3"
+                ],
+                [
+                  "x",
+                  "706"
+                ],
+                [
+                  "y",
+                  "306"
+                ]
+              ],
+              "children": [
+                "·"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "stored-edge"
+                ],
+                [
+                  "d",
+                  "M416.676611596962,78.58368407257775 L265.09928047416236,142.25448932637912"
+                ],
+                [
+                  "data-visual-element",
+                  "edge-a-left"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-tree-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "stored-edge"
+                ],
+                [
+                  "d",
+                  "M447.7645858106311,79.16871984992382 L581.9351931639635,141.5662119412661"
+                ],
+                [
+                  "data-visual-element",
+                  "edge-a-right"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-tree-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "stored-edge"
+                ],
+                [
+                  "d",
+                  "M233.4748193982494,160.73084397888718 L166.33197717853014,215.37547767189744"
+                ],
+                [
+                  "data-visual-element",
+                  "edge-b-left"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-tree-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "stored-edge"
+                ],
+                [
+                  "d",
+                  "M259.84518060175066,160.73084397888718 L326.9880228214699,215.37547767189744"
+                ],
+                [
+                  "data-visual-element",
+                  "edge-b-right"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-tree-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "stored-edge"
+                ],
+                [
+                  "d",
+                  "M591.1711217758456,164.48481847838173 L562.6192684990053,210.9590370842568"
+                ],
+                [
+                  "data-visual-element",
+                  "edge-c-left"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-tree-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "stored-edge"
+                ],
+                [
+                  "d",
+                  "M138.37213687368916,239.57802675712193 L81.60454485448334,292.3787920504448"
+                ],
+                [
+                  "data-visual-element",
+                  "edge-d-left"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-tree-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "stored-edge"
+                ],
+                [
+                  "d",
+                  "M163.26786312631083,239.57802675712193 L220.03545514551666,292.3787920504448"
+                ],
+                [
+                  "data-visual-element",
+                  "edge-d-right"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-tree-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "stored-edge"
+                ],
+                [
+                  "d",
+                  "M354.0203733456667,240.5012398575682 L400.8266195933333,291.29265899109623"
+                ],
+                [
+                  "data-visual-element",
+                  "edge-e-right"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-tree-arrow)"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "selection-ring"
+                ],
+                [
+                  "cx",
+                  "432.35"
+                ],
+                [
+                  "cy",
+                  "72"
+                ],
+                [
+                  "data-visual-element",
+                  "selection-a"
+                ],
+                [
+                  "opacity",
+                  "0"
+                ],
+                [
+                  "r",
+                  "20"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "node"
+                ],
+                [
+                  "cx",
+                  "432.35"
+                ],
+                [
+                  "cy",
+                  "72"
+                ],
+                [
+                  "data-visual-element",
+                  "node-a"
+                ],
+                [
+                  "r",
+                  "16"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "value-a"
+                ],
+                [
+                  "x",
+                  "432.35"
+                ],
+                [
+                  "y",
+                  "73"
+                ]
+              ],
+              "children": [
+                "1"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "selection-ring"
+                ],
+                [
+                  "cx",
+                  "246.66000000000003"
+                ],
+                [
+                  "cy",
+                  "150"
+                ],
+                [
+                  "data-visual-element",
+                  "selection-b"
+                ],
+                [
+                  "opacity",
+                  "0"
+                ],
+                [
+                  "r",
+                  "20"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "node"
+                ],
+                [
+                  "cx",
+                  "246.66000000000003"
+                ],
+                [
+                  "cy",
+                  "150"
+                ],
+                [
+                  "data-visual-element",
+                  "node-b"
+                ],
+                [
+                  "r",
+                  "16"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "value-b"
+                ],
+                [
+                  "x",
+                  "246.66000000000003"
+                ],
+                [
+                  "y",
+                  "151"
+                ]
+              ],
+              "children": [
+                "2"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "selection-ring"
+                ],
+                [
+                  "cx",
+                  "600.07"
+                ],
+                [
+                  "cy",
+                  "150"
+                ],
+                [
+                  "data-visual-element",
+                  "selection-c"
+                ],
+                [
+                  "opacity",
+                  "0"
+                ],
+                [
+                  "r",
+                  "20"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "node"
+                ],
+                [
+                  "cx",
+                  "600.07"
+                ],
+                [
+                  "cy",
+                  "150"
+                ],
+                [
+                  "data-visual-element",
+                  "node-c"
+                ],
+                [
+                  "r",
+                  "16"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "value-c"
+                ],
+                [
+                  "x",
+                  "600.07"
+                ],
+                [
+                  "y",
+                  "151"
+                ]
+              ],
+              "children": [
+                "3"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "selection-ring"
+                ],
+                [
+                  "cx",
+                  "150.82"
+                ],
+                [
+                  "cy",
+                  "228"
+                ],
+                [
+                  "data-visual-element",
+                  "selection-d"
+                ],
+                [
+                  "opacity",
+                  "0"
+                ],
+                [
+                  "r",
+                  "20"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "node"
+                ],
+                [
+                  "cx",
+                  "150.82"
+                ],
+                [
+                  "cy",
+                  "228"
+                ],
+                [
+                  "data-visual-element",
+                  "node-d"
+                ],
+                [
+                  "r",
+                  "16"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "value-d"
+                ],
+                [
+                  "x",
+                  "150.82"
+                ],
+                [
+                  "y",
+                  "229"
+                ]
+              ],
+              "children": [
+                "4"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "selection-ring"
+                ],
+                [
+                  "cx",
+                  "342.5"
+                ],
+                [
+                  "cy",
+                  "228"
+                ],
+                [
+                  "data-visual-element",
+                  "selection-e"
+                ],
+                [
+                  "opacity",
+                  "0"
+                ],
+                [
+                  "r",
+                  "20"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "node"
+                ],
+                [
+                  "cx",
+                  "342.5"
+                ],
+                [
+                  "cy",
+                  "228"
+                ],
+                [
+                  "data-visual-element",
+                  "node-e"
+                ],
+                [
+                  "r",
+                  "16"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "value-e"
+                ],
+                [
+                  "x",
+                  "342.5"
+                ],
+                [
+                  "y",
+                  "229"
+                ]
+              ],
+              "children": [
+                "5"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "selection-ring"
+                ],
+                [
+                  "cx",
+                  "552.15"
+                ],
+                [
+                  "cy",
+                  "228"
+                ],
+                [
+                  "data-visual-element",
+                  "selection-f"
+                ],
+                [
+                  "opacity",
+                  "0"
+                ],
+                [
+                  "r",
+                  "20"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "node"
+                ],
+                [
+                  "cx",
+                  "552.15"
+                ],
+                [
+                  "cy",
+                  "228"
+                ],
+                [
+                  "data-visual-element",
+                  "node-f"
+                ],
+                [
+                  "r",
+                  "16"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "value-f"
+                ],
+                [
+                  "x",
+                  "552.15"
+                ],
+                [
+                  "y",
+                  "229"
+                ]
+              ],
+              "children": [
+                "6"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "selection-ring"
+                ],
+                [
+                  "cx",
+                  "66.96000000000001"
+                ],
+                [
+                  "cy",
+                  "306"
+                ],
+                [
+                  "data-visual-element",
+                  "selection-g"
+                ],
+                [
+                  "opacity",
+                  "0"
+                ],
+                [
+                  "r",
+                  "20"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "node"
+                ],
+                [
+                  "cx",
+                  "66.96000000000001"
+                ],
+                [
+                  "cy",
+                  "306"
+                ],
+                [
+                  "data-visual-element",
+                  "node-g"
+                ],
+                [
+                  "r",
+                  "16"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "value-g"
+                ],
+                [
+                  "x",
+                  "66.96000000000001"
+                ],
+                [
+                  "y",
+                  "307"
+                ]
+              ],
+              "children": [
+                "8"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "selection-ring"
+                ],
+                [
+                  "cx",
+                  "234.68"
+                ],
+                [
+                  "cy",
+                  "306"
+                ],
+                [
+                  "data-visual-element",
+                  "selection-h"
+                ],
+                [
+                  "opacity",
+                  "0"
+                ],
+                [
+                  "r",
+                  "20"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "node"
+                ],
+                [
+                  "cx",
+                  "234.68"
+                ],
+                [
+                  "cy",
+                  "306"
+                ],
+                [
+                  "data-visual-element",
+                  "node-h"
+                ],
+                [
+                  "r",
+                  "16"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "value-h"
+                ],
+                [
+                  "x",
+                  "234.68"
+                ],
+                [
+                  "y",
+                  "307"
+                ]
+              ],
+              "children": [
+                "9"
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "selection-ring"
+                ],
+                [
+                  "cx",
+                  "414.38"
+                ],
+                [
+                  "cy",
+                  "306"
+                ],
+                [
+                  "data-visual-element",
+                  "selection-i"
+                ],
+                [
+                  "opacity",
+                  "0"
+                ],
+                [
+                  "r",
+                  "20"
+                ]
+              ]
+            },
+            {
+              "tag": "circle",
+              "attributes": [
+                [
+                  "class",
+                  "node"
+                ],
+                [
+                  "cx",
+                  "414.38"
+                ],
+                [
+                  "cy",
+                  "306"
+                ],
+                [
+                  "data-visual-element",
+                  "node-i"
+                ],
+                [
+                  "r",
+                  "16"
+                ]
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "data-visual-element",
+                  "value-i"
+                ],
+                [
+                  "x",
+                  "414.38"
+                ],
+                [
+                  "y",
+                  "307"
+                ]
+              ],
+              "children": [
+                "11"
+              ]
+            },
+            {
+              "tag": "text",
+              "attributes": [
+                [
+                  "class",
+                  "annotation root-reference"
+                ],
+                [
+                  "data-visual-element",
+                  "reference-label"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ],
+                [
+                  "x",
+                  "432.35"
+                ],
+                [
+                  "y",
+                  "34"
+                ]
+              ],
+              "children": [
+                "root"
+              ]
+            },
+            {
+              "tag": "path",
+              "attributes": [
+                [
+                  "class",
+                  "reference"
+                ],
+                [
+                  "d",
+                  "M432.35,43 V52"
+                ],
+                [
+                  "data-visual-element",
+                  "reference"
+                ],
+                [
+                  "marker-end",
+                  "url(#view-reference-arrow)"
+                ],
+                [
+                  "opacity",
+                  "1"
+                ]
+              ]
+            }
+          ]
+        }
       ]
     },
     {
@@ -1046,7 +2593,114 @@
       "attributes": [
         [
           "class",
-          "diagram-workspace"
+          "answer"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-result",
+              ""
+            ]
+          ],
+          "children": [
+            "res 尚未创建"
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "answer-cells"
+            ],
+            [
+              "data-answer-cells",
+              ""
+            ]
+          ]
+        },
+        {
+          "tag": "p",
+          "attributes": [
+            [
+              "class",
+              "answer-note"
+            ],
+            [
+              "data-answer-note",
+              ""
+            ]
+          ],
+          "children": [
+            "尚未执行初始化"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "当前变量"
+        ],
+        [
+          "class",
+          "locals"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-size",
+              ""
+            ]
+          ],
+          "children": [
+            "level_size = 未赋值"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-index",
+              ""
+            ]
+          ],
+          "children": [
+            "i = 未赋值"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-node",
+              ""
+            ]
+          ],
+          "children": [
+            "node 尚未赋值"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "queue-board"
+        ],
+        [
+          "data-memory",
+          ""
         ]
       ],
       "children": [
@@ -1054,744 +2708,21 @@
           "tag": "div",
           "attributes": [
             [
-              "aria-label",
-              "从根开始逐层看右侧可见节点。"
-            ],
-            [
               "class",
-              "stage"
-            ],
-            [
-              "data-stage",
-              ""
-            ],
-            [
-              "role",
-              "group"
-            ],
-            [
-              "style",
-              "height: 442px;"
+              "queue-heading"
             ]
           ],
           "children": [
             {
-              "tag": "svg",
-              "attributes": [
-                [
-                  "aria-label",
-                  "树节点与指针"
-                ],
-                [
-                  "role",
-                  "img"
-                ],
-                [
-                  "viewBox",
-                  "0 0 520 442"
-                ]
-              ],
+              "tag": "code",
               "children": [
-                {
-                  "tag": "defs",
-                  "children": [
-                    {
-                      "tag": "marker",
-                      "attributes": [
-                        [
-                          "viewBox",
-                          "0 0 8 8"
-                        ]
-                      ],
-                      "children": [
-                        {
-                          "tag": "path",
-                          "attributes": [
-                            [
-                              "d",
-                              "M0 0 L8 4 L0 8 Z"
-                            ],
-                            [
-                              "fill",
-                              "#333"
-                            ]
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "tag": "marker",
-                      "attributes": [
-                        [
-                          "viewBox",
-                          "0 0 8 8"
-                        ]
-                      ],
-                      "children": [
-                        {
-                          "tag": "path",
-                          "attributes": [
-                            [
-                              "d",
-                              "M0 0 L8 4 L0 8 Z"
-                            ],
-                            [
-                              "fill",
-                              "#555"
-                            ]
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M247.1532855925731,81.13381915310332 L154.35809257300653,161.556319770061"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-a-left"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M272.8467144074269,81.13381915310332 L365.64190742699344,161.556319770061"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-a-right"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M131.50471829067718,188.7251549628262 L89.49472661630196,261.5424738650766"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-b-left"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M148.49528170932282,188.7251549628262 L190.50527338369804,261.5424738650766"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-b-right"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M371.5047182906772,188.7251549628262 L329.494726616302,261.5424738650766"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-c-left"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M75.28826892786292,294.3340010500752 L55.26605237474144,363.744351767563"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-d-left"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M84.71173107213708,294.3340010500752 L104.73394762525857,363.744351767563"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-d-right"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M204.71173107213707,294.3340010500752 L224.73394762525857,363.744351767563"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-e-right"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node active"
-                    ],
-                    [
-                      "cx",
-                      "260"
-                    ],
-                    [
-                      "cy",
-                      "70"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-a"
-                    ],
-                    [
-                      "r",
-                      "16"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-a"
-                    ],
-                    [
-                      "x",
-                      "260"
-                    ],
-                    [
-                      "y",
-                      "71"
-                    ]
-                  ],
-                  "children": [
-                    "1"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "140"
-                    ],
-                    [
-                      "cy",
-                      "174"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-b"
-                    ],
-                    [
-                      "r",
-                      "16"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-b"
-                    ],
-                    [
-                      "x",
-                      "140"
-                    ],
-                    [
-                      "y",
-                      "175"
-                    ]
-                  ],
-                  "children": [
-                    "2"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "380"
-                    ],
-                    [
-                      "cy",
-                      "174"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-c"
-                    ],
-                    [
-                      "r",
-                      "16"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-c"
-                    ],
-                    [
-                      "x",
-                      "380"
-                    ],
-                    [
-                      "y",
-                      "175"
-                    ]
-                  ],
-                  "children": [
-                    "3"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "80"
-                    ],
-                    [
-                      "cy",
-                      "278"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-d"
-                    ],
-                    [
-                      "r",
-                      "16"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-d"
-                    ],
-                    [
-                      "x",
-                      "80"
-                    ],
-                    [
-                      "y",
-                      "279"
-                    ]
-                  ],
-                  "children": [
-                    "4"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "200"
-                    ],
-                    [
-                      "cy",
-                      "278"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-e"
-                    ],
-                    [
-                      "r",
-                      "16"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-e"
-                    ],
-                    [
-                      "x",
-                      "200"
-                    ],
-                    [
-                      "y",
-                      "279"
-                    ]
-                  ],
-                  "children": [
-                    "5"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "320"
-                    ],
-                    [
-                      "cy",
-                      "278"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-f"
-                    ],
-                    [
-                      "r",
-                      "16"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-f"
-                    ],
-                    [
-                      "x",
-                      "320"
-                    ],
-                    [
-                      "y",
-                      "279"
-                    ]
-                  ],
-                  "children": [
-                    "6"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "50"
-                    ],
-                    [
-                      "cy",
-                      "382"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-g"
-                    ],
-                    [
-                      "r",
-                      "16"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-g"
-                    ],
-                    [
-                      "x",
-                      "50"
-                    ],
-                    [
-                      "y",
-                      "383"
-                    ]
-                  ],
-                  "children": [
-                    "8"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "110"
-                    ],
-                    [
-                      "cy",
-                      "382"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-h"
-                    ],
-                    [
-                      "r",
-                      "16"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-h"
-                    ],
-                    [
-                      "x",
-                      "110"
-                    ],
-                    [
-                      "y",
-                      "383"
-                    ]
-                  ],
-                  "children": [
-                    "9"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "230"
-                    ],
-                    [
-                      "cy",
-                      "382"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-i"
-                    ],
-                    [
-                      "r",
-                      "16"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-i"
-                    ],
-                    [
-                      "x",
-                      "230"
-                    ],
-                    [
-                      "y",
-                      "383"
-                    ]
-                  ],
-                  "children": [
-                    "11"
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "reference-box"
-                    ],
-                    [
-                      "d",
-                      "M239,15 h42 v20 h-42 Z"
-                    ],
-                    [
-                      "data-visual-element",
-                      "reference-box"
-                    ],
-                    [
-                      "opacity",
-                      "1"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "class",
-                      "annotation"
-                    ],
-                    [
-                      "data-visual-element",
-                      "reference-label"
-                    ],
-                    [
-                      "opacity",
-                      "1"
-                    ],
-                    [
-                      "x",
-                      "260"
-                    ],
-                    [
-                      "y",
-                      "25"
-                    ]
-                  ],
-                  "children": [
-                    "root"
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "reference"
-                    ],
-                    [
-                      "d",
-                      "M260,35 V51"
-                    ],
-                    [
-                      "data-visual-element",
-                      "reference"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#return-arrow)"
-                    ],
-                    [
-                      "opacity",
-                      "1"
-                    ]
-                  ]
-                }
+                "queue"
+              ]
+            },
+            {
+              "tag": "span",
+              "children": [
+                "左端出队 ← 先左孩子，再右孩子 → 入队"
               ]
             }
           ]
@@ -1801,18 +2732,62 @@
           "attributes": [
             [
               "class",
-              "memory queue"
+              "queue-lanes"
             ],
             [
-              "data-memory",
+              "data-memory-items",
               ""
             ]
           ],
           "children": [
             {
-              "tag": "h3",
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "queue-lane"
+                ]
+              ],
               "children": [
-                "queue · 左端出队 → 右端入队"
+                {
+                  "tag": "h3",
+                  "attributes": [
+                    [
+                      "data-current-title",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "本层待处理 · 0"
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "queue-cells"
+                    ],
+                    [
+                      "data-current-queue",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "queue-empty"
+                        ]
+                      ],
+                      "children": [
+                        "尚未创建"
+                      ]
+                    }
+                  ]
+                }
               ]
             },
             {
@@ -1820,30 +2795,110 @@
               "attributes": [
                 [
                   "class",
-                  "memory-items"
-                ],
-                [
-                  "data-memory-items",
-                  ""
+                  "queue-lane"
                 ]
               ],
               "children": [
-                "∅"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "class",
-                  "memory-note"
-                ],
-                [
-                  "data-memory-note",
-                  ""
-                ]
+                {
+                  "tag": "h3",
+                  "attributes": [
+                    [
+                      "data-next-title",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "下一层 · 0"
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "queue-cells"
+                    ],
+                    [
+                      "data-next-queue",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "span",
+                      "attributes": [
+                        [
+                          "class",
+                          "queue-empty"
+                        ]
+                      ],
+                      "children": [
+                        "暂无孩子入队"
+                      ]
+                    }
+                  ]
+                }
               ]
             }
+          ]
+        },
+        {
+          "tag": "p",
+          "attributes": [
+            [
+              "class",
+              "queue-note"
+            ],
+            [
+              "data-memory-note",
+              ""
+            ]
+          ],
+          "children": [
+            "还没有冻结 level_size。"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "decision"
+        ],
+        [
+          "data-decision",
+          ""
+        ],
+        [
+          "data-outcome",
+          "null"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "code",
+          "attributes": [
+            [
+              "data-condition",
+              ""
+            ]
+          ],
+          "children": [
+            "i == level_size - 1 ?"
+          ]
+        },
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-decision-note",
+              ""
+            ]
+          ],
+          "children": [
+            "处理完孩子后，检查 node 是不是本层最后一个。"
           ]
         }
       ]
@@ -1882,80 +2937,7 @@
             ]
           ],
           "children": [
-            "从根开始逐层看右侧可见节点。"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "state-grid"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "保持什么成立"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "data-invariant",
-                  ""
-                ]
-              ],
-              "children": [
-                "一层开始时固定 level_size；随后加入的孩子属于下一层，不延长本层循环。"
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "返回结果"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "class",
-                  "result"
-                ],
-                [
-                  "data-result",
-                  ""
-                ]
-              ],
-              "children": [
-                "结果：尚未返回"
-              ]
-            }
+            "每条横行是一个深度；右侧空格会随着 res 的写入填上值。"
           ]
         }
       ]

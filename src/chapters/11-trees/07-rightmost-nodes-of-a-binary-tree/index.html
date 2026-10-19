@@ -5,58 +5,281 @@
 <meta name="description" content="二叉树每层最右节点：逐行执行 Python，观察树、变量与返回值。">
 <title>Rightmost Nodes of a Binary Tree · Algorithm Visuals</title>
 <link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
+<style>
+.right-view { --view-accent: var(--ink); --view-fill: #f2f0e7; --view-current: var(--theme-e9e5d9, #e9e5d9); --view-row-gap: 78; }
+.right-view .problem { margin-bottom: 12px; }
+.right-view .layer-nav { display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin:8px 3px; }
+.right-view .layer-nav span { font-size:12px; color:var(--quiet); }
+.right-view .layer-nav button { min-height:34px; padding:5px 10px; border:1px solid var(--rule); background:var(--paper); cursor:pointer; }
+.right-view .layer-nav button[aria-current="true"] { border-color:var(--ink); background:var(--view-current); }
+.right-view .stage { height:360px; }
+.right-view svg text { font-size:18px; }
+.right-view svg .annotation { font:12px Arial,sans-serif; }
+.right-view svg .level-band { fill:var(--view-current); stroke:none; }
+.right-view svg .view-heading { text-anchor:end; }
+.right-view svg .level-rule { stroke:var(--rule); stroke-width:.6; stroke-dasharray:2 5; }
+.right-view svg .sight-line { fill:none; stroke:var(--quiet); stroke-width:1; stroke-dasharray:4 4; }
+.right-view svg .sight-line.confirmed { stroke:var(--view-accent); stroke-width:1.5; }
+.right-view svg .node { stroke-width:1.5; }
+.right-view svg .node.marked { fill:var(--view-fill); stroke:var(--view-accent); stroke-width:2; stroke-dasharray:none; }
+.right-view svg .selection-ring { fill:none; stroke:var(--view-accent); stroke-width:1; }
+.right-view svg .view-slot { fill:var(--paper); stroke:var(--rule); stroke-dasharray:3 3; }
+.right-view svg .view-slot.recorded { fill:var(--view-fill); stroke:var(--view-accent); stroke-dasharray:none; }
+.right-view svg .root-reference { font:12px monospace; }
+.right-view .locals { display:flex; flex-wrap:wrap; gap:8px 18px; padding:9px 3px; font:13px/1.6 monospace; border-bottom:1px solid var(--rule); }
+.right-view .locals span { white-space:nowrap; }
+.right-view .queue-board { margin:12px 3px; }
+.right-view .queue-heading { display:flex; flex-wrap:wrap; justify-content:space-between; gap:5px; font:13px/1.6 monospace; }
+.right-view .queue-heading span { color:var(--quiet); font:12px/1.6 Arial,sans-serif; }
+.right-view .queue-lanes { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); border:1px solid var(--rule); margin-top:5px; }
+.right-view .queue-lane { padding:8px; min-width:0; }
+.right-view .queue-lane + .queue-lane { border-left:1px dashed var(--rule); }
+.right-view .queue-lane h3 { margin:0 0 7px; font:12px/1.5 Arial,sans-serif; color:var(--quiet); }
+.right-view .queue-cells { display:flex; flex-wrap:wrap; gap:5px; min-height:59px; align-items:flex-start; }
+.right-view .memory-item { min-width:42px; text-align:center; font:17px/1.4 monospace; padding:5px 7px; }
+.right-view .memory-item.next-level { background:transparent; }
+.right-view .memory-role { font-size:10px; min-height:14px; }
+.right-view .queue-empty { align-self:center; color:var(--quiet); font:12px/1.6 Arial,sans-serif; }
+.right-view .queue-note { color:var(--quiet); font-size:12px; margin:6px 0 0; min-height:18px; }
+.right-view .decision { padding:9px 11px; border-left:3px solid var(--rule); margin:10px 3px; min-height:58px; }
+.right-view .decision[data-outcome="true"] { border-color:var(--view-accent); background:var(--view-fill); }
+.right-view .decision code { font-size:13px; }
+.right-view .decision span { display:block; margin-top:3px; font-size:13px; }
+.right-view .answer { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:12px 3px; }
+.right-view .answer > code { font-size:15px; }
+.right-view .answer-cells { display:flex; gap:6px; }
+.right-view .answer-cell { min-width:42px; text-align:center; padding:5px 8px; border:1px solid var(--view-accent); background:var(--view-fill); font:17px/1.3 monospace; }
+.right-view .answer-cell small { display:block; font:10px/1.5 Arial,sans-serif; color:var(--quiet); }
+.right-view .answer-cell.just-added { outline:1px solid var(--view-accent); outline-offset:2px; }
+.right-view .answer-note { margin:0; color:var(--quiet); font-size:12px; }
+.right-view .operation { min-height:90px; }
+.right-view .code-panel pre { max-height:75svh; }
+@media (max-width:1000px) { .right-view .code-panel pre { max-height:65svh; } }
+@media (max-width:480px) {
+ .right-view svg .annotation { font-size:11px; }
+ .right-view .queue-lane { padding:7px 5px; }
+ .right-view .memory-item { min-width:36px; padding:4px; }
+ .right-view .locals { gap:5px 12px; font-size:12px; }
+}
+</style>
 </head><body>
-<main class="tree-guide tree-lesson" id="lesson">
+<main class="tree-guide tree-lesson right-view" id="lesson">
 <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
 <h1>Rightmost Nodes of a Binary Tree · 二叉树每层最右节点</h1>
-<p class="problem">Return the rightmost node value at every depth, viewed from the right side.<span>取每一层最右的节点。图片里的 11 比右侧分支更深，所以仍然可见。</span></p>
+<p class="problem">Return the rightmost node value at every depth, viewed from the right side.<span>从右侧看，每个深度只留下一个值。最深层的 11 在左子树里，也能被看到。</span></p>
 <div class="learning-layout" data-learning-layout>
 <section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
 <label class="settings">示例 <select data-case aria-label="右视图示例"><option value="original">原图：最深层的 11 来自左子树</option><option value="empty">空树</option></select></label>
 <div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
+<nav class="layer-nav" aria-label="按层查看"><span>直接看</span><button type="button" data-level-jump="0">第 1 层</button><button type="button" data-level-jump="1">第 2 层</button><button type="button" data-level-jump="2">第 3 层</button><button type="button" data-level-jump="3">第 4 层</button><button type="button" data-finish>看结果</button></nav>
 <p class="step-meta" data-phase></p>
-<div class="array-panel" data-arrays></div>
-<p class="diagram-caption" data-caption></p>
-<div class="diagram-workspace">
-<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-label="树节点与指针"></svg></div>
-<div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
+<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-labelledby="view-title view-description"><title id="view-title">二叉树与逐层右视图</title><desc id="view-description">每一横行对应一个深度。从右向左的虚线表示观察方向；右侧方格显示已经记录的值。</desc></svg></div>
+<div class="answer"><code data-result>res 尚未创建</code><div class="answer-cells" data-answer-cells></div><p class="answer-note" data-answer-note></p></div>
+<div class="locals" aria-label="当前变量"><span data-size></span><span data-index></span><span data-node></span></div>
+<div class="queue-board" data-memory>
+ <div class="queue-heading"><code>queue</code><span>左端出队 ←　先左孩子，再右孩子 → 入队</span></div>
+ <div class="queue-lanes" data-memory-items>
+  <div class="queue-lane"><h3 data-current-title>本层待处理</h3><div class="queue-cells" data-current-queue></div></div>
+  <div class="queue-lane"><h3 data-next-title>下一层 · 等待</h3><div class="queue-cells" data-next-queue></div></div>
+ </div>
+ <p class="queue-note" data-memory-note></p>
 </div>
+<div class="decision" data-decision><code data-condition></code><span data-decision-note></span></div>
 <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
-<div class="state-grid"><div class="invariant"><strong>保持什么成立</strong><p data-invariant></p></div><div class="invariant"><strong>返回结果</strong><p class="result" data-result></p></div></div>
+
 </section>
 <aside class="code-panel" data-code-panel><h2>完整 Python 代码</h2><p class="code-status" data-code-status></p><pre data-code-scroll tabindex="0" aria-label="完整 Python 实现"><code><span class="code-line">from typing import List, Optional</span><span class="code-line"> </span><span class="code-line">class TreeNode:</span><span class="code-line">    def __init__(self, val=0, left=None, right=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.left = left</span><span class="code-line">        self.right = right</span><span class="code-line"> </span><span class="code-line">from collections import deque</span><span class="code-line"> </span><span class="code-line">def rightmost_nodes_of_a_binary_tree(root: Optional[TreeNode]) -&gt; List[int]:</span><span class="code-line" data-source-key="check">    if not root:</span><span class="code-line" data-source-key="empty">        return []</span><span class="code-line" data-source-key="res">    res = []</span><span class="code-line" data-source-key="queue">    queue = deque([root])</span><span class="code-line" data-source-key="while">    while queue:</span><span class="code-line" data-source-key="size">        level_size = len(queue)</span><span class="code-line" data-source-key="for">        for i in range(level_size):</span><span class="code-line" data-source-key="pop">            node = queue.popleft()</span><span class="code-line" data-source-key="left-check">            if node.left:</span><span class="code-line" data-source-key="left-push">                queue.append(node.left)</span><span class="code-line" data-source-key="right-check">            if node.right:</span><span class="code-line" data-source-key="right-push">                queue.append(node.right)</span><span class="code-line" data-source-key="last">            if i == level_size - 1:</span><span class="code-line" data-source-key="append">                res.append(node.val)</span><span class="code-line" data-source-key="return">    return res</span></code></pre></aside>
 </div>
-<section class="section"><h2>最右分支会在 6 提前结束</h2><p class="section-intro">图片中根的右侧分支是 1 → 3 → 6，但左子树还有更深的 11。右视图要求「每个深度的最右节点」，因此答案是 [1, 3, 6, 11]。</p><div class="card-grid"><article class="paper-card"><strong>队列为什么能找到最右节点</strong><p>先加入左孩子，再加入右孩子。若本层从左到右出队，孩子也会从左到右排进下一层；这个顺序从只有根的一层开始一直成立。</p></article><article class="paper-card"><strong>level_size 是本层的边界</strong><p>本层循环只执行开始时的 len(queue) 次。弹出 2 后把 4、5 入队，它们也不能在当前层被处理。i == level_size - 1 才是本层的最后一个。</p></article></div></section><section class="section"><h2>完整过程与边界</h2><p class="section-intro">入队根；冻结一层的大小；依次出队并入队孩子；最后一个值写入 res；队列非空时重复。节点只读，树中的 left、right 没有改变。</p><div class="card-grid"><article class="paper-card"><strong>空树与单侧树</strong><p>空树返回 []。单侧树的每层只有一个节点，因此所有节点都会被记录；不需要特殊遍历分支。</p></article><article class="paper-card"><strong>时间与空间</strong><p>O(n) 时间，每个节点各入队、出队一次。辅助队列 O(w)，w 是最大实际层节点数，最坏 O(n)。输出另占 O(h)，h 是层数。</p></article></div></section>
+<section class="section"><h2>最右分支会在 6 提前结束</h2><p class="section-intro">根的右侧分支是 1 → 3 → 6，但左子树还有更深的 11。右视图要求「每个深度的最右节点」，因此答案是 [1, 3, 6, 11]。</p><div class="card-grid"><article class="paper-card"><strong>队列为什么能找到最右节点</strong><p>先加入左孩子，再加入右孩子。若本层从左到右出队，孩子也会从左到右排进下一层；这个顺序从只有根的一层开始一直成立。</p></article><article class="paper-card"><strong>level_size 是本层的边界</strong><p>本层循环只执行开始时的 len(queue) 次。弹出 2 后把 4、5 入队，它们也不能在当前层被处理。i == level_size - 1 才是本层的最后一个。</p></article></div></section><section class="section"><h2>完整过程与边界</h2><p class="section-intro">入队根；冻结一层的大小；依次出队并入队孩子；最后一个值写入 res；队列非空时重复。节点只读，树中的 left、right 没有改变。</p><div class="card-grid"><article class="paper-card"><strong>空树与单侧树</strong><p>空树返回 []。单侧树的每层只有一个节点，因此所有节点都会被记录；不需要特殊遍历分支。</p></article><article class="paper-card"><strong>时间与空间</strong><p>O(n) 时间，每个节点各入队、出队一次。辅助队列 O(w)，w 是最大实际层节点数，最坏 O(n)。输出另占 O(h)，h 是层数。</p></article></div></section>
 <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../binary-tree-columns/">二叉树垂序遍历</a><a href="../invert-binary-tree/">翻转二叉树</a><a href="../">目录</a></nav>
 </main>
 <script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script>
 <script>
 (() => {
 'use strict';
-const root=document.querySelector('#lesson');
-const {clone,valueOf,recorder,mount}=window.TreeLesson;
-const selector=root.querySelector('[data-case]');
-if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
-
-function makeFrames(){
- const empty=selector.value==='empty';
- const nodes={a:{val:1,left:'b',right:'c'},b:{val:2,left:'d',right:'e'},c:{val:3,left:'f',right:null},d:{val:4,left:'g',right:'h'},e:{val:5,left:null,right:'i'},f:{val:6,left:null,right:null},g:{val:8,left:null,right:null},h:{val:9,left:null,right:null},i:{val:11,left:null,right:null}};
- const state={nodes,root:empty?null:'a',focus:empty?null:'a',reference:'root',memory:[],memoryType:'queue',memoryTitle:'queue · 左端出队 → 右端入队',labels:{},marked:[],phase:'BFS · 按层冻结边界',caption:'每层按左到右出队；虚线节点已记入 res，虚线队列格属于下一层。',invariant:'一层开始时固定 level_size；随后加入的孩子属于下一层，不延长本层循环。'};
- const {frames,emit}=recorder(state),queue=[],res=[];let remaining=0,level=0,size=0,i=0;
- const val=id=>valueOf(nodes,id);
- function sync(){state.memory=queue.map((id,index)=>({label:val(id),next:index>=remaining,detail:index>=remaining?'下一层':'本层'}));state.memoryNote=`level_size=${size}；i=${i}；本层剩余 ${remaining} 个。虚线框已入队，下一轮才处理。`;state.result=`res = [${res.join(', ')}]`;}
- emit('check','if not root',empty?'空树没有任何层。':'从根开始逐层看右侧可见节点。');if(empty){emit('empty','return []','没有右侧可见节点。',{result:'[]'});return frames;}
- sync();emit('res','res = []','先准备输出数组。');queue.push('a');remaining=1;sync();emit('queue','queue = deque([root])','根引用从左端开始排队。');
- while(queue.length){emit('while','while queue','队列非空，开始新的一层。');size=queue.length;remaining=size;level++;i=0;sync();emit('size',`level_size = ${size}`,`第 ${level} 层固定处理 ${size} 个节点；孩子入队后不会改变这个数。`,{phase:`第 ${level} 层 · level_size = ${size}`});
-  for(i=0;i<size;i++){sync();emit('for',`for i in range(${size}) · i=${i}`,`本层的第 ${i+1} 个位置。`);const id=queue.shift();remaining--;sync();emit('pop','node = queue.popleft()',`从左端取出 ${val(id)}，只移动 node 引用。`,{focus:id,reference:'node'});
-   emit('left-check','if node.left',`左孩子为 ${val(nodes[id].left)}。`);if(nodes[id].left){queue.push(nodes[id].left);sync();emit('left-push','queue.append(node.left)',`${val(nodes[id].left)} 加到右端，属于下一层。`);}
-   emit('right-check','if node.right',`右孩子为 ${val(nodes[id].right)}。`);if(nodes[id].right){queue.push(nodes[id].right);sync();emit('right-push','queue.append(node.right)',`再加入 ${val(nodes[id].right)}，保持下一层的左右顺序。`);}
-   emit('last',`${i} == ${size} - 1`,i===size-1?`${val(id)} 是本层最后出队的节点。`:'后面还有本层节点，这个节点不会写入 res。');
-   if(i===size-1){res.push(nodes[id].val);state.marked.push(id);sync();emit('append','res.append(node.val)',`记录 ${val(id)}。${id==='i'?'更深的 11 来自根的左子树；沿最右分支会漏掉它。':''}`);}
+const root = document.querySelector('#lesson');
+const selector = root.querySelector('[data-case]');
+const core = window.AlgorithmVisualCore;
+const {clone, valueOf} = window.TreeLesson;
+const saved = new URLSearchParams(location.search).get('case');
+if ([...selector.options].some(option => option.value === saved)) selector.value = saved;
+const nodes = {
+ a:{val:1,left:'b',right:'c'}, b:{val:2,left:'d',right:'e'}, c:{val:3,left:'f',right:null},
+ d:{val:4,left:'g',right:'h'}, e:{val:5,left:null,right:'i'}, f:{val:6,left:null,right:null},
+ g:{val:8,left:null,right:null}, h:{val:9,left:null,right:null}, i:{val:11,left:null,right:null}
+};
+const levels = [['a'], ['b','c'], ['d','e','f'], ['g','h','i']];
+// Fixed coordinates preserve each subtree's left/right relationships at all widths.
+const horizontal = {a:.65,b:.34,c:.93,d:.18,e:.50,f:.85,g:.04,h:.32,i:.62};
+const val = id => valueOf(nodes,id);
+const put = (hook,text) => { root.querySelector(`[data-${hook}]`).textContent = text; };
+function makeFrames() {
+ const state = {empty:selector.value==='empty', queue:[], res:null, marked:[], depth:-1,
+  size:null, i:null, remaining:0, node:null, queueReady:false, decision:null, added:null,
+  phase:'从右侧观察 · 每层只记录最后出队的节点', done:false};
+ const frames=[];
+ function emit(key,expression,explanation,changes={}) {
+  Object.assign(state,{decision:null,added:null},changes);
+  frames.push({state:clone(state),sourceKeys:[key],expression,explanation,
+   stepLabel:`${frames.length+1} · ${expression}`});
+ }
+ emit('check','if not root',state.empty?'root = None，没有可见节点。':'每条横行是一个深度；右侧空格会随着 res 的写入填上值。');
+ if (state.empty) {
+  emit('empty','return []','空树直接返回空列表。',{res:[],done:true,phase:'空树 · 返回 []'});
+  return frames;
+ }
+ state.res=[];
+ emit('res','res = []','先准备输出；还没有记录任何一层。');
+ state.queue.push('a');state.remaining=1;state.queueReady=true;
+ emit('queue','queue = deque([root])','根节点 1 入队，等待第一层开始。');
+ while (state.queue.length) {
+  emit('while','while queue','队列还有节点，开始下一层。',{phase:'准备下一层 · 队列中的节点将成为本层'});
+  state.size=state.queue.length;state.remaining=state.size;state.depth++;
+  emit('size',`level_size = ${state.size}`,`第 ${state.depth+1} 层只处理这 ${state.size} 个节点；随后入队的孩子要等下一轮。${state.depth>0?"i、node 暂时保留上一轮的值，接下来的 for 和 popleft 会更新它们。":""}`,
+   {phase:`第 ${state.depth+1} 层 · 从左到右处理 ${state.size} 个节点`});
+  for (let index=0; index<state.size; index++) {
+   state.i=index;
+   emit('for',`for i in range(${state.size}) · i=${index}`,`本层第 ${index+1} 个位置；最后一个位置是 i = ${state.size-1}。`);
+   state.node=state.queue.shift();state.remaining--;
+   const id=state.node;
+   emit('pop','node = queue.popleft()',`节点 ${val(id)} 从队首取出，node 引用它。本层还剩 ${state.remaining} 个待出队节点。`);
+   emit('left-check','if node.left',`node.left → ${val(nodes[id].left)}。`);
+   if (nodes[id].left) {
+    state.queue.push(nodes[id].left);
+    emit('left-push','queue.append(node.left)',`左孩子 ${val(nodes[id].left)} 放到队尾，归入下一层。`,{added:nodes[id].left});
+   }
+   emit('right-check','if node.right',`node.right → ${val(nodes[id].right)}。`);
+   if (nodes[id].right) {
+    state.queue.push(nodes[id].right);
+    emit('right-push','queue.append(node.right)',`右孩子 ${val(nodes[id].right)} 排在左孩子之后，归入下一层。`,{added:nodes[id].right});
+   }
+   const last=index===state.size-1;
+   emit('last',`${index} == ${state.size} - 1`,last?`节点 ${val(id)} 是本层最后一个，可以从右侧看到。`:`本层后面还有 ${state.remaining} 个节点，${val(id)} 不写入 res。`,{decision:last});
+   if (last) {
+    state.res.push(nodes[id].val);state.marked.push(id);
+    emit('append','res.append(node.val)',id==='i'?'记录 11：右侧的分支已在上一层结束，这一层最右的节点来自左子树。':`把 ${val(id)} 写入 res[${state.depth}]，对应第 ${state.depth+1} 层。`,{decision:true,added:id});
+   }
   }
  }
- emit('while','while queue','队列为空，每层都已处理。',{focus:undefined});emit('return','return res','返回每层最右的值，不是沿 right 指针得到的路径。',{result:`[${res.join(', ')}]`,memory:[]});return frames;
+ emit('while','while queue','queue 为空，所有层已处理。',{phase:'遍历结束 · 所有层已记录'});
+ emit('return','return res','返回 [1, 3, 6, 11]。每个深度保留一个值，树的孩子引用始终没有改变。',{done:true});
+ return frames;
 }
-mount(root,makeFrames);
+const stage=root.querySelector('[data-stage]');
+const svg=stage.querySelector('svg');
+const scene=core.createSvgScene(svg);
+scene.defineMarker('view-tree-arrow',{markerWidth:5,markerHeight:5,fill:'var(--arrow)'});
+scene.defineMarker('view-reference-arrow',{markerWidth:5,markerHeight:5,fill:'var(--quiet)'});
+const motion=core.createMotionController();
+function draw(state,before=null,progress=1) {
+ const width=stage.clientWidth, span=width-132, left=43, output=width-25;
+ const rowGap=Number(getComputedStyle(root).getPropertyValue('--view-row-gap'));
+ const y=depth=>72+depth*rowGap;
+ const point=id=>({x:left+horizontal[id]*span,y:y(levels.findIndex(level=>level.includes(id)))});
+ svg.setAttribute('viewBox',`0 0 ${width} 360`);
+ scene.update(({path,circle,text})=>{
+  if (state.empty) {
+   text('empty-root',{x:width/2,y:145,class:'root-reference'},'root → None');
+   text('empty-caption',{x:width/2,y:180,class:'annotation'},'没有层，也没有右视图节点');
+   return;
+  }
+  // Keep the band first in the retained scene so it never covers nodes or text.
+  path('active-level',{d:`M2,${y(Math.max(0,state.depth))-25} H${width-2} v55 H2 Z`,class:'level-band',opacity:state.depth<0||state.done?0:.6});
+  text('depth-heading',{x:18,y:16,class:'annotation'},'层');
+  text('tree-heading',{x:left+span*.4,y:16,class:'annotation'},'原树 · 节点不移动');
+  text('view-heading',{x:width-2,y:16,class:'annotation view-heading'},'← 从右侧看');
+  levels.forEach((level,depth)=>{
+   const rightmost=level[level.length-1], p=point(rightmost), selected=state.marked.includes(rightmost);
+   path(`level-rule-${depth}`,{d:`M35,${y(depth)+32} H${width-3}`,class:'level-rule'});
+   text(`level-${depth}`,{x:18,y:y(depth),class:'annotation'},depth+1);
+   path(`sight-${depth}`,{d:`M${output-19},${y(depth)} H${p.x+23}`,class:`sight-line${selected?' confirmed':''}`,'marker-end':'url(#view-reference-arrow)'});
+   path(`view-slot-${depth}`,{d:`M${output-17},${y(depth)-17} h34 v34 h-34 Z`,class:`view-slot${selected?' recorded':''}`});
+   text(`view-value-${depth}`,{x:output,y:y(depth),'data-depth-result':depth},selected?nodes[rightmost].val:'·');
+  });
+  for (const [id,node] of Object.entries(nodes)) {
+   const p=point(id);
+   for (const side of ['left','right']) {
+    if (!node[side]) continue;
+    const q=point(node[side]), dx=q.x-p.x,dy=q.y-p.y,length=Math.hypot(dx,dy);
+    path(`edge-${id}-${side}`,{d:`M${p.x+dx*17/length},${p.y+dy*17/length} L${q.x-dx*20/length},${q.y-dy*20/length}`,class:'stored-edge','marker-end':'url(#view-tree-arrow)'});
+   }
+  }
+  for (const [id,node] of Object.entries(nodes)) {
+   const p=point(id), marked=state.marked.includes(id);
+   circle(`selection-${id}`,{cx:p.x,cy:p.y,r:20,class:'selection-ring',opacity:marked?1:0});
+   circle(`node-${id}`,{cx:p.x,cy:p.y,r:16,class:`node${state.node===id?' active':''}${marked?' marked':''}`});
+   text(`value-${id}`,{x:p.x,y:p.y+1},node.val);
+   if (state.depth>=0 && levels[state.depth].includes(id) && !state.done) {
+    text(`index-${id}`,{x:p.x,y:p.y+26,class:'annotation'},`i=${levels[state.depth].indexOf(id)}`);
+   }
+  }
+  const target=point(state.node||'a');
+  const previous=before?point(before.node||'a'):target;
+  const changed=before && before.node!==state.node;
+  const near=Math.hypot(target.x-previous.x,target.y-previous.y)<120;
+  const ref=changed&&near?{x:previous.x+(target.x-previous.x)*progress,y:previous.y+(target.y-previous.y)*progress}:target;
+  const opacity=changed&&!near?Math.min(1,progress*3):1;
+  text('reference-label',{x:ref.x,y:ref.y-38,class:'annotation root-reference',opacity},state.node?'node':'root');
+  path('reference',{d:`M${ref.x},${ref.y-29} V${ref.y-20}`,class:'reference','marker-end':'url(#view-reference-arrow)',opacity});
+ });
+}
+function renderQueue(state) {
+ const current=root.querySelector('[data-current-queue]'),next=root.querySelector('[data-next-queue]');
+ current.replaceChildren();next.replaceChildren();
+ state.queue.forEach((id,index)=>{
+  const item=document.createElement('div'),isNext=index>=state.remaining;
+  const head=index===0,tail=index===state.queue.length-1;
+  item.className=`memory-item${head?' queue-head':''}${tail?' queue-tail':''}${isNext?' next-level':''}`;
+  item.dataset.queueNode=id;
+  const role=document.createElement('small');role.className='memory-role';
+  role.textContent=head?(tail?'队首 / 队尾':'队首'):tail?'队尾':'待出队';
+  const value=document.createElement('div');value.textContent=val(id);
+  item.append(role,value);(isNext?next:current).append(item);
+ });
+ for (const [container,message] of [[current,state.queueReady?'无待出队节点':'尚未创建'],[next,'暂无孩子入队']]) {
+  if (!container.children.length) {const empty=document.createElement('span');empty.className='queue-empty';empty.textContent=message;container.append(empty);}
+ }
+ put('current-title',`本层待处理 · ${state.remaining}`);
+ put('next-title',`下一层 · ${state.queue.length-state.remaining}`);
+ put('memory-note',state.done?'queue = []，遍历结束。':state.size===null?'还没有冻结 level_size。':`level_size=${state.size} 保持不变；新入队的孩子不计入本层。`);
+}
+function render({state,frame}) {
+ draw(state);renderQueue(state);
+ put('phase',state.phase);
+ put('size',`level_size = ${state.size??'未赋值'}`);
+ put('index',`i = ${state.i??'未赋值'}`);
+ put('node',state.node?`node → 节点 ${val(state.node)}`:'node 尚未赋值');
+ put('expression',frame.expression);put('explanation',frame.explanation);
+ put('result',state.done?`[${state.res.join(', ')}]`:state.res===null?'res 尚未创建':'res =');
+ const answers=root.querySelector('[data-answer-cells]');answers.replaceChildren();
+ (state.res||[]).forEach((value,depth)=>{
+  const cell=document.createElement('div');cell.className=`answer-cell${frame.sourceKeys[0]==='append'&&depth===state.res.length-1?' just-added':''}`;
+  cell.append(document.createTextNode(value));const label=document.createElement('small');label.textContent=`第 ${depth+1} 层`;cell.append(label);answers.append(cell);
+ });
+ answers.hidden=state.done;
+ put('answer-note',state.done?'已返回':state.res===null?'尚未执行初始化':state.res.length?'已记录的层':'[] · 尚未记录');
+ const decision=root.querySelector('[data-decision]');decision.dataset.outcome=String(state.decision);
+ put('condition',state.decision===null?'i == level_size - 1 ?':`${state.i} == ${state.size} - 1 → ${state.decision?'True':'False'}`);
+ put('decision-note',state.empty?'空树会在进入循环前返回。':state.done?'每层最后一个节点已写入 res。':state.decision===null?'处理完孩子后，检查 node 是不是本层最后一个。':state.decision?`节点 ${val(state.node)} 是本层最右节点${frame.sourceKeys[0]==='append'?'，已写入 res':'，下一步写入 res'}。`:`节点 ${val(state.node)} 后面还有本层节点，跳过写入。`);
+ for (const button of root.querySelectorAll('[data-level-jump]')) {
+  button.disabled=state.empty;
+  if(Number(button.dataset.levelJump)===state.depth&&!state.done)button.setAttribute('aria-current','true');
+  else button.removeAttribute('aria-current');
+ }
+ svg.querySelector('desc').textContent=state.empty?'空树，root 指向 None。':`${frame.explanation} 已记录 ${state.res?.length||0} 层，res = [${state.res?.join(', ')||''}]。`;
+}
+const trace=core.createTrace({root,cloneState:clone,motion,onBeforeStep:()=>motion.cancel(),onRender:render,
+ onTransition:({state,beforeState})=>motion.tween({duration:230,update:p=>draw(state,beforeState,p)})});
+let frames=makeFrames();trace.setFrames(frames);
+for (const button of root.querySelectorAll('[data-level-jump]')) {
+ button.addEventListener('click',()=>{const index=frames.findIndex(frame=>frame.sourceKeys[0]==='size'&&frame.state.depth===Number(button.dataset.levelJump));if(index>=0)trace.showStep(index);});
+}
+root.querySelector('[data-finish]').addEventListener('click',()=>trace.showStep(frames.length-1));
+selector.addEventListener('change',()=>{
+ motion.cancel();const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);
+ frames=makeFrames();trace.setFrames(frames,{initialStep:0});
+});
+new ResizeObserver(()=>{motion.cancel();draw(trace.state);}).observe(stage);
+motion.onPreferenceChange(()=>draw(trace.state));
 })();
 </script></body></html>
