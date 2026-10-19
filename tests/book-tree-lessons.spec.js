@@ -34,12 +34,14 @@ test('iterative inversion keeps root before pop and retains the last node after 
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.goto('/invert-binary-tree/?case=iterative#step=0');
   await expect(page.locator('[data-reference-name="root"]')).toHaveAttribute('data-reference-target','a');
+  await expect(page.locator('[data-visual-element="scope-label-root"]')).toHaveText('第 1 层的 root');
   await expect(page.locator('[data-memory] h3')).toContainText('stack');
   const options=page.locator('[data-step-select] option');
   const finalWhile=await options.evaluateAll(items=>items.map((o,i)=>o.textContent.includes('while stack')?i:-1).filter(i=>i>=0).pop());
   await page.locator('[data-step-select]').selectOption(String(finalWhile));
   await expect(page.locator('[data-memory-items]')).toHaveText('∅');
   await expect(page.locator('[data-reference-name="node"]')).toHaveAttribute('data-reference-target','f');
+  await expect(page.locator('[data-visual-element="scope-label-node"]')).toHaveText('第 1 层的 node');
   await expect(page.locator('[data-visual-element="null-reference"]')).toHaveCount(0);
   const nodeY=Number(await page.locator('[data-visual-element="node-f"]').getAttribute('cy'));
   const referenceY=Number(await page.locator('[data-visual-element="scope-label-node"]').getAttribute('y'));

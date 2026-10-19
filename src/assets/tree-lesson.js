@@ -102,16 +102,17 @@
           for (const ref of state.scopedReferences) {
             const target = points[ref.id];
             const slot = offsets[ref.id] || 0; offsets[ref.id] = slot + 1;
-            const x = target ? target.x : width/2-24;
+            const label = ref.label || `${ref.scope} ${ref.name}`;
+            const w = Math.max(56,[...label].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),12));
+            const desiredX = target ? target.x : width/2-24;
+            const x = Math.max(w/2+4,Math.min(width-w/2-4,desiredX));
             const y = target ? target.y-45-slot*27 : height-30;
-            const label = `${ref.scope} ${ref.name}`;
-            const w = Math.max(56,label.length*7+12);
             path(`scope-box-${ref.key}`,{d:`M${x-w/2},${y-11} h${w} v22 h${-w} Z`,class:`reference-box${ref.current?' current-reference':''}`});
             text(`scope-label-${ref.key}`,{x,y,class:'annotation scoped-reference'},label);
             if (target) {
               // Each local owns its arrow; coincident variables occupy separate rows.
               const side = slot ? 20 : 0;
-              path(`scope-reference-${ref.key}`,{d:slot?`M${x+w/2},${y} Q${x+w/2+side},${y} ${target.x+17},${target.y-7}`:`M${x},${y+11} V${target.y-19}`,class:'reference','marker-end':'url(#return-arrow)','data-reference-scope':ref.scope,'data-reference-name':ref.name,'data-reference-target':ref.id});
+              path(`scope-reference-${ref.key}`,{d:slot?`M${x+w/2},${y} Q${x+w/2+side},${y} ${target.x+17},${target.y-7}`:`M${x},${y+11} L${target.x},${target.y-19}`,class:'reference','marker-end':'url(#return-arrow)','data-reference-scope':ref.scope,'data-reference-name':ref.name,'data-reference-target':ref.id});
             } else {
               path(`scope-reference-${ref.key}`,{d:`M${x+w/2},${y} H${x+w/2+18}`,class:'reference','marker-end':'url(#return-arrow)','data-reference-scope':ref.scope,'data-reference-name':ref.name,'data-reference-target':'None'});
               text(`scope-none-${ref.key}`,{x:x+w/2+42,y,class:'annotation'},'None');
@@ -173,7 +174,7 @@
         }
         if (item.scope) {
           entry.dataset.callScope=item.scope;
-          const heading=document.createElement('strong');heading.className='call-heading';heading.textContent=`${item.scope} · 第 ${item.depth || 1} 层`;entry.append(heading);
+          const heading=document.createElement('strong');heading.className='call-heading';heading.textContent=item.heading || `${item.scope} · 第 ${item.depth || 1} 层`;entry.append(heading);
         }
         const label=document.createElement('div'); label.textContent=typeof item==='string'?item:item.label;entry.append(label);
         if (item.scope) {
@@ -181,7 +182,7 @@
             if (!value) continue;
             const row=document.createElement('p');row.className=`call-${kind}`;
             const caption=document.createElement('small');caption.textContent=title;
-            const code=document.createElement('code');const source=key && root.querySelector(`[data-source-key="${key}"]`);code.textContent=`${source?.dataset.lineNumber ? `L${source.dataset.lineNumber} · ` : ''}${value}`;if(key) {code.dataset.sourceTarget=key;code.title=source?.textContent.trim() || value;}row.append(caption,code);entry.append(row);
+            const code=document.createElement('code');const source=key && root.querySelector(`[data-source-key="${key}"]`);code.textContent=`${source?.dataset.lineNumber ? `第 ${source.dataset.lineNumber} 行：` : ''}${value}`;if(key) {code.dataset.sourceTarget=key;code.title=source?.textContent.trim() || value;}row.append(caption,code);entry.append(row);
           }
         }
         if(item.detail && !item.scope){const detail=document.createElement('span');detail.textContent=item.detail;entry.append(detail);}
