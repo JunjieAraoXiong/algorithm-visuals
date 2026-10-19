@@ -16,62 +16,129 @@
   ],
   "children": [
     {
-      "tag": "label",
+      "tag": "input",
+      "attributes": [
+        [
+          "data-case",
+          ""
+        ],
+        [
+          "value",
+          "recursive"
+        ]
+      ]
+    },
+    {
+      "tag": "div",
       "attributes": [
         [
           "class",
-          "settings"
+          "method-controls"
         ]
       ],
       "children": [
-        "方法",
         {
-          "tag": "select",
+          "tag": "div",
           "attributes": [
             [
               "aria-label",
               "翻转方法"
             ],
             [
-              "data-case",
-              ""
+              "class",
+              "method-switch"
+            ],
+            [
+              "role",
+              "group"
             ]
           ],
           "children": [
             {
-              "tag": "option",
+              "tag": "button",
               "attributes": [
                 [
-                  "value",
+                  "aria-label",
+                  "递归 Recursive"
+                ],
+                [
+                  "aria-pressed",
+                  "true"
+                ],
+                [
+                  "data-method",
                   "recursive"
                 ]
               ],
               "children": [
-                "递归 DFS：调用与返回"
+                {
+                  "tag": "span",
+                  "children": [
+                    "递归 Recursive"
+                  ]
+                },
+                {
+                  "tag": "small",
+                  "children": [
+                    "调用栈 · 逐层返回"
+                  ]
+                }
               ]
             },
             {
-              "tag": "option",
+              "tag": "button",
               "attributes": [
                 [
-                  "value",
+                  "aria-label",
+                  "迭代 Iterative"
+                ],
+                [
+                  "aria-pressed",
+                  "false"
+                ],
+                [
+                  "data-method",
                   "iterative"
                 ]
               ],
               "children": [
-                "迭代 DFS：显式栈"
+                {
+                  "tag": "span",
+                  "children": [
+                    "迭代 Iterative"
+                  ]
+                },
+                {
+                  "tag": "small",
+                  "children": [
+                    "显式栈 · 入栈出栈"
+                  ]
+                }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "class",
+              "empty-case"
+            ],
+            [
+              "data-method",
+              "empty"
+            ]
+          ],
+          "children": [
             {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "empty"
-                ]
-              ],
+              "tag": "span",
               "children": [
-                "空树"
+                "空树示例"
               ]
             }
           ]

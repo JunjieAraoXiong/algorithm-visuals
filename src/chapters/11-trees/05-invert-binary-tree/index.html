@@ -6,6 +6,14 @@
 <title>Invert Binary Tree · Algorithm Visuals</title>
 <link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
 <style>
+#lesson .method-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 6px; }
+#lesson .method-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; flex: 1 1 340px; min-width: 0; }
+#lesson [data-method] { min-height: 44px; border: 2px solid var(--rule); border-radius: 2px; padding: 8px; color: var(--ink); background: var(--paper); cursor: pointer; font: 14px/1.4 Arial, sans-serif; }
+#lesson .method-switch small { display: block; margin-top: 3px; color: var(--quiet); font-size: 12px; }
+#lesson [data-method][aria-pressed="true"] { border-color: var(--ink); background: var(--node-active); }
+#lesson [data-method][aria-pressed="true"] > span { text-decoration: underline; text-underline-offset: 4px; }
+#lesson [data-method]:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+#lesson .empty-case { font-size: 12px; }
 #lesson .return-flow { border: 1px dashed var(--rule); padding: 8px 10px; margin: 8px 0; min-height: 82px; box-sizing: border-box; }
 #lesson .return-flow p { margin: 0; }
 #lesson .return-flow [data-return-route] { font: 15px/1.6 monospace; overflow-wrap: anywhere; }
@@ -29,7 +37,14 @@
 <p class="problem">Invert a binary tree by swapping every node’s left and right subtrees.<span>把整棵树左右镜像。递归由 Python 保存调用栈；迭代用 stack 保存待处理节点。两者都交换子树引用，节点值不变。</span></p>
 <div class="learning-layout" data-learning-layout>
 <section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
-<label class="settings">方法 <select data-case aria-label="翻转方法"><option value="recursive">递归 DFS：调用与返回</option><option value="iterative">迭代 DFS：显式栈</option><option value="empty">空树</option></select></label>
+<input type="hidden" data-case value="recursive">
+<div class="method-controls">
+<div class="method-switch" role="group" aria-label="翻转方法">
+<button type="button" data-method="recursive" aria-label="递归 Recursive" aria-pressed="true"><span>递归 Recursive</span><small>调用栈 · 逐层返回</small></button>
+<button type="button" data-method="iterative" aria-label="迭代 Iterative" aria-pressed="false"><span>迭代 Iterative</span><small>显式栈 · 入栈出栈</small></button>
+</div>
+<button type="button" class="empty-case" data-method="empty" aria-pressed="false"><span>空树示例</span></button>
+</div>
 <div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
 <p class="step-meta" data-phase></p>
 <div class="return-flow" data-return-flow role="status" aria-live="polite"><span data-return-kind></span><p data-return-route></p><p data-return-detail></p></div>
@@ -60,7 +75,23 @@
 const root=document.querySelector('#lesson');
 const {valueOf,recorder,mount}=window.TreeLesson;
 const selector=root.querySelector('[data-case]');
-if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
+const methodButtons=[...root.querySelectorAll('[data-method]')];
+const saved=new URLSearchParams(location.search).get('case');
+if(methodButtons.some(button=>button.dataset.method===saved)) selector.value=saved;
+function syncMethods(){
+ for(const button of methodButtons) button.setAttribute('aria-pressed',String(button.dataset.method===selector.value));
+}
+selector.addEventListener('change',()=>{
+ syncMethods();
+ const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);
+});
+for(const button of methodButtons) button.addEventListener('click',()=>{
+ if(selector.value===button.dataset.method) return;
+ selector.value=button.dataset.method;
+ // Reuse the tree lesson's case-change path for the diagram, code and step reset.
+ selector.dispatchEvent(new Event('change',{bubbles:true}));
+});
+syncMethods();
 
 function makeFrames() {
  const mode=selector.value, iterative=mode==='iterative', empty=mode==='empty';
