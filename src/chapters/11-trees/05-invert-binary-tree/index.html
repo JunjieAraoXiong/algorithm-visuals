@@ -85,7 +85,7 @@
 <section class="section"><h2>镜像从一对引用开始</h2><p class="section-intro">对称轴两边交换的是位置。先交换根的左右入口，原来 1 下方的 7、6 会一起换边；随后在每个子树内做同样的交换，才能得到完整镜像。</p><div class="card-grid"><article class="paper-card"><strong>递归：把问题交给两个子树</strong><p>每次调用保证「返回时，这个 root 下方已经翻转」。空树直接返回；非空树交换后，递归处理新的左、右子树。两个更小的问题完成后，当前子树也完成。</p></article><article class="paper-card"><strong>栈：保存尚未处理的入口</strong><p>pop 一个节点，交换它的两条子指针，再将非空孩子入栈。先入左、再入右，所以右孩子先处理；遍历次序不同，但每个节点恰好交换一次。</p></article></div></section><section class="section"><h2>哪些状态真的改变</h2><p class="section-intro">node 或递归 root 改指向只改变变量。交换 left、right 才修改节点保存的边；val 从未被修改。两次完整翻转会恢复原树。</p><div class="card-grid"><article class="paper-card"><strong>空树与叶子</strong><p>None 返回 None。叶子的两条 None 引用互换后仍是叶子，不需要特判。</p></article><article class="paper-card"><strong>时间与空间</strong><p>两种方法都是 O(n) 时间。递归占 O(h) 调用栈；显式 DFS 栈也至多 O(h)，最坏 O(n)。h 为树高，不包含原树本身。</p></article></div></section>
 <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../binary-tree-symmetry/">二叉树对称性</a><a href="../serialize-and-deserialize-a-binary-tree/">序列化与反序列化</a><a href="../">目录</a></nav>
 </main>
-<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js?v=plain-node-labels"></script>
 <script>
 (() => {
 'use strict';
