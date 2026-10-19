@@ -64,8 +64,8 @@ test('empty child returns to leaf 4, resumes the right call, then returns node 4
   await expect(page.locator('.receiver .call-waiting code')).toHaveText('L13 · root.left 子调用');
   await expect(page.locator('.receiver .call-continuation code')).toHaveText('L14 · root.right 子调用');
   await expect(page.locator('.returning .call-transfer')).toContainText('None → #3');
-  await expect(page.locator('[data-object-fields]')).toContainText('@F.left → None');
-  await expect(page.locator('[data-object-fields]')).toContainText('@F.right → None');
+  await expect(page.locator('[data-object-fields]')).toContainText('left → None');
+  await expect(page.locator('[data-object-fields]')).toContainText('right → None');
   const tree=await page.locator('svg .stored-edge').evaluateAll(edges=>edges.map(e=>e.getAttribute('d')));
   await page.locator('[data-action="next"]').click();
   await expect(page.locator('[data-return-route]')).toHaveText('返回 None → 恢复 root = 4 · 第 3 层');
@@ -74,7 +74,7 @@ test('empty child returns to leaf 4, resumes the right call, then returns node 4
   await expect(page.locator('.memory-item')).toHaveCount(3);
   await expect(page.locator('[data-reference-scope="#4"]')).toHaveCount(0);
   await expect(page.locator('.receiver .call-transfer')).toContainText('收到 None · 此返回值未赋值');
-  await expect(page.locator('.memory-item.current')).toContainText('root → @F · val=4');
+  await expect(page.locator('.memory-item.current')).toContainText('root → 节点 4');
   expect(await page.locator('svg .stored-edge').evaluateAll(edges=>edges.map(e=>e.getAttribute('d')))).toEqual(tree);
   await page.locator('[data-stage]').press('ArrowRight');
   await expect(page.locator('[data-source-key="r-right"]')).toHaveAttribute('aria-current','step');
