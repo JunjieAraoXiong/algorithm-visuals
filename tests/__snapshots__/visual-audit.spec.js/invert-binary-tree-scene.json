@@ -47,7 +47,7 @@
                 ]
               ],
               "children": [
-                "递归：先左后右"
+                "递归 DFS：调用与返回"
               ]
             },
             {
@@ -59,7 +59,7 @@
                 ]
               ],
               "children": [
-                "栈：后进先出"
+                "迭代 DFS：显式栈"
               ]
             },
             {
@@ -112,7 +112,7 @@
             ]
           ],
           "children": [
-            "步骤 1 / 45"
+            "步骤 1 / 57"
           ]
         },
         {
@@ -171,7 +171,7 @@
                     ]
                   ],
                   "children": [
-                    "1 · if not root"
+                    "1 · root = 5 · if not root"
                   ]
                 },
                 {
@@ -195,7 +195,7 @@
                     ]
                   ],
                   "children": [
-                    "3 · invert_binary_tree_recursive(root.left)"
+                    "3 · root = 5 · invert_binary_tree_recursive(root.left)"
                   ]
                 },
                 {
@@ -207,7 +207,7 @@
                     ]
                   ],
                   "children": [
-                    "4 · if not root"
+                    "4 · root = 8 · if not root"
                   ]
                 },
                 {
@@ -231,7 +231,7 @@
                     ]
                   ],
                   "children": [
-                    "6 · invert_binary_tree_recursive(root.left)"
+                    "6 · root = 8 · invert_binary_tree_recursive(root.left)"
                   ]
                 },
                 {
@@ -243,7 +243,7 @@
                     ]
                   ],
                   "children": [
-                    "7 · if not root"
+                    "7 · root = 4 · if not root"
                   ]
                 },
                 {
@@ -267,7 +267,7 @@
                     ]
                   ],
                   "children": [
-                    "9 · invert_binary_tree_recursive(root.left)"
+                    "9 · root = 4 · invert_binary_tree_recursive(root.left)"
                   ]
                 },
                 {
@@ -279,7 +279,7 @@
                     ]
                   ],
                   "children": [
-                    "10 · if not root"
+                    "10 · root = None · if not root"
                   ]
                 },
                 {
@@ -291,7 +291,7 @@
                     ]
                   ],
                   "children": [
-                    "11 · return None"
+                    "11 · root = None · return None"
                   ]
                 },
                 {
@@ -303,7 +303,7 @@
                     ]
                   ],
                   "children": [
-                    "12 · invert_binary_tree_recursive(root.right)"
+                    "12 · root = 4 · invert_binary_tree_recursive(root.left) → None"
                   ]
                 },
                 {
@@ -315,7 +315,7 @@
                     ]
                   ],
                   "children": [
-                    "13 · if not root"
+                    "13 · root = 4 · invert_binary_tree_recursive(root.right)"
                   ]
                 },
                 {
@@ -327,7 +327,7 @@
                     ]
                   ],
                   "children": [
-                    "14 · return None"
+                    "14 · root = None · if not root"
                   ]
                 },
                 {
@@ -339,7 +339,7 @@
                     ]
                   ],
                   "children": [
-                    "15 · return root"
+                    "15 · root = None · return None"
                   ]
                 },
                 {
@@ -351,7 +351,7 @@
                     ]
                   ],
                   "children": [
-                    "16 · invert_binary_tree_recursive(root.right)"
+                    "16 · root = 4 · invert_binary_tree_recursive(root.right) → None"
                   ]
                 },
                 {
@@ -363,7 +363,7 @@
                     ]
                   ],
                   "children": [
-                    "17 · if not root"
+                    "17 · root = 4 · return root"
                   ]
                 },
                 {
@@ -375,7 +375,7 @@
                     ]
                   ],
                   "children": [
-                    "18 · return None"
+                    "18 · root = 8 · invert_binary_tree_recursive(root.left) → 4"
                   ]
                 },
                 {
@@ -387,7 +387,7 @@
                     ]
                   ],
                   "children": [
-                    "19 · return root"
+                    "19 · root = 8 · invert_binary_tree_recursive(root.right)"
                   ]
                 },
                 {
@@ -399,7 +399,7 @@
                     ]
                   ],
                   "children": [
-                    "20 · invert_binary_tree_recursive(root.right)"
+                    "20 · root = None · if not root"
                   ]
                 },
                 {
@@ -411,7 +411,7 @@
                     ]
                   ],
                   "children": [
-                    "21 · if not root"
+                    "21 · root = None · return None"
                   ]
                 },
                 {
@@ -423,7 +423,7 @@
                     ]
                   ],
                   "children": [
-                    "22 · root.left, root.right = root.right, root.left"
+                    "22 · root = 8 · invert_binary_tree_recursive(root.right) → None"
                   ]
                 },
                 {
@@ -435,7 +435,7 @@
                     ]
                   ],
                   "children": [
-                    "23 · invert_binary_tree_recursive(root.left)"
+                    "23 · root = 8 · return root"
                   ]
                 },
                 {
@@ -447,7 +447,7 @@
                     ]
                   ],
                   "children": [
-                    "24 · if not root"
+                    "24 · root = 5 · invert_binary_tree_recursive(root.left) → 8"
                   ]
                 },
                 {
@@ -459,7 +459,7 @@
                     ]
                   ],
                   "children": [
-                    "25 · root.left, root.right = root.right, root.left"
+                    "25 · root = 5 · invert_binary_tree_recursive(root.right)"
                   ]
                 },
                 {
@@ -471,7 +471,7 @@
                     ]
                   ],
                   "children": [
-                    "26 · invert_binary_tree_recursive(root.left)"
+                    "26 · root = 1 · if not root"
                   ]
                 },
                 {
@@ -483,7 +483,7 @@
                     ]
                   ],
                   "children": [
-                    "27 · if not root"
+                    "27 · root.left, root.right = root.right, root.left"
                   ]
                 },
                 {
@@ -495,7 +495,7 @@
                     ]
                   ],
                   "children": [
-                    "28 · return None"
+                    "28 · root = 1 · invert_binary_tree_recursive(root.left)"
                   ]
                 },
                 {
@@ -507,7 +507,7 @@
                     ]
                   ],
                   "children": [
-                    "29 · invert_binary_tree_recursive(root.right)"
+                    "29 · root = 6 · if not root"
                   ]
                 },
                 {
@@ -519,7 +519,7 @@
                     ]
                   ],
                   "children": [
-                    "30 · if not root"
+                    "30 · root.left, root.right = root.right, root.left"
                   ]
                 },
                 {
@@ -531,7 +531,7 @@
                     ]
                   ],
                   "children": [
-                    "31 · return None"
+                    "31 · root = 6 · invert_binary_tree_recursive(root.left)"
                   ]
                 },
                 {
@@ -543,7 +543,7 @@
                     ]
                   ],
                   "children": [
-                    "32 · return root"
+                    "32 · root = None · if not root"
                   ]
                 },
                 {
@@ -555,7 +555,7 @@
                     ]
                   ],
                   "children": [
-                    "33 · invert_binary_tree_recursive(root.right)"
+                    "33 · root = None · return None"
                   ]
                 },
                 {
@@ -567,7 +567,7 @@
                     ]
                   ],
                   "children": [
-                    "34 · if not root"
+                    "34 · root = 6 · invert_binary_tree_recursive(root.left) → None"
                   ]
                 },
                 {
@@ -579,7 +579,7 @@
                     ]
                   ],
                   "children": [
-                    "35 · root.left, root.right = root.right, root.left"
+                    "35 · root = 6 · invert_binary_tree_recursive(root.right)"
                   ]
                 },
                 {
@@ -591,7 +591,7 @@
                     ]
                   ],
                   "children": [
-                    "36 · invert_binary_tree_recursive(root.left)"
+                    "36 · root = None · if not root"
                   ]
                 },
                 {
@@ -603,7 +603,7 @@
                     ]
                   ],
                   "children": [
-                    "37 · if not root"
+                    "37 · root = None · return None"
                   ]
                 },
                 {
@@ -615,7 +615,7 @@
                     ]
                   ],
                   "children": [
-                    "38 · return None"
+                    "38 · root = 6 · invert_binary_tree_recursive(root.right) → None"
                   ]
                 },
                 {
@@ -627,7 +627,7 @@
                     ]
                   ],
                   "children": [
-                    "39 · invert_binary_tree_recursive(root.right)"
+                    "39 · root = 6 · return root"
                   ]
                 },
                 {
@@ -639,7 +639,7 @@
                     ]
                   ],
                   "children": [
-                    "40 · if not root"
+                    "40 · root = 1 · invert_binary_tree_recursive(root.left) → 6"
                   ]
                 },
                 {
@@ -651,7 +651,7 @@
                     ]
                   ],
                   "children": [
-                    "41 · return None"
+                    "41 · root = 1 · invert_binary_tree_recursive(root.right)"
                   ]
                 },
                 {
@@ -663,7 +663,7 @@
                     ]
                   ],
                   "children": [
-                    "42 · return root"
+                    "42 · root = 7 · if not root"
                   ]
                 },
                 {
@@ -675,7 +675,7 @@
                     ]
                   ],
                   "children": [
-                    "43 · return root"
+                    "43 · root.left, root.right = root.right, root.left"
                   ]
                 },
                 {
@@ -687,7 +687,7 @@
                     ]
                   ],
                   "children": [
-                    "44 · return root"
+                    "44 · root = 7 · invert_binary_tree_recursive(root.left)"
                   ]
                 },
                 {
@@ -699,7 +699,151 @@
                     ]
                   ],
                   "children": [
-                    "45 · return root"
+                    "45 · root = None · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "45"
+                    ]
+                  ],
+                  "children": [
+                    "46 · root = None · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "46"
+                    ]
+                  ],
+                  "children": [
+                    "47 · root = 7 · invert_binary_tree_recursive(root.left) → None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "47"
+                    ]
+                  ],
+                  "children": [
+                    "48 · root = 7 · invert_binary_tree_recursive(root.right)"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "48"
+                    ]
+                  ],
+                  "children": [
+                    "49 · root = None · if not root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "49"
+                    ]
+                  ],
+                  "children": [
+                    "50 · root = None · return None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "50"
+                    ]
+                  ],
+                  "children": [
+                    "51 · root = 7 · invert_binary_tree_recursive(root.right) → None"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "51"
+                    ]
+                  ],
+                  "children": [
+                    "52 · root = 7 · return root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "52"
+                    ]
+                  ],
+                  "children": [
+                    "53 · root = 1 · invert_binary_tree_recursive(root.right) → 7"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "53"
+                    ]
+                  ],
+                  "children": [
+                    "54 · root = 1 · return root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "54"
+                    ]
+                  ],
+                  "children": [
+                    "55 · root = 5 · invert_binary_tree_recursive(root.right) → 1"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "55"
+                    ]
+                  ],
+                  "children": [
+                    "56 · root = 5 · return root"
+                  ]
+                },
+                {
+                  "tag": "option",
+                  "attributes": [
+                    [
+                      "value",
+                      "56"
+                    ]
+                  ],
+                  "children": [
+                    "57 · root = 5 · return root"
                   ]
                 }
               ]
@@ -722,6 +866,61 @@
       ],
       "children": [
         "递归 · 先交换，再向下"
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "class",
+          "return-flow"
+        ],
+        [
+          "data-return-flow",
+          ""
+        ],
+        [
+          "role",
+          "status"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "span",
+          "attributes": [
+            [
+              "data-return-kind",
+              ""
+            ]
+          ],
+          "children": [
+            "向下调用 · 新的一层"
+          ]
+        },
+        {
+          "tag": "p",
+          "attributes": [
+            [
+              "data-return-route",
+              ""
+            ]
+          ],
+          "children": [
+            "外部调用者 → root = 5 · 第 1 层"
+          ]
+        },
+        {
+          "tag": "p",
+          "attributes": [
+            [
+              "data-return-detail",
+              ""
+            ]
+          ],
+          "children": [
+            "创建最外层调用。"
+          ]
+        }
       ]
     },
     {
@@ -767,7 +966,7 @@
           "attributes": [
             [
               "aria-label",
-              "递归调用的 root 指向 5。"
+              "进入第 1 层，自己的 root 指向 5。这是最外层调用。"
             ],
             [
               "class",
@@ -783,7 +982,7 @@
             ],
             [
               "style",
-              "height: 338px;"
+              "height: 294px;"
             ]
           ],
           "children": [
@@ -791,16 +990,12 @@
               "tag": "svg",
               "attributes": [
                 [
-                  "aria-label",
-                  "树节点与指针"
-                ],
-                [
                   "role",
                   "img"
                 ],
                 [
                   "viewBox",
-                  "0 0 520 338"
+                  "0 0 520 294"
                 ]
               ],
               "children": [
@@ -858,6 +1053,18 @@
                   ]
                 },
                 {
+                  "tag": "title",
+                  "children": [
+                    "翻转中的二叉树与当前 root 引用"
+                  ]
+                },
+                {
+                  "tag": "desc",
+                  "children": [
+                    "实线连接节点保存的左右孩子；短箭头表示当前调用的 root。旁边的调用栈显示各层的 root 和暂停位置；返回交接区显示接收返回值的直接调用者。"
+                  ]
+                },
+                {
                   "tag": "path",
                   "attributes": [
                     [
@@ -866,7 +1073,7 @@
                     ],
                     [
                       "d",
-                      "M247.1532855925731,81.13381915310332 L154.35809257300653,161.556319770061"
+                      "M245.96404109448616,79.59123858543445 L155.68724818851547,141.28038040451443"
                     ],
                     [
                       "data-visual-element",
@@ -887,7 +1094,7 @@
                     ],
                     [
                       "d",
-                      "M272.8467144074269,81.13381915310332 L365.64190742699344,161.556319770061"
+                      "M274.03595890551384,79.59123858543445 L364.31275181148453,141.28038040451443"
                     ],
                     [
                       "data-visual-element",
@@ -908,7 +1115,7 @@
                     ],
                     [
                       "d",
-                      "M131.50471829067718,188.7251549628262 L89.49472661630196,261.5424738650766"
+                      "M129.9613300954683,165.7195155361933 L91.21968989330013,218.66642381248982"
                     ],
                     [
                       "data-visual-element",
@@ -929,7 +1136,7 @@
                     ],
                     [
                       "d",
-                      "M148.49528170932282,188.7251549628262 L190.50527338369804,261.5424738650766"
+                      "M150.0386699045317,165.7195155361933 L188.7803101066999,218.66642381248982"
                     ],
                     [
                       "data-visual-element",
@@ -950,7 +1157,7 @@
                     ],
                     [
                       "d",
-                      "M388.4952817093228,188.7251549628262 L430.505273383698,261.5424738650766"
+                      "M390.0386699045317,165.7195155361933 L428.78031010669986,218.66642381248982"
                     ],
                     [
                       "data-visual-element",
@@ -1020,7 +1227,7 @@
                     ],
                     [
                       "cy",
-                      "174"
+                      "152"
                     ],
                     [
                       "data-visual-element",
@@ -1045,7 +1252,7 @@
                     ],
                     [
                       "y",
-                      "175"
+                      "153"
                     ]
                   ],
                   "children": [
@@ -1065,7 +1272,7 @@
                     ],
                     [
                       "cy",
-                      "174"
+                      "152"
                     ],
                     [
                       "data-visual-element",
@@ -1090,7 +1297,7 @@
                     ],
                     [
                       "y",
-                      "175"
+                      "153"
                     ]
                   ],
                   "children": [
@@ -1110,7 +1317,7 @@
                     ],
                     [
                       "cy",
-                      "278"
+                      "234"
                     ],
                     [
                       "data-visual-element",
@@ -1135,7 +1342,7 @@
                     ],
                     [
                       "y",
-                      "279"
+                      "235"
                     ]
                   ],
                   "children": [
@@ -1155,7 +1362,7 @@
                     ],
                     [
                       "cy",
-                      "278"
+                      "234"
                     ],
                     [
                       "data-visual-element",
@@ -1180,7 +1387,7 @@
                     ],
                     [
                       "y",
-                      "279"
+                      "235"
                     ]
                   ],
                   "children": [
@@ -1200,7 +1407,7 @@
                     ],
                     [
                       "cy",
-                      "278"
+                      "234"
                     ],
                     [
                       "data-visual-element",
@@ -1225,7 +1432,7 @@
                     ],
                     [
                       "y",
-                      "279"
+                      "235"
                     ]
                   ],
                   "children": [
@@ -1366,7 +1573,13 @@
                     {
                       "tag": "div",
                       "children": [
-                        "root = 5"
+                        "第 1 层 root = 5"
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "children": [
+                        "检查 root 是否为 None"
                       ]
                     }
                   ]
@@ -1384,6 +1597,9 @@
                   "data-memory-note",
                   ""
                 ]
+              ],
+              "children": [
+                "调用深度 1；底部是当前调用，上方各层保留各自的 root 和继续位置。"
               ]
             }
           ]
@@ -1424,7 +1640,7 @@
             ]
           ],
           "children": [
-            "递归调用的 root 指向 5。"
+            "进入第 1 层，自己的 root 指向 5。这是最外层调用。"
           ]
         }
       ]

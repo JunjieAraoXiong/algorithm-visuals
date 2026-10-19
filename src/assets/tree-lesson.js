@@ -185,6 +185,12 @@
         root.querySelector('[data-result]').textContent=state.result||'结果：尚未返回';
         root.querySelector('[data-phase]').textContent=state.phase||'执行过程';
         stage.setAttribute('aria-label',frame.explanation);
+        const transfer = root.querySelector('[data-return-flow]');
+        if (transfer) {
+          for (const part of ['kind', 'route', 'detail']) {
+            transfer.querySelector(`[data-return-${part}]`).textContent = state.returnFlow?.[part] || '';
+          }
+        }
       },onTransition:({state,beforeState})=>motion.tween({duration:250,update:p=>{draw(state,beforeState,p);positionArrayCursors(state,beforeState,p);}})});
     trace.setFrames(makeFrames());
     root.querySelector('[data-case]')?.addEventListener('change',()=>{motion.cancel();trace.setFrames(makeFrames(),{initialStep:0});});
