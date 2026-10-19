@@ -30,6 +30,7 @@ test('layer shortcuts preserve the queue boundary and restore the right-view res
   await expect(page.locator('[data-decision]')).toHaveAttribute('data-outcome','true');
   await page.getByRole('button',{name:'看结果',exact:true}).click();
   await expect(page.locator('[data-result]')).toHaveText('[1, 3, 6, 11]');
+  await expect(page.locator('[data-answer-cells]')).toBeHidden();
   await page.reload();
   await expect(page.locator('[data-result]')).toHaveText('[1, 3, 6, 11]');
   await page.getByRole('button',{name:'第 1 层',exact:true}).click();
