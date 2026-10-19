@@ -70,7 +70,7 @@
             const q = points[child];
             const dx = q.x-p.x, dy=q.y-p.y, length=Math.hypot(dx,dy);
             path(`edge-${id}-${side}`, {d:`M${p.x+dx*17/length},${p.y+dy*17/length} L${q.x-dx*19/length},${q.y-dy*19/length}`,class:`stored-edge${(state.edited===id || state.edited===`${id}:${side}`) ? ' edited-edge' : ''}`,'marker-end':'url(#tree-arrow)'});
-            if (state.identities) text(`side-${id}-${side}`,{x:p.x+dx*.32+(side==='left'?-10:10),y:p.y+dy*.32,class:'annotation'},side==='left'?'L':'R');
+            if (state.showChildSides) text(`side-${id}-${side}`,{x:p.x+dx*.32+(side==='left'?-10:10),y:p.y+dy*.32,class:'annotation'},side==='left'?'L':'R');
           }
         }
         for (const [id, node] of Object.entries(state.nodes)) {
@@ -78,8 +78,7 @@
           const p = points[id];
           circle(`node-${id}`, {cx:p.x,cy:p.y,r:16,class:`node${pathNodes.has(id)?' on-path':''}${state.focus===id ? ' active' : ''}${(state.marked||[]).includes(id)?' marked':''}`});
           text(`value-${id}`,{x:p.x,y:p.y+1},node.val);
-          if (state.identities) text(`identity-${id}`,{x:p.x,y:p.y+29,class:'annotation object-identity'},`@${id.toUpperCase()}`);
-          if (state.labels?.[id] != null) text(`label-${id}`,{x:p.x,y:p.y+(state.identities?47:31),class:'annotation'},state.labels[id]);
+          if (state.labels?.[id] != null) text(`label-${id}`,{x:p.x,y:p.y+31,class:'annotation'},state.labels[id]);
           if (state.indexes?.[id] != null) text(`index-${id}`,{x:p.x,y:p.y+31,class:'annotation'},`i=${state.indexes[id]}`);
           const tag = state.tags?.[id];
           if (tag) text(`tag-${id}`,{x:p.x,y:p.y-24,class:'annotation'},tag);
@@ -218,11 +217,11 @@
           const id=state.focus || [...(state.scopedReferences || [])].reverse().find(ref=>ref.id)?.id;
           fields.replaceChildren();
           if (id && state.nodes[id]) {
-            const title=document.createElement('small');title.textContent=`${state.focus?'当前节点':'调用者节点'} @${id.toUpperCase()} 保存的字段`;
+            const title=document.createElement('small');title.textContent=`${state.focus?'当前节点':'调用者节点'} ${state.nodes[id].val} 保存的孩子引用`;
             fields.append(title);
             for (const side of ['left','right']) {
               const child=state.nodes[id][side], row=document.createElement('code');
-              row.textContent=`@${id.toUpperCase()}.${side} → ${child?`@${child.toUpperCase()} (val=${state.nodes[child].val})`:'None'}`;
+              row.textContent=`${side} → ${child?`节点 ${state.nodes[child].val}`:'None'}`;
               fields.append(row);
             }
           }

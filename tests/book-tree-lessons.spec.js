@@ -195,7 +195,7 @@ test('an explicit stack marks the next pop while recursion marks the executing c
   const push=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('stack.append(node.right)')));
   await page.locator('[data-step-select]').selectOption(String(push));
   await expect(page.locator('.memory-item.current .memory-role')).toHaveText('栈顶 · 待弹出');
-  await expect(page.locator('.memory-item.current > div')).toHaveText('stack[1] → @B · val=1');
+  await expect(page.locator('.memory-item.current > div')).toHaveText('stack[1] → 节点 1');
   await expect(page.locator('[data-visual-element="node-a"]')).toHaveClass(/active/);
   await page.goto('/balanced-binary-tree-validation/#step=0');
   const child=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex((o,i)=>i>2 && o.textContent.includes('if not node')));
