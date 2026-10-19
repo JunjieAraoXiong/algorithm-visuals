@@ -11,12 +11,37 @@
 #lesson .return-flow [data-return-route] { font: 15px/1.6 monospace; overflow-wrap: anywhere; }
 #lesson .return-flow [data-return-detail] { margin-top: 5px; font-size: 13px; color: var(--quiet); }
 #lesson .return-flow [data-return-kind] { display: block; font-size: 12px; color: var(--quiet); margin-bottom: 3px; }
-#lesson .memory-items { min-height: 260px; }
+#lesson { --scope-fill: var(--node-active); }
+#lesson .diagram-workspace { grid-template-columns: minmax(0, 1fr) minmax(210px, .8fr); gap: 20px; }
+#lesson .memory-items { min-height: 440px; padding: 0 0 0 16px; border: 0; gap: 12px; }
+#lesson .memory { margin-top: 0; }
+#lesson .memory h3 { margin-bottom: 10px; }
+#lesson .call-frame { position: relative; padding: 7px 9px; background: var(--paper); }
+#lesson .call-heading { display: block; font: 11px/1.5 monospace; overflow-wrap: anywhere; margin-bottom: 6px; }
+#lesson .call-frame > div { font-size: 13px; }
+#lesson .call-frame > p { margin: 6px 0 0; }
+#lesson .call-frame small { display: inline; margin-right: 7px; color: var(--quiet); font: 11px/1.4 sans-serif; }
+#lesson .call-frame code { display: inline; font: 11px/1.5 monospace; overflow-wrap: anywhere; }
+#lesson .call-frame.current { background: var(--scope-fill); }
+#lesson .call-frame.receiver { outline: 1px dashed var(--ink); outline-offset: 3px; }
+#lesson .call-transfer { border-top: 1px dashed var(--rule); padding-top: 5px; }
+#lesson .returning::before { content: ''; position: absolute; left: -13px; top: -32px; height: 60px; width: 9px; border-left: 1px dashed var(--ink); border-bottom: 1px dashed var(--ink); }
+#lesson .returning::after { content: '↑'; position: absolute; left: -17px; top: -42px; font: 17px monospace; }
+#lesson .call-frame:first-child::before, #lesson .call-frame:first-child::after { display: none; }
+#lesson svg .current-reference { fill: var(--scope-fill); stroke-width: 1.5; }
+#lesson .scene-title { font-size: 13px; margin: 0 0 10px; color: var(--quiet); }
+#lesson .stage { align-self: start; }
+#lesson .object-fields { border-top: 1px solid var(--rule); padding-top: 7px; font: 12px/1.7 monospace; }
+#lesson .object-fields small, #lesson .object-fields code { display: block; }
+#lesson .object-fields small { color: var(--quiet); font: 12px/1.5 sans-serif; }
+#lesson .receiver .call-continuation, #lesson .current .call-continuation { border-left: 2px solid var(--ink); padding-left: 6px; }
+#lesson [data-code-scroll] .code-line::before { content: attr(data-line-number); display: inline-block; width: 2ch; margin-right: 1.4ch; color: var(--quiet); text-align: right; font-size: 11px; }
 #lesson .memory-item { line-height: 1.5; }
 #lesson .memory-note { padding-top: 6px; }
 #lesson .diagram-caption, #lesson .step-meta, #lesson .array-panel:empty { display: none; }
 #lesson .problem { margin-bottom: 12px; }
 @media (max-width: 700px) {
+ #lesson .diagram-workspace { grid-template-columns: minmax(0, 1fr); gap: 10px; }
  #lesson .memory-items { flex-direction: column; min-height: 0; }
  #lesson .memory-item { flex: none; }
  #lesson .return-flow { min-height: 118px; }
@@ -43,7 +68,7 @@
 <div class="array-panel" data-arrays></div>
 <p class="diagram-caption" data-caption></p>
 <div class="diagram-workspace">
-<div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-labelledby="invert-tree-title invert-tree-description"><title id="invert-tree-title">翻转中的二叉树与当前 root 引用</title><desc id="invert-tree-description">实线连接节点保存的左右孩子；短箭头表示当前调用的 root。旁边的调用栈显示各层的 root 和暂停位置；返回交接区显示接收返回值的直接调用者。</desc></svg></div>
+<div><p class="scene-title">节点对象 · @编号不变，圆圈内是 val</p><div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-labelledby="invert-tree-title invert-tree-description"><title id="invert-tree-title">每层局部变量、节点对象与返回位置</title><desc id="invert-tree-description">每个带调用编号的 root 标签都有自己的细引用箭头，指向带固定编号的节点对象或 None。节点间实线保存左右孩子引用。调用卡显示局部变量、返回到的语句与接着执行的语句；虚线回箭头只连接返回层和直接调用者。</desc></svg></div><div class="object-fields" data-object-fields></div></div>
 <div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
 </div>
 <div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
@@ -66,6 +91,7 @@
 'use strict';
 const root=document.querySelector('#lesson');
 const {valueOf,recorder,mount}=window.TreeLesson;
+root.querySelectorAll('[data-code-scroll] .code-line').forEach((line,index)=>line.dataset.lineNumber=index+1);
 const selector=root.querySelector('[data-case]');
 const methodButtons=[...root.querySelectorAll('[data-method]')];
 const saved=new URLSearchParams(location.search).get('case');
@@ -88,31 +114,36 @@ syncMethods();
 function makeFrames() {
  const mode=selector.value, iterative=mode==='iterative', empty=mode==='empty';
  const nodes={a:{val:5,left:'b',right:'c'},b:{val:1,left:'d',right:'e'},c:{val:8,left:null,right:'f'},d:{val:7,left:null,right:null},e:{val:6,left:null,right:null},f:{val:4,left:null,right:null}};
- const state={rowGap:82,nodes,root:empty?null:'a',focus:empty?null:'a',reference:'root',memoryTitle:iterative?'stack · 最后一个是栈顶':'调用栈 · 最后一个是栈顶',memory:[],labels:{},phase:iterative?'迭代 · 后进先出':'递归 · 先交换，再向下',invariant:'每个已处理节点都交换左右子指针；值不变，整个子树随引用换边。',caption:'输入：5 的左子树是 1（7、6），右子树是 8（右孩子 4）。'};
+ const state={topGap:100,rowGap:110,identities:true,scopedReferences:[],nodes,root:empty?null:'a',focus:empty?null:'a',reference:'root',memoryTitle:iterative?'stack · 最后一个是栈顶':'调用栈 · invert_binary_tree_recursive',memory:[],labels:{},phase:iterative?'迭代 · 后进先出':'递归 · 先交换，再向下',invariant:'每个已处理节点都交换左右子指针；值不变，整个子树随引用换边。',caption:'输入：5 的左子树是 1（7、6），右子树是 8（右孩子 4）。'};
  const {frames,emit}=recorder(state), val=id=>valueOf(nodes,id);
  const stack=[];
- function sync(){state.memory=stack.map(id=>({label:`node = ${val(id)}`}));}
+ function sync(){state.memory=stack.map((id,index)=>({label:`stack[${index}] → @${id.toUpperCase()} · val=${val(id)}`}));}
+ function iterativeReferences(){state.scopedReferences=[{key:'root',scope:'#1',name:'root',id:state.root,current:state.reference==='root'}];if(state.reference==='node') state.scopedReferences.push({key:'node',scope:'#1',name:'node',id:state.focus,current:true});}
+ if(iterative) iterativeReferences();
+ if(empty) {state.scopedReferences=[{key:'empty',scope:'#1',name:'root',id:null,current:true}];state.memory=[{scope:'#1',label:'root = None',detail:'空树调用',nextAt:'return None'}];}
  state.returnFlow=iterative
   ? {kind:'显式栈 · 待处理节点',route:'stack 保存节点引用',detail:'pop 后继续同一个 while 循环；没有为每个孩子创建函数调用。'}
   : {kind:'开始调用',route:`外部调用者 → root = ${empty?'None':'5'} · 第 1 层`,detail:'每层都有自己的 root；调用子函数时，上一层暂停并保留继续位置。'};
  if(iterative||empty) emit(iterative?'i-check':'r-check', 'if not root',empty?'空树没有需要交换的引用。':'root 指向 5，进入翻转。');
- if(empty){emit('r-empty','return None','最外层就是空树：返回 None 给外部调用者，没有父层可以继续。',{focus:null,result:'None',returnFlow:{kind:'最外层返回',route:'root = None → 外部调用者',detail:'返回值 None；整个函数结束。'}});return frames;}
+ if(empty){state.memory[0]={scope:'#1',label:'root = None',returning:true,transfer:'None → 外部调用者'};emit('r-empty','return None','最外层就是空树：返回 None 给外部调用者，没有父层可以继续。',{focus:null,result:'None',returnFlow:{kind:'最外层返回',route:'root = None → 外部调用者',detail:'返回值 None；整个函数结束。'}});return frames;}
  function swap(id,key){[nodes[id].left,nodes[id].right]=[nodes[id].right,nodes[id].left];emit(key,`${iterative?'node':'root'}.left, ${iterative?'node':'root'}.right = ${iterative?'node':'root'}.right, ${iterative?'node':'root'}.left`,`${val(id)} 的两条子指针互换；交换的是整棵子树的入口，不是两个 val。`,{focus:id,edited:id});}
  if(iterative){
-  stack.push('a');sync();state.memoryTitle='stack · 最后一个是栈顶';state.memoryNote='这里存的是节点引用；圆圈中的 val 仍留在树上。';
+  stack.push('a');sync();state.memoryTitle='stack · 最后一个是栈顶';state.memoryNote='只有一层函数：root 始终指向 @A；node 由 pop 更新。stack 中保存待处理引用。';
   emit('i-init','stack = [root]','把根节点引用入栈。');
-  while(stack.length){emit('i-while','while stack',`栈还有 ${stack.length} 个引用。`);const id=stack.pop();sync();emit('i-pop','node = stack.pop()',`弹出 ${val(id)}，node 改指向它；树的子指针未改变。`,{focus:id,reference:'node'});swap(id,'i-swap');
+  while(stack.length){emit('i-while','while stack',`栈还有 ${stack.length} 个引用。`);const id=stack.pop();sync();state.focus=id;state.reference='node';iterativeReferences();emit('i-pop','node = stack.pop()',`弹出 ${val(id)}，node 改指向它；树的子指针未改变。`,{focus:id,reference:'node'});swap(id,'i-swap');
    emit('i-left-check','if node.left',`交换后的左孩子是 ${val(nodes[id].left)}。`);
    if(nodes[id].left){stack.push(nodes[id].left);sync();emit('i-left-push','stack.append(node.left)',`先把 ${val(nodes[id].left)} 入栈。`);}
    emit('i-right-check','if node.right',`交换后的右孩子是 ${val(nodes[id].right)}。`);
    if(nodes[id].right){stack.push(nodes[id].right);sync();emit('i-right-push','stack.append(node.right)',`后把 ${val(nodes[id].right)} 入栈；所以它先被弹出。`);}
   }
   emit('i-while','while stack','栈为空，所有节点均已交换；node 仍指向最后弹出的 4。');
+  state.scopedReferences=[{key:'root',scope:'#1',name:'root',id:'a',current:true},{key:'node',scope:'#1',name:'node',id:state.focus,current:false}];
   emit('i-return','return root','返回原来的根引用 5，树结构已镜像。',{focus:'a',reference:'root',result:'5 → [8, 1]；8 → [4, None]；1 → [6, 7]'});
  } else {
-  const calls=[];
+  const calls=[];let serial=0;
   function snapshot(){
-   state.memory=calls.map((call,index)=>({label:`第 ${index+1} 层 root = ${val(call.id)}`,detail:call.status}));
+   state.memory=calls.map((call,index)=>({scope:call.scope,depth:index+1,label:call.id?`root → @${call.id.toUpperCase()} · val=${val(call.id)}`:'root = None',detail:call.status,waitingAt:call.waitingAt,waitingKey:call.waitingKey,nextAt:call.nextAt,nextKey:call.nextKey,returning:call.returning,receiver:call.receiver,transfer:call.transfer}));
+   state.scopedReferences=calls.map((call,index)=>({key:call.scope,scope:call.scope,name:'root',id:call.id,current:index===calls.length-1}));
    state.memoryNote=calls.length ? `调用深度 ${calls.length}；底部是当前调用，上方各层保留各自的 root 和继续位置。` : '调用栈已清空；最外层调用结束。';
   }
   function record(key,expression,explanation,flow,changes={}){
@@ -121,16 +152,19 @@ function makeFrames() {
    frames[frames.length-1].stepLabel=`${frames.length} · root = ${val(state.focus)} · ${expression}`;
   }
   function visit(id,caller=null,side=null){
-   const call={id,status:'检查 root 是否为 None'};
+   for(const ancestor of calls) {ancestor.receiver=false;ancestor.transfer=null;}
+   const call={id,scope:`#${++serial}`,status:'检查 root 是否为 None',nextAt:id?'交换 root.left / root.right':'return None',nextKey:id?'r-swap':'r-empty'};
    calls.push(call);
    const depth=calls.length;
    record('r-check','if not root',id?`进入第 ${depth} 层，自己的 root 指向 ${val(id)}。${caller?'上一层暂停。':'这是最外层调用。'}`:`进入第 ${depth} 层，自己的 root = None，满足终止条件。`,
     {kind:'向下调用 · 新的一层',route:`${caller?`root = ${val(caller.id)}`:'外部调用者'} → root = ${val(id)} · 第 ${depth} 层`,detail:caller?`上一层暂停在 ${side==='left'?'左':'右'}子调用；它的 root 仍指向 ${val(caller.id)}。`:'创建最外层调用。'},{focus:id});
    if(id){
-    call.status='执行左右引用交换';snapshot();
+    call.status='执行左右引用交换';call.nextAt='root.left 子调用';call.nextKey='r-left';snapshot();
     state.returnFlow={kind:'当前层执行',route:`第 ${depth} 层 · root = ${val(id)}`,detail:'交换节点保存的两条子引用；随后依次处理交换后的左、右子树。'};
     swap(id,'r-swap');
     for(const childSide of ['left','right']){
+     call.receiver=false;call.transfer=null;
+     call.waitingAt=`root.${childSide} 子调用`;call.waitingKey=childSide==='left'?'r-left':'r-right';call.nextAt=childSide==='left'?'root.right 子调用':'return root';call.nextKey=childSide==='left'?'r-right':'r-return';
      call.status=`等${childSide==='left'?'左':'右'}调用；之后${childSide==='left'?'处理右边':'return root'}`;
      record(childSide==='left'?'r-left':'r-right',`invert_binary_tree_recursive(root.${childSide})`,
       `root = ${val(id)} 这一层暂停，调用交换后的${childSide==='left'?'左':'右'}孩子 ${val(nodes[id][childSide])}。`,
@@ -140,11 +174,15 @@ function makeFrames() {
    }
    const key=id?'r-return':'r-empty', value=val(id);
    if(id) state.labels[id]='已翻转';
+   call.receiver=false;call.returning=true;call.nextAt=null;call.waitingAt=null;
+   call.transfer=`${id?`@${id.toUpperCase()} (val=${value})`:'None'} → ${caller?caller.scope:'外部调用者'}`;
+   if(caller) caller.receiver=true;
    call.status=`正在返回 ${value}；这一层即将出栈`;
    record(key,id?'return root':'return None',id?`${value} 的左右调用都已完成，返回当前节点引用；这一行不再交换。`:'只结束当前空子树调用，返回值为 None；不会结束仍在等待的父调用。',
     {kind:'向上返回 · 当前层结束',route:`第 ${depth} 层 · root = ${value} → ${caller?`第 ${depth-1} 层 · root = ${val(caller.id)}`:'外部调用者'}`,detail:`返回值：${value}。${caller?`接收方暂停在${side==='left'?'左':'右'}子调用。`:'这是整棵翻转后树的入口。'}`},{focus:id});
    calls.pop();
    if(caller){
+    caller.receiver=true;caller.waitingAt=`root.${side} 子调用`;caller.waitingKey=side==='left'?'r-left':'r-right';caller.nextAt=side==='left'?'root.right 子调用':'return root';caller.nextKey=side==='left'?'r-right':'r-return';caller.transfer=`收到 ${id?`@${id.toUpperCase()}`:'None'} · 此返回值未赋值`;
     caller.status=`${side==='left'?'左':'右'}调用已返回 ${value}；接着${side==='left'?'处理右边':'执行 return root'}`;
     record(side==='left'?'r-left':'r-right',`invert_binary_tree_recursive(root.${side}) → ${value}`,
      `回到 root = ${val(caller.id)} 的第 ${depth-1} 层。${side==='left'?'左调用已经结束，接下来调用右孩子。':'右调用也已结束，接下来执行这一层的 return root。'}子调用的返回值没有赋给任何变量；树的原地修改保留。`,
@@ -152,7 +190,7 @@ function makeFrames() {
    } else {
     record('r-return','return root','调用栈清空，外部调用者收到原来的根引用 5；它下方已经是镜像。',
      {kind:'递归完成',route:'节点 5 的引用 → 外部调用者',detail:'返回值是树的入口；所有左右引用交换早已在向下访问节点时完成。'},
-     {focus:'a',result:'5 → [8, 1]；8 → [4, None]；1 → [6, 7]'});
+     {focus:'a',scopedReferences:[{key:'returned',scope:'外部',name:'返回值',id:'a',current:true}],result:'5 → [8, 1]；8 → [4, None]；1 → [6, 7]'});
    }
   }
   visit('a');

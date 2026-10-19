@@ -16,7 +16,7 @@
     const layout = state.layout || state.nodes;
     function walk(id, depth, index) {
       if (id == null) return;
-      result[id] = {x: 20 + (width - 40) * (index + .5) / (2 ** depth), y: 70 + depth * (state.rowGap || DEFAULT_ROW_GAP), depth, index};
+      result[id] = {x: 20 + (width - 40) * (index + .5) / (2 ** depth), y: (state.topGap || 70) + depth * (state.rowGap || DEFAULT_ROW_GAP), depth, index};
       walk(layout[id].left, depth + 1, index * 2);
       walk(layout[id].right, depth + 1, index * 2 + 1);
     }
@@ -44,7 +44,7 @@
         points[id] = { ...p, x: previous.x + (p.x - previous.x) * progress, y: previous.y + (p.y - previous.y) * progress };
       }
       const deepest = Math.max(0, ...Object.values(current).map(p => p.depth));
-      const height = 70 + deepest * (state.rowGap || DEFAULT_ROW_GAP) + (state.indexes || state.widthLevel != null ? 90 : 60);
+      const height = (state.topGap || 70) + deepest * (state.rowGap || DEFAULT_ROW_GAP) + (state.scopedReferences ? 130 : state.indexes || state.widthLevel != null ? 90 : 60);
       stage.style.height = `${height}px`;
       svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       const pathNodes = new Set((state.paths || []).flat());
@@ -70,6 +70,7 @@
             const q = points[child];
             const dx = q.x-p.x, dy=q.y-p.y, length=Math.hypot(dx,dy);
             path(`edge-${id}-${side}`, {d:`M${p.x+dx*17/length},${p.y+dy*17/length} L${q.x-dx*19/length},${q.y-dy*19/length}`,class:`stored-edge${(state.edited===id || state.edited===`${id}:${side}`) ? ' edited-edge' : ''}`,'marker-end':'url(#tree-arrow)'});
+            if (state.identities) text(`side-${id}-${side}`,{x:p.x+dx*.32+(side==='left'?-10:10),y:p.y+dy*.32,class:'annotation'},side==='left'?'L':'R');
           }
         }
         for (const [id, node] of Object.entries(state.nodes)) {
@@ -77,7 +78,8 @@
           const p = points[id];
           circle(`node-${id}`, {cx:p.x,cy:p.y,r:16,class:`node${pathNodes.has(id)?' on-path':''}${state.focus===id ? ' active' : ''}${(state.marked||[]).includes(id)?' marked':''}`});
           text(`value-${id}`,{x:p.x,y:p.y+1},node.val);
-          if (state.labels?.[id] != null) text(`label-${id}`,{x:p.x,y:p.y+31,class:'annotation'},state.labels[id]);
+          if (state.identities) text(`identity-${id}`,{x:p.x,y:p.y+29,class:'annotation object-identity'},`@${id.toUpperCase()}`);
+          if (state.labels?.[id] != null) text(`label-${id}`,{x:p.x,y:p.y+(state.identities?47:31),class:'annotation'},state.labels[id]);
           if (state.indexes?.[id] != null) text(`index-${id}`,{x:p.x,y:p.y+31,class:'annotation'},`i=${state.indexes[id]}`);
           const tag = state.tags?.[id];
           if (tag) text(`tag-${id}`,{x:p.x,y:p.y-24,class:'annotation'},tag);
@@ -96,7 +98,28 @@
             text('return-label',{x:a.x+offset,y:(a.y+b.y)/2,class:'annotation'},e.text);
           }
         }
-        const target = state.focus && points[state.focus];
+        if (state.scopedReferences) {
+          const offsets = {};
+          for (const ref of state.scopedReferences) {
+            const target = points[ref.id];
+            const slot = offsets[ref.id] || 0; offsets[ref.id] = slot + 1;
+            const x = target ? target.x : width/2-24;
+            const y = target ? target.y-45-slot*27 : height-30;
+            const label = `${ref.scope} ${ref.name}`;
+            const w = Math.max(56,label.length*7+12);
+            path(`scope-box-${ref.key}`,{d:`M${x-w/2},${y-11} h${w} v22 h${-w} Z`,class:`reference-box${ref.current?' current-reference':''}`});
+            text(`scope-label-${ref.key}`,{x,y,class:'annotation scoped-reference'},label);
+            if (target) {
+              // Each local owns its arrow; coincident variables occupy separate rows.
+              const side = slot ? 20 : 0;
+              path(`scope-reference-${ref.key}`,{d:slot?`M${x+w/2},${y} Q${x+w/2+side},${y} ${target.x+17},${target.y-7}`:`M${x},${y+11} V${target.y-19}`,class:'reference','marker-end':'url(#return-arrow)','data-reference-scope':ref.scope,'data-reference-name':ref.name,'data-reference-target':ref.id});
+            } else {
+              path(`scope-reference-${ref.key}`,{d:`M${x+w/2},${y} H${x+w/2+18}`,class:'reference','marker-end':'url(#return-arrow)','data-reference-scope':ref.scope,'data-reference-name':ref.name,'data-reference-target':'None'});
+              text(`scope-none-${ref.key}`,{x:x+w/2+42,y,class:'annotation'},'None');
+            }
+          }
+        }
+        const target = !state.scopedReferences && state.focus && points[state.focus];
         if (target && visible(state.focus)) {
           const oldTarget = before?.focus && old[before.focus];
           // Distant calls fade in near their target; no false node-to-node link.
@@ -107,7 +130,7 @@
           path('reference-box',{d:`M${ref.x-labelWidth/2},${ref.y-55} h${labelWidth} v20 h${-labelWidth} Z`,class:'reference-box',opacity});
           text('reference-label',{x:ref.x,y:ref.y-45,class:'annotation',opacity},label);
           path('reference',{d:`M${ref.x},${ref.y-35} V${ref.y-19}`,class:'reference','marker-end':'url(#return-arrow)',opacity});
-        } else if (state.focus === null) {
+        } else if (!state.scopedReferences && state.focus === null) {
           text('null-reference',{x:width/2,y:25,class:'annotation'},`${state.reference||'node'} = None`);
         }
       });
@@ -143,14 +166,26 @@
         const current = last && (calls || stack || mapWrite);
         const head = queue && index === 0;
         const tail = queue && last;
-        const role = head ? (tail ? '队首 / 队尾' : '队首') : tail ? '队尾' : current ? (calls ? '当前调用' : stack ? '栈顶 · 待弹出' : '本次写入') : '';
+        const role = item.scope ? (item.returning ? '当前调用 · 即将返回' : item.receiver ? '接收返回值 · 恢复位置' : current ? '当前调用' : '暂停，等待子调用') : head ? (tail ? '队首 / 队尾' : '队首') : tail ? '队尾' : current ? (calls ? '当前调用' : stack ? '栈顶 · 待弹出' : '本次写入') : '';
         const entry=document.createElement('div');
-        entry.className=`memory-item${current?' current':''}${head?' queue-head':''}${tail?' queue-tail':''}${item.next?' next-level':''}`;
+        entry.className=`memory-item${item.scope?' call-frame':''}${item.receiver?' receiver':''}${item.returning?' returning':''}${current?' current':''}${head?' queue-head':''}${tail?' queue-tail':''}${item.next?' next-level':''}`;
         if (role) {
           const badge = document.createElement('small'); badge.className = 'memory-role'; badge.textContent = role; entry.append(badge);
         }
+        if (item.scope) {
+          entry.dataset.callScope=item.scope;
+          const heading=document.createElement('strong');heading.className='call-heading';heading.textContent=`${item.scope} · 第 ${item.depth || 1} 层`;entry.append(heading);
+        }
         const label=document.createElement('div'); label.textContent=typeof item==='string'?item:item.label;entry.append(label);
-        if(item.detail){const detail=document.createElement('span');detail.textContent=item.detail;entry.append(detail);}
+        if (item.scope) {
+          for (const [title,value,kind,key] of [[item.receiver?'返回到':'暂停在',item.waitingAt,'waiting',item.waitingKey],['接着执行',item.nextAt,'continuation',item.nextKey],['返回交接',item.transfer,'transfer',null]]) {
+            if (!value) continue;
+            const row=document.createElement('p');row.className=`call-${kind}`;
+            const caption=document.createElement('small');caption.textContent=title;
+            const code=document.createElement('code');const source=key && root.querySelector(`[data-source-key="${key}"]`);code.textContent=`${source?.dataset.lineNumber ? `L${source.dataset.lineNumber} · ` : ''}${value}`;if(key) {code.dataset.sourceTarget=key;code.title=source?.textContent.trim() || value;}row.append(caption,code);entry.append(row);
+          }
+        }
+        if(item.detail && !item.scope){const detail=document.createElement('span');detail.textContent=item.detail;entry.append(detail);}
         return entry;
       }));
       if (!items.length) memory.querySelector('[data-memory-items]').textContent='∅';
@@ -178,6 +213,20 @@
         stage.hidden = mapping;
         caption.hidden = mapping;
         draw(state);renderMemory(state,frame);
+        const fields=root.querySelector('[data-object-fields]');
+        if (fields) {
+          const id=state.focus || [...(state.scopedReferences || [])].reverse().find(ref=>ref.id)?.id;
+          fields.replaceChildren();
+          if (id && state.nodes[id]) {
+            const title=document.createElement('small');title.textContent=`${state.focus?'当前节点':'调用者节点'} @${id.toUpperCase()} 保存的字段`;
+            fields.append(title);
+            for (const side of ['left','right']) {
+              const child=state.nodes[id][side], row=document.createElement('code');
+              row.textContent=`@${id.toUpperCase()}.${side} → ${child?`@${child.toUpperCase()} (val=${state.nodes[child].val})`:'None'}`;
+              fields.append(row);
+            }
+          }
+        }
         root.querySelector('[data-expression]').textContent=frame.expression;
         root.querySelector('[data-explanation]').textContent=frame.explanation;
         caption.textContent=state.caption||'实线是节点保存的子指针；短箭头是当前变量引用。';

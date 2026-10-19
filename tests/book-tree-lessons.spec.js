@@ -33,19 +33,19 @@ test('both inversion methods mirror entire subtrees and accept an empty tree', a
 test('iterative inversion keeps root before pop and retains the last node after the stack empties', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.goto('/invert-binary-tree/?case=iterative#step=0');
-  await expect(page.locator('[data-visual-element="reference-label"]')).toHaveText('root');
+  await expect(page.locator('[data-reference-name="root"]')).toHaveAttribute('data-reference-target','a');
   await expect(page.locator('[data-memory] h3')).toContainText('stack');
   const options=page.locator('[data-step-select] option');
   const finalWhile=await options.evaluateAll(items=>items.map((o,i)=>o.textContent.includes('while stack')?i:-1).filter(i=>i>=0).pop());
   await page.locator('[data-step-select]').selectOption(String(finalWhile));
   await expect(page.locator('[data-memory-items]')).toHaveText('∅');
-  await expect(page.locator('[data-visual-element="reference-label"]')).toHaveText('node');
+  await expect(page.locator('[data-reference-name="node"]')).toHaveAttribute('data-reference-target','f');
   await expect(page.locator('[data-visual-element="null-reference"]')).toHaveCount(0);
   const nodeY=Number(await page.locator('[data-visual-element="node-f"]').getAttribute('cy'));
-  const referenceY=Number(await page.locator('[data-visual-element="reference-label"]').getAttribute('y'));
+  const referenceY=Number(await page.locator('[data-visual-element="scope-label-node"]').getAttribute('y'));
   expect(referenceY).toBe(nodeY-45);
   await finish(page);
-  await expect(page.locator('[data-visual-element="reference-label"]')).toHaveText('root');
+  await expect(page.locator('[data-reference-name="root"]')).toHaveAttribute('data-reference-target','a');
 });
 
 test('balance validation propagates internal imbalance instead of accepting equal root heights', async ({page}) => {
@@ -195,7 +195,7 @@ test('an explicit stack marks the next pop while recursion marks the executing c
   const push=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('stack.append(node.right)')));
   await page.locator('[data-step-select]').selectOption(String(push));
   await expect(page.locator('.memory-item.current .memory-role')).toHaveText('栈顶 · 待弹出');
-  await expect(page.locator('.memory-item.current > div')).toHaveText('node = 1');
+  await expect(page.locator('.memory-item.current > div')).toHaveText('stack[1] → @B · val=1');
   await expect(page.locator('[data-visual-element="node-a"]')).toHaveClass(/active/);
   await page.goto('/balanced-binary-tree-validation/#step=0');
   const child=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex((o,i)=>i>2 && o.textContent.includes('if not node')));

@@ -56,13 +56,25 @@ test('empty child returns to leaf 4, resumes the right call, then returns node 4
   await expect(page.locator('[data-return-route]')).toHaveText('第 4 层 · root = None → 第 3 层 · root = 4');
   await expect(page.locator('[data-source-key="r-empty"]')).toHaveAttribute('aria-current','step');
   await expect(page.locator('.memory-item')).toHaveCount(4);
+  await expect(page.locator('[data-reference-scope="#1"]')).toHaveAttribute('data-reference-target','a');
+  await expect(page.locator('[data-reference-scope="#2"]')).toHaveAttribute('data-reference-target','c');
+  await expect(page.locator('[data-reference-scope="#3"]')).toHaveAttribute('data-reference-target','f');
+  await expect(page.locator('[data-reference-scope="#4"]')).toHaveAttribute('data-reference-target','None');
+  await expect(page.locator('.call-frame.receiver')).toHaveAttribute('data-call-scope','#3');
+  await expect(page.locator('.receiver .call-waiting code')).toHaveText('L13 · root.left 子调用');
+  await expect(page.locator('.receiver .call-continuation code')).toHaveText('L14 · root.right 子调用');
+  await expect(page.locator('.returning .call-transfer')).toContainText('None → #3');
+  await expect(page.locator('[data-object-fields]')).toContainText('@F.left → None');
+  await expect(page.locator('[data-object-fields]')).toContainText('@F.right → None');
   const tree=await page.locator('svg .stored-edge').evaluateAll(edges=>edges.map(e=>e.getAttribute('d')));
   await page.locator('[data-action="next"]').click();
   await expect(page.locator('[data-return-route]')).toHaveText('返回 None → 恢复 root = 4 · 第 3 层');
   await expect(page.locator('[data-return-detail]')).toContainText('下一行：invert_binary_tree_recursive(root.right)');
   await expect(page.locator('[data-source-key="r-left"]')).toHaveAttribute('aria-current','step');
   await expect(page.locator('.memory-item')).toHaveCount(3);
-  await expect(page.locator('.memory-item.current')).toContainText('root = 4');
+  await expect(page.locator('[data-reference-scope="#4"]')).toHaveCount(0);
+  await expect(page.locator('.receiver .call-transfer')).toContainText('收到 None · 此返回值未赋值');
+  await expect(page.locator('.memory-item.current')).toContainText('root → @F · val=4');
   expect(await page.locator('svg .stored-edge').evaluateAll(edges=>edges.map(e=>e.getAttribute('d')))).toEqual(tree);
   await page.locator('[data-stage]').press('ArrowRight');
   await expect(page.locator('[data-source-key="r-right"]')).toHaveAttribute('aria-current','step');
@@ -132,5 +144,48 @@ test('visible method buttons switch the trace and preserve the selected method o
     await expect(page).toHaveURL(/case=recursive#step=0$/);
     await expect(page.locator('[data-source-key="r-check"]')).toHaveAttribute('aria-current','step');
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  }
+});
+
+
+test('call identities keep their own root and return only to their direct caller', () => {
+  const roots=new Map();
+  for(const frame of framesFor('recursive')) {
+    const {memory,scopedReferences}=frame.state;
+    if(!memory.length) continue;
+    expect(scopedReferences.length).toBe(memory.length);
+    scopedReferences.forEach((ref,index)=>{
+      if(roots.has(ref.scope)) expect(ref.id).toBe(roots.get(ref.scope));
+      roots.set(ref.scope,ref.id);
+      expect(memory[index].scope).toBe(ref.scope);
+    });
+    const returning=memory.at(-1);
+    if(returning.returning && memory.length>1) {
+      const receiver=memory.at(-2);
+      expect(memory.filter(call=>call.receiver).length).toBe(1);
+      expect(receiver.receiver).toBe(true);
+      expect(returning.transfer).toContain(`→ ${receiver.scope}`);
+      expect(receiver.nextKey).toBe(receiver.waitingKey==='r-left'?'r-right':'r-return');
+    }
+  }
+});
+
+test('iterative local references remain distinct and fit narrow diagrams', async ({page}) => {
+  await page.emulateMedia({reducedMotion:'reduce'});
+  for(const width of [320,760,1280]) {
+    await page.setViewportSize({width,height:900});
+    await page.goto('/invert-binary-tree/?case=iterative#step=0');
+    const picker=page.locator('[data-step-select]');
+    for(let i=0;i<await picker.locator('option').count();i++) {
+      await picker.selectOption(String(i));
+      await expect(page.locator('[data-reference-name="root"]')).toHaveAttribute('data-reference-target','a');
+      const clipped=await page.locator('[data-stage] svg').evaluate(svg=>{
+        const box=svg.viewBox.baseVal;
+        return [...svg.querySelectorAll('text, .reference-box, .reference')].filter(el=>{
+          const r=el.getBBox();return r.x<0||r.y<0||r.x+r.width>box.width||r.y+r.height>box.height;
+        }).map(el=>el.getAttribute('data-visual-element'));
+      });
+      expect(clipped).toEqual([]);
+    }
   }
 });
