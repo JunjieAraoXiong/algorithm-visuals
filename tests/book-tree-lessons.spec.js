@@ -9,7 +9,10 @@ test('both inversion methods mirror entire subtrees and accept an empty tree', a
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.goto('/invert-binary-tree/#step=0');
   for (const method of ['recursive','iterative']) {
-    await page.locator('[data-case]').selectOption(method);
+    const button=page.getByRole('button',{name:method==='recursive'?'递归 Recursive':'迭代 Iterative',exact:true});
+    await expect(button).toBeVisible();
+    await button.click();
+    await expect(button).toHaveAttribute('aria-pressed','true');
     await finish(page);
     await expect(page.locator('[data-result]')).toContainText('5 → [8, 1]');
     const x = id => page.locator(`[data-visual-element="node-${id}"]`).getAttribute('cx').then(Number);
@@ -21,7 +24,7 @@ test('both inversion methods mirror entire subtrees and accept an empty tree', a
     await page.locator('[data-step-select]').selectOption('0');
     expect(await x('b')).toBeLessThan(await x('a'));
   }
-  await page.locator('[data-case]').selectOption('empty');
+  await page.getByRole('button',{name:'空树示例',exact:true}).click();
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('None');
   await expect(page.locator('svg .node')).toHaveCount(0);

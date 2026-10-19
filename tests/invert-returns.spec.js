@@ -9,7 +9,7 @@ function framesFor(mode) {
   const clone = value => JSON.parse(JSON.stringify(value));
   let frames;
   const selector = {value:mode, options:[], addEventListener(){}};
-  const root = {querySelector:() => selector};
+  const root = {querySelector:() => selector, querySelectorAll:() => []};
   vm.runInNewContext(source, {
     document:{querySelector:() => root}, location:{search:''}, URLSearchParams,
     window:{TreeLesson:{valueOf:(nodes,id) => id == null ? 'None' : String(nodes[id].val),
@@ -99,5 +99,38 @@ test('recursive stack and transfer stay readable at narrow and wide widths', asy
       expect(clipped).toEqual([]);
       await expect(page.locator('[data-source-key][aria-current="step"]')).toHaveCount(1);
     }
+  }
+});
+
+
+test('visible method buttons switch the trace and preserve the selected method on reload', async ({page}) => {
+  await page.emulateMedia({reducedMotion:'reduce'});
+  for(const width of [320,760,1280]) {
+    await page.setViewportSize({width,height:700});
+    await page.goto('/invert-binary-tree/?case=recursive#step=11');
+    const recursive=page.getByRole('button',{name:'递归 Recursive',exact:true});
+    const iterative=page.getByRole('button',{name:'迭代 Iterative',exact:true});
+    await expect(recursive).toBeInViewport();
+    await expect(iterative).toBeInViewport();
+    await expect(page.locator('select[aria-label="翻转方法"]')).toHaveCount(0);
+    await iterative.click();
+    await expect(iterative).toHaveAttribute('aria-pressed','true');
+    await expect(recursive).toHaveAttribute('aria-pressed','false');
+    await expect(page).toHaveURL(/case=iterative#step=0$/);
+    await expect(page.locator('[data-memory] h3')).toContainText('stack');
+    await expect(page.locator('[data-source-key="i-check"]')).toHaveAttribute('aria-current','step');
+    await page.locator('[data-action="next"]').click();
+    await page.reload();
+    await expect(iterative).toHaveAttribute('aria-pressed','true');
+    await expect(page).toHaveURL(/case=iterative#step=1$/);
+    // Activating the already selected method keeps the current step.
+    await iterative.click();
+    await expect(page).toHaveURL(/#step=1$/);
+    await recursive.focus();
+    await page.keyboard.press('Enter');
+    await expect(recursive).toHaveAttribute('aria-pressed','true');
+    await expect(page).toHaveURL(/case=recursive#step=0$/);
+    await expect(page.locator('[data-source-key="r-check"]')).toHaveAttribute('aria-current','step');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   }
 });
