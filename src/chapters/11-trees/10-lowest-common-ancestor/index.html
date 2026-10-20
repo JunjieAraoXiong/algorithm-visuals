@@ -85,7 +85,7 @@ function makeFrames(){
   locals:c=>({node_is_p_or_q:c.self,left_contains_p_or_q:c.L,right_contains_p_or_q:c.R}),
   returnValue:(key,c)=>key==='empty'?'False':key==='flag'?bool(c.self||c.L||c.R):undefined,
   receive:(side,v)=>`${side==='left'?'left_contains_p_or_q':'right_contains_p_or_q'} = ${v}；接收后才给这一层的变量赋值。True 表示至少含一个目标。`,
-  landmark:(key,c)=>key==='flag'&&[p,q].includes(c.id)?'目标返回 True':c&&((key==='left'&&c.L===true&&c.R===null)||(key==='right'&&c.R===true))?'父层接收 True':key==='two'&&c.self+c.L+c.R===2?'两个区域会合':key==='two'&&lca&&c.id!==lca?'祖先保留答案':null
+  landmark:(key,c)=>key==='flag'&&[p,q].includes(c.id)?'目标返回 True':c&&((key==='left'&&c.L===true&&c.R===null)||(key==='right'&&c.R===true))?'父层接收 True':key==='two'&&c.self+c.L+c.R===2?'两个区域会合':key==='two'&&lca&&c.id!==lca&&pathTo(lca,'a').includes(c.id)?'祖先保留答案':null
  });
  function emit(key,expression,explanation,changes={}){
   const c=stack.at(-1),depth=stack.length;
