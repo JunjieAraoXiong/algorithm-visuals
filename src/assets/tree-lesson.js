@@ -96,14 +96,14 @@
           if(a&&b) {
             const offset=a.x<b.x?-8:8;
             path('return-edge',{d:`M${a.x+offset},${a.y-19} Q${a.x+offset},${b.y+23} ${b.x+offset},${b.y+20}`,class:'return-edge','marker-end':'url(#return-arrow)'});
-            text('return-label',{x:a.x+offset,y:(a.y+b.y)/2,class:'annotation'},e.text);
+            text('return-label',{x:a.x+offset,y:state.savedReferences ? b.y+(a.y-b.y)*.25 : (a.y+b.y)/2,class:'annotation'},e.text);
           }
         }
-        if (state.scopedReferences) {
+        if (state.scopedReferences || state.savedReferences) {
           const offsets = {};
-          for (const ref of state.scopedReferences) {
+          for (const ref of state.scopedReferences || state.savedReferences) {
             const target = points[ref.id];
-            const slot = offsets[ref.id] || 0; offsets[ref.id] = slot + 1;
+            const slot = offsets[ref.id] ?? (state.savedReferences ? 1 : 0); offsets[ref.id] = slot + 1;
             const label = ref.label || `${ref.scope} ${ref.name}`;
             const w = Math.max(56,[...label].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),12));
             const desiredX = target ? target.x : width/2-24;
@@ -128,14 +128,16 @@
           const near = oldTarget && Math.hypot(oldTarget.x-target.x,oldTarget.y-target.y)<110;
           const ref = near ? {x:oldTarget.x+(target.x-oldTarget.x)*progress,y:oldTarget.y+(target.y-oldTarget.y)*progress} : {...target};
           const opacity=before && !near ? Math.min(1,progress*3) : 1;
-          const label=state.reference || 'node', labelWidth=Math.max(42,label.length*7+10);
+          const label=state.reference || 'node', labelWidth=Math.max(42, state.savedReferences ? [...label].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),10) : label.length*7+10);
           if (adapter.positions) ref.x=Math.max(labelWidth/2+3,Math.min(width-labelWidth/2-3,ref.x));
           path('reference-box',{d:`M${ref.x-labelWidth/2},${ref.y-55} h${labelWidth} v20 h${-labelWidth} Z`,class:'reference-box',opacity});
           text('reference-label',{x:ref.x,y:ref.y-45,class:'annotation',opacity},label);
           path('reference',{d:adapter.positions?`M${ref.x},${ref.y-35} L${target.x},${ref.y-radius-3}`:`M${ref.x},${ref.y-35} V${ref.y-19}`,class:'reference','marker-end':'url(#return-arrow)',opacity});
         } else if (!state.scopedReferences && state.focus === null) {
           const parent=points[state.nullSlot?.parent];
-          const x=parent?Math.max(54,Math.min(width-54,parent.x+(state.nullSlot.side==='left'?-38:38))):width/2;
+          const nullLabel=`${state.reference||'node'} = None`;
+          const margin=state.savedReferences ? [...nullLabel].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),8)/2 : 54;
+          const x=parent?Math.max(margin,Math.min(width-margin,parent.x+(state.nullSlot.side==='left'?-38:38))):width/2;
           const y=parent?parent.y+66:25;
           if (parent) {
             const dx=x-parent.x,dy=y-12-parent.y,length=Math.hypot(dx,dy);
