@@ -114,7 +114,7 @@
     const node = document.createElement(tag); if(className) node.className = className;
     if (text != null) node.textContent = text; return node;
   }
-  function mount(root, makeFrames, {onRender} = {}) {
+  function mount(root, makeFrames, {onRender, minimalControls = false} = {}) {
     root.classList.add('tree-detail');
     root.querySelectorAll('[data-code-scroll] .code-line').forEach((line, index) => {line.dataset.lineNumber = index + 1;});
     const workspace = root.querySelector('.diagram-workspace');
@@ -125,20 +125,20 @@
     const decision = element('div', 'call-decision'); decision.dataset.decision = '';
     detail.append(handoff, decision); workspace.querySelector('.operation').after(detail);
     const shortcuts = element('nav', 'tree-shortcuts'); shortcuts.setAttribute('aria-label', '关键步骤');
-    root.querySelector('.controls').after(shortcuts);
+    if (!minimalControls) root.querySelector('.controls').after(shortcuts);
     const caseSelect = root.querySelector('[data-case]');
     const cases = element('div', 'tree-cases'); cases.setAttribute('role', 'group'); cases.setAttribute('aria-label', caseSelect.getAttribute('aria-label'));
-    const caseButtons = [...caseSelect.options].map(option => {
+    const caseButtons = minimalControls ? [] : [...caseSelect.options].map(option => {
       const button = element('button', '', option.textContent.replace(/^原图：/, '示例：'));
       button.type = 'button'; button.dataset.caseValue = option.value;
       button.addEventListener('click', () => {caseSelect.value = option.value; caseSelect.dispatchEvent(new Event('change', {bubbles: true}));});
       cases.append(button); return button;
     });
-    caseSelect.closest('.settings').hidden = true; caseSelect.closest('.settings').after(cases);
+    if (!minimalControls) {caseSelect.closest('.settings').hidden = true; caseSelect.closest('.settings').after(cases);}
     let frameSet;
-    return base.mount(root, makeFrames, {positions, render({state, frame, trace}) {
+    return base.mount(root, makeFrames, {positions, copyLinkLabel:minimalControls ? null : undefined, render({state, frame, trace}) {
       caseButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.caseValue === caseSelect.value)));
-      if (frameSet !== trace.frames) {
+      if (!minimalControls && frameSet !== trace.frames) {
         frameSet = trace.frames;
         const landmarks = [{index: 0, label: '初始状态'}, ...trace.frames.flatMap((f, index) => f.state.landmark ? [{index, label: f.state.landmark}] : []), {index: trace.frames.length - 1, label: '最终结果'}];
         shortcuts.replaceChildren(...landmarks.map(({index, label}) => {

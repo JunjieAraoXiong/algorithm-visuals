@@ -6,76 +6,105 @@
 <title>Lowest Common Ancestor · Algorithm Visuals</title>
 <link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css"><link rel="stylesheet" href="../assets/tree-detail.css?v=lca-regions-20261020">
 <style>
-#lesson { --lca-panel-gap:12px; }
-#lesson .code-panel { display:flex; flex-direction:column; max-height:calc(100svh - 36px); }
-#lesson .code-panel > h2, #lesson .code-status, .lca-controls { flex-shrink:0; }
-#lesson .code-panel pre { flex:0 1 auto; min-height:120px; }
-.lca-controls { margin-top:14px; padding-top:5px; border-top:1px solid var(--rule); }
-@media(max-width:1000px) {
- #lesson .code-panel { max-height:none; }
- #lesson .code-panel pre { flex:none; min-height:0; max-height:55svh; }
+#lesson { --lca-gap:14px; }
+#lesson .back-nav { margin:0 0 4px; }
+#lesson .back-link { border:0; padding:2px 0; min-height:24px; font-size:11px; }
+#lesson .problem { margin:5px 0 12px; font-size:13px; }
+#lesson .learning-layout { grid-template-columns:minmax(0,1.18fr) minmax(280px,.9fr); grid-template-rows:minmax(0,1fr) auto; gap:10px var(--lca-gap); align-items:stretch; }
+#lesson .animation-panel { grid-column:1; grid-row:1/3; }
+#lesson .code-panel { position:static; display:flex; flex-direction:column; min-height:0; padding:10px; }
+#lesson .code-panel h2 { font-size:13px; margin-bottom:7px; }
+#lesson .code-panel pre { flex:1; min-height:0; max-height:460px; font-size:11px; line-height:1.65; }
+#lesson .code-status { display:none; }
+#lesson .code-panel pre code { min-width:0; }
+#lesson .code-line { display:grid; grid-template-columns:2ch minmax(0,1fr); column-gap:1.4ch; width:100%; min-width:0; white-space:pre-wrap; overflow-wrap:anywhere; }
+#lesson .code-line::before { width:auto; margin-right:0; }
+.lca-focus { display:flex; flex-direction:column; gap:8px; min-width:0; }
+#lesson .stage { border-bottom:0; }
+#lesson .stage svg text:not(.annotation) { font-size:26px; }
+#lesson .stage svg .annotation { font-size:20px; }
+.lca-regions { min-width:0; padding:6px 10px; border:1px solid var(--rule); }
+.lca-current-heading { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; align-items:baseline; }
+.lca-regions h2 { font-size:13px; font-weight:500; margin:0; }
+.lca-regions [data-result] { font:12px/1.4 monospace; }
+.lca-regions [data-region-call] { display:block; font:11px/1.6 monospace; overflow-wrap:anywhere; margin:3px 0 5px; }
+.lca-region-values { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+.lca-region { padding:5px 6px; border-left:1px solid var(--rule); min-width:0; }
+.lca-region:first-child { border-left:0; }
+.lca-region[data-value="True"] { background:var(--node-active); }
+.lca-region small { display:none; }
+.lca-region code { display:block; min-height:2.4em; font-size:10px; line-height:1.4; overflow-wrap:anywhere; color:var(--quiet); }
+.lca-region output { display:block; margin-top:3px; font:14px/1.4 monospace; }
+.lca-regions [data-region-summary] { margin:7px 0 0; font-size:11px; line-height:1.45; min-height:2.4em; }
+#lesson .operation { min-height:80px; margin:0; padding:9px 10px; font-size:12px; line-height:1.45; }
+#lesson .operation code { font-size:11px; padding-bottom:3px; }
+#lesson .operation span { margin:0; }
+[data-current-flow] { margin:4px 0 0; color:var(--quiet); font-size:11px; line-height:1.4; min-height:1.4em; }
+.lca-controls { grid-column:2; min-width:0; align-self:end; }
+#lesson .controls { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:9px; padding:0; border:0; }
+#lesson .controls button { min-height:46px; border:1px solid var(--ink); border-radius:5px; padding:8px 10px; font:14px/1.3 Arial,sans-serif; }
+#lesson .controls [data-action="next"] { background:var(--ink); color:var(--paper); }
+#lesson .controls button:disabled { opacity:.35; cursor:default; }
+#lesson .controls output { min-width:78px; font-size:11px; }
+#lesson .settings { display:flex; margin:9px 0 0; gap:8px; font-size:11px; }
+#lesson .settings select { flex:1; min-width:0; width:100%; min-height:30px; padding:3px 5px; font-size:11px; }
+.lca-history { margin:16px 0 0; border-top:1px solid var(--rule); padding-top:10px; }
+.lca-history > summary { width:fit-content; cursor:pointer; font-size:12px; color:var(--quiet); }
+#lesson .lca-history .memory { margin-top:12px; }
+@media(min-width:680px) {
+ #lesson .learning-layout { height:calc(100svh - 148px); min-height:520px; max-height:580px; }
+ #lesson .animation-panel, #lesson .diagram-workspace, .lca-focus { min-height:0; height:100%; }
+ .lca-focus { display:grid; grid-template-rows:minmax(0,1fr) auto 80px; }
+ #lesson .stage { align-self:center; }
+ #lesson .operation [data-expression] { display:none; }
+ #lesson .code-panel pre { max-height:none; }
 }
-.lca-focus { display:grid; grid-template-columns:minmax(0,1fr) 174px; gap:var(--lca-panel-gap); align-items:start; min-width:0; }
-.lca-focus .stage { grid-column:1; grid-row:1; }
-.lca-regions { grid-column:2; grid-row:1; min-width:0; margin-top:12px; }
-.lca-regions h2 { font-size:14px; font-weight:500; margin:0 0 8px; }
-.lca-regions [data-region-call] { display:block; font:12px/1.6 monospace; overflow-wrap:anywhere; margin-bottom:10px; }
-.lca-region { border:1px solid var(--rule); padding:9px; margin-bottom:8px; }
-.lca-region[data-value="True"] { border-color:var(--ink); background:var(--node-active); }
-.lca-region small, .lca-region code, .lca-region output { display:block; }
-.lca-region small { color:var(--quiet); font-size:12px; }
-.lca-region code { font-size:11px; overflow-wrap:anywhere; margin:5px 0; }
-.lca-region output { font:16px/1.5 monospace; }
-.lca-regions [data-region-summary] { border-top:1px dashed var(--rule); padding-top:10px; font-size:13px; line-height:1.6; margin:10px 0 0; }
-.lca-focus > .operation, .lca-focus > .execution-detail { grid-column:1/-1; margin-top:0; }
-@media(max-width:1100px) {
- .lca-focus { grid-template-columns:minmax(0,1fr); }
- .lca-regions { grid-column:1; grid-row:auto; margin:0 3px; }
- .lca-region-values { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
- .lca-region { margin:0; padding:8px 6px; }
- .lca-region small { min-height:3em; }
-}
-@media(max-width:480px) {
- .lca-region-values { grid-template-columns:minmax(0,1fr); }
- .lca-region { display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:8px; }
- .lca-region small { min-height:0; }
- .lca-region output { grid-column:2; grid-row:1/3; align-self:center; }
+@media(max-width:679px) {
+ #lesson .learning-layout { grid-template-columns:minmax(0,1fr); grid-template-rows:auto; }
+ #lesson .animation-panel { grid-column:1; grid-row:1; }
+ .lca-controls { grid-column:1; grid-row:2; }
+ #lesson .code-panel { grid-column:1; grid-row:3; }
+ #lesson .code-panel pre { max-height:48svh; flex:auto; }
 }
 </style>
 </head><body>
 <main class="tree-guide tree-lesson" id="lesson">
 <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
 <h1>Lowest Common Ancestor · 最近公共祖先</h1>
-<p class="problem">Find the lowest node whose subtree contains both distinct target nodes, including the node itself.<span>p、q 都存在于树中。示例中的 8 与 7 在节点 3 会合。</span></p>
+<p class="problem">找到 p、q 的最近公共祖先；节点本身也可以是祖先。</p>
 <div class="learning-layout" data-learning-layout data-animation-panel aria-label="算法逐步执行">
 <section class="animation-panel" aria-label="二叉树与调用栈">
 <div class="array-panel" data-arrays></div>
-<p class="diagram-caption" data-caption></p>
+<p class="diagram-caption" data-caption hidden></p>
 <div class="diagram-workspace">
 <div class="lca-focus"><div class="stage" data-stage tabindex="0" role="group" aria-label="二叉树执行状态"><svg role="img" aria-label="树节点与指针"></svg></div>
 <section class="lca-regions" data-lca-regions aria-label="当前调用的三个区域">
-<h2 data-region-heading></h2><code data-region-call></code>
+<div class="lca-current-heading"><h2 data-region-heading></h2><output data-result></output></div><code data-region-call></code>
 <div class="lca-region-values">
 <div class="lca-region" data-region="self"><small>自己是否是目标</small><code>node_is_p_or_q</code><output></output></div>
 <div class="lca-region" data-region="left"><small>左子树是否含目标</small><code>left_contains_p_or_q</code><output></output></div>
 <div class="lca-region" data-region="right"><small>右子树是否含目标</small><code>right_contains_p_or_q</code><output></output></div>
 </div><p data-region-summary></p></section></div>
-<div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
 </div>
-<div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span></div>
-<div class="state-grid"><div class="invariant"><strong>保持什么成立</strong><p data-invariant></p></div><div class="invariant"><strong>返回结果</strong><p class="result" data-result></p></div></div>
+<div class="operation" role="status" aria-live="polite"><code data-expression></code><span data-explanation></span><p data-current-flow></p></div>
 </section>
 <aside class="code-panel" data-code-panel><h2>完整 Python 代码</h2><p class="code-status" data-code-status></p><pre data-code-scroll tabindex="0" aria-label="完整 Python 实现"><code><span class="code-line">from typing import List, Optional</span><span class="code-line"> </span><span class="code-line">class TreeNode:</span><span class="code-line">    def __init__(self, val=0, left=None, right=None):</span><span class="code-line">        self.val = val</span><span class="code-line">        self.left = left</span><span class="code-line">        self.right = right</span><span class="code-line"> </span><span class="code-line">lca = None</span><span class="code-line"> </span><span class="code-line">def lowest_common_ancestor(root: TreeNode, p: TreeNode, q: TreeNode) -&gt; TreeNode:</span><span class="code-line">    global lca</span><span class="code-line" data-source-key="reset">    lca = None  # Reset the saved answer for each call.</span><span class="code-line" data-source-key="call">    dfs(root, p, q)</span><span class="code-line" data-source-key="answer">    return lca</span><span class="code-line"> </span><span class="code-line">def dfs(node: Optional[TreeNode], p: TreeNode, q: TreeNode) -&gt; bool:</span><span class="code-line">    global lca</span><span class="code-line" data-source-key="check">    if not node:</span><span class="code-line" data-source-key="empty">        return False</span><span class="code-line" data-source-key="self">    node_is_p_or_q = node == p or node == q</span><span class="code-line" data-source-key="left">    left_contains_p_or_q = dfs(node.left, p, q)</span><span class="code-line" data-source-key="right">    right_contains_p_or_q = dfs(node.right, p, q)</span><span class="code-line" data-source-key="two">    if node_is_p_or_q + left_contains_p_or_q + right_contains_p_or_q == 2:</span><span class="code-line" data-source-key="set">        lca = node</span><span class="code-line" data-source-key="flag">    return node_is_p_or_q or left_contains_p_or_q or right_contains_p_or_q</span></code></pre>
+</aside>
 <div class="lca-controls" data-lca-controls>
-<label class="settings">目标 <select data-case aria-label="最近公共祖先目标"><option value="split">p=8，q=7：左右会合</option><option value="selfLeft">p=3，q=8：自身＋左侧</option><option value="selfRight">p=3，q=7：自身＋右侧</option><option value="same">p=8，q=9：更低的 6</option></select></label>
-<div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button><label class="step-picker">跳到步骤 <select data-step-select aria-label="跳到步骤"></select></label></div>
-<p class="step-meta" data-phase></p>
-</div></aside>
+<div class="controls"><button type="button" data-action="previous">← 上一步</button><output data-count aria-live="polite"></output><button type="button" data-action="next">下一步 →</button></div>
+<label class="settings">示例 <select data-case aria-label="最近公共祖先目标"><option value="split">p=8，q=7 · 左右会合</option><option value="selfLeft">p=3，q=8 · 自身与左侧</option><option value="selfRight">p=3，q=7 · 自身与右侧</option><option value="same">p=8，q=9 · 更低的 6</option></select></label>
+<p class="step-meta" data-phase hidden></p>
 </div>
+</div>
+<details class="lca-history" data-call-history><summary>完整调用栈与返回位置</summary>
+<div class="memory" data-memory><h3></h3><div class="memory-items" data-memory-items></div><p class="memory-note" data-memory-note></p></div>
+<div class="state-grid"><div class="invariant"><strong>保持什么成立</strong><p data-invariant></p></div><div class="invariant"><strong>返回结果</strong><p class="result" data-saved-result></p></div></div>
+
+</details>
 <section class="section"><h2>两个目标第一次在两个区域会合</h2><p class="section-intro">把一个节点分成「自己、左子树、右子树」三个互不重叠的区域。p、q 是不同且存在于树中的节点，因此恰好两个区域命中就说明它们在这里会合。示例里的 p=8、q=7 在节点 3 的两侧，答案是 3。</p><div class="card-grid"><article class="paper-card"><strong>三个成立的情况</strong><p>self=False、L=True、R=True：两侧各一个。self=True、L=True、R=False：当前节点和左侧。self=True、L=False、R=True：当前节点和右侧。节点本身也可以是祖先。</p></article><article class="paper-card"><strong>同在一侧时不要提早设置答案</strong><p>切换 p=8、q=9：节点 3 只有左区域为 True，不能成为最近的祖先。更低的 6 已经在两侧找到目标，返回的单个 True 不表示「只有一个目标」。</p></article></div></section><section class="section"><h2>布尔返回值和节点答案各做一件事</h2><p class="section-intro">dfs 返回当前子树是否包含 p 或 q；lca 保存节点引用。后序遍历先解决更低的子树。LCA 之上的节点只看到一个命中区域，不会再次满足和为 2，所以最深的答案不会被覆盖。</p><div class="card-grid"><article class="paper-card"><strong>完整过程与重复调用</strong><p>每层计算 self，再递归左右，检查三个布尔值之和，必要时保存 lca，最后返回 OR。外层每次重置 lca，连续查询不会串用旧答案。</p></article><article class="paper-card"><strong>约束与复杂度</strong><p>假设 p、q 不同，且都存在于这棵树；比较节点引用，不靠值寻找目标。O(n) 时间，O(h) 调用栈，最坏 O(n) 空间。None 子树返回 False。</p></article></div></section>
 <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../balanced-binary-tree-validation/">平衡二叉树验证</a><a href="../binary-search-tree-validation/">BST 验证</a><a href="../">目录</a></nav>
 </main>
-<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js?v=lca-regions-20261020"></script><script src="../assets/tree-detail.js?v=lca-regions-20261020"></script>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js?v=lca-focus-20261020"></script><script src="../assets/tree-detail.js?v=lca-focus-20261020"></script>
 <script>
 (() => {
 'use strict';
@@ -88,14 +117,13 @@ if(selector) {const saved=new URLSearchParams(location.search).get('case');if([.
 function makeFrames(){
  const nodes={a:{val:1,left:'b',right:'c'},b:{val:2,left:'d',right:'e'},c:{val:3,left:'f',right:'g'},d:{val:4,left:null,right:null},e:{val:5,left:null,right:null},f:{val:6,left:'h',right:'i'},g:{val:7,left:null,right:null},h:{val:8,left:null,right:null},i:{val:9,left:null,right:null}};
  const pairs={split:['h','g'],selfLeft:['c','h'],selfRight:['c','g'],same:['h','i']},[p,q]=pairs[selector.value],val=id=>valueOf(nodes,id),bool=x=>x==null?'未赋值':x?'True':'False',ref=id=>id?`节点 ${val(id)}`:'None';
- const state={nodes,root:'a',focus:'a',reference:'root',rowGap:132,topGap:80,memory:[],labels:{[p]:'p',[q]:'q'},marked:[p,q],phase:'后序 · 自己、左子树、右子树',caption:`p → 节点 ${val(p)}，q → 节点 ${val(q)}；T/F 标记已完成子树的 True/False，虚线箭头传回布尔值。`,invariant:'dfs 返回「当前子树是否至少包含一个目标」；True 可能包含两个目标。lca 单独保存节点引用，树的孩子引用始终不变。'};
+ const state={nodes,root:'a',focus:'a',reference:'root',rowGap:132,topGap:80,diagramScale:.55,memory:[],labels:{[p]:'p',[q]:'q'},marked:[p,q],phase:'后序 · 自己、左子树、右子树',caption:`p → 节点 ${val(p)}，q → 节点 ${val(q)}；T/F 标记已完成子树的 True/False，虚线箭头传回布尔值。`,invariant:'dfs 返回「当前子树是否至少包含一个目标」；True 可能包含两个目标。lca 单独保存节点引用，树的孩子引用始终不变。'};
  let lca=null;
  const stack=[],recording=recorder(state,stack,{
   name:'dfs',outerKey:'call',outer:'dfs 返回的布尔值表示包含目标；外层接着 return lca，返回已保存的节点引用。',
   locals:c=>({node_is_p_or_q:c.self,left_contains_p_or_q:c.L,right_contains_p_or_q:c.R}),
   returnValue:(key,c)=>key==='empty'?'False':key==='flag'?bool(c.self||c.L||c.R):undefined,
   receive:(side,v)=>`${side==='left'?'left_contains_p_or_q':'right_contains_p_or_q'} = ${v}；接收后才给这一层的变量赋值。True 表示至少含一个目标。`,
-  landmark:(key,c)=>key==='flag'&&[p,q].includes(c.id)?'目标返回 True':c&&((key==='left'&&c.L===true&&c.R===null)||(key==='right'&&c.R===true))?'父层接收 True':key==='two'&&c.self+c.L+c.R===2?'两个区域会合':key==='two'&&lca&&c.id!==lca&&pathTo(lca,'a').includes(c.id)?'祖先保留答案':null
  });
  function emit(key,expression,explanation,changes={}){
   const c=stack.at(-1),depth=stack.length;
@@ -127,8 +155,16 @@ function makeFrames(){
  }
  visit('a');emit('answer','return lca',`返回节点 ${val(lca)} 的引用。更高祖先只看到一个命中区域，不会覆盖答案。`,{focus:lca,reference:'返回值',memory:[],result:`LCA(${val(p)}, ${val(q)}) = ${val(lca)}`});return recording.frames;
 }
-mount(root,makeFrames,{onRender({state}){
+mount(root,makeFrames,{minimalControls:true,onRender({state}){
  const regions=root.querySelector('[data-lca-regions]');
+ const history=root.querySelector('[data-call-history]');
+ const detail=root.querySelector('[data-execution-detail]');if(detail.parentElement!==history)history.querySelector('summary').after(detail);
+ const currentFlow=root.querySelector('[data-current-flow]');
+ const flow=state.handoff,current=state.memory.at(-1),parent=state.memory.at(-2);
+ const receiver=flow?.sourceKey==='left'?'left_contains_p_or_q':flow?.sourceKey==='right'?'right_contains_p_or_q':null;
+ currentFlow.textContent=!flow?'':flow.kind.startsWith('返回')?`${flow.value} → ${parent?`第 ${parent.depth} 层的 ${receiver}`:'外层 dfs(root, p, q)'}`:flow.kind.startsWith('接收')?`第 ${current.depth} 层接收：${flow.value}`:flow.kind.startsWith('调用')?`第 ${parent.depth} 层暂停；返回后赋给 ${receiver}`:`return lca → 节点 ${state.nodes[state.savedReferences[0].id].val} 的引用`;
+ root.querySelector('[data-caption]').hidden=true;
+ root.querySelector('[data-saved-result]').textContent=state.result;
  // Keep the three inputs beside the tree, before the line-by-line explanation.
  const stage=root.querySelector('[data-stage]');if(stage.nextElementSibling!==regions)stage.after(regions);
  regions.querySelector('[data-region-heading]').textContent=state.regions.heading;

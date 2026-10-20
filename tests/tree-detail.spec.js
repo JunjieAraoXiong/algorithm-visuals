@@ -84,9 +84,14 @@ for (const slug of lessons) {
     for (const width of [320,1280]) {
       await page.setViewportSize({width,height:900});
       await page.goto(`/${slug}/#step=0`);
-      const count=await page.locator('[data-step-select] option').count();
+      const compact=slug==='lowest-common-ancestor';
+      const count=compact?Number((await page.locator('[data-count]').innerText()).match(/\/\s*(\d+)/)[1]):await page.locator('[data-step-select] option').count();
+      if(compact) expect(count).toBe(96);
       for(let index=0;index<count;index++) {
-        await page.locator('[data-step-select]').selectOption(String(index));
+        if(compact) {
+          if(index) await page.locator('[data-action="next"]').click();
+          await expect(page.locator('[data-count]')).toHaveText(`步骤 ${index+1} / ${count}`);
+        } else await page.locator('[data-step-select]').selectOption(String(index));
         const issues=await page.locator('[data-animation-panel]').evaluate(panel=>{
           const svg=panel.querySelector('[data-stage] svg'), bounds=svg.viewBox.baseVal;
           if (panel.querySelector('[data-stage]').hidden) return [];
@@ -107,9 +112,11 @@ for (const slug of lessons) {
         await expect(page.locator('[data-source-key][aria-current="step"]')).toHaveCount(1);
       }
       await page.locator('[data-stage]').press('Home');
-      await expect(page.locator('[data-step-select]')).toHaveValue('0');
+      if(compact) await expect(page.locator('[data-count]')).toHaveText(`步骤 1 / ${count}`);
+      else await expect(page.locator('[data-step-select]')).toHaveValue('0');
       await page.locator('[data-action="next"]').press('End');
-      await expect(page.locator('[data-step-select]')).toHaveValue(String(count-1));
+      if(compact) await expect(page.locator('[data-count]')).toHaveText(`步骤 ${count} / ${count}`);
+      else await expect(page.locator('[data-step-select]')).toHaveValue(String(count-1));
     }
     expect(errors).toEqual([]);
   });
