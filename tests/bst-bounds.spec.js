@@ -85,3 +85,49 @@ test('range labels and complete source lines fit phone and desktop layouts', asy
     }
   }
 });
+
+test('stepping keeps the entire tree and recursive stack together in a laptop viewport', async ({page}) => {
+  for(const width of [800,1280,1440]) {
+    await page.setViewportSize({width,height:720});
+    await page.goto('/binary-search-tree-validation/#step=0');
+    const count=await page.locator('[data-step-select] option').count();
+    for(let step=0;step<count;step++) {
+      await page.locator('[data-step-select]').selectOption(String(step));
+      const geometry=await page.locator('[data-animation-panel]').evaluate(panel=>{
+        const rect=selector=>panel.querySelector(selector).getBoundingClientRect();
+        const tree=rect('[data-stage]'),stack=rect('[data-memory]'),next=rect('[data-action="next"]');
+        return {
+          parallel:stack.left>=tree.right,
+          treeVisible:tree.top>=next.bottom&&tree.bottom<=innerHeight,
+          stackVisible:stack.top>=next.bottom&&stack.bottom<=innerHeight,
+          controlsVisible:next.top>=0&&next.bottom<=innerHeight
+        };
+      });
+      expect(geometry,`${width}px, step ${step}`).toEqual({
+        parallel:true,treeVisible:true,stackVisible:true,controlsVisible:true
+      });
+    }
+  }
+});
+
+test('the return destination remains beside the tree and mobile controls stay reachable', async ({page}) => {
+  await page.setViewportSize({width:1280,height:720});
+  await page.locator('[data-step-select]').selectOption('11');
+  await expect(page.locator('.call-frame')).toHaveCount(4);
+  await expect(page.locator('.call-frame.current > div')).toHaveText('node → None');
+  await expect(page.locator('.handoff-source')).toHaveText('回到第 17 行 · 检查左子树');
+  expect(await page.locator('[data-handoff]').evaluate(el=>el.getBoundingClientRect().bottom<=innerHeight)).toBe(true);
+  await page.locator('[data-action="next"]').click();
+  await expect(page.locator('.call-frame')).toHaveCount(3);
+  await expect(page.locator('.call-frame.current > div')).toHaveText('node → 1');
+  await page.locator('[data-action="previous"]').click();
+  await expect(page.locator('.call-frame')).toHaveCount(4);
+  await page.setViewportSize({width:390,height:844});
+  await page.locator('.call-frame.current').scrollIntoViewIfNeeded();
+  expect(await page.locator('[data-action="next"]').evaluate(el=> {
+    const b=el.getBoundingClientRect();
+    return b.top>=0&&b.bottom<=innerHeight;
+  })).toBe(true);
+  await page.locator('[data-action="next"]').click();
+  await expect(page.locator('.call-frame.current > div')).toHaveText('node → 1');
+});

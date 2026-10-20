@@ -30,12 +30,70 @@
 .bst-guide [data-code-scroll] .code-line::before { position:absolute; left:0; margin-right:0; }
 .bst-guide .bst-bounds [hidden] { display:none; }
 @media(max-width:480px) { .bst-guide .bst-bounds { padding:10px; } .bst-guide .bound-origins { gap:8px; } }
+
+/* Keep the tree and every live call in one working view. */
+.bst-guide .back-nav { margin-bottom:6px; }
+.bst-guide .problem { margin:6px 3px 8px; font-size:13px; }
+.bst-guide .learning-layout { grid-template-columns:minmax(0,1fr); gap:16px; }
+.bst-guide .controls { position:sticky; top:0; z-index:5; background:var(--paper); padding:6px 3px; }
+.bst-guide .step-picker { flex:1 1 230px; }
+.bst-guide .tree-cases { margin:5px 3px; }
+.bst-guide .tree-cases button { padding:5px 9px; }
+.bst-guide .tree-shortcuts { margin:8px 0; }
+.bst-guide .step-meta, .bst-guide .diagram-caption { display:none; }
+.bst-guide .diagram-workspace { grid-template-columns:minmax(0,1.15fr) minmax(280px,1fr); gap:16px; margin-top:10px; }
+.bst-guide .bst-tree-column, .bst-guide .bst-stack-column { min-width:0; }
+.bst-guide .bst-tree-heading, .bst-guide .memory h3 { margin:0 0 5px; font:13px/1.5 monospace; }
+.bst-guide .memory { margin:0; }
+.bst-guide .memory-items { grid-template-columns:minmax(0,1fr); gap:12px; }
+.bst-guide .memory-note:empty { display:none; }
+.bst-guide .call-frame { position:relative; display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:2px 8px; padding:6px 9px; font-size:13px; }
+.bst-guide .call-frame.current { padding:5px 8px; }
+.bst-guide .call-frame + .call-frame::before { content:'↓'; position:absolute; top:-14px; left:50%; color:var(--quiet); font:12px/12px monospace; }
+.bst-guide .call-frame + .call-frame.returning::before { content:'↑'; }
+.bst-guide .call-frame .memory-role { grid-column:3; grid-row:1; margin:0; align-self:center; font-size:11px; }
+.bst-guide .call-frame .call-heading { grid-column:1; grid-row:1; margin:0; font-size:11px; color:var(--quiet); }
+.bst-guide .call-frame > div { grid-column:2; grid-row:1; font:13px/1.5 monospace; white-space:nowrap; }
+.bst-guide .call-locals { grid-column:1 / -1; grid-template-columns:auto 1fr auto 1fr; gap:3px 6px; margin:2px 0; font:11px/1.5 monospace; }
+.bst-guide .call-locals dd { text-align:left; }
+.bst-guide .call-locals dd::before { content:"= "; }
+.bst-guide .call-waiting, .bst-guide .call-continuation { grid-column:1 / -1; display:flex; gap:6px; margin:1px 0 0; padding-top:3px; font:11px/1.5 monospace; }
+.bst-guide .call-waiting code, .bst-guide .call-continuation code { margin:0; }
+.bst-guide .execution-detail { display:block; margin:8px 0 0; }
+.bst-guide .call-handoff { padding:7px 9px; }
+.bst-guide .call-handoff small { font-size:11px; }
+.bst-guide .call-handoff strong { display:inline; font:14px/1.5 monospace; margin:0; }
+.bst-guide .call-handoff .handoff-route { margin:3px 0; font-size:12px; }
+.bst-guide .call-handoff p:not(.handoff-route) { display:none; }
+.bst-guide .handoff-source { margin-top:3px; font:11px/1.5 monospace; }
+.bst-guide .bst-bounds { margin:0; padding:8px 10px; }
+.bst-guide .bst-bounds h2 { margin-bottom:5px; font-size:12px; }
+.bst-guide .bound-origins code { font-size:12px; }
+.bst-guide .bound-origins small { font-size:11px; }
+.bst-guide .bst-range { height:80px; margin-top:0; }
+.bst-guide .bst-check { font-size:12px; line-height:1.5; }
+.bst-guide .operation { margin-top:8px; padding:8px 10px; font-size:13px; }
+.bst-guide .operation code { padding-bottom:2px; font-size:12px; }
+.bst-guide .code-panel { position:static; }
+.bst-guide .code-panel pre { max-height:55svh; }
+@media(min-width:1400px) {
+ .bst-guide .learning-layout { grid-template-columns:minmax(0,2.2fr) minmax(330px,1fr); }
+ .bst-guide .code-panel { position:sticky; top:8px; }
+ .bst-guide .code-panel pre { max-height:calc(100svh - 160px); }
+}
+@media(max-width:700px) {
+ .bst-guide .diagram-workspace { grid-template-columns:minmax(0,1fr); gap:12px; }
+ .bst-guide .bst-stack-column { border-top:1px solid var(--rule); padding-top:10px; }
+ .bst-guide .controls { gap:5px; }
+ .bst-guide .step-picker { flex-basis:100%; }
+ .bst-guide .call-frame .memory-role { font-size:10px; }
+}
 </style>
 </head><body>
 <main class="tree-guide tree-lesson bst-guide" id="lesson">
 <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
 <h1>Binary Search Tree Validation · 二叉搜索树验证</h1>
-<p class="problem">Validate a strict binary search tree: every value must satisfy all ancestor bounds.<span>整个左子树都必须小于当前节点，整个右子树都必须大于它。只比较父子大小还不够。</span></p>
+<p class="problem">整个左子树都必须小于当前节点，整个右子树都必须大于它。只比较父子大小还不够。</p>
 <div class="learning-layout" data-learning-layout>
 <section class="animation-panel" data-animation-panel aria-label="算法逐步执行">
 <label class="settings">示例 <select data-case aria-label="BST 验证示例"><option value="original">6 违反祖先上界</option><option value="duplicate">重复 7：等于边界</option><option value="valid">合法 BST</option><option value="empty">空树</option></select></label>
@@ -72,7 +130,7 @@ function makeFrames(){
  const parents={},locations={a:'root'};
  function locate(id){for(const side of ['left','right']){const child=nodes[id][side];if(child){parents[child]=id;locations[child]=`${locations[id]}.${side}`;locate(child);}}}
  locate('a');
- const state={nodes,rowGap:106,root:mode==='empty'?null:'a',focus:mode==='empty'?null:'a',reference:'root',memory:[],labels:{},tags:{},marked:[],nodeStatus:Object.fromEntries(Object.keys(nodes).map(id=>[id,'unvisited'])),phase:'DFS · 祖先边界逐层收紧',caption:'节点下方保留各调用收到的范围；「下界 / 上界」标出当前限制来自哪个祖先。',invariant:'下界 < node.val < 上界。进入左子树收紧上界；进入右子树收紧下界。边界来自所有祖先，不只父节点。'};
+ const state={nodes,topGap:60,rowGap:76,root:mode==='empty'?null:'a',focus:mode==='empty'?null:'a',reference:'root',memory:[],labels:{},tags:{},marked:[],nodeStatus:Object.fromEntries(Object.keys(nodes).map(id=>[id,'unvisited'])),phase:'DFS · 祖先边界逐层收紧',caption:'节点下方保留各调用收到的范围；「下界 / 上界」标出当前限制来自哪个祖先。',invariant:'下界 < node.val < 上界。进入左子树收紧上界；进入右子树收紧下界。边界来自所有祖先，不只父节点。'};
  const stack=[],recording=recorder(state,stack,{
   name:'is_within_bounds',outerKey:'answer',outer:'把根调用的布尔结果返回给调用者。',
   locals:c=>({lower_bound:c.lo,upper_bound:c.hi}),
@@ -126,9 +184,34 @@ function makeFrames(){
  return frames;
 }
 const boundsPanel=document.createElement('section');boundsPanel.className='bst-bounds';boundsPanel.setAttribute('aria-label','当前调用的边界来源');
-boundsPanel.innerHTML=`<h2 data-bst-context></h2><div class="bound-origins"><div><code data-lower-value></code><small data-lower-origin></small></div><div><code data-upper-value></code><small data-upper-origin></small></div></div><svg class="bst-range" viewBox="0 0 320 88" role="img" aria-labelledby="bst-range-title bst-range-desc"><title id="bst-range-title">当前值与允许的开区间</title><desc id="bst-range-desc"></desc><path class="range-axis" d="M16 42 H304"/><path class="allowed" data-allowed-range/><circle class="endpoint" data-lower-end cy="42" r="4"/><circle class="endpoint" data-upper-end cy="42" r="4"/><text data-lower-label y="64"></text><text data-upper-label y="64"></text><path class="value-marker" data-value-marker/><text data-value-label y="15"></text></svg><p class="bst-check" data-bst-condition></p>`;
+boundsPanel.innerHTML=`<h2 data-bst-context></h2><div class="bound-origins"><div><code data-lower-value></code><small data-lower-origin></small></div><div><code data-upper-value></code><small data-upper-origin></small></div></div><svg class="bst-range" viewBox="0 0 320 80" role="img" aria-labelledby="bst-range-title bst-range-desc"><title id="bst-range-title">当前值与允许的开区间</title><desc id="bst-range-desc"></desc><path class="range-axis" d="M16 42 H304"/><path class="allowed" data-allowed-range/><circle class="endpoint" data-lower-end cy="42" r="4"/><circle class="endpoint" data-upper-end cy="42" r="4"/><text data-lower-label y="64"></text><text data-upper-label y="64"></text><path class="value-marker" data-value-marker/><text data-value-label y="15"></text></svg><p class="bst-check" data-bst-condition></p>`;
 mount(root,makeFrames,{onRender:({state})=>{
- if(!boundsPanel.isConnected)root.querySelector('.operation').before(boundsPanel);
+ if(!boundsPanel.isConnected){
+  const workspace=root.querySelector('.diagram-workspace');
+  const tree=document.createElement('div');tree.className='bst-tree-column';
+  const heading=document.createElement('h2');heading.className='bst-tree-heading';heading.textContent='树 · node 指向当前节点';
+  const calls=document.createElement('div');calls.className='bst-stack-column';
+  tree.append(heading,root.querySelector('[data-stage]'),boundsPanel);
+  calls.append(root.querySelector('[data-memory]'),root.querySelector('[data-execution-detail]'));
+  const operation=root.querySelector('.operation');
+  workspace.replaceChildren(tree,calls);
+  workspace.after(operation,root.querySelector('.tree-shortcuts'));
+ }
+ const memory=root.querySelector('[data-memory]');
+ memory.querySelector('h3').textContent='递归调用栈 · ↓ 调用 / ↑ 返回';
+ memory.querySelectorAll('.call-frame > div').forEach(label=>{label.textContent=label.textContent.replace('node =','node →');});
+ if(!state.memory.length)memory.querySelector('[data-memory-items]').textContent=state.done?'调用已全部返回':'尚未调用 · 下一步进入根节点';
+ const lineSummary={answer:'返回外层结果',check:'检查 node 是否为 None',empty:'return True',bounds:'检查上下界',invalid:'return False',left:'检查左子树', 'left-false':'return False',right:'检查并返回右子树结果'};
+ memory.querySelectorAll('[data-source-target]').forEach(code=>{
+  const key=code.dataset.sourceTarget,source=root.querySelector(`[data-source-key="${key}"]`);
+  code.textContent=`第 ${source.dataset.lineNumber} 行 · ${lineSummary[key]}`;
+ });
+ const handoffSource=root.querySelector('.handoff-source');
+ if(handoffSource && state.handoff?.sourceKey){
+  const key=state.handoff.sourceKey,source=root.querySelector(`[data-source-key="${key}"]`);
+  handoffSource.textContent=`回到第 ${source.dataset.lineNumber} 行 · ${lineSummary[key]}`;
+  handoffSource.title=source.textContent.trim();
+ }
  const p=state.probe,write=(selector,value)=>boundsPanel.querySelector(selector).textContent=value;
  write('[data-bst-context]',`${state.done?(state.failure?'首次失败':'验证完成'):'当前调用'} · ${p.location}${p.value!=null?` → 节点 ${p.value}`:''}`);
  write('[data-lower-value]',`lower_bound = ${p.lower}`);write('[data-upper-value]',`upper_bound = ${p.upper}`);
