@@ -21,6 +21,10 @@
         [
           "class",
           "settings"
+        ],
+        [
+          "hidden",
+          ""
         ]
       ],
       "children": [
@@ -62,6 +66,57 @@
                 "两个空数组"
               ]
             }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "attributes": [
+        [
+          "aria-label",
+          "构建二叉树输入"
+        ],
+        [
+          "class",
+          "tree-cases"
+        ],
+        [
+          "role",
+          "group"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "true"
+            ],
+            [
+              "data-case-value",
+              "original"
+            ]
+          ],
+          "children": [
+            "示例：5、9、2、3、4、7"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-pressed",
+              "false"
+            ],
+            [
+              "data-case-value",
+              "empty"
+            ]
+          ],
+          "children": [
+            "两个空数组"
           ]
         }
       ]
@@ -1237,6 +1292,101 @@
       ]
     },
     {
+      "tag": "nav",
+      "attributes": [
+        [
+          "aria-label",
+          "关键步骤"
+        ],
+        [
+          "class",
+          "tree-shortcuts"
+        ]
+      ],
+      "children": [
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-current",
+              "true"
+            ],
+            [
+              "data-landmark-step",
+              "0"
+            ]
+          ],
+          "children": [
+            "初始状态"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-current",
+              "false"
+            ],
+            [
+              "data-landmark-step",
+              "18"
+            ]
+          ],
+          "children": [
+            "创建根节点"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-current",
+              "false"
+            ],
+            [
+              "data-landmark-step",
+              "34"
+            ]
+          ],
+          "children": [
+            "空区间返回"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-current",
+              "false"
+            ],
+            [
+              "data-landmark-step",
+              "35"
+            ]
+          ],
+          "children": [
+            "接回左子树"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-current",
+              "false"
+            ],
+            [
+              "data-landmark-step",
+              "89"
+            ]
+          ],
+          "children": [
+            "最终结果"
+          ]
+        }
+      ]
+    },
+    {
       "tag": "p",
       "attributes": [
         [
@@ -1625,7 +1775,7 @@
             ],
             [
               "style",
-              "height: 338px;"
+              "height: 392px;"
             ]
           ],
           "children": [
@@ -1633,19 +1783,27 @@
               "tag": "svg",
               "attributes": [
                 [
-                  "aria-label",
-                  "树节点与指针"
-                ],
-                [
                   "role",
                   "img"
                 ],
                 [
                   "viewBox",
-                  "0 0 0 338"
+                  "0 0 0 392"
                 ]
               ],
               "children": [
+                {
+                  "tag": "title",
+                  "children": [
+                    "Build Binary Tree From Preorder and Inorder Traversals · 从前序与中序遍历构建二叉树"
+                  ]
+                },
+                {
+                  "tag": "desc",
+                  "children": [
+                    "每次构建先重置前序游标，避免第二次调用从旧位置开始。"
+                  ]
+                },
                 {
                   "tag": "defs",
                   "children": [
@@ -1708,6 +1866,98 @@
           "attributes": [
             [
               "class",
+              "operation"
+            ],
+            [
+              "role",
+              "status"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "code",
+              "attributes": [
+                [
+                  "data-expression",
+                  ""
+                ]
+              ],
+              "children": [
+                "preorder_index = 0"
+              ]
+            },
+            {
+              "tag": "span",
+              "attributes": [
+                [
+                  "data-explanation",
+                  ""
+                ]
+              ],
+              "children": [
+                "每次构建先重置前序游标，避免第二次调用从旧位置开始。"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "execution-detail"
+            ],
+            [
+              "data-execution-detail",
+              ""
+            ],
+            [
+              "hidden",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "call-handoff"
+                ],
+                [
+                  "data-handoff",
+                  ""
+                ],
+                [
+                  "hidden",
+                  ""
+                ]
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "call-decision"
+                ],
+                [
+                  "data-decision",
+                  ""
+                ],
+                [
+                  "hidden",
+                  ""
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
               "memory"
             ],
             [
@@ -1751,45 +2001,6 @@
                 ]
               ]
             }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "operation"
-        ],
-        [
-          "role",
-          "status"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "code",
-          "attributes": [
-            [
-              "data-expression",
-              ""
-            ]
-          ],
-          "children": [
-            "preorder_index = 0"
-          ]
-        },
-        {
-          "tag": "span",
-          "attributes": [
-            [
-              "data-explanation",
-              ""
-            ]
-          ],
-          "children": [
-            "每次构建先重置前序游标，避免第二次调用从旧位置开始。"
           ]
         }
       ]

@@ -1,0 +1,43 @@
+/* Opt-in: leave the bespoke inversion and right-view drawings unchanged. */
+.tree-detail { --detail-fill: var(--node-active); }
+.tree-detail .diagram-workspace { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.tree-detail .stage svg text:not(.annotation) { font-size: 18px; }
+.tree-detail .diagram-caption { margin-bottom: 0; }
+.tree-detail [data-code-scroll] .code-line::before { content:attr(data-line-number); display:inline-block; width:2ch; margin-right:1.4ch; color:var(--quiet); text-align:right; font-size:11px; }
+.tree-detail .settings[hidden], .tree-detail [data-execution-detail][hidden], .tree-detail [data-handoff][hidden], .tree-detail [data-decision][hidden] { display:none; }
+.tree-detail .tree-cases, .tree-detail .tree-shortcuts { display:flex; flex-wrap:wrap; gap:6px; margin:9px 3px; }
+.tree-detail .tree-cases button, .tree-detail .tree-shortcuts button { background:transparent; border:1px solid var(--rule); padding:7px 10px; font-size:12px; text-align:left; cursor:pointer; min-height:36px; }
+.tree-detail .tree-cases button[aria-pressed=true], .tree-detail .tree-shortcuts button[aria-current=true] { border-color:var(--ink); background:var(--detail-fill); }
+.tree-detail .execution-detail { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:10px; margin:12px 3px 0; }
+.tree-detail .call-handoff, .tree-detail .call-decision { padding:12px 14px; border:1px dashed var(--rule); min-width:0; overflow-wrap:anywhere; }
+.tree-detail .call-handoff small, .tree-detail .call-decision > small { display:block; color:var(--quiet); font-size:12px; }
+.tree-detail .call-handoff strong, .tree-detail .call-decision > strong { display:block; font:18px/1.5 monospace; margin:5px 0; font-weight:500; }
+.tree-detail .call-handoff p, .tree-detail .call-decision p { font-size:13px; margin:5px 0; }
+.tree-detail .handoff-source { display:block; margin-top:8px; font:12px/1.6 monospace; color:var(--quiet); }
+.tree-detail .memory { margin:16px 3px 0; }
+.tree-detail .memory-items { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr)); align-items:start; padding:0; border:0; gap:8px; }
+.tree-detail .memory-item { padding:10px 12px; }
+.tree-detail .memory-item.current { border:2px solid var(--ink); padding:9px 11px; }
+.tree-detail .call-heading { display:block; font-weight:400; margin-bottom:4px; }
+.tree-detail .memory-role { font-size:11px; }
+.tree-detail .call-locals { display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:10px; margin:9px 0; font-size:12px; }
+.tree-detail .call-locals dt { color:var(--quiet); overflow-wrap:anywhere; }
+.tree-detail .call-locals dd { margin:0; }
+.tree-detail .call-waiting, .tree-detail .call-continuation { border-top:1px solid var(--rule); margin:8px 0 0; padding-top:7px; font-size:11px; }
+.tree-detail .call-waiting small, .tree-detail .call-continuation small { display:block; color:var(--quiet); }
+.tree-detail .call-waiting code, .tree-detail .call-continuation code { display:block; margin-top:3px; overflow-wrap:anywhere; }
+.tree-detail .memory.queue .memory-items { display:flex; flex-wrap:wrap; border:0; padding:0; }
+.tree-detail .memory.queue .memory-item { min-width:75px; }
+.tree-detail .memory-item.next-level { border-style:dashed; }
+.tree-detail .width-slots { display:flex; gap:3px; margin:12px 0; }
+.tree-detail .width-slot { flex:1; min-width:0; text-align:center; padding:7px 0; border:1px solid var(--ink); }
+.tree-detail .width-slot small { display:block; font:10px/1.6 monospace; color:var(--quiet); }
+.tree-detail .width-slot strong { display:block; font-size:15px; font-weight:400; }
+.tree-detail .width-slot.empty-slot { border-style:dashed; color:var(--quiet); }
+.tree-detail .width-slot.empty-slot strong { font-size:11px; }
+@media (max-width:480px) {
+  .tree-detail .memory-items { grid-template-columns:minmax(0,1fr); }
+  .tree-detail .memory-item:not(.current) .call-locals { margin:5px 0; }
+  .tree-detail .execution-detail { margin-left:0; margin-right:0; }
+  .tree-detail .call-handoff, .tree-detail .call-decision { padding:10px; }
+}

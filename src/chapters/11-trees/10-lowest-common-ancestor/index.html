@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="最近公共祖先：逐行执行 Python，观察树、变量与返回值。">
 <title>Lowest Common Ancestor · Algorithm Visuals</title>
-<link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css">
+<link rel="stylesheet" href="../assets/visual.css"><link rel="stylesheet" href="../assets/guide.css"><link rel="stylesheet" href="../assets/tree-lesson.css"><link rel="stylesheet" href="../assets/tree-detail.css">
 </head><body>
 <main class="tree-guide tree-lesson" id="lesson">
 <nav class="back-nav"><a class="back-link" href="../">← Algo Visual / 返回目录</a></nav>
@@ -29,12 +29,13 @@
 <section class="section"><h2>两个目标第一次在两个区域会合</h2><p class="section-intro">把一个节点分成「自己、左子树、右子树」三个互不重叠的区域。p、q 是不同且存在于树中的节点，因此恰好两个区域命中就说明它们在这里会合。图片里的 p=8、q=7 在节点 3 的两侧，答案是 3。</p><div class="card-grid"><article class="paper-card"><strong>三个成立的情况</strong><p>self=False、L=True、R=True：两侧各一个。self=True、L=True、R=False：当前节点和左侧。self=True、L=False、R=True：当前节点和右侧。节点本身也可以是祖先。</p></article><article class="paper-card"><strong>同在一侧时不要提早设置答案</strong><p>切换 p=8、q=9：节点 3 只有左区域为 True，不能成为最近的祖先。更低的 6 已经在两侧找到目标，返回的单个 True 不表示「只有一个目标」。</p></article></div></section><section class="section"><h2>布尔返回值和节点答案各做一件事</h2><p class="section-intro">dfs 返回当前子树是否包含 p 或 q；lca 保存节点引用。后序遍历先解决更低的子树。LCA 之上的节点只看到一个命中区域，不会再次满足和为 2，所以最深的答案不会被覆盖。</p><div class="card-grid"><article class="paper-card"><strong>完整过程与重复调用</strong><p>每层计算 self，再递归左右，检查三个布尔值之和，必要时保存 lca，最后返回 OR。保留图片中的全局变量策略，但外层每次重置 lca，连续查询不会串用旧答案。</p></article><article class="paper-card"><strong>约束与复杂度</strong><p>假设 p、q 不同，且都存在于这棵树；比较节点引用，不靠值寻找目标。O(n) 时间，O(h) 调用栈，最坏 O(n) 空间。None 子树返回 False。</p></article></div></section>
 <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../balanced-binary-tree-validation/">平衡二叉树验证</a><a href="../binary-search-tree-validation/">BST 验证</a><a href="../">目录</a></nav>
 </main>
-<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script><script src="../assets/tree-detail.js"></script>
 <script>
 (() => {
 'use strict';
 const root=document.querySelector('#lesson');
-const {clone,valueOf,recorder,mount}=window.TreeLesson;
+const {clone,valueOf}=window.TreeLesson;
+const {recorder,mount}=window.TreeDetail;
 const selector=root.querySelector('[data-case]');
 if(selector) {const saved=new URLSearchParams(location.search).get('case');if([...selector.options].some(o=>o.value===saved))selector.value=saved;selector.addEventListener('change',()=>{const url=new URL(location.href);url.searchParams.set('case',selector.value);history.replaceState(history.state,'',url);});}
 
@@ -42,7 +43,14 @@ function makeFrames(){
  const nodes={a:{val:1,left:'b',right:'c'},b:{val:2,left:'d',right:'e'},c:{val:3,left:'f',right:'g'},d:{val:4,left:null,right:null},e:{val:5,left:null,right:null},f:{val:6,left:'h',right:'i'},g:{val:7,left:null,right:null},h:{val:8,left:null,right:null},i:{val:9,left:null,right:null}};
  const pairs={split:['h','g'],selfLeft:['c','h'],selfRight:['c','g'],same:['h','i']},[p,q]=pairs[selector.value],val=id=>valueOf(nodes,id),bool=x=>x==null?'?':x?'T':'F';
  const state={nodes,root:'a',focus:'a',reference:'root',memory:[],labels:{[p]:'p',[q]:'q'},marked:[p,q],phase:'后序 · 三个区域',caption:`p=${val(p)}，q=${val(q)}；T/F 表示子树是否含任意一个目标，虚线箭头是返回值。`,invariant:'把「当前节点、左子树、右子树」视为三个区域。两个区域命中时找到 LCA；向父调用只返回是否含任意目标。'};
- const {frames,emit}=recorder(state),stack=[];let lca=null;
+ const stack=[],{frames,emit}=recorder(state,stack,{
+  name:'dfs',outerKey:'call',outer:'dfs 的布尔返回值不作为答案；外层接着 return lca。',
+  locals:c=>({node_is_p_or_q:c.self,left_contains_p_or_q:c.L,right_contains_p_or_q:c.R}),
+  returnValue:(key,c)=>key==='empty'?'False':key==='flag'?(c.self||c.L||c.R?'True':'False'):undefined,
+  receive:(side,v)=>`${side==='left'?'left_contains_p_or_q':'right_contains_p_or_q'} = ${v}；它表示是否包含目标，不是目标数量。`,
+  decision:(key,c)=>['two','set','flag'].includes(key)&&c.id?{title:'自己 · 左子树 · 右子树',value:`${Number(c.self)} + ${Number(c.L)} + ${Number(c.R)} ${Number(c.self)+Number(c.L)+Number(c.R)===2?'= 2':'≠ 2'}`,detail:`node_is_p_or_q=${c.self?'True':'False'}，左=${c.L?'True':'False'}，右=${c.R?'True':'False'}。${Number(c.self)+Number(c.L)+Number(c.R)===2?'两个区域命中：lca 指向节点 '+val(c.id)+'。':'不在这里设置 lca。'}`}:null,
+  landmark:(key)=>key==='set'?'两个目标会合':null
+ });let lca=null;
  const parents={b:'a',c:'a',d:'b',e:'b',f:'c',g:'c',h:'f',i:'f'};
  function pathTo(id,stop){const path=[];while(id){path.push(id);if(id===stop)break;id=parents[id];}return path;}
  function sync(){state.memory=stack.map(c=>({label:`node = ${val(c.id)}`,detail:`self=${bool(c.self)}, L=${bool(c.L)}, R=${bool(c.R)}`}));state.memoryNote='self = node_is_p_or_q；L/R 是左右调用返回的 contains 标记，不是目标数量。';state.result=`lca = ${val(lca)}`;}

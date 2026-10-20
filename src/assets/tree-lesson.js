@@ -23,7 +23,7 @@
     walk(state.root, 0, 0);
     return result;
   }
-  function mount(root, makeFrames) {
+  function mount(root, makeFrames, adapter = {}) {
     const core = window.AlgorithmVisualCore;
     const stage = root.querySelector('[data-stage]');
     const svg = stage.querySelector('svg');
@@ -36,15 +36,17 @@
     const caption = root.querySelector('[data-caption]');
     function draw(state, before = null, progress = 1) {
       const width = stage.clientWidth;
-      const current = positions(state, width);
-      const old = before ? positions(before, width) : current;
+      const place = adapter.positions || positions;
+      const current = place(state, width);
+      const old = before ? place(before, width) : current;
+      const radius = adapter.positions ? (state.indexes ? Math.min(21, (width-40)/16-2) : width < 400 ? 16 : 21) : 16;
       const points = {};
       for (const [id, p] of Object.entries(current)) {
         const previous = old[id] || p;
         points[id] = { ...p, x: previous.x + (p.x - previous.x) * progress, y: previous.y + (p.y - previous.y) * progress };
       }
       const deepest = Math.max(0, ...Object.values(current).map(p => p.depth));
-      const height = (state.topGap || 70) + deepest * (state.rowGap || DEFAULT_ROW_GAP) + (state.scopedReferences ? 130 : state.indexes || state.widthLevel != null ? 90 : 60);
+      const height = (state.topGap || 70) + deepest * (state.rowGap || DEFAULT_ROW_GAP) + (state.scopedReferences ? 130 : state.indexes || state.widthLevel != null ? 90 : adapter.positions ? 114 : 60);
       stage.style.height = `${height}px`;
       svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       const pathNodes = new Set((state.paths || []).flat());
@@ -69,14 +71,14 @@
             if (!visible(child) || !points[child]) continue;
             const q = points[child];
             const dx = q.x-p.x, dy=q.y-p.y, length=Math.hypot(dx,dy);
-            path(`edge-${id}-${side}`, {d:`M${p.x+dx*17/length},${p.y+dy*17/length} L${q.x-dx*19/length},${q.y-dy*19/length}`,class:`stored-edge${(state.edited===id || state.edited===`${id}:${side}`) ? ' edited-edge' : ''}`,'marker-end':'url(#tree-arrow)'});
+            path(`edge-${id}-${side}`, {d:`M${p.x+dx*(radius+1)/length},${p.y+dy*(radius+1)/length} L${q.x-dx*(radius+3)/length},${q.y-dy*(radius+3)/length}`,class:`stored-edge${(state.edited===id || state.edited===`${id}:${side}`) ? ' edited-edge' : ''}`,'marker-end':'url(#tree-arrow)'});
             if (state.showChildSides) text(`side-${id}-${side}`,{x:p.x+dx*.32+(side==='left'?-10:10),y:p.y+dy*.32,class:'annotation'},side==='left'?'L':'R');
           }
         }
         for (const [id, node] of Object.entries(state.nodes)) {
           if (!visible(id) || !points[id]) continue;
           const p = points[id];
-          circle(`node-${id}`, {cx:p.x,cy:p.y,r:16,class:`node${pathNodes.has(id)?' on-path':''}${state.focus===id ? ' active' : ''}${(state.marked||[]).includes(id)?' marked':''}`});
+          circle(`node-${id}`, {cx:p.x,cy:p.y,r:radius,class:`node${pathNodes.has(id)?' on-path':''}${state.focus===id ? ' active' : ''}${(state.marked||[]).includes(id)?' marked':''}`});
           text(`value-${id}`,{x:p.x,y:p.y+1},node.val);
           if (state.labels?.[id] != null) text(`label-${id}`,{x:p.x,y:p.y+31,class:'annotation'},state.labels[id]);
           if (state.indexes?.[id] != null) text(`index-${id}`,{x:p.x,y:p.y+31,class:'annotation'},`i=${state.indexes[id]}`);
@@ -124,14 +126,22 @@
           const oldTarget = before?.focus && old[before.focus];
           // Distant calls fade in near their target; no false node-to-node link.
           const near = oldTarget && Math.hypot(oldTarget.x-target.x,oldTarget.y-target.y)<110;
-          const ref = near ? {x:oldTarget.x+(target.x-oldTarget.x)*progress,y:oldTarget.y+(target.y-oldTarget.y)*progress} : target;
+          const ref = near ? {x:oldTarget.x+(target.x-oldTarget.x)*progress,y:oldTarget.y+(target.y-oldTarget.y)*progress} : {...target};
           const opacity=before && !near ? Math.min(1,progress*3) : 1;
           const label=state.reference || 'node', labelWidth=Math.max(42,label.length*7+10);
+          if (adapter.positions) ref.x=Math.max(labelWidth/2+3,Math.min(width-labelWidth/2-3,ref.x));
           path('reference-box',{d:`M${ref.x-labelWidth/2},${ref.y-55} h${labelWidth} v20 h${-labelWidth} Z`,class:'reference-box',opacity});
           text('reference-label',{x:ref.x,y:ref.y-45,class:'annotation',opacity},label);
-          path('reference',{d:`M${ref.x},${ref.y-35} V${ref.y-19}`,class:'reference','marker-end':'url(#return-arrow)',opacity});
+          path('reference',{d:adapter.positions?`M${ref.x},${ref.y-35} L${target.x},${ref.y-radius-3}`:`M${ref.x},${ref.y-35} V${ref.y-19}`,class:'reference','marker-end':'url(#return-arrow)',opacity});
         } else if (!state.scopedReferences && state.focus === null) {
-          text('null-reference',{x:width/2,y:25,class:'annotation'},`${state.reference||'node'} = None`);
+          const parent=points[state.nullSlot?.parent];
+          const x=parent?Math.max(54,Math.min(width-54,parent.x+(state.nullSlot.side==='left'?-38:38))):width/2;
+          const y=parent?parent.y+66:25;
+          if (parent) {
+            const dx=x-parent.x,dy=y-12-parent.y,length=Math.hypot(dx,dy);
+            path('empty-child-link',{d:`M${parent.x+dx*(radius+1)/length},${parent.y+dy*(radius+1)/length} L${x},${y-12}`,class:'stored-edge','marker-end':'url(#tree-arrow)'});
+          }
+          text('null-reference',{x,y,class:'annotation'},`${state.reference||'node'} = None`);
         }
       });
       // Retained marks added on later frames must stay beneath node values.
@@ -177,8 +187,16 @@
           const heading=document.createElement('strong');heading.className='call-heading';heading.textContent=item.heading || `${item.scope} · 第 ${item.depth || 1} 层`;entry.append(heading);
         }
         const label=document.createElement('div'); label.textContent=typeof item==='string'?item:item.label;entry.append(label);
+        if (item.locals) {
+          const locals=document.createElement('dl');locals.className='call-locals';
+          for(const [name,value] of Object.entries(item.locals)) {
+            const term=document.createElement('dt'),detail=document.createElement('dd');
+            term.textContent=name;detail.textContent=value;locals.append(term,detail);
+          }
+          entry.append(locals);
+        }
         if (item.scope) {
-          for (const [title,value,kind,key] of [[item.receiver?'返回到':'暂停在',item.waitingAt,'waiting',item.waitingKey],['接着执行',item.nextAt,'continuation',item.nextKey],['返回交接',item.transfer,'transfer',null]]) {
+          for (const [title,value,kind,key] of [[item.receiver?'返回到':'暂停在',item.waitingAt,'waiting',item.waitingKey],[item.executing?'本步执行':'接着执行',item.nextAt,'continuation',item.nextKey],['返回交接',item.transfer,'transfer',null]]) {
             if (!value) continue;
             const row=document.createElement('p');row.className=`call-${kind}`;
             const caption=document.createElement('small');caption.textContent=title;
@@ -240,6 +258,7 @@
             transfer.querySelector(`[data-return-${part}]`).textContent = state.returnFlow?.[part] || '';
           }
         }
+        adapter.render?.({state,frame,trace});
       },onTransition:({state,beforeState})=>motion.tween({duration:250,update:p=>{draw(state,beforeState,p);positionArrayCursors(state,beforeState,p);}})});
     trace.setFrames(makeFrames());
     root.querySelector('[data-case]')?.addEventListener('change',()=>{motion.cancel();trace.setFrames(makeFrames(),{initialStep:0});});

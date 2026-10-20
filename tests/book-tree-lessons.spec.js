@@ -5,6 +5,12 @@ async function finish(page) {
   await page.locator('[data-step-select]').selectOption(String(await options.count() - 1));
 }
 
+async function chooseCase(page, value) {
+  const button = page.locator(`[data-case-value="${value}"]`);
+  if (await button.count()) await button.click();
+  else await page.locator('[data-case]').selectOption(value);
+}
+
 test('both inversion methods mirror entire subtrees and accept an empty tree', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.goto('/invert-binary-tree/#step=0');
@@ -56,11 +62,11 @@ test('balance validation propagates internal imbalance instead of accepting equa
   await expect(page.locator('[data-result]')).toContainText('False');
   await expect(page.locator('[data-visual-element="label-c"]')).toHaveText('h=-1');
   await expect(page.locator('[data-visual-element="label-a"]')).toHaveText('h=-1');
-  await page.locator('[data-case]').selectOption('balanced');
+  await chooseCase(page, 'balanced');
   await finish(page);
   await expect(page.locator('[data-result]')).toContainText('True');
   await expect(page.locator('[data-visual-element="label-a"]')).toHaveText('h=4');
-  await page.locator('[data-case]').selectOption('empty');
+  await chooseCase(page, 'empty');
   await finish(page);
   await expect(page.locator('[data-result]')).toContainText('True');
 });
@@ -74,7 +80,7 @@ test('right view includes a deeper node from the left subtree and freezes each B
   await expect(page.locator('[data-memory-note]')).toContainText('level_size=1');
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('[1, 3, 6, 11]');
-  await page.locator('[data-case]').selectOption('empty');
+  await chooseCase(page, 'empty');
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('[]');
 });
@@ -87,7 +93,7 @@ test('width includes interior gaps but enqueues only real nodes', async ({page})
   await expect(page.locator('svg .node')).toHaveCount(10);
   await expect(page.locator('svg .ghost')).toHaveCount(4);
   await expect(page.locator('[data-memory-items]')).toHaveText('∅');
-  await page.locator('[data-case]').selectOption('empty');
+  await chooseCase(page, 'empty');
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('0');
 });
@@ -99,12 +105,12 @@ test('BST bounds reject ancestor violations, short-circuit the right subtree, an
   await expect(page.locator('[data-visual-element="label-e"]')).toHaveText('(2,5)');
   await expect(page.locator('[data-visual-element="label-c"]')).toHaveText('跳过');
   await expect(page.locator('[data-visual-element="label-f"]')).toHaveCount(0);
-  await page.locator('[data-case]').selectOption('duplicate');
+  await chooseCase(page, 'duplicate');
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('False');
   await expect(page.locator('[data-visual-element="label-f"]')).toHaveText('(5,7)');
   for (const mode of ['valid','empty']) {
-    await page.locator('[data-case]').selectOption(mode);
+    await chooseCase(page, mode);
     await finish(page);
     await expect(page.locator('[data-result]')).toHaveText('True');
   }
@@ -114,7 +120,7 @@ test('LCA handles both child regions, an ancestor target, and targets inside the
   await page.goto('/lowest-common-ancestor/#step=0');
   const cases={split:'LCA(8, 7) = 3',selfLeft:'LCA(3, 8) = 3',selfRight:'LCA(3, 7) = 3',same:'LCA(8, 9) = 6'};
   for (const [mode,answer] of Object.entries(cases)) {
-    await page.locator('[data-case]').selectOption(mode);
+    await chooseCase(page, mode);
     await finish(page);
     await expect(page.locator('[data-result]')).toHaveText(answer);
   }
@@ -135,7 +141,7 @@ test('reconstruction creates roots before connecting returned children and consu
   await expect(page.locator('[data-arrays]')).toContainText('preorder_index = 6');
   await page.locator('[data-step-select]').selectOption(String(index));
   await expect(page.locator('svg .stored-edge')).toHaveCount(0);
-  await page.locator('[data-case]').selectOption('empty');
+  await chooseCase(page, 'empty');
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('None');
 });
@@ -150,7 +156,7 @@ test('maximum path separates the two-arm candidate 30 from gain 21 and accepts a
   expect(d.split('L')).toHaveLength(3);
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('30 · 路径 9 → 8 → 7 → 6');
-  await page.locator('[data-case]').selectOption('negative');
+  await chooseCase(page, 'negative');
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('-2 · 路径 -2');
   await expect(page.locator('[data-visual-element="node-b"]')).toHaveClass(/on-path/);
