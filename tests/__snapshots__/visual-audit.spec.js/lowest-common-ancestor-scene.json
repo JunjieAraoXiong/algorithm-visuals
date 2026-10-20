@@ -1,5 +1,5 @@
 {
-  "tag": "section",
+  "tag": "div",
   "attributes": [
     [
       "aria-label",
@@ -7,1580 +7,28 @@
     ],
     [
       "class",
-      "animation-panel"
+      "learning-layout"
     ],
     [
       "data-animation-panel",
+      ""
+    ],
+    [
+      "data-learning-layout",
       ""
     ]
   ],
   "children": [
     {
-      "tag": "label",
-      "attributes": [
-        [
-          "class",
-          "settings"
-        ],
-        [
-          "hidden",
-          ""
-        ]
-      ],
-      "children": [
-        "目标",
-        {
-          "tag": "select",
-          "attributes": [
-            [
-              "aria-label",
-              "最近公共祖先目标"
-            ],
-            [
-              "data-case",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "split"
-                ]
-              ],
-              "children": [
-                "p=8，q=7：左右会合"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "selfLeft"
-                ]
-              ],
-              "children": [
-                "p=3，q=8：自身＋左侧"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "selfRight"
-                ]
-              ],
-              "children": [
-                "p=3，q=7：自身＋右侧"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "same"
-                ]
-              ],
-              "children": [
-                "p=8，q=9：更低的 6"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
+      "tag": "section",
       "attributes": [
         [
           "aria-label",
-          "最近公共祖先目标"
+          "二叉树与调用栈"
         ],
         [
           "class",
-          "tree-cases"
-        ],
-        [
-          "role",
-          "group"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "true"
-            ],
-            [
-              "data-case-value",
-              "split"
-            ]
-          ],
-          "children": [
-            "p=8，q=7：左右会合"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "data-case-value",
-              "selfLeft"
-            ]
-          ],
-          "children": [
-            "p=3，q=8：自身＋左侧"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "data-case-value",
-              "selfRight"
-            ]
-          ],
-          "children": [
-            "p=3，q=7：自身＋右侧"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "data-case-value",
-              "same"
-            ]
-          ],
-          "children": [
-            "p=8，q=9：更低的 6"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "controls"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "previous"
-            ],
-            [
-              "disabled",
-              ""
-            ]
-          ],
-          "children": [
-            "← 上一步"
-          ]
-        },
-        {
-          "tag": "output",
-          "attributes": [
-            [
-              "data-count",
-              ""
-            ]
-          ],
-          "children": [
-            "步骤 1 / 96"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "next"
-            ]
-          ],
-          "children": [
-            "下一步 →"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "copy-link"
-            ]
-          ],
-          "children": [
-            "复制本步骤链接"
-          ]
-        },
-        {
-          "tag": "label",
-          "attributes": [
-            [
-              "class",
-              "step-picker"
-            ]
-          ],
-          "children": [
-            "跳到步骤",
-            {
-              "tag": "select",
-              "attributes": [
-                [
-                  "aria-label",
-                  "跳到步骤"
-                ],
-                [
-                  "data-step-select",
-                  ""
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "0"
-                    ]
-                  ],
-                  "children": [
-                    "1 · lca = None"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "1"
-                    ]
-                  ],
-                  "children": [
-                    "2 · dfs(root, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "2"
-                    ]
-                  ],
-                  "children": [
-                    "3 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "3"
-                    ]
-                  ],
-                  "children": [
-                    "4 · node_is_p_or_q = node == p or node == q"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "4"
-                    ]
-                  ],
-                  "children": [
-                    "5 · left_contains_p_or_q = dfs(node.left, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "5"
-                    ]
-                  ],
-                  "children": [
-                    "6 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "6"
-                    ]
-                  ],
-                  "children": [
-                    "7 · node_is_p_or_q = node == p or node == q"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "7"
-                    ]
-                  ],
-                  "children": [
-                    "8 · left_contains_p_or_q = dfs(node.left, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "8"
-                    ]
-                  ],
-                  "children": [
-                    "9 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "9"
-                    ]
-                  ],
-                  "children": [
-                    "10 · node_is_p_or_q = node == p or node == q"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "10"
-                    ]
-                  ],
-                  "children": [
-                    "11 · left_contains_p_or_q = dfs(node.left, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "11"
-                    ]
-                  ],
-                  "children": [
-                    "12 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "12"
-                    ]
-                  ],
-                  "children": [
-                    "13 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "13"
-                    ]
-                  ],
-                  "children": [
-                    "14 · left_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "14"
-                    ]
-                  ],
-                  "children": [
-                    "15 · right_contains_p_or_q = dfs(node.right, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "15"
-                    ]
-                  ],
-                  "children": [
-                    "16 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "16"
-                    ]
-                  ],
-                  "children": [
-                    "17 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "17"
-                    ]
-                  ],
-                  "children": [
-                    "18 · right_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "18"
-                    ]
-                  ],
-                  "children": [
-                    "19 · 0 + 0 + 0 == 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "19"
-                    ]
-                  ],
-                  "children": [
-                    "20 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "20"
-                    ]
-                  ],
-                  "children": [
-                    "21 · left_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "21"
-                    ]
-                  ],
-                  "children": [
-                    "22 · right_contains_p_or_q = dfs(node.right, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "22"
-                    ]
-                  ],
-                  "children": [
-                    "23 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "23"
-                    ]
-                  ],
-                  "children": [
-                    "24 · node_is_p_or_q = node == p or node == q"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "24"
-                    ]
-                  ],
-                  "children": [
-                    "25 · left_contains_p_or_q = dfs(node.left, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "25"
-                    ]
-                  ],
-                  "children": [
-                    "26 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "26"
-                    ]
-                  ],
-                  "children": [
-                    "27 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "27"
-                    ]
-                  ],
-                  "children": [
-                    "28 · left_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "28"
-                    ]
-                  ],
-                  "children": [
-                    "29 · right_contains_p_or_q = dfs(node.right, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "29"
-                    ]
-                  ],
-                  "children": [
-                    "30 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "30"
-                    ]
-                  ],
-                  "children": [
-                    "31 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "31"
-                    ]
-                  ],
-                  "children": [
-                    "32 · right_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "32"
-                    ]
-                  ],
-                  "children": [
-                    "33 · 0 + 0 + 0 == 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "33"
-                    ]
-                  ],
-                  "children": [
-                    "34 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "34"
-                    ]
-                  ],
-                  "children": [
-                    "35 · right_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "35"
-                    ]
-                  ],
-                  "children": [
-                    "36 · 0 + 0 + 0 == 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "36"
-                    ]
-                  ],
-                  "children": [
-                    "37 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "37"
-                    ]
-                  ],
-                  "children": [
-                    "38 · left_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "38"
-                    ]
-                  ],
-                  "children": [
-                    "39 · right_contains_p_or_q = dfs(node.right, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "39"
-                    ]
-                  ],
-                  "children": [
-                    "40 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "40"
-                    ]
-                  ],
-                  "children": [
-                    "41 · node_is_p_or_q = node == p or node == q"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "41"
-                    ]
-                  ],
-                  "children": [
-                    "42 · left_contains_p_or_q = dfs(node.left, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "42"
-                    ]
-                  ],
-                  "children": [
-                    "43 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "43"
-                    ]
-                  ],
-                  "children": [
-                    "44 · node_is_p_or_q = node == p or node == q"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "44"
-                    ]
-                  ],
-                  "children": [
-                    "45 · left_contains_p_or_q = dfs(node.left, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "45"
-                    ]
-                  ],
-                  "children": [
-                    "46 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "46"
-                    ]
-                  ],
-                  "children": [
-                    "47 · node_is_p_or_q = node == p or node == q"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "47"
-                    ]
-                  ],
-                  "children": [
-                    "48 · left_contains_p_or_q = dfs(node.left, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "48"
-                    ]
-                  ],
-                  "children": [
-                    "49 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "49"
-                    ]
-                  ],
-                  "children": [
-                    "50 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "50"
-                    ]
-                  ],
-                  "children": [
-                    "51 · left_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "51"
-                    ]
-                  ],
-                  "children": [
-                    "52 · right_contains_p_or_q = dfs(node.right, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "52"
-                    ]
-                  ],
-                  "children": [
-                    "53 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "53"
-                    ]
-                  ],
-                  "children": [
-                    "54 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "54"
-                    ]
-                  ],
-                  "children": [
-                    "55 · right_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "55"
-                    ]
-                  ],
-                  "children": [
-                    "56 · 1 + 0 + 0 == 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "56"
-                    ]
-                  ],
-                  "children": [
-                    "57 · return True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "57"
-                    ]
-                  ],
-                  "children": [
-                    "58 · left_contains_p_or_q = True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "58"
-                    ]
-                  ],
-                  "children": [
-                    "59 · right_contains_p_or_q = dfs(node.right, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "59"
-                    ]
-                  ],
-                  "children": [
-                    "60 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "60"
-                    ]
-                  ],
-                  "children": [
-                    "61 · node_is_p_or_q = node == p or node == q"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "61"
-                    ]
-                  ],
-                  "children": [
-                    "62 · left_contains_p_or_q = dfs(node.left, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "62"
-                    ]
-                  ],
-                  "children": [
-                    "63 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "63"
-                    ]
-                  ],
-                  "children": [
-                    "64 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "64"
-                    ]
-                  ],
-                  "children": [
-                    "65 · left_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "65"
-                    ]
-                  ],
-                  "children": [
-                    "66 · right_contains_p_or_q = dfs(node.right, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "66"
-                    ]
-                  ],
-                  "children": [
-                    "67 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "67"
-                    ]
-                  ],
-                  "children": [
-                    "68 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "68"
-                    ]
-                  ],
-                  "children": [
-                    "69 · right_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "69"
-                    ]
-                  ],
-                  "children": [
-                    "70 · 0 + 0 + 0 == 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "70"
-                    ]
-                  ],
-                  "children": [
-                    "71 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "71"
-                    ]
-                  ],
-                  "children": [
-                    "72 · right_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "72"
-                    ]
-                  ],
-                  "children": [
-                    "73 · 0 + 1 + 0 == 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "73"
-                    ]
-                  ],
-                  "children": [
-                    "74 · return True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "74"
-                    ]
-                  ],
-                  "children": [
-                    "75 · left_contains_p_or_q = True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "75"
-                    ]
-                  ],
-                  "children": [
-                    "76 · right_contains_p_or_q = dfs(node.right, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "76"
-                    ]
-                  ],
-                  "children": [
-                    "77 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "77"
-                    ]
-                  ],
-                  "children": [
-                    "78 · node_is_p_or_q = node == p or node == q"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "78"
-                    ]
-                  ],
-                  "children": [
-                    "79 · left_contains_p_or_q = dfs(node.left, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "79"
-                    ]
-                  ],
-                  "children": [
-                    "80 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "80"
-                    ]
-                  ],
-                  "children": [
-                    "81 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "81"
-                    ]
-                  ],
-                  "children": [
-                    "82 · left_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "82"
-                    ]
-                  ],
-                  "children": [
-                    "83 · right_contains_p_or_q = dfs(node.right, p, q)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "83"
-                    ]
-                  ],
-                  "children": [
-                    "84 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "84"
-                    ]
-                  ],
-                  "children": [
-                    "85 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "85"
-                    ]
-                  ],
-                  "children": [
-                    "86 · right_contains_p_or_q = False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "86"
-                    ]
-                  ],
-                  "children": [
-                    "87 · 1 + 0 + 0 == 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "87"
-                    ]
-                  ],
-                  "children": [
-                    "88 · return True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "88"
-                    ]
-                  ],
-                  "children": [
-                    "89 · right_contains_p_or_q = True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "89"
-                    ]
-                  ],
-                  "children": [
-                    "90 · 0 + 1 + 1 == 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "90"
-                    ]
-                  ],
-                  "children": [
-                    "91 · lca = node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "91"
-                    ]
-                  ],
-                  "children": [
-                    "92 · return True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "92"
-                    ]
-                  ],
-                  "children": [
-                    "93 · right_contains_p_or_q = True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "93"
-                    ]
-                  ],
-                  "children": [
-                    "94 · 0 + 0 + 1 == 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "94"
-                    ]
-                  ],
-                  "children": [
-                    "95 · return True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "95"
-                    ]
-                  ],
-                  "children": [
-                    "96 · return lca"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "nav",
-      "attributes": [
-        [
-          "aria-label",
-          "关键步骤"
-        ],
-        [
-          "class",
-          "tree-shortcuts"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "true"
-            ],
-            [
-              "data-landmark-step",
-              "0"
-            ]
-          ],
-          "children": [
-            "初始状态"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "56"
-            ]
-          ],
-          "children": [
-            "目标返回 True"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "57"
-            ]
-          ],
-          "children": [
-            "父层接收 True"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "89"
-            ]
-          ],
-          "children": [
-            "两个区域会合"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "93"
-            ]
-          ],
-          "children": [
-            "祖先保留答案"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "95"
-            ]
-          ],
-          "children": [
-            "最终结果"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "p",
-      "attributes": [
-        [
-          "class",
-          "step-meta"
-        ],
-        [
-          "data-phase",
-          ""
-        ]
-      ],
-      "children": [
-        "后序 · 自己、左子树、右子树"
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "array-panel"
-        ],
-        [
-          "data-arrays",
-          ""
-        ]
-      ]
-    },
-    {
-      "tag": "p",
-      "attributes": [
-        [
-          "class",
-          "diagram-caption"
-        ],
-        [
-          "data-caption",
-          ""
-        ]
-      ],
-      "children": [
-        "p → 节点 8，q → 节点 7；T/F 标记已完成子树的 True/False，虚线箭头传回布尔值。"
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "diagram-workspace"
+          "animation-panel"
         ]
       ],
       "children": [
@@ -1589,7 +37,36 @@
           "attributes": [
             [
               "class",
-              "lca-focus"
+              "array-panel"
+            ],
+            [
+              "data-arrays",
+              ""
+            ]
+          ]
+        },
+        {
+          "tag": "p",
+          "attributes": [
+            [
+              "class",
+              "diagram-caption"
+            ],
+            [
+              "data-caption",
+              ""
+            ]
+          ],
+          "children": [
+            "p → 节点 8，q → 节点 7；T/F 标记已完成子树的 True/False，虚线箭头传回布尔值。"
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "diagram-workspace"
             ]
           ],
           "children": [
@@ -1597,99 +74,1068 @@
               "tag": "div",
               "attributes": [
                 [
-                  "aria-label",
-                  "每次外层调用先清空答案，避免保留上一次查询的节点。"
-                ],
-                [
                   "class",
-                  "stage"
-                ],
-                [
-                  "data-stage",
-                  ""
-                ],
-                [
-                  "role",
-                  "group"
-                ],
-                [
-                  "style",
-                  "height: 590px;"
+                  "lca-focus"
                 ]
               ],
               "children": [
                 {
-                  "tag": "svg",
+                  "tag": "div",
                   "attributes": [
                     [
-                      "role",
-                      "img"
+                      "aria-label",
+                      "每次外层调用先清空答案，避免保留上一次查询的节点。"
                     ],
                     [
-                      "viewBox",
-                      "0 0 545 590"
+                      "class",
+                      "stage"
+                    ],
+                    [
+                      "data-stage",
+                      ""
+                    ],
+                    [
+                      "role",
+                      "group"
+                    ],
+                    [
+                      "style",
+                      "height: 590px;"
                     ]
                   ],
                   "children": [
                     {
-                      "tag": "title",
-                      "children": [
-                        "Lowest Common Ancestor · 最近公共祖先"
-                      ]
-                    },
-                    {
-                      "tag": "desc",
-                      "children": [
-                        "每次外层调用先清空答案，避免保留上一次查询的节点。"
-                      ]
-                    },
-                    {
-                      "tag": "defs",
+                      "tag": "svg",
+                      "attributes": [
+                        [
+                          "role",
+                          "img"
+                        ],
+                        [
+                          "viewBox",
+                          "0 0 545 590"
+                        ]
+                      ],
                       "children": [
                         {
-                          "tag": "marker",
-                          "attributes": [
-                            [
-                              "viewBox",
-                              "0 0 8 8"
-                            ]
-                          ],
+                          "tag": "title",
+                          "children": [
+                            "Lowest Common Ancestor · 最近公共祖先"
+                          ]
+                        },
+                        {
+                          "tag": "desc",
+                          "children": [
+                            "每次外层调用先清空答案，避免保留上一次查询的节点。"
+                          ]
+                        },
+                        {
+                          "tag": "defs",
                           "children": [
                             {
-                              "tag": "path",
+                              "tag": "marker",
                               "attributes": [
                                 [
-                                  "d",
-                                  "M0 0 L8 4 L0 8 Z"
-                                ],
-                                [
-                                  "fill",
-                                  "#333"
+                                  "viewBox",
+                                  "0 0 8 8"
                                 ]
+                              ],
+                              "children": [
+                                {
+                                  "tag": "path",
+                                  "attributes": [
+                                    [
+                                      "d",
+                                      "M0 0 L8 4 L0 8 Z"
+                                    ],
+                                    [
+                                      "fill",
+                                      "#333"
+                                    ]
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "marker",
+                              "attributes": [
+                                [
+                                  "viewBox",
+                                  "0 0 8 8"
+                                ]
+                              ],
+                              "children": [
+                                {
+                                  "tag": "path",
+                                  "attributes": [
+                                    [
+                                      "d",
+                                      "M0 0 L8 4 L0 8 Z"
+                                    ],
+                                    [
+                                      "fill",
+                                      "#555"
+                                    ]
+                                  ]
+                                }
                               ]
                             }
                           ]
                         },
                         {
-                          "tag": "marker",
+                          "tag": "path",
                           "attributes": [
                             [
-                              "viewBox",
-                              "0 0 8 8"
+                              "class",
+                              "stored-edge"
+                            ],
+                            [
+                              "d",
+                              "M255.811696185325,94.33528917703103 L137.03875567661515,196.36150271596614"
+                            ],
+                            [
+                              "data-visual-element",
+                              "edge-a-left"
+                            ],
+                            [
+                              "marker-end",
+                              "url(#tree-arrow)"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "stored-edge"
+                            ],
+                            [
+                              "d",
+                              "M289.188303814675,94.33528917703103 L407.96124432338485,196.36150271596614"
+                            ],
+                            [
+                              "data-visual-element",
+                              "edge-a-right"
+                            ],
+                            [
+                              "marker-end",
+                              "url(#tree-arrow)"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "stored-edge"
+                            ],
+                            [
+                              "d",
+                              "M107.76608768488823,231.01357603810953 L54.07335888921281,323.25791704933505"
+                            ],
+                            [
+                              "data-visual-element",
+                              "edge-b-left"
+                            ],
+                            [
+                              "marker-end",
+                              "url(#tree-arrow)"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "stored-edge"
+                            ],
+                            [
+                              "d",
+                              "M129.90057898177838,231.01357603810953 L183.59330777745384,323.25791704933505"
+                            ],
+                            [
+                              "data-visual-element",
+                              "edge-b-right"
+                            ],
+                            [
+                              "marker-end",
+                              "url(#tree-arrow)"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "stored-edge"
+                            ],
+                            [
+                              "d",
+                              "M415.0994210182216,231.01357603810953 L361.40669222254616,323.25791704933505"
+                            ],
+                            [
+                              "data-visual-element",
+                              "edge-c-left"
+                            ],
+                            [
+                              "marker-end",
+                              "url(#tree-arrow)"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "stored-edge"
+                            ],
+                            [
+                              "d",
+                              "M437.23391231511175,231.01357603810953 L490.9266411107872,323.25791704933505"
+                            ],
+                            [
+                              "data-visual-element",
+                              "edge-c-right"
+                            ],
+                            [
+                              "marker-end",
+                              "url(#tree-arrow)"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "stored-edge"
+                            ],
+                            [
+                              "d",
+                              "M338.2660876848883,363.01357603810953 L284.57335888921284,455.25791704933505"
+                            ],
+                            [
+                              "data-visual-element",
+                              "edge-f-left"
+                            ],
+                            [
+                              "marker-end",
+                              "url(#tree-arrow)"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "stored-edge"
+                            ],
+                            [
+                              "d",
+                              "M360.40057898177844,363.01357603810953 L414.0933077774539,455.25791704933505"
+                            ],
+                            [
+                              "data-visual-element",
+                              "edge-f-right"
+                            ],
+                            [
+                              "marker-end",
+                              "url(#tree-arrow)"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "circle",
+                          "attributes": [
+                            [
+                              "class",
+                              "node active"
+                            ],
+                            [
+                              "cx",
+                              "272.5"
+                            ],
+                            [
+                              "cy",
+                              "80"
+                            ],
+                            [
+                              "data-visual-element",
+                              "node-a"
+                            ],
+                            [
+                              "r",
+                              "21"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "value-a"
+                            ],
+                            [
+                              "x",
+                              "272.5"
+                            ],
+                            [
+                              "y",
+                              "81"
+                            ]
+                          ],
+                          "children": [
+                            "1"
+                          ]
+                        },
+                        {
+                          "tag": "circle",
+                          "attributes": [
+                            [
+                              "class",
+                              "node"
+                            ],
+                            [
+                              "cx",
+                              "118.83333333333331"
+                            ],
+                            [
+                              "cy",
+                              "212"
+                            ],
+                            [
+                              "data-visual-element",
+                              "node-b"
+                            ],
+                            [
+                              "r",
+                              "21"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "value-b"
+                            ],
+                            [
+                              "x",
+                              "118.83333333333331"
+                            ],
+                            [
+                              "y",
+                              "213"
+                            ]
+                          ],
+                          "children": [
+                            "2"
+                          ]
+                        },
+                        {
+                          "tag": "circle",
+                          "attributes": [
+                            [
+                              "class",
+                              "node"
+                            ],
+                            [
+                              "cx",
+                              "426.1666666666667"
+                            ],
+                            [
+                              "cy",
+                              "212"
+                            ],
+                            [
+                              "data-visual-element",
+                              "node-c"
+                            ],
+                            [
+                              "r",
+                              "21"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "value-c"
+                            ],
+                            [
+                              "x",
+                              "426.1666666666667"
+                            ],
+                            [
+                              "y",
+                              "213"
+                            ]
+                          ],
+                          "children": [
+                            "3"
+                          ]
+                        },
+                        {
+                          "tag": "circle",
+                          "attributes": [
+                            [
+                              "class",
+                              "node"
+                            ],
+                            [
+                              "cx",
+                              "42"
+                            ],
+                            [
+                              "cy",
+                              "344"
+                            ],
+                            [
+                              "data-visual-element",
+                              "node-d"
+                            ],
+                            [
+                              "r",
+                              "21"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "value-d"
+                            ],
+                            [
+                              "x",
+                              "42"
+                            ],
+                            [
+                              "y",
+                              "345"
+                            ]
+                          ],
+                          "children": [
+                            "4"
+                          ]
+                        },
+                        {
+                          "tag": "circle",
+                          "attributes": [
+                            [
+                              "class",
+                              "node"
+                            ],
+                            [
+                              "cx",
+                              "195.66666666666666"
+                            ],
+                            [
+                              "cy",
+                              "344"
+                            ],
+                            [
+                              "data-visual-element",
+                              "node-e"
+                            ],
+                            [
+                              "r",
+                              "21"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "value-e"
+                            ],
+                            [
+                              "x",
+                              "195.66666666666666"
+                            ],
+                            [
+                              "y",
+                              "345"
+                            ]
+                          ],
+                          "children": [
+                            "5"
+                          ]
+                        },
+                        {
+                          "tag": "circle",
+                          "attributes": [
+                            [
+                              "class",
+                              "node"
+                            ],
+                            [
+                              "cx",
+                              "349.33333333333337"
+                            ],
+                            [
+                              "cy",
+                              "344"
+                            ],
+                            [
+                              "data-visual-element",
+                              "node-f"
+                            ],
+                            [
+                              "r",
+                              "21"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "value-f"
+                            ],
+                            [
+                              "x",
+                              "349.33333333333337"
+                            ],
+                            [
+                              "y",
+                              "345"
+                            ]
+                          ],
+                          "children": [
+                            "6"
+                          ]
+                        },
+                        {
+                          "tag": "circle",
+                          "attributes": [
+                            [
+                              "class",
+                              "node marked"
+                            ],
+                            [
+                              "cx",
+                              "503"
+                            ],
+                            [
+                              "cy",
+                              "344"
+                            ],
+                            [
+                              "data-visual-element",
+                              "node-g"
+                            ],
+                            [
+                              "r",
+                              "21"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "value-g"
+                            ],
+                            [
+                              "x",
+                              "503"
+                            ],
+                            [
+                              "y",
+                              "345"
+                            ]
+                          ],
+                          "children": [
+                            "7"
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "class",
+                              "annotation"
+                            ],
+                            [
+                              "data-visual-element",
+                              "label-g"
+                            ],
+                            [
+                              "x",
+                              "503"
+                            ],
+                            [
+                              "y",
+                              "375"
+                            ]
+                          ],
+                          "children": [
+                            "q"
+                          ]
+                        },
+                        {
+                          "tag": "circle",
+                          "attributes": [
+                            [
+                              "class",
+                              "node marked"
+                            ],
+                            [
+                              "cx",
+                              "272.5"
+                            ],
+                            [
+                              "cy",
+                              "476"
+                            ],
+                            [
+                              "data-visual-element",
+                              "node-h"
+                            ],
+                            [
+                              "r",
+                              "21"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "value-h"
+                            ],
+                            [
+                              "x",
+                              "272.5"
+                            ],
+                            [
+                              "y",
+                              "477"
+                            ]
+                          ],
+                          "children": [
+                            "8"
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "class",
+                              "annotation"
+                            ],
+                            [
+                              "data-visual-element",
+                              "label-h"
+                            ],
+                            [
+                              "x",
+                              "272.5"
+                            ],
+                            [
+                              "y",
+                              "507"
+                            ]
+                          ],
+                          "children": [
+                            "p"
+                          ]
+                        },
+                        {
+                          "tag": "circle",
+                          "attributes": [
+                            [
+                              "class",
+                              "node"
+                            ],
+                            [
+                              "cx",
+                              "426.1666666666667"
+                            ],
+                            [
+                              "cy",
+                              "476"
+                            ],
+                            [
+                              "data-visual-element",
+                              "node-i"
+                            ],
+                            [
+                              "r",
+                              "21"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "value-i"
+                            ],
+                            [
+                              "x",
+                              "426.1666666666667"
+                            ],
+                            [
+                              "y",
+                              "477"
+                            ]
+                          ],
+                          "children": [
+                            "9"
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "reference-box"
+                            ],
+                            [
+                              "d",
+                              "M216.5,549 h64 v22 h-64 Z"
+                            ],
+                            [
+                              "data-visual-element",
+                              "scope-box-saved-lca"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "class",
+                              "annotation scoped-reference"
+                            ],
+                            [
+                              "data-visual-element",
+                              "scope-label-saved-lca"
+                            ],
+                            [
+                              "x",
+                              "248.5"
+                            ],
+                            [
+                              "y",
+                              "560"
+                            ]
+                          ],
+                          "children": [
+                            "全局 lca"
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "reference"
+                            ],
+                            [
+                              "d",
+                              "M280.5,560 H298.5"
+                            ],
+                            [
+                              "data-reference-name",
+                              "lca"
+                            ],
+                            [
+                              "data-reference-scope",
+                              "全局"
+                            ],
+                            [
+                              "data-reference-target",
+                              "None"
+                            ],
+                            [
+                              "data-visual-element",
+                              "scope-reference-saved-lca"
+                            ],
+                            [
+                              "marker-end",
+                              "url(#return-arrow)"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "class",
+                              "annotation"
+                            ],
+                            [
+                              "data-visual-element",
+                              "scope-none-saved-lca"
+                            ],
+                            [
+                              "x",
+                              "322.5"
+                            ],
+                            [
+                              "y",
+                              "560"
+                            ]
+                          ],
+                          "children": [
+                            "None"
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "reference-box"
+                            ],
+                            [
+                              "d",
+                              "M251.5,25 h42 v20 h-42 Z"
+                            ],
+                            [
+                              "data-visual-element",
+                              "reference-box"
+                            ],
+                            [
+                              "opacity",
+                              "1"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "class",
+                              "annotation"
+                            ],
+                            [
+                              "data-visual-element",
+                              "reference-label"
+                            ],
+                            [
+                              "opacity",
+                              "1"
+                            ],
+                            [
+                              "x",
+                              "272.5"
+                            ],
+                            [
+                              "y",
+                              "35"
+                            ]
+                          ],
+                          "children": [
+                            "root"
+                          ]
+                        },
+                        {
+                          "tag": "path",
+                          "attributes": [
+                            [
+                              "class",
+                              "reference"
+                            ],
+                            [
+                              "d",
+                              "M272.5,45 L272.5,56"
+                            ],
+                            [
+                              "data-visual-element",
+                              "reference"
+                            ],
+                            [
+                              "marker-end",
+                              "url(#return-arrow)"
+                            ],
+                            [
+                              "opacity",
+                              "1"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "section",
+                  "attributes": [
+                    [
+                      "aria-label",
+                      "当前调用的三个区域"
+                    ],
+                    [
+                      "class",
+                      "lca-regions"
+                    ],
+                    [
+                      "data-lca-regions",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "h2",
+                      "attributes": [
+                        [
+                          "data-region-heading",
+                          ""
+                        ]
+                      ],
+                      "children": [
+                        "外层函数"
+                      ]
+                    },
+                    {
+                      "tag": "code",
+                      "attributes": [
+                        [
+                          "data-region-call",
+                          ""
+                        ]
+                      ],
+                      "children": [
+                        "lowest_common_ancestor(root, p, q)"
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "lca-region-values"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "div",
+                          "attributes": [
+                            [
+                              "class",
+                              "lca-region"
+                            ],
+                            [
+                              "data-region",
+                              "self"
+                            ],
+                            [
+                              "data-value",
+                              "—"
                             ]
                           ],
                           "children": [
                             {
-                              "tag": "path",
-                              "attributes": [
-                                [
-                                  "d",
-                                  "M0 0 L8 4 L0 8 Z"
-                                ],
-                                [
-                                  "fill",
-                                  "#555"
-                                ]
+                              "tag": "small",
+                              "children": [
+                                "自己是否是目标"
+                              ]
+                            },
+                            {
+                              "tag": "code",
+                              "children": [
+                                "node_is_p_or_q"
+                              ]
+                            },
+                            {
+                              "tag": "output",
+                              "children": [
+                                "—"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "div",
+                          "attributes": [
+                            [
+                              "class",
+                              "lca-region"
+                            ],
+                            [
+                              "data-region",
+                              "left"
+                            ],
+                            [
+                              "data-value",
+                              "—"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "small",
+                              "children": [
+                                "左子树是否含目标"
+                              ]
+                            },
+                            {
+                              "tag": "code",
+                              "children": [
+                                "left_contains_p_or_q"
+                              ]
+                            },
+                            {
+                              "tag": "output",
+                              "children": [
+                                "—"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "div",
+                          "attributes": [
+                            [
+                              "class",
+                              "lca-region"
+                            ],
+                            [
+                              "data-region",
+                              "right"
+                            ],
+                            [
+                              "data-value",
+                              "—"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "small",
+                              "children": [
+                                "右子树是否含目标"
+                              ]
+                            },
+                            {
+                              "tag": "code",
+                              "children": [
+                                "right_contains_p_or_q"
+                              ]
+                            },
+                            {
+                              "tag": "output",
+                              "children": [
+                                "—"
                               ]
                             }
                           ]
@@ -1697,841 +1143,17 @@
                       ]
                     },
                     {
-                      "tag": "path",
+                      "tag": "p",
                       "attributes": [
                         [
-                          "class",
-                          "stored-edge"
-                        ],
-                        [
-                          "d",
-                          "M255.811696185325,94.33528917703103 L137.03875567661515,196.36150271596614"
-                        ],
-                        [
-                          "data-visual-element",
-                          "edge-a-left"
-                        ],
-                        [
-                          "marker-end",
-                          "url(#tree-arrow)"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "stored-edge"
-                        ],
-                        [
-                          "d",
-                          "M289.188303814675,94.33528917703103 L407.96124432338485,196.36150271596614"
-                        ],
-                        [
-                          "data-visual-element",
-                          "edge-a-right"
-                        ],
-                        [
-                          "marker-end",
-                          "url(#tree-arrow)"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "stored-edge"
-                        ],
-                        [
-                          "d",
-                          "M107.76608768488823,231.01357603810953 L54.07335888921281,323.25791704933505"
-                        ],
-                        [
-                          "data-visual-element",
-                          "edge-b-left"
-                        ],
-                        [
-                          "marker-end",
-                          "url(#tree-arrow)"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "stored-edge"
-                        ],
-                        [
-                          "d",
-                          "M129.90057898177838,231.01357603810953 L183.59330777745384,323.25791704933505"
-                        ],
-                        [
-                          "data-visual-element",
-                          "edge-b-right"
-                        ],
-                        [
-                          "marker-end",
-                          "url(#tree-arrow)"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "stored-edge"
-                        ],
-                        [
-                          "d",
-                          "M415.0994210182216,231.01357603810953 L361.40669222254616,323.25791704933505"
-                        ],
-                        [
-                          "data-visual-element",
-                          "edge-c-left"
-                        ],
-                        [
-                          "marker-end",
-                          "url(#tree-arrow)"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "stored-edge"
-                        ],
-                        [
-                          "d",
-                          "M437.23391231511175,231.01357603810953 L490.9266411107872,323.25791704933505"
-                        ],
-                        [
-                          "data-visual-element",
-                          "edge-c-right"
-                        ],
-                        [
-                          "marker-end",
-                          "url(#tree-arrow)"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "stored-edge"
-                        ],
-                        [
-                          "d",
-                          "M338.2660876848883,363.01357603810953 L284.57335888921284,455.25791704933505"
-                        ],
-                        [
-                          "data-visual-element",
-                          "edge-f-left"
-                        ],
-                        [
-                          "marker-end",
-                          "url(#tree-arrow)"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "stored-edge"
-                        ],
-                        [
-                          "d",
-                          "M360.40057898177844,363.01357603810953 L414.0933077774539,455.25791704933505"
-                        ],
-                        [
-                          "data-visual-element",
-                          "edge-f-right"
-                        ],
-                        [
-                          "marker-end",
-                          "url(#tree-arrow)"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "node active"
-                        ],
-                        [
-                          "cx",
-                          "272.5"
-                        ],
-                        [
-                          "cy",
-                          "80"
-                        ],
-                        [
-                          "data-visual-element",
-                          "node-a"
-                        ],
-                        [
-                          "r",
-                          "21"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-visual-element",
-                          "value-a"
-                        ],
-                        [
-                          "x",
-                          "272.5"
-                        ],
-                        [
-                          "y",
-                          "81"
+                          "data-region-summary",
+                          ""
                         ]
                       ],
                       "children": [
-                        "1"
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "node"
-                        ],
-                        [
-                          "cx",
-                          "118.83333333333331"
-                        ],
-                        [
-                          "cy",
-                          "212"
-                        ],
-                        [
-                          "data-visual-element",
-                          "node-b"
-                        ],
-                        [
-                          "r",
-                          "21"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-visual-element",
-                          "value-b"
-                        ],
-                        [
-                          "x",
-                          "118.83333333333331"
-                        ],
-                        [
-                          "y",
-                          "213"
-                        ]
-                      ],
-                      "children": [
-                        "2"
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "node"
-                        ],
-                        [
-                          "cx",
-                          "426.1666666666667"
-                        ],
-                        [
-                          "cy",
-                          "212"
-                        ],
-                        [
-                          "data-visual-element",
-                          "node-c"
-                        ],
-                        [
-                          "r",
-                          "21"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-visual-element",
-                          "value-c"
-                        ],
-                        [
-                          "x",
-                          "426.1666666666667"
-                        ],
-                        [
-                          "y",
-                          "213"
-                        ]
-                      ],
-                      "children": [
-                        "3"
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "node"
-                        ],
-                        [
-                          "cx",
-                          "42"
-                        ],
-                        [
-                          "cy",
-                          "344"
-                        ],
-                        [
-                          "data-visual-element",
-                          "node-d"
-                        ],
-                        [
-                          "r",
-                          "21"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-visual-element",
-                          "value-d"
-                        ],
-                        [
-                          "x",
-                          "42"
-                        ],
-                        [
-                          "y",
-                          "345"
-                        ]
-                      ],
-                      "children": [
-                        "4"
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "node"
-                        ],
-                        [
-                          "cx",
-                          "195.66666666666666"
-                        ],
-                        [
-                          "cy",
-                          "344"
-                        ],
-                        [
-                          "data-visual-element",
-                          "node-e"
-                        ],
-                        [
-                          "r",
-                          "21"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-visual-element",
-                          "value-e"
-                        ],
-                        [
-                          "x",
-                          "195.66666666666666"
-                        ],
-                        [
-                          "y",
-                          "345"
-                        ]
-                      ],
-                      "children": [
-                        "5"
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "node"
-                        ],
-                        [
-                          "cx",
-                          "349.33333333333337"
-                        ],
-                        [
-                          "cy",
-                          "344"
-                        ],
-                        [
-                          "data-visual-element",
-                          "node-f"
-                        ],
-                        [
-                          "r",
-                          "21"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-visual-element",
-                          "value-f"
-                        ],
-                        [
-                          "x",
-                          "349.33333333333337"
-                        ],
-                        [
-                          "y",
-                          "345"
-                        ]
-                      ],
-                      "children": [
-                        "6"
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "node marked"
-                        ],
-                        [
-                          "cx",
-                          "503"
-                        ],
-                        [
-                          "cy",
-                          "344"
-                        ],
-                        [
-                          "data-visual-element",
-                          "node-g"
-                        ],
-                        [
-                          "r",
-                          "21"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-visual-element",
-                          "value-g"
-                        ],
-                        [
-                          "x",
-                          "503"
-                        ],
-                        [
-                          "y",
-                          "345"
-                        ]
-                      ],
-                      "children": [
-                        "7"
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "class",
-                          "annotation"
-                        ],
-                        [
-                          "data-visual-element",
-                          "label-g"
-                        ],
-                        [
-                          "x",
-                          "503"
-                        ],
-                        [
-                          "y",
-                          "375"
-                        ]
-                      ],
-                      "children": [
-                        "q"
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "node marked"
-                        ],
-                        [
-                          "cx",
-                          "272.5"
-                        ],
-                        [
-                          "cy",
-                          "476"
-                        ],
-                        [
-                          "data-visual-element",
-                          "node-h"
-                        ],
-                        [
-                          "r",
-                          "21"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-visual-element",
-                          "value-h"
-                        ],
-                        [
-                          "x",
-                          "272.5"
-                        ],
-                        [
-                          "y",
-                          "477"
-                        ]
-                      ],
-                      "children": [
-                        "8"
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "class",
-                          "annotation"
-                        ],
-                        [
-                          "data-visual-element",
-                          "label-h"
-                        ],
-                        [
-                          "x",
-                          "272.5"
-                        ],
-                        [
-                          "y",
-                          "507"
-                        ]
-                      ],
-                      "children": [
-                        "p"
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "node"
-                        ],
-                        [
-                          "cx",
-                          "426.1666666666667"
-                        ],
-                        [
-                          "cy",
-                          "476"
-                        ],
-                        [
-                          "data-visual-element",
-                          "node-i"
-                        ],
-                        [
-                          "r",
-                          "21"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-visual-element",
-                          "value-i"
-                        ],
-                        [
-                          "x",
-                          "426.1666666666667"
-                        ],
-                        [
-                          "y",
-                          "477"
-                        ]
-                      ],
-                      "children": [
-                        "9"
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "reference-box"
-                        ],
-                        [
-                          "d",
-                          "M216.5,549 h64 v22 h-64 Z"
-                        ],
-                        [
-                          "data-visual-element",
-                          "scope-box-saved-lca"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "class",
-                          "annotation scoped-reference"
-                        ],
-                        [
-                          "data-visual-element",
-                          "scope-label-saved-lca"
-                        ],
-                        [
-                          "x",
-                          "248.5"
-                        ],
-                        [
-                          "y",
-                          "560"
-                        ]
-                      ],
-                      "children": [
-                        "全局 lca"
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "reference"
-                        ],
-                        [
-                          "d",
-                          "M280.5,560 H298.5"
-                        ],
-                        [
-                          "data-reference-name",
-                          "lca"
-                        ],
-                        [
-                          "data-reference-scope",
-                          "全局"
-                        ],
-                        [
-                          "data-reference-target",
-                          "None"
-                        ],
-                        [
-                          "data-visual-element",
-                          "scope-reference-saved-lca"
-                        ],
-                        [
-                          "marker-end",
-                          "url(#return-arrow)"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "class",
-                          "annotation"
-                        ],
-                        [
-                          "data-visual-element",
-                          "scope-none-saved-lca"
-                        ],
-                        [
-                          "x",
-                          "322.5"
-                        ],
-                        [
-                          "y",
-                          "560"
-                        ]
-                      ],
-                      "children": [
-                        "None"
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "reference-box"
-                        ],
-                        [
-                          "d",
-                          "M251.5,25 h42 v20 h-42 Z"
-                        ],
-                        [
-                          "data-visual-element",
-                          "reference-box"
-                        ],
-                        [
-                          "opacity",
-                          "1"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "class",
-                          "annotation"
-                        ],
-                        [
-                          "data-visual-element",
-                          "reference-label"
-                        ],
-                        [
-                          "opacity",
-                          "1"
-                        ],
-                        [
-                          "x",
-                          "272.5"
-                        ],
-                        [
-                          "y",
-                          "35"
-                        ]
-                      ],
-                      "children": [
-                        "root"
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "reference"
-                        ],
-                        [
-                          "d",
-                          "M272.5,45 L272.5,56"
-                        ],
-                        [
-                          "data-visual-element",
-                          "reference"
-                        ],
-                        [
-                          "marker-end",
-                          "url(#return-arrow)"
-                        ],
-                        [
-                          "opacity",
-                          "1"
-                        ]
+                        "lca → None；等待进入 dfs。"
                       ]
                     }
-                  ]
-                }
-              ]
-            },
-            {
-              "tag": "section",
-              "attributes": [
-                [
-                  "aria-label",
-                  "当前调用的三个区域"
-                ],
-                [
-                  "class",
-                  "lca-regions"
-                ],
-                [
-                  "data-lca-regions",
-                  ""
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "h2",
-                  "attributes": [
-                    [
-                      "data-region-heading",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "外层函数"
-                  ]
-                },
-                {
-                  "tag": "code",
-                  "attributes": [
-                    [
-                      "data-region-call",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "lowest_common_ancestor(root, p, q)"
                   ]
                 },
                 {
@@ -2539,133 +1161,91 @@
                   "attributes": [
                     [
                       "class",
-                      "lca-region-values"
+                      "operation"
+                    ],
+                    [
+                      "role",
+                      "status"
                     ]
                   ],
                   "children": [
                     {
-                      "tag": "div",
+                      "tag": "code",
                       "attributes": [
                         [
-                          "class",
-                          "lca-region"
-                        ],
-                        [
-                          "data-region",
-                          "self"
-                        ],
-                        [
-                          "data-value",
-                          "—"
+                          "data-expression",
+                          ""
                         ]
                       ],
                       "children": [
-                        {
-                          "tag": "small",
-                          "children": [
-                            "自己是否是目标"
-                          ]
-                        },
-                        {
-                          "tag": "code",
-                          "children": [
-                            "node_is_p_or_q"
-                          ]
-                        },
-                        {
-                          "tag": "output",
-                          "children": [
-                            "—"
-                          ]
-                        }
+                        "lca = None"
                       ]
                     },
                     {
-                      "tag": "div",
+                      "tag": "span",
                       "attributes": [
                         [
-                          "class",
-                          "lca-region"
-                        ],
-                        [
-                          "data-region",
-                          "left"
-                        ],
-                        [
-                          "data-value",
-                          "—"
+                          "data-explanation",
+                          ""
                         ]
                       ],
                       "children": [
-                        {
-                          "tag": "small",
-                          "children": [
-                            "左子树是否含目标"
-                          ]
-                        },
-                        {
-                          "tag": "code",
-                          "children": [
-                            "left_contains_p_or_q"
-                          ]
-                        },
-                        {
-                          "tag": "output",
-                          "children": [
-                            "—"
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "tag": "div",
-                      "attributes": [
-                        [
-                          "class",
-                          "lca-region"
-                        ],
-                        [
-                          "data-region",
-                          "right"
-                        ],
-                        [
-                          "data-value",
-                          "—"
-                        ]
-                      ],
-                      "children": [
-                        {
-                          "tag": "small",
-                          "children": [
-                            "右子树是否含目标"
-                          ]
-                        },
-                        {
-                          "tag": "code",
-                          "children": [
-                            "right_contains_p_or_q"
-                          ]
-                        },
-                        {
-                          "tag": "output",
-                          "children": [
-                            "—"
-                          ]
-                        }
+                        "每次外层调用先清空答案，避免保留上一次查询的节点。"
                       ]
                     }
                   ]
                 },
                 {
-                  "tag": "p",
+                  "tag": "div",
                   "attributes": [
                     [
-                      "data-region-summary",
+                      "class",
+                      "execution-detail"
+                    ],
+                    [
+                      "data-execution-detail",
+                      ""
+                    ],
+                    [
+                      "hidden",
                       ""
                     ]
                   ],
                   "children": [
-                    "lca → None；等待进入 dfs。"
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "call-handoff"
+                        ],
+                        [
+                          "data-handoff",
+                          ""
+                        ],
+                        [
+                          "hidden",
+                          ""
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "call-decision"
+                        ],
+                        [
+                          "data-decision",
+                          ""
+                        ],
+                        [
+                          "hidden",
+                          ""
+                        ]
+                      ]
+                    }
                   ]
                 }
               ]
@@ -2675,20 +1255,314 @@
               "attributes": [
                 [
                   "class",
-                  "operation"
+                  "memory"
                 ],
                 [
-                  "role",
-                  "status"
+                  "data-memory",
+                  ""
                 ]
               ],
               "children": [
                 {
-                  "tag": "code",
+                  "tag": "h3",
+                  "children": [
+                    "调用栈 · 最后一个是栈顶"
+                  ]
+                },
+                {
+                  "tag": "div",
                   "attributes": [
                     [
-                      "data-expression",
+                      "class",
+                      "memory-items"
+                    ],
+                    [
+                      "data-memory-items",
                       ""
+                    ]
+                  ],
+                  "children": [
+                    "∅"
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "attributes": [
+                    [
+                      "class",
+                      "memory-note"
+                    ],
+                    [
+                      "data-memory-note",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "每层独立保存三个布尔变量；子调用返回后，只给直接调用者的 left_contains_p_or_q 或 right_contains_p_or_q 赋值。"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "state-grid"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "invariant"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "strong",
+                  "children": [
+                    "保持什么成立"
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "attributes": [
+                    [
+                      "data-invariant",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "dfs 返回「当前子树是否至少包含一个目标」；True 可能包含两个目标。lca 单独保存节点引用，树的孩子引用始终不变。"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "invariant"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "strong",
+                  "children": [
+                    "返回结果"
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "attributes": [
+                    [
+                      "class",
+                      "result"
+                    ],
+                    [
+                      "data-result",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "lca = None"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "aside",
+      "attributes": [
+        [
+          "class",
+          "code-panel"
+        ],
+        [
+          "data-code-panel",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "h2",
+          "children": [
+            "完整 Python 代码"
+          ]
+        },
+        {
+          "tag": "p",
+          "attributes": [
+            [
+              "class",
+              "code-status"
+            ],
+            [
+              "data-code-status",
+              ""
+            ]
+          ],
+          "children": [
+            "当前执行：lca = None # Reset the saved answer for each call."
+          ]
+        },
+        {
+          "tag": "pre",
+          "attributes": [
+            [
+              "aria-label",
+              "完整 Python 实现"
+            ],
+            [
+              "data-code-scroll",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "code",
+              "children": [
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "1"
+                    ]
+                  ],
+                  "children": [
+                    "from typing import List, Optional"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "2"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "3"
+                    ]
+                  ],
+                  "children": [
+                    "class TreeNode:"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "4"
+                    ]
+                  ],
+                  "children": [
+                    "def __init__(self, val=0, left=None, right=None):"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "5"
+                    ]
+                  ],
+                  "children": [
+                    "self.val = val"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "6"
+                    ]
+                  ],
+                  "children": [
+                    "self.left = left"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "7"
+                    ]
+                  ],
+                  "children": [
+                    "self.right = right"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "8"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "9"
                     ]
                   ],
                   "children": [
@@ -2699,26 +1573,339 @@
                   "tag": "span",
                   "attributes": [
                     [
-                      "data-explanation",
-                      ""
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "10"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "11"
                     ]
                   ],
                   "children": [
-                    "每次外层调用先清空答案，避免保留上一次查询的节点。"
+                    "def lowest_common_ancestor(root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "12"
+                    ]
+                  ],
+                  "children": [
+                    "global lca"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "aria-current",
+                      "step"
+                    ],
+                    [
+                      "class",
+                      "code-line is-active"
+                    ],
+                    [
+                      "data-line-number",
+                      "13"
+                    ],
+                    [
+                      "data-source-key",
+                      "reset"
+                    ]
+                  ],
+                  "children": [
+                    "lca = None # Reset the saved answer for each call."
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "14"
+                    ],
+                    [
+                      "data-source-key",
+                      "call"
+                    ]
+                  ],
+                  "children": [
+                    "dfs(root, p, q)"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "15"
+                    ],
+                    [
+                      "data-source-key",
+                      "answer"
+                    ]
+                  ],
+                  "children": [
+                    "return lca"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "16"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "17"
+                    ]
+                  ],
+                  "children": [
+                    "def dfs(node: Optional[TreeNode], p: TreeNode, q: TreeNode) -> bool:"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "18"
+                    ]
+                  ],
+                  "children": [
+                    "global lca"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "19"
+                    ],
+                    [
+                      "data-source-key",
+                      "check"
+                    ]
+                  ],
+                  "children": [
+                    "if not node:"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "20"
+                    ],
+                    [
+                      "data-source-key",
+                      "empty"
+                    ]
+                  ],
+                  "children": [
+                    "return False"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "21"
+                    ],
+                    [
+                      "data-source-key",
+                      "self"
+                    ]
+                  ],
+                  "children": [
+                    "node_is_p_or_q = node == p or node == q"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "22"
+                    ],
+                    [
+                      "data-source-key",
+                      "left"
+                    ]
+                  ],
+                  "children": [
+                    "left_contains_p_or_q = dfs(node.left, p, q)"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "23"
+                    ],
+                    [
+                      "data-source-key",
+                      "right"
+                    ]
+                  ],
+                  "children": [
+                    "right_contains_p_or_q = dfs(node.right, p, q)"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "24"
+                    ],
+                    [
+                      "data-source-key",
+                      "two"
+                    ]
+                  ],
+                  "children": [
+                    "if node_is_p_or_q + left_contains_p_or_q + right_contains_p_or_q == 2:"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "25"
+                    ],
+                    [
+                      "data-source-key",
+                      "set"
+                    ]
+                  ],
+                  "children": [
+                    "lca = node"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "class",
+                      "code-line"
+                    ],
+                    [
+                      "data-line-number",
+                      "26"
+                    ],
+                    [
+                      "data-source-key",
+                      "flag"
+                    ]
+                  ],
+                  "children": [
+                    "return node_is_p_or_q or left_contains_p_or_q or right_contains_p_or_q"
                   ]
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "lca-controls"
+            ],
+            [
+              "data-lca-controls",
+              ""
+            ]
+          ],
+          "children": [
             {
-              "tag": "div",
+              "tag": "label",
               "attributes": [
                 [
                   "class",
-                  "execution-detail"
-                ],
-                [
-                  "data-execution-detail",
-                  ""
+                  "settings"
                 ],
                 [
                   "hidden",
@@ -2726,61 +1913,153 @@
                 ]
               ],
               "children": [
+                "目标",
                 {
-                  "tag": "div",
+                  "tag": "select",
                   "attributes": [
                     [
-                      "class",
-                      "call-handoff"
+                      "aria-label",
+                      "最近公共祖先目标"
                     ],
                     [
-                      "data-handoff",
-                      ""
-                    ],
-                    [
-                      "hidden",
+                      "data-case",
                       ""
                     ]
-                  ]
-                },
-                {
-                  "tag": "div",
-                  "attributes": [
-                    [
-                      "class",
-                      "call-decision"
-                    ],
-                    [
-                      "data-decision",
-                      ""
-                    ],
-                    [
-                      "hidden",
-                      ""
-                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "split"
+                        ]
+                      ],
+                      "children": [
+                        "p=8，q=7：左右会合"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "selfLeft"
+                        ]
+                      ],
+                      "children": [
+                        "p=3，q=8：自身＋左侧"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "selfRight"
+                        ]
+                      ],
+                      "children": [
+                        "p=3，q=7：自身＋右侧"
+                      ]
+                    },
+                    {
+                      "tag": "option",
+                      "attributes": [
+                        [
+                          "value",
+                          "same"
+                        ]
+                      ],
+                      "children": [
+                        "p=8，q=9：更低的 6"
+                      ]
+                    }
                   ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "memory"
-            ],
-            [
-              "data-memory",
-              ""
-            ]
-          ],
-          "children": [
+            },
             {
-              "tag": "h3",
+              "tag": "div",
+              "attributes": [
+                [
+                  "aria-label",
+                  "最近公共祖先目标"
+                ],
+                [
+                  "class",
+                  "tree-cases"
+                ],
+                [
+                  "role",
+                  "group"
+                ]
+              ],
               "children": [
-                "调用栈 · 最后一个是栈顶"
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-pressed",
+                      "true"
+                    ],
+                    [
+                      "data-case-value",
+                      "split"
+                    ]
+                  ],
+                  "children": [
+                    "p=8，q=7：左右会合"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-pressed",
+                      "false"
+                    ],
+                    [
+                      "data-case-value",
+                      "selfLeft"
+                    ]
+                  ],
+                  "children": [
+                    "p=3，q=8：自身＋左侧"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-pressed",
+                      "false"
+                    ],
+                    [
+                      "data-case-value",
+                      "selfRight"
+                    ]
+                  ],
+                  "children": [
+                    "p=3，q=7：自身＋右侧"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-pressed",
+                      "false"
+                    ],
+                    [
+                      "data-case-value",
+                      "same"
+                    ]
+                  ],
+                  "children": [
+                    "p=8，q=9：更低的 6"
+                  ]
+                }
               ]
             },
             {
@@ -2788,15 +2067,1352 @@
               "attributes": [
                 [
                   "class",
-                  "memory-items"
-                ],
-                [
-                  "data-memory-items",
-                  ""
+                  "controls"
                 ]
               ],
               "children": [
-                "∅"
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "data-action",
+                      "previous"
+                    ],
+                    [
+                      "disabled",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "← 上一步"
+                  ]
+                },
+                {
+                  "tag": "output",
+                  "attributes": [
+                    [
+                      "data-count",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "步骤 1 / 96"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "data-action",
+                      "next"
+                    ]
+                  ],
+                  "children": [
+                    "下一步 →"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "data-action",
+                      "copy-link"
+                    ]
+                  ],
+                  "children": [
+                    "复制本步骤链接"
+                  ]
+                },
+                {
+                  "tag": "label",
+                  "attributes": [
+                    [
+                      "class",
+                      "step-picker"
+                    ]
+                  ],
+                  "children": [
+                    "跳到步骤",
+                    {
+                      "tag": "select",
+                      "attributes": [
+                        [
+                          "aria-label",
+                          "跳到步骤"
+                        ],
+                        [
+                          "data-step-select",
+                          ""
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "0"
+                            ]
+                          ],
+                          "children": [
+                            "1 · lca = None"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "1"
+                            ]
+                          ],
+                          "children": [
+                            "2 · dfs(root, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "2"
+                            ]
+                          ],
+                          "children": [
+                            "3 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "3"
+                            ]
+                          ],
+                          "children": [
+                            "4 · node_is_p_or_q = node == p or node == q"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "4"
+                            ]
+                          ],
+                          "children": [
+                            "5 · left_contains_p_or_q = dfs(node.left, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "5"
+                            ]
+                          ],
+                          "children": [
+                            "6 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "6"
+                            ]
+                          ],
+                          "children": [
+                            "7 · node_is_p_or_q = node == p or node == q"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "7"
+                            ]
+                          ],
+                          "children": [
+                            "8 · left_contains_p_or_q = dfs(node.left, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "8"
+                            ]
+                          ],
+                          "children": [
+                            "9 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "9"
+                            ]
+                          ],
+                          "children": [
+                            "10 · node_is_p_or_q = node == p or node == q"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "10"
+                            ]
+                          ],
+                          "children": [
+                            "11 · left_contains_p_or_q = dfs(node.left, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "11"
+                            ]
+                          ],
+                          "children": [
+                            "12 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "12"
+                            ]
+                          ],
+                          "children": [
+                            "13 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "13"
+                            ]
+                          ],
+                          "children": [
+                            "14 · left_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "14"
+                            ]
+                          ],
+                          "children": [
+                            "15 · right_contains_p_or_q = dfs(node.right, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "15"
+                            ]
+                          ],
+                          "children": [
+                            "16 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "16"
+                            ]
+                          ],
+                          "children": [
+                            "17 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "17"
+                            ]
+                          ],
+                          "children": [
+                            "18 · right_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "18"
+                            ]
+                          ],
+                          "children": [
+                            "19 · 0 + 0 + 0 == 2"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "19"
+                            ]
+                          ],
+                          "children": [
+                            "20 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "20"
+                            ]
+                          ],
+                          "children": [
+                            "21 · left_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "21"
+                            ]
+                          ],
+                          "children": [
+                            "22 · right_contains_p_or_q = dfs(node.right, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "22"
+                            ]
+                          ],
+                          "children": [
+                            "23 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "23"
+                            ]
+                          ],
+                          "children": [
+                            "24 · node_is_p_or_q = node == p or node == q"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "24"
+                            ]
+                          ],
+                          "children": [
+                            "25 · left_contains_p_or_q = dfs(node.left, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "25"
+                            ]
+                          ],
+                          "children": [
+                            "26 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "26"
+                            ]
+                          ],
+                          "children": [
+                            "27 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "27"
+                            ]
+                          ],
+                          "children": [
+                            "28 · left_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "28"
+                            ]
+                          ],
+                          "children": [
+                            "29 · right_contains_p_or_q = dfs(node.right, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "29"
+                            ]
+                          ],
+                          "children": [
+                            "30 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "30"
+                            ]
+                          ],
+                          "children": [
+                            "31 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "31"
+                            ]
+                          ],
+                          "children": [
+                            "32 · right_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "32"
+                            ]
+                          ],
+                          "children": [
+                            "33 · 0 + 0 + 0 == 2"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "33"
+                            ]
+                          ],
+                          "children": [
+                            "34 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "34"
+                            ]
+                          ],
+                          "children": [
+                            "35 · right_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "35"
+                            ]
+                          ],
+                          "children": [
+                            "36 · 0 + 0 + 0 == 2"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "36"
+                            ]
+                          ],
+                          "children": [
+                            "37 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "37"
+                            ]
+                          ],
+                          "children": [
+                            "38 · left_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "38"
+                            ]
+                          ],
+                          "children": [
+                            "39 · right_contains_p_or_q = dfs(node.right, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "39"
+                            ]
+                          ],
+                          "children": [
+                            "40 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "40"
+                            ]
+                          ],
+                          "children": [
+                            "41 · node_is_p_or_q = node == p or node == q"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "41"
+                            ]
+                          ],
+                          "children": [
+                            "42 · left_contains_p_or_q = dfs(node.left, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "42"
+                            ]
+                          ],
+                          "children": [
+                            "43 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "43"
+                            ]
+                          ],
+                          "children": [
+                            "44 · node_is_p_or_q = node == p or node == q"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "44"
+                            ]
+                          ],
+                          "children": [
+                            "45 · left_contains_p_or_q = dfs(node.left, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "45"
+                            ]
+                          ],
+                          "children": [
+                            "46 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "46"
+                            ]
+                          ],
+                          "children": [
+                            "47 · node_is_p_or_q = node == p or node == q"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "47"
+                            ]
+                          ],
+                          "children": [
+                            "48 · left_contains_p_or_q = dfs(node.left, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "48"
+                            ]
+                          ],
+                          "children": [
+                            "49 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "49"
+                            ]
+                          ],
+                          "children": [
+                            "50 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "50"
+                            ]
+                          ],
+                          "children": [
+                            "51 · left_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "51"
+                            ]
+                          ],
+                          "children": [
+                            "52 · right_contains_p_or_q = dfs(node.right, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "52"
+                            ]
+                          ],
+                          "children": [
+                            "53 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "53"
+                            ]
+                          ],
+                          "children": [
+                            "54 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "54"
+                            ]
+                          ],
+                          "children": [
+                            "55 · right_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "55"
+                            ]
+                          ],
+                          "children": [
+                            "56 · 1 + 0 + 0 == 2"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "56"
+                            ]
+                          ],
+                          "children": [
+                            "57 · return True"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "57"
+                            ]
+                          ],
+                          "children": [
+                            "58 · left_contains_p_or_q = True"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "58"
+                            ]
+                          ],
+                          "children": [
+                            "59 · right_contains_p_or_q = dfs(node.right, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "59"
+                            ]
+                          ],
+                          "children": [
+                            "60 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "60"
+                            ]
+                          ],
+                          "children": [
+                            "61 · node_is_p_or_q = node == p or node == q"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "61"
+                            ]
+                          ],
+                          "children": [
+                            "62 · left_contains_p_or_q = dfs(node.left, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "62"
+                            ]
+                          ],
+                          "children": [
+                            "63 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "63"
+                            ]
+                          ],
+                          "children": [
+                            "64 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "64"
+                            ]
+                          ],
+                          "children": [
+                            "65 · left_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "65"
+                            ]
+                          ],
+                          "children": [
+                            "66 · right_contains_p_or_q = dfs(node.right, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "66"
+                            ]
+                          ],
+                          "children": [
+                            "67 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "67"
+                            ]
+                          ],
+                          "children": [
+                            "68 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "68"
+                            ]
+                          ],
+                          "children": [
+                            "69 · right_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "69"
+                            ]
+                          ],
+                          "children": [
+                            "70 · 0 + 0 + 0 == 2"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "70"
+                            ]
+                          ],
+                          "children": [
+                            "71 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "71"
+                            ]
+                          ],
+                          "children": [
+                            "72 · right_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "72"
+                            ]
+                          ],
+                          "children": [
+                            "73 · 0 + 1 + 0 == 2"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "73"
+                            ]
+                          ],
+                          "children": [
+                            "74 · return True"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "74"
+                            ]
+                          ],
+                          "children": [
+                            "75 · left_contains_p_or_q = True"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "75"
+                            ]
+                          ],
+                          "children": [
+                            "76 · right_contains_p_or_q = dfs(node.right, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "76"
+                            ]
+                          ],
+                          "children": [
+                            "77 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "77"
+                            ]
+                          ],
+                          "children": [
+                            "78 · node_is_p_or_q = node == p or node == q"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "78"
+                            ]
+                          ],
+                          "children": [
+                            "79 · left_contains_p_or_q = dfs(node.left, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "79"
+                            ]
+                          ],
+                          "children": [
+                            "80 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "80"
+                            ]
+                          ],
+                          "children": [
+                            "81 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "81"
+                            ]
+                          ],
+                          "children": [
+                            "82 · left_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "82"
+                            ]
+                          ],
+                          "children": [
+                            "83 · right_contains_p_or_q = dfs(node.right, p, q)"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "83"
+                            ]
+                          ],
+                          "children": [
+                            "84 · if not node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "84"
+                            ]
+                          ],
+                          "children": [
+                            "85 · return False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "85"
+                            ]
+                          ],
+                          "children": [
+                            "86 · right_contains_p_or_q = False"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "86"
+                            ]
+                          ],
+                          "children": [
+                            "87 · 1 + 0 + 0 == 2"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "87"
+                            ]
+                          ],
+                          "children": [
+                            "88 · return True"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "88"
+                            ]
+                          ],
+                          "children": [
+                            "89 · right_contains_p_or_q = True"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "89"
+                            ]
+                          ],
+                          "children": [
+                            "90 · 0 + 1 + 1 == 2"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "90"
+                            ]
+                          ],
+                          "children": [
+                            "91 · lca = node"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "91"
+                            ]
+                          ],
+                          "children": [
+                            "92 · return True"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "92"
+                            ]
+                          ],
+                          "children": [
+                            "93 · right_contains_p_or_q = True"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "93"
+                            ]
+                          ],
+                          "children": [
+                            "94 · 0 + 0 + 1 == 2"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "94"
+                            ]
+                          ],
+                          "children": [
+                            "95 · return True"
+                          ]
+                        },
+                        {
+                          "tag": "option",
+                          "attributes": [
+                            [
+                              "value",
+                              "95"
+                            ]
+                          ],
+                          "children": [
+                            "96 · return lca"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "nav",
+              "attributes": [
+                [
+                  "aria-label",
+                  "关键步骤"
+                ],
+                [
+                  "class",
+                  "tree-shortcuts"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-current",
+                      "true"
+                    ],
+                    [
+                      "data-landmark-step",
+                      "0"
+                    ]
+                  ],
+                  "children": [
+                    "初始状态"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-current",
+                      "false"
+                    ],
+                    [
+                      "data-landmark-step",
+                      "56"
+                    ]
+                  ],
+                  "children": [
+                    "目标返回 True"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-current",
+                      "false"
+                    ],
+                    [
+                      "data-landmark-step",
+                      "57"
+                    ]
+                  ],
+                  "children": [
+                    "父层接收 True"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-current",
+                      "false"
+                    ],
+                    [
+                      "data-landmark-step",
+                      "89"
+                    ]
+                  ],
+                  "children": [
+                    "两个区域会合"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-current",
+                      "false"
+                    ],
+                    [
+                      "data-landmark-step",
+                      "93"
+                    ]
+                  ],
+                  "children": [
+                    "祖先保留答案"
+                  ]
+                },
+                {
+                  "tag": "button",
+                  "attributes": [
+                    [
+                      "aria-current",
+                      "false"
+                    ],
+                    [
+                      "data-landmark-step",
+                      "95"
+                    ]
+                  ],
+                  "children": [
+                    "最终结果"
+                  ]
+                }
               ]
             },
             {
@@ -2804,88 +3420,15 @@
               "attributes": [
                 [
                   "class",
-                  "memory-note"
+                  "step-meta"
                 ],
                 [
-                  "data-memory-note",
+                  "data-phase",
                   ""
                 ]
               ],
               "children": [
-                "每层独立保存三个布尔变量；子调用返回后，只给直接调用者的 left_contains_p_or_q 或 right_contains_p_or_q 赋值。"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "state-grid"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "保持什么成立"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "data-invariant",
-                  ""
-                ]
-              ],
-              "children": [
-                "dfs 返回「当前子树是否至少包含一个目标」；True 可能包含两个目标。lca 单独保存节点引用，树的孩子引用始终不变。"
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "返回结果"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "class",
-                  "result"
-                ],
-                [
-                  "data-result",
-                  ""
-                ]
-              ],
-              "children": [
-                "lca = None"
+                "后序 · 自己、左子树、右子树"
               ]
             }
           ]
