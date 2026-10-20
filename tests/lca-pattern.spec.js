@@ -56,6 +56,9 @@ test('the two-region condition precedes saving a separate global LCA reference',
   await expect(page.locator('[data-region-summary]')).toContainText(/保留|不更新/);
   await expect(page.locator('[data-reference-name="lca"]')).toHaveAttribute('data-reference-target','f');
   await expect(page.locator('[data-result]')).toHaveText('lca = 6');
+  await page.getByRole('button',{name:'祖先保留答案',exact:true}).click();
+  await expect(picker).toHaveValue('90');
+  await expect(page.locator('[data-region-heading]')).toContainText('节点 3');
 });
 
 test('uncomputed locals stay unassigned until their own line receives a child return', async ({page}) => {
