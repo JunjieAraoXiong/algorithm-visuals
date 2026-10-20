@@ -2,6 +2,11 @@ const {test, expect} = require('@playwright/test');
 
 const variables={self:'node_is_p_or_q',left:'left_contains_p_or_q',right:'right_contains_p_or_q'};
 
+async function goToStep(page, step, mode='same') {
+  await page.goto(`/lowest-common-ancestor/?case=${mode}#step=${step}`);
+  await expect(page.locator('[data-count]')).toHaveText(`步骤 ${step+1} / 96`);
+}
+
 async function expectRegions(page, values) {
   const panel=page.locator('[data-lca-regions]');
   await expect(panel).toBeVisible();
@@ -26,9 +31,7 @@ function diagramClipping(svg) {
 
 test('the two-region condition precedes saving a separate global LCA reference', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  await page.goto('/lowest-common-ancestor/?case=same#step=72');
-  const picker=page.locator('[data-step-select]');
-  await expect(picker.locator('option')).toHaveCount(96);
+  await goToStep(page,72);
   await expect(page.locator('[data-source-key="two"]')).toHaveAttribute('aria-current','step');
   await expectRegions(page,{self:'False',left:'True',right:'True'});
   await expect(page.locator('[data-region-summary]')).toContainText('条件成立');
@@ -43,33 +46,40 @@ test('the two-region condition precedes saving a separate global LCA reference',
   await expect(page.locator('[data-result]')).toHaveText('lca = 6');
   await expect(page.locator('[data-reference-name="lca"]')).toHaveAttribute('data-reference-target','f');
 
-  await picker.selectOption('77');
+  await goToStep(page,74);
+  await expect(page.locator('[data-source-key="flag"]')).toHaveAttribute('aria-current','step');
+  await expect(page.locator('[data-current-flow]')).toContainText('return True → 第 2 层的 left_contains_p_or_q');
+  await expect(page.locator('[data-reference-name="lca"]')).toHaveAttribute('data-reference-target','f');
+
+  await goToStep(page,77);
   await expect(page.locator('[data-visual-element="reference-label"]')).toHaveText('第 3 层 node');
   await expect(page.locator('[data-visual-element="node-g"]')).toHaveClass(/active/);
   await expect(page.locator('[data-reference-name="lca"]')).toHaveAttribute('data-reference-target','f');
   await expect(page.locator('[data-result]')).toHaveText('lca = 6');
 
-  await picker.selectOption('90');
+  await goToStep(page,90);
   await expect(page.locator('[data-visual-element="reference-label"]')).toHaveText('第 2 层 node');
   await expect(page.locator('[data-visual-element="node-c"]')).toHaveClass(/active/);
   await expectRegions(page,{self:'False',left:'True',right:'False'});
   await expect(page.locator('[data-region-summary]')).toContainText(/保留|不更新/);
   await expect(page.locator('[data-reference-name="lca"]')).toHaveAttribute('data-reference-target','f');
   await expect(page.locator('[data-result]')).toHaveText('lca = 6');
-  await page.getByRole('button',{name:'祖先保留答案',exact:true}).click();
-  await expect(picker).toHaveValue('90');
   await expect(page.locator('[data-region-heading]')).toContainText('节点 3');
 });
 
 test('uncomputed locals stay unassigned until their own line receives a child return', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  await page.goto('/lowest-common-ancestor/?case=same#step=2');
+  await goToStep(page,2);
   await expectRegions(page,{self:'未赋值',left:'未赋值',right:'未赋值'});
   await page.locator('[data-action="next"]').click();
   await expectRegions(page,{self:'False',left:'未赋值',right:'未赋值'});
 
-  await page.locator('[data-step-select]').selectOption('12');
+  await goToStep(page,12);
+  const history=page.locator('[data-call-history]');
+  await expect(history).not.toHaveAttribute('open','');
+  await history.locator('summary').click();
   await expect(page.locator('[data-source-key="empty"]')).toHaveAttribute('aria-current','step');
+  await expect(page.locator('[data-current-flow]')).toContainText('return False → 第 3 层的 left_contains_p_or_q');
   const calls=page.locator('.call-frame');
   await expect(calls).toHaveCount(4);
   await expect(localValue(calls.nth(2),'left_contains_p_or_q')).toHaveText('未赋值');
@@ -80,6 +90,7 @@ test('uncomputed locals stay unassigned until their own line receives a child re
   await expect(page).toHaveURL(/#step=13$/);
   await expect(calls).toHaveCount(3);
   await expect(page.locator('[data-source-key="left"]')).toHaveAttribute('aria-current','step');
+  await expect(page.locator('[data-current-flow]')).toContainText('第 3 层接收：left_contains_p_or_q = False');
   await expectRegions(page,{self:'False',left:'False',right:'未赋值'});
   await expect(localValue(calls.nth(2),'left_contains_p_or_q')).toHaveText('False');
   await expect(localValue(calls.nth(1),'left_contains_p_or_q')).toHaveText('未赋值');
@@ -106,25 +117,82 @@ test('rewinding restores the unsaved reference and each query resets the saved a
   await expect(page.locator('[data-result]')).toHaveText('LCA(8, 9) = 6');
   await expect(reference).toHaveAttribute('data-reference-target','f');
 
-  await page.locator('[data-case-value="selfRight"]').click();
+  await page.locator('[data-case]').selectOption('selfRight');
   await expect(page).toHaveURL(/case=selfRight#step=0$/);
   await expect(reference).toHaveAttribute('data-reference-target','None');
   await expect(page.locator('[data-result]')).toHaveText('lca = None');
   await stage.press('End');
   await expect(page.locator('[data-result]')).toHaveText('LCA(3, 7) = 3');
   await expect(reference).toHaveAttribute('data-reference-target','c');
-  await page.locator('[data-case-value="same"]').click();
+  await page.locator('[data-case]').selectOption('same');
   await expect(reference).toHaveAttribute('data-reference-target','None');
+});
+
+test('previous and next are the primary controls while example selection stays native', async ({page}) => {
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await goToStep(page,72);
+  await expect(page.locator('[data-step-select], [data-landmark-step], .tree-shortcuts, [data-case-value], [data-action="copy-link"]')).toHaveCount(0);
+  const previous=page.getByRole('button',{name:'← 上一步',exact:true});
+  const next=page.getByRole('button',{name:'下一步 →',exact:true});
+  await expect(page.locator('[data-action="previous"], [data-action="next"]')).toHaveCount(2);
+  await next.click();
+  await expect(page.locator('[data-count]')).toHaveText('步骤 74 / 96');
+  await previous.click();
+  await expect(page.locator('[data-count]')).toHaveText('步骤 73 / 96');
+
+  const example=page.locator('select[data-case]');
+  await expect(example).toBeVisible();
+  const prevented=await example.evaluate(select=>!select.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true})));
+  expect(prevented).toBe(false);
+  await expect(page.locator('[data-count]')).toHaveText('步骤 73 / 96');
+  await example.selectOption('selfRight');
+  await expect(page).toHaveURL(/case=selfRight#step=0$/);
+  await expect(previous).toBeDisabled();
+  await expect(next).toBeEnabled();
+  await expect(page.locator('[data-reference-name="lca"]')).toHaveAttribute('data-reference-target','None');
+});
+
+test('a Notion-sized viewport shows the tree, current call, source and primary controls together', async ({page}) => {
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const essentials=['[data-stage]','[data-lca-regions]','[data-current-flow]','.operation','[data-code-panel]','[data-code-scroll]','[data-case]','[data-action="previous"]','[data-count]','[data-action="next"]'];
+  for(const width of [900,760]) {
+    await page.setViewportSize({width,height:700});
+    for(const step of [0,12,72,73,74,75,77,90,95]) {
+      await goToStep(page,step);
+      expect(await page.evaluate(()=>scrollY)).toBe(0);
+      await expect(page.locator('[data-call-history]')).not.toHaveAttribute('open','');
+      for(const selector of essentials) {
+        await expect(page.locator(selector),`${selector}, width ${width}, step ${step}`).toBeInViewport({ratio:1});
+      }
+      if ([12,74,75,95].includes(step)) await expect(page.locator('[data-current-flow]')).not.toHaveText('');
+      await expect(page.locator('[data-reference-name="lca"]')).toBeInViewport({ratio:1});
+      for(const name of Object.values(variables)) await expect(page.locator('[data-lca-regions] code').filter({hasText:name})).toBeInViewport({ratio:1});
+      await expect(page.locator('[data-code-scroll]')).toContainText('class TreeNode:');
+      await expect(page.locator('[data-code-scroll]')).toContainText('def lowest_common_ancestor(');
+      await expect(page.locator('[data-code-scroll]')).toContainText('def dfs(');
+      await expect.poll(()=>page.locator('[data-code-scroll]').evaluate(pre=>{
+        const active=pre.querySelector('[aria-current="step"]');
+        if(!active) return ['missing active source line'];
+        const line=active.getBoundingClientRect(),box=pre.getBoundingClientRect(),style=getComputedStyle(pre),issues=[];
+        if(line.top<box.top-1 || line.bottom>box.bottom+1) issues.push('active line is clipped');
+        if(pre.scrollHeight>pre.clientHeight+1 && !['auto','scroll'].includes(style.overflowY)) issues.push('full source cannot scroll vertically');
+        if(pre.scrollWidth>pre.clientWidth+1 && !['auto','scroll'].includes(style.overflowX)) issues.push('full source cannot scroll horizontally');
+        return issues;
+      }),{message:`source visibility at width ${width}, step ${step}`}).toEqual([]);
+      const clipped=await page.locator('.operation, [data-current-flow], [data-lca-regions]').evaluateAll(items=>items.filter(item=>item.scrollHeight>item.clientHeight+1 || item.scrollWidth>item.clientWidth+1).map(item=>item.getAttribute('class') || item.outerHTML.slice(0,60)));
+      expect(clipped).toEqual([]);
+      expect(await page.locator('[data-stage] svg').evaluate(diagramClipping)).toEqual([]);
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    }
+  }
 });
 
 test('region variables and both references fit phone, embed and desktop widths', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
   for(const width of [320,390,760,1280]) {
     await page.setViewportSize({width,height:900});
-    await page.goto('/lowest-common-ancestor/?case=same#step=0');
-    const picker=page.locator('[data-step-select]');
     for(const step of [2,3,12,13,72,73,75,77,90,95]) {
-      await picker.selectOption(String(step));
+      await goToStep(page,step);
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
       expect(await page.locator('[data-stage] svg').evaluate(diagramClipping)).toEqual([]);
       const overflowing=await page.locator('[data-region]').evaluateAll(cells=>cells.filter(cell=>cell.scrollWidth>cell.clientWidth+1).map(cell=>cell.dataset.region));

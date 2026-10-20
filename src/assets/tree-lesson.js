@@ -35,7 +35,10 @@
     const workspace = root.querySelector('.diagram-workspace');
     const caption = root.querySelector('[data-caption]');
     function draw(state, before = null, progress = 1) {
-      const width = stage.clientWidth;
+      // A larger logical canvas keeps reference rows apart in compact embeds.
+      const scale = state.diagramScale || 1;
+      const width = stage.clientWidth / scale;
+      const labelScale = state.diagramScale ? 5/3 : 1;
       const place = adapter.positions || positions;
       const current = place(state, width);
       const old = before ? place(before, width) : current;
@@ -46,8 +49,8 @@
         points[id] = { ...p, x: previous.x + (p.x - previous.x) * progress, y: previous.y + (p.y - previous.y) * progress };
       }
       const deepest = Math.max(0, ...Object.values(current).map(p => p.depth));
-      const height = (state.topGap || 70) + deepest * (state.rowGap || DEFAULT_ROW_GAP) + (state.scopedReferences ? 130 : state.indexes || state.widthLevel != null ? 90 : adapter.positions ? 114 : 60);
-      stage.style.height = `${height}px`;
+      const height = (state.topGap || 70) + deepest * (state.rowGap || DEFAULT_ROW_GAP) + (state.diagramScale && stage.clientWidth >= 340 ? 84 : state.scopedReferences ? 130 : state.indexes || state.widthLevel != null ? 90 : adapter.positions ? 114 : 60);
+      stage.style.height = `${height * scale}px`;
       svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       const pathNodes = new Set((state.paths || []).flat());
       const visible = id => id != null && (!state.visible || state.visible.includes(id));
@@ -105,11 +108,13 @@
             const target = points[ref.id];
             const slot = offsets[ref.id] ?? (state.savedReferences ? 1 : 0); offsets[ref.id] = slot + 1;
             const label = ref.label || `${ref.scope} ${ref.name}`;
-            const w = Math.max(56,[...label].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),12));
-            const desiredX = target ? target.x : width/2-24;
+            const w = Math.max(56,[...label].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),12)) * labelScale;
+            const compactDock = state.diagramScale && stage.clientWidth >= 340;
+            const desiredX = target ? target.x : compactDock ? w/2+4 : width/2-24;
             const x = Math.max(w/2+4,Math.min(width-w/2-4,desiredX));
-            const y = target ? target.y-45-slot*27 : height-30;
-            path(`scope-box-${ref.key}`,{d:`M${x-w/2},${y-11} h${w} v22 h${-w} Z`,class:`reference-box${ref.current?' current-reference':''}`});
+            const y = target ? target.y-45-slot*27 : compactDock ? 25 : height-30;
+            const boxHeight = state.diagramScale ? 26 : 22;
+            path(`scope-box-${ref.key}`,{d:`M${x-w/2},${y-boxHeight/2} h${w} v${boxHeight} h${-w} Z`,class:`reference-box${ref.current?' current-reference':''}`});
             text(`scope-label-${ref.key}`,{x,y,class:'annotation scoped-reference'},label);
             if (target) {
               // Each local owns its arrow; coincident variables occupy separate rows.
@@ -128,15 +133,16 @@
           const near = oldTarget && Math.hypot(oldTarget.x-target.x,oldTarget.y-target.y)<110;
           const ref = near ? {x:oldTarget.x+(target.x-oldTarget.x)*progress,y:oldTarget.y+(target.y-oldTarget.y)*progress} : {...target};
           const opacity=before && !near ? Math.min(1,progress*3) : 1;
-          const label=state.reference || 'node', labelWidth=Math.max(42, state.savedReferences ? [...label].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),10) : label.length*7+10);
+          const label=state.reference || 'node', labelWidth=Math.max(42, state.savedReferences ? [...label].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),10) : label.length*7+10) * labelScale;
           if (adapter.positions) ref.x=Math.max(labelWidth/2+3,Math.min(width-labelWidth/2-3,ref.x));
-          path('reference-box',{d:`M${ref.x-labelWidth/2},${ref.y-55} h${labelWidth} v20 h${-labelWidth} Z`,class:'reference-box',opacity});
+          const boxHeight=state.diagramScale ? 26 : 20;
+          path('reference-box',{d:`M${ref.x-labelWidth/2},${ref.y-45-boxHeight/2} h${labelWidth} v${boxHeight} h${-labelWidth} Z`,class:'reference-box',opacity});
           text('reference-label',{x:ref.x,y:ref.y-45,class:'annotation',opacity},label);
           path('reference',{d:adapter.positions?`M${ref.x},${ref.y-35} L${target.x},${ref.y-radius-3}`:`M${ref.x},${ref.y-35} V${ref.y-19}`,class:'reference','marker-end':'url(#return-arrow)',opacity});
         } else if (!state.scopedReferences && state.focus === null) {
           const parent=points[state.nullSlot?.parent];
           const nullLabel=`${state.reference||'node'} = None`;
-          const margin=state.savedReferences ? [...nullLabel].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),8)/2 : 54;
+          const margin=state.savedReferences ? [...nullLabel].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),8)*labelScale/2 : 54;
           const x=parent?Math.max(margin,Math.min(width-margin,parent.x+(state.nullSlot.side==='left'?-38:38))):width/2;
           const y=parent?parent.y+66:25;
           if (parent) {
@@ -226,7 +232,7 @@
       }));
       positionArrayCursors(state);
     }
-    const trace=core.createTrace({root,cloneState:clone,motion,onBeforeStep:()=>motion.cancel(),
+    const trace=core.createTrace({root,cloneState:clone,motion,copyLinkLabel:adapter.copyLinkLabel,onBeforeStep:()=>motion.cancel(),
       onRender:({state,frame})=>{
         const mapping = Boolean(state.layout && state.memoryTitle?.startsWith('inorder_indexes_map'));
         workspace.classList.toggle('building-map',mapping);

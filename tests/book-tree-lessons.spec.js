@@ -1,6 +1,10 @@
 const {test, expect} = require('@playwright/test');
 
 async function finish(page) {
+  if(new URL(page.url()).pathname==='/lowest-common-ancestor/') {
+    await page.locator('[data-stage]').press('End');
+    return;
+  }
   const options = page.locator('[data-step-select] option');
   await page.locator('[data-step-select]').selectOption(String(await options.count() - 1));
 }
