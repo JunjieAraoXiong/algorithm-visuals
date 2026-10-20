@@ -114,7 +114,7 @@
     const node = document.createElement(tag); if(className) node.className = className;
     if (text != null) node.textContent = text; return node;
   }
-  function mount(root, makeFrames) {
+  function mount(root, makeFrames, {onRender} = {}) {
     root.classList.add('tree-detail');
     root.querySelectorAll('[data-code-scroll] .code-line').forEach((line, index) => {line.dataset.lineNumber = index + 1;});
     const workspace = root.querySelector('.diagram-workspace');
@@ -179,6 +179,7 @@
       }
       title.textContent = root.querySelector('h1').textContent;
       description.textContent = `${frame.explanation} ${state.handoff?.route || ''}`;
+      onRender?.({state, frame, trace});
     }});
   }
   window.TreeDetail = Object.freeze({recorder, mount});

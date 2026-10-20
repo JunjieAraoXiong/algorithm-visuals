@@ -51,7 +51,7 @@
                 ]
               ],
               "children": [
-                "原图：6 越界，右侧短路跳过"
+                "6 违反祖先上界"
               ]
             },
             {
@@ -63,7 +63,7 @@
                 ]
               ],
               "children": [
-                "只保留重复 7"
+                "重复 7：等于边界"
               ]
             },
             {
@@ -75,7 +75,7 @@
                 ]
               ],
               "children": [
-                "修正两处错误"
+                "合法 BST"
               ]
             },
             {
@@ -124,7 +124,7 @@
             ]
           ],
           "children": [
-            "示例：6 越界，右侧短路跳过"
+            "6 违反祖先上界"
           ]
         },
         {
@@ -140,7 +140,7 @@
             ]
           ],
           "children": [
-            "只保留重复 7"
+            "重复 7：等于边界"
           ]
         },
         {
@@ -156,7 +156,7 @@
             ]
           ],
           "children": [
-            "修正两处错误"
+            "合法 BST"
           ]
         },
         {
@@ -294,7 +294,7 @@
                     ]
                   ],
                   "children": [
-                    "3 · -∞ < 5 < ∞"
+                    "3 · if not (−∞ < 5 < ∞):"
                   ]
                 },
                 {
@@ -330,7 +330,7 @@
                     ]
                   ],
                   "children": [
-                    "6 · -∞ < 2 < 5"
+                    "6 · if not (−∞ < 2 < 5):"
                   ]
                 },
                 {
@@ -366,7 +366,7 @@
                     ]
                   ],
                   "children": [
-                    "9 · -∞ < 1 < 2"
+                    "9 · if not (−∞ < 1 < 2):"
                   ]
                 },
                 {
@@ -510,7 +510,7 @@
                     ]
                   ],
                   "children": [
-                    "21 · 2 < 6 < 5"
+                    "21 · if not (2 < 6 < 5):"
                   ]
                 },
                 {
@@ -617,7 +617,23 @@
             ],
             [
               "data-landmark-step",
-              "21"
+              "19"
+            ]
+          ],
+          "children": [
+            "继承祖先上界"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-current",
+              "false"
+            ],
+            [
+              "data-landmark-step",
+              "20"
             ]
           ],
           "children": [
@@ -700,7 +716,7 @@
         ]
       ],
       "children": [
-        "节点下方是本次调用的开区间；栈保存尚未返回的 node 与边界。"
+        "节点下方保留各调用收到的范围；「下界 / 上界」标出当前限制来自哪个祖先。"
       ]
     },
     {
@@ -717,7 +733,7 @@
           "attributes": [
             [
               "aria-label",
-              "根最初没有有限边界。"
+              "根最初没有有限边界；每个子调用会收到自己的上下界。"
             ],
             [
               "class",
@@ -733,7 +749,7 @@
             ],
             [
               "style",
-              "height: 376px;"
+              "height: 396px;"
             ]
           ],
           "children": [
@@ -746,7 +762,7 @@
                 ],
                 [
                   "viewBox",
-                  "0 0 731 376"
+                  "0 0 731 396"
                 ]
               ],
               "children": [
@@ -759,7 +775,7 @@
                 {
                   "tag": "desc",
                   "children": [
-                    "根最初没有有限边界。"
+                    "根最初没有有限边界；每个子调用会收到自己的上下界。"
                   ]
                 },
                 {
@@ -824,7 +840,11 @@
                     ],
                     [
                       "d",
-                      "M345.4012732762058,78.94657387396094 L171.75921703201794,156.24010122840625"
+                      "M345.7559239546544,79.7041981181142 L171.37232538280125,165.41360205296633"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -845,7 +865,11 @@
                     ],
                     [
                       "d",
-                      "M385.5987267237942,78.94657387396094 L559.240782967982,156.24010122840625"
+                      "M385.2440760453456,79.7041981181142 L559.6276746171987,165.41360205296633"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -866,7 +890,11 @@
                     ],
                     [
                       "d",
-                      "M133.401542821835,180.6286110272381 L59.925589648907305,246.04151524301298"
+                      "M134.14418599348912,191.42240758599834 L59.11543346164824,265.1755553607291"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -887,7 +915,11 @@
                     ],
                     [
                       "d",
-                      "M166.2651238448317,180.6286110272381 L239.74107701775938,246.04151524301298"
+                      "M165.52248067317757,191.42240758599834 L240.55123320501843,265.1755553607291"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -908,7 +940,11 @@
                     ],
                     [
                       "d",
-                      "M564.7348761551683,180.62861102723812 L491.2589229822406,246.04151524301298"
+                      "M565.4775193268224,191.42240758599834 L490.44876679498157,265.1755553607291"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -929,7 +965,11 @@
                     ],
                     [
                       "d",
-                      "M597.598457178165,180.6286110272381 L671.0744103510926,246.04151524301298"
+                      "M596.8558140065109,191.42240758599834 L671.8845665383518,265.1755553607291"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -957,6 +997,10 @@
                       "70"
                     ],
                     [
+                      "data-bst-status",
+                      "unvisited"
+                    ],
+                    [
                       "data-visual-element",
                       "node-a"
                     ],
@@ -969,6 +1013,10 @@
                 {
                   "tag": "text",
                   "attributes": [
+                    [
+                      "data-bst-status",
+                      "unvisited"
+                    ],
                     [
                       "data-visual-element",
                       "value-a"
@@ -999,7 +1047,11 @@
                     ],
                     [
                       "cy",
-                      "166"
+                      "176"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -1015,6 +1067,10 @@
                   "tag": "text",
                   "attributes": [
                     [
+                      "data-bst-status",
+                      "unvisited"
+                    ],
+                    [
                       "data-visual-element",
                       "value-b"
                     ],
@@ -1024,7 +1080,7 @@
                     ],
                     [
                       "y",
-                      "167"
+                      "177"
                     ]
                   ],
                   "children": [
@@ -1044,7 +1100,11 @@
                     ],
                     [
                       "cy",
-                      "166"
+                      "176"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -1060,6 +1120,10 @@
                   "tag": "text",
                   "attributes": [
                     [
+                      "data-bst-status",
+                      "unvisited"
+                    ],
+                    [
                       "data-visual-element",
                       "value-c"
                     ],
@@ -1069,7 +1133,7 @@
                     ],
                     [
                       "y",
-                      "167"
+                      "177"
                     ]
                   ],
                   "children": [
@@ -1089,7 +1153,11 @@
                     ],
                     [
                       "cy",
-                      "262"
+                      "282"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -1105,6 +1173,10 @@
                   "tag": "text",
                   "attributes": [
                     [
+                      "data-bst-status",
+                      "unvisited"
+                    ],
+                    [
                       "data-visual-element",
                       "value-d"
                     ],
@@ -1114,7 +1186,7 @@
                     ],
                     [
                       "y",
-                      "263"
+                      "283"
                     ]
                   ],
                   "children": [
@@ -1134,7 +1206,11 @@
                     ],
                     [
                       "cy",
-                      "262"
+                      "282"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -1150,6 +1226,10 @@
                   "tag": "text",
                   "attributes": [
                     [
+                      "data-bst-status",
+                      "unvisited"
+                    ],
+                    [
                       "data-visual-element",
                       "value-e"
                     ],
@@ -1159,7 +1239,7 @@
                     ],
                     [
                       "y",
-                      "263"
+                      "283"
                     ]
                   ],
                   "children": [
@@ -1179,7 +1259,11 @@
                     ],
                     [
                       "cy",
-                      "262"
+                      "282"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -1195,6 +1279,10 @@
                   "tag": "text",
                   "attributes": [
                     [
+                      "data-bst-status",
+                      "unvisited"
+                    ],
+                    [
                       "data-visual-element",
                       "value-f"
                     ],
@@ -1204,7 +1292,7 @@
                     ],
                     [
                       "y",
-                      "263"
+                      "283"
                     ]
                   ],
                   "children": [
@@ -1224,7 +1312,11 @@
                     ],
                     [
                       "cy",
-                      "262"
+                      "282"
+                    ],
+                    [
+                      "data-bst-status",
+                      "unvisited"
                     ],
                     [
                       "data-visual-element",
@@ -1240,6 +1332,10 @@
                   "tag": "text",
                   "attributes": [
                     [
+                      "data-bst-status",
+                      "unvisited"
+                    ],
+                    [
                       "data-visual-element",
                       "value-g"
                     ],
@@ -1249,7 +1345,7 @@
                     ],
                     [
                       "y",
-                      "263"
+                      "283"
                     ]
                   ],
                   "children": [
@@ -1335,6 +1431,306 @@
           ]
         },
         {
+          "tag": "section",
+          "attributes": [
+            [
+              "aria-label",
+              "当前调用的边界来源"
+            ],
+            [
+              "class",
+              "bst-bounds"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "h2",
+              "attributes": [
+                [
+                  "data-bst-context",
+                  ""
+                ]
+              ],
+              "children": [
+                "当前调用 · root → 节点 5"
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "bound-origins"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "div",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "attributes": [
+                        [
+                          "data-lower-value",
+                          ""
+                        ]
+                      ],
+                      "children": [
+                        "lower_bound = −∞"
+                      ]
+                    },
+                    {
+                      "tag": "small",
+                      "attributes": [
+                        [
+                          "data-lower-origin",
+                          ""
+                        ]
+                      ],
+                      "children": [
+                        "没有祖先下界"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "children": [
+                    {
+                      "tag": "code",
+                      "attributes": [
+                        [
+                          "data-upper-value",
+                          ""
+                        ]
+                      ],
+                      "children": [
+                        "upper_bound = ∞"
+                      ]
+                    },
+                    {
+                      "tag": "small",
+                      "attributes": [
+                        [
+                          "data-upper-origin",
+                          ""
+                        ]
+                      ],
+                      "children": [
+                        "没有祖先上界"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "svg",
+              "attributes": [
+                [
+                  "class",
+                  "bst-range"
+                ],
+                [
+                  "role",
+                  "img"
+                ],
+                [
+                  "viewBox",
+                  "0 0 320 88"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "title",
+                  "children": [
+                    "当前值与允许的开区间"
+                  ]
+                },
+                {
+                  "tag": "desc",
+                  "children": [
+                    "−∞ < node.val < ∞，不包含有限端点。当前值为 5。当前允许范围：−∞ < node.val < ∞。有限边界都不包含在内。"
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "range-axis"
+                    ],
+                    [
+                      "d",
+                      "M16 42 H304"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "allowed"
+                    ],
+                    [
+                      "d",
+                      "M16 42 H304"
+                    ],
+                    [
+                      "data-allowed-range",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "endpoint"
+                    ],
+                    [
+                      "cx",
+                      "16"
+                    ],
+                    [
+                      "cy",
+                      "42"
+                    ],
+                    [
+                      "data-lower-end",
+                      ""
+                    ],
+                    [
+                      "r",
+                      "4"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "circle",
+                  "attributes": [
+                    [
+                      "class",
+                      "endpoint"
+                    ],
+                    [
+                      "cx",
+                      "304"
+                    ],
+                    [
+                      "cy",
+                      "42"
+                    ],
+                    [
+                      "data-upper-end",
+                      ""
+                    ],
+                    [
+                      "r",
+                      "4"
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-lower-label",
+                      ""
+                    ],
+                    [
+                      "x",
+                      "16"
+                    ],
+                    [
+                      "y",
+                      "64"
+                    ]
+                  ],
+                  "children": [
+                    "−∞"
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-upper-label",
+                      ""
+                    ],
+                    [
+                      "x",
+                      "304"
+                    ],
+                    [
+                      "y",
+                      "64"
+                    ]
+                  ],
+                  "children": [
+                    "∞"
+                  ]
+                },
+                {
+                  "tag": "path",
+                  "attributes": [
+                    [
+                      "class",
+                      "value-marker"
+                    ],
+                    [
+                      "d",
+                      "M155 25 L165 25 L160 34 Z"
+                    ],
+                    [
+                      "data-value-marker",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "text",
+                  "attributes": [
+                    [
+                      "data-value-label",
+                      ""
+                    ],
+                    [
+                      "x",
+                      "160"
+                    ],
+                    [
+                      "y",
+                      "15"
+                    ]
+                  ],
+                  "children": [
+                    "node.val = 5"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "class",
+                  "bst-check"
+                ],
+                [
+                  "data-bst-condition",
+                  ""
+                ]
+              ],
+              "children": [
+                "当前允许范围：−∞ < node.val < ∞。有限边界都不包含在内。"
+              ]
+            }
+          ]
+        },
+        {
           "tag": "div",
           "attributes": [
             [
@@ -1368,7 +1764,7 @@
                 ]
               ],
               "children": [
-                "根最初没有有限边界。"
+                "根最初没有有限边界；每个子调用会收到自己的上下界。"
               ]
             }
           ]

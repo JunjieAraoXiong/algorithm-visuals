@@ -104,7 +104,8 @@ test('BST bounds reject ancestor violations, short-circuit the right subtree, an
   await expect(page.locator('[data-result]')).toHaveText('False');
   await expect(page.locator('[data-visual-element="label-e"]')).toHaveText('(2,5)');
   await expect(page.locator('[data-visual-element="label-c"]')).toHaveText('跳过');
-  await expect(page.locator('[data-visual-element="label-f"]')).toHaveCount(0);
+  await expect(page.locator('[data-visual-element="label-f"]')).toHaveText('跳过');
+  await expect(page.locator('[data-visual-element="label-g"]')).toHaveText('跳过');
   await chooseCase(page, 'duplicate');
   await finish(page);
   await expect(page.locator('[data-result]')).toHaveText('False');
