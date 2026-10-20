@@ -55,7 +55,7 @@
 <section class="section"><h2>父子大小正确，仍然可能不是 BST</h2><p class="section-intro">默认示例中的 6 大于父节点 2，局部看起来正确。但 6 位于根 5 的左子树，所有这些后代都必须小于 5。另外右侧还包含两个 7，严格 BST 不允许相等。</p><div class="card-grid"><article class="paper-card"><strong>边界携带祖先的限制</strong><p>根从 (-∞, ∞) 开始。走左侧保留下界、把上界换成当前 val；走右侧保留上界、把下界换成当前 val。到 6 时边界是 (2,5)，祖先 5 的限制没有丢失。</p></article><article class="paper-card"><strong>调用栈不是另一棵树</strong><p>栈中的 node 是引用，lower_bound、upper_bound 是这一层调用的局部值。返回到父调用时，父的边界仍然保留；树中的 left、right 从不改变。</p></article></div></section><section class="section"><h2>严格不等式与短路顺序</h2><p class="section-intro">先检查当前值，再验证左子树；左侧失败便直接返回 False，右侧跳过。默认示例首先发现 6 越界，所以实际执行不会再访问右侧的重复 7。切换「重复 7：等于边界」可以单独看到相等边界失败。</p><div class="card-grid"><article class="paper-card"><strong>为什么能覆盖整棵子树</strong><p>如果当前值在边界内，并且左右子树在收紧后的边界内也都正确，那么它们每个后代都符合当前节点及所有祖先的要求。None 返回 True，让叶子自然结束。</p></article><article class="paper-card"><strong>时间与空间</strong><p>最多访问 n 个节点，O(n) 时间；发现错误可提前返回。递归栈 O(h)，最坏 O(n)。用 ±∞ 表示无边界，允许正常的负数节点值。</p></article></div></section>
 <nav class="related-nav" aria-label="相关题目">相关题目：<a href="../kth-smallest-number-in-a-binary-search-tree/">BST 中第 K 小的数</a><a href="../balanced-binary-tree-validation/">平衡二叉树验证</a><a href="../">目录</a></nav>
 </main>
-<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script><script src="../assets/tree-detail.js"></script>
+<script src="../assets/core.js"></script><script src="../assets/tree-lesson.js"></script><script src="../assets/tree-detail.js?v=bst-bounds-1"></script>
 <script>
 (() => {
 'use strict';
