@@ -1457,11 +1457,59 @@
             ],
             [
               "data-landmark-step",
-              "90"
+              "56"
             ]
           ],
           "children": [
-            "两个目标会合"
+            "目标返回 True"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-current",
+              "false"
+            ],
+            [
+              "data-landmark-step",
+              "57"
+            ]
+          ],
+          "children": [
+            "父层接收 True"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-current",
+              "false"
+            ],
+            [
+              "data-landmark-step",
+              "89"
+            ]
+          ],
+          "children": [
+            "两个区域会合"
+          ]
+        },
+        {
+          "tag": "button",
+          "attributes": [
+            [
+              "aria-current",
+              "false"
+            ],
+            [
+              "data-landmark-step",
+              "93"
+            ]
+          ],
+          "children": [
+            "祖先保留答案"
           ]
         },
         {
@@ -1495,7 +1543,7 @@
         ]
       ],
       "children": [
-        "后序 · 三个区域"
+        "后序 · 自己、左子树、右子树"
       ]
     },
     {
@@ -1524,7 +1572,7 @@
         ]
       ],
       "children": [
-        "p=8，q=7；T/F 表示子树是否含任意一个目标，虚线箭头是返回值。"
+        "p → 节点 8，q → 节点 7；T/F 标记已完成子树的 True/False，虚线箭头传回布尔值。"
       ]
     },
     {
@@ -1540,99 +1588,1068 @@
           "tag": "div",
           "attributes": [
             [
-              "aria-label",
-              "每次外层调用先清空答案，避免保留上一次查询的节点。"
-            ],
-            [
               "class",
-              "stage"
-            ],
-            [
-              "data-stage",
-              ""
-            ],
-            [
-              "role",
-              "group"
-            ],
-            [
-              "style",
-              "height: 496px;"
+              "lca-focus"
             ]
           ],
           "children": [
             {
-              "tag": "svg",
+              "tag": "div",
               "attributes": [
                 [
-                  "role",
-                  "img"
+                  "aria-label",
+                  "每次外层调用先清空答案，避免保留上一次查询的节点。"
                 ],
                 [
-                  "viewBox",
-                  "0 0 731 496"
+                  "class",
+                  "stage"
+                ],
+                [
+                  "data-stage",
+                  ""
+                ],
+                [
+                  "role",
+                  "group"
+                ],
+                [
+                  "style",
+                  "height: 590px;"
                 ]
               ],
               "children": [
                 {
-                  "tag": "title",
-                  "children": [
-                    "Lowest Common Ancestor · 最近公共祖先"
-                  ]
-                },
-                {
-                  "tag": "desc",
-                  "children": [
-                    "每次外层调用先清空答案，避免保留上一次查询的节点。"
-                  ]
-                },
-                {
-                  "tag": "defs",
+                  "tag": "svg",
+                  "attributes": [
+                    [
+                      "role",
+                      "img"
+                    ],
+                    [
+                      "viewBox",
+                      "0 0 545 590"
+                    ]
+                  ],
                   "children": [
                     {
-                      "tag": "marker",
-                      "attributes": [
-                        [
-                          "viewBox",
-                          "0 0 8 8"
-                        ]
-                      ],
+                      "tag": "title",
+                      "children": [
+                        "Lowest Common Ancestor · 最近公共祖先"
+                      ]
+                    },
+                    {
+                      "tag": "desc",
+                      "children": [
+                        "每次外层调用先清空答案，避免保留上一次查询的节点。"
+                      ]
+                    },
+                    {
+                      "tag": "defs",
                       "children": [
                         {
-                          "tag": "path",
+                          "tag": "marker",
                           "attributes": [
                             [
-                              "d",
-                              "M0 0 L8 4 L0 8 Z"
-                            ],
-                            [
-                              "fill",
-                              "#333"
+                              "viewBox",
+                              "0 0 8 8"
                             ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "path",
+                              "attributes": [
+                                [
+                                  "d",
+                                  "M0 0 L8 4 L0 8 Z"
+                                ],
+                                [
+                                  "fill",
+                                  "#333"
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "marker",
+                          "attributes": [
+                            [
+                              "viewBox",
+                              "0 0 8 8"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "path",
+                              "attributes": [
+                                [
+                                  "d",
+                                  "M0 0 L8 4 L0 8 Z"
+                                ],
+                                [
+                                  "fill",
+                                  "#555"
+                                ]
+                              ]
+                            }
                           ]
                         }
                       ]
                     },
                     {
-                      "tag": "marker",
+                      "tag": "path",
                       "attributes": [
                         [
-                          "viewBox",
-                          "0 0 8 8"
+                          "class",
+                          "stored-edge"
+                        ],
+                        [
+                          "d",
+                          "M255.811696185325,94.33528917703103 L137.03875567661515,196.36150271596614"
+                        ],
+                        [
+                          "data-visual-element",
+                          "edge-a-left"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#tree-arrow)"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "stored-edge"
+                        ],
+                        [
+                          "d",
+                          "M289.188303814675,94.33528917703103 L407.96124432338485,196.36150271596614"
+                        ],
+                        [
+                          "data-visual-element",
+                          "edge-a-right"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#tree-arrow)"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "stored-edge"
+                        ],
+                        [
+                          "d",
+                          "M107.76608768488823,231.01357603810953 L54.07335888921281,323.25791704933505"
+                        ],
+                        [
+                          "data-visual-element",
+                          "edge-b-left"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#tree-arrow)"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "stored-edge"
+                        ],
+                        [
+                          "d",
+                          "M129.90057898177838,231.01357603810953 L183.59330777745384,323.25791704933505"
+                        ],
+                        [
+                          "data-visual-element",
+                          "edge-b-right"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#tree-arrow)"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "stored-edge"
+                        ],
+                        [
+                          "d",
+                          "M415.0994210182216,231.01357603810953 L361.40669222254616,323.25791704933505"
+                        ],
+                        [
+                          "data-visual-element",
+                          "edge-c-left"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#tree-arrow)"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "stored-edge"
+                        ],
+                        [
+                          "d",
+                          "M437.23391231511175,231.01357603810953 L490.9266411107872,323.25791704933505"
+                        ],
+                        [
+                          "data-visual-element",
+                          "edge-c-right"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#tree-arrow)"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "stored-edge"
+                        ],
+                        [
+                          "d",
+                          "M338.2660876848883,363.01357603810953 L284.57335888921284,455.25791704933505"
+                        ],
+                        [
+                          "data-visual-element",
+                          "edge-f-left"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#tree-arrow)"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "stored-edge"
+                        ],
+                        [
+                          "d",
+                          "M360.40057898177844,363.01357603810953 L414.0933077774539,455.25791704933505"
+                        ],
+                        [
+                          "data-visual-element",
+                          "edge-f-right"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#tree-arrow)"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "circle",
+                      "attributes": [
+                        [
+                          "class",
+                          "node active"
+                        ],
+                        [
+                          "cx",
+                          "272.5"
+                        ],
+                        [
+                          "cy",
+                          "80"
+                        ],
+                        [
+                          "data-visual-element",
+                          "node-a"
+                        ],
+                        [
+                          "r",
+                          "21"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "value-a"
+                        ],
+                        [
+                          "x",
+                          "272.5"
+                        ],
+                        [
+                          "y",
+                          "81"
+                        ]
+                      ],
+                      "children": [
+                        "1"
+                      ]
+                    },
+                    {
+                      "tag": "circle",
+                      "attributes": [
+                        [
+                          "class",
+                          "node"
+                        ],
+                        [
+                          "cx",
+                          "118.83333333333331"
+                        ],
+                        [
+                          "cy",
+                          "212"
+                        ],
+                        [
+                          "data-visual-element",
+                          "node-b"
+                        ],
+                        [
+                          "r",
+                          "21"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "value-b"
+                        ],
+                        [
+                          "x",
+                          "118.83333333333331"
+                        ],
+                        [
+                          "y",
+                          "213"
+                        ]
+                      ],
+                      "children": [
+                        "2"
+                      ]
+                    },
+                    {
+                      "tag": "circle",
+                      "attributes": [
+                        [
+                          "class",
+                          "node"
+                        ],
+                        [
+                          "cx",
+                          "426.1666666666667"
+                        ],
+                        [
+                          "cy",
+                          "212"
+                        ],
+                        [
+                          "data-visual-element",
+                          "node-c"
+                        ],
+                        [
+                          "r",
+                          "21"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "value-c"
+                        ],
+                        [
+                          "x",
+                          "426.1666666666667"
+                        ],
+                        [
+                          "y",
+                          "213"
+                        ]
+                      ],
+                      "children": [
+                        "3"
+                      ]
+                    },
+                    {
+                      "tag": "circle",
+                      "attributes": [
+                        [
+                          "class",
+                          "node"
+                        ],
+                        [
+                          "cx",
+                          "42"
+                        ],
+                        [
+                          "cy",
+                          "344"
+                        ],
+                        [
+                          "data-visual-element",
+                          "node-d"
+                        ],
+                        [
+                          "r",
+                          "21"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "value-d"
+                        ],
+                        [
+                          "x",
+                          "42"
+                        ],
+                        [
+                          "y",
+                          "345"
+                        ]
+                      ],
+                      "children": [
+                        "4"
+                      ]
+                    },
+                    {
+                      "tag": "circle",
+                      "attributes": [
+                        [
+                          "class",
+                          "node"
+                        ],
+                        [
+                          "cx",
+                          "195.66666666666666"
+                        ],
+                        [
+                          "cy",
+                          "344"
+                        ],
+                        [
+                          "data-visual-element",
+                          "node-e"
+                        ],
+                        [
+                          "r",
+                          "21"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "value-e"
+                        ],
+                        [
+                          "x",
+                          "195.66666666666666"
+                        ],
+                        [
+                          "y",
+                          "345"
+                        ]
+                      ],
+                      "children": [
+                        "5"
+                      ]
+                    },
+                    {
+                      "tag": "circle",
+                      "attributes": [
+                        [
+                          "class",
+                          "node"
+                        ],
+                        [
+                          "cx",
+                          "349.33333333333337"
+                        ],
+                        [
+                          "cy",
+                          "344"
+                        ],
+                        [
+                          "data-visual-element",
+                          "node-f"
+                        ],
+                        [
+                          "r",
+                          "21"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "value-f"
+                        ],
+                        [
+                          "x",
+                          "349.33333333333337"
+                        ],
+                        [
+                          "y",
+                          "345"
+                        ]
+                      ],
+                      "children": [
+                        "6"
+                      ]
+                    },
+                    {
+                      "tag": "circle",
+                      "attributes": [
+                        [
+                          "class",
+                          "node marked"
+                        ],
+                        [
+                          "cx",
+                          "503"
+                        ],
+                        [
+                          "cy",
+                          "344"
+                        ],
+                        [
+                          "data-visual-element",
+                          "node-g"
+                        ],
+                        [
+                          "r",
+                          "21"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "value-g"
+                        ],
+                        [
+                          "x",
+                          "503"
+                        ],
+                        [
+                          "y",
+                          "345"
+                        ]
+                      ],
+                      "children": [
+                        "7"
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "annotation"
+                        ],
+                        [
+                          "data-visual-element",
+                          "label-g"
+                        ],
+                        [
+                          "x",
+                          "503"
+                        ],
+                        [
+                          "y",
+                          "375"
+                        ]
+                      ],
+                      "children": [
+                        "q"
+                      ]
+                    },
+                    {
+                      "tag": "circle",
+                      "attributes": [
+                        [
+                          "class",
+                          "node marked"
+                        ],
+                        [
+                          "cx",
+                          "272.5"
+                        ],
+                        [
+                          "cy",
+                          "476"
+                        ],
+                        [
+                          "data-visual-element",
+                          "node-h"
+                        ],
+                        [
+                          "r",
+                          "21"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "value-h"
+                        ],
+                        [
+                          "x",
+                          "272.5"
+                        ],
+                        [
+                          "y",
+                          "477"
+                        ]
+                      ],
+                      "children": [
+                        "8"
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "annotation"
+                        ],
+                        [
+                          "data-visual-element",
+                          "label-h"
+                        ],
+                        [
+                          "x",
+                          "272.5"
+                        ],
+                        [
+                          "y",
+                          "507"
+                        ]
+                      ],
+                      "children": [
+                        "p"
+                      ]
+                    },
+                    {
+                      "tag": "circle",
+                      "attributes": [
+                        [
+                          "class",
+                          "node"
+                        ],
+                        [
+                          "cx",
+                          "426.1666666666667"
+                        ],
+                        [
+                          "cy",
+                          "476"
+                        ],
+                        [
+                          "data-visual-element",
+                          "node-i"
+                        ],
+                        [
+                          "r",
+                          "21"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "value-i"
+                        ],
+                        [
+                          "x",
+                          "426.1666666666667"
+                        ],
+                        [
+                          "y",
+                          "477"
+                        ]
+                      ],
+                      "children": [
+                        "9"
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "reference-box"
+                        ],
+                        [
+                          "d",
+                          "M216.5,549 h64 v22 h-64 Z"
+                        ],
+                        [
+                          "data-visual-element",
+                          "scope-box-saved-lca"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "annotation scoped-reference"
+                        ],
+                        [
+                          "data-visual-element",
+                          "scope-label-saved-lca"
+                        ],
+                        [
+                          "x",
+                          "248.5"
+                        ],
+                        [
+                          "y",
+                          "560"
+                        ]
+                      ],
+                      "children": [
+                        "全局 lca"
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "reference"
+                        ],
+                        [
+                          "d",
+                          "M280.5,560 H298.5"
+                        ],
+                        [
+                          "data-reference-name",
+                          "lca"
+                        ],
+                        [
+                          "data-reference-scope",
+                          "全局"
+                        ],
+                        [
+                          "data-reference-target",
+                          "None"
+                        ],
+                        [
+                          "data-visual-element",
+                          "scope-reference-saved-lca"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#return-arrow)"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "annotation"
+                        ],
+                        [
+                          "data-visual-element",
+                          "scope-none-saved-lca"
+                        ],
+                        [
+                          "x",
+                          "322.5"
+                        ],
+                        [
+                          "y",
+                          "560"
+                        ]
+                      ],
+                      "children": [
+                        "None"
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "reference-box"
+                        ],
+                        [
+                          "d",
+                          "M251.5,25 h42 v20 h-42 Z"
+                        ],
+                        [
+                          "data-visual-element",
+                          "reference-box"
+                        ],
+                        [
+                          "opacity",
+                          "1"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "annotation"
+                        ],
+                        [
+                          "data-visual-element",
+                          "reference-label"
+                        ],
+                        [
+                          "opacity",
+                          "1"
+                        ],
+                        [
+                          "x",
+                          "272.5"
+                        ],
+                        [
+                          "y",
+                          "35"
+                        ]
+                      ],
+                      "children": [
+                        "root"
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "class",
+                          "reference"
+                        ],
+                        [
+                          "d",
+                          "M272.5,45 L272.5,56"
+                        ],
+                        [
+                          "data-visual-element",
+                          "reference"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#return-arrow)"
+                        ],
+                        [
+                          "opacity",
+                          "1"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "section",
+              "attributes": [
+                [
+                  "aria-label",
+                  "当前调用的三个区域"
+                ],
+                [
+                  "class",
+                  "lca-regions"
+                ],
+                [
+                  "data-lca-regions",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "h2",
+                  "attributes": [
+                    [
+                      "data-region-heading",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "外层函数"
+                  ]
+                },
+                {
+                  "tag": "code",
+                  "attributes": [
+                    [
+                      "data-region-call",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "lowest_common_ancestor(root, p, q)"
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "lca-region-values"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "lca-region"
+                        ],
+                        [
+                          "data-region",
+                          "self"
+                        ],
+                        [
+                          "data-value",
+                          "—"
                         ]
                       ],
                       "children": [
                         {
-                          "tag": "path",
-                          "attributes": [
-                            [
-                              "d",
-                              "M0 0 L8 4 L0 8 Z"
-                            ],
-                            [
-                              "fill",
-                              "#555"
-                            ]
+                          "tag": "small",
+                          "children": [
+                            "自己是否是目标"
+                          ]
+                        },
+                        {
+                          "tag": "code",
+                          "children": [
+                            "node_is_p_or_q"
+                          ]
+                        },
+                        {
+                          "tag": "output",
+                          "children": [
+                            "—"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "lca-region"
+                        ],
+                        [
+                          "data-region",
+                          "left"
+                        ],
+                        [
+                          "data-value",
+                          "—"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "small",
+                          "children": [
+                            "左子树是否含目标"
+                          ]
+                        },
+                        {
+                          "tag": "code",
+                          "children": [
+                            "left_contains_p_or_q"
+                          ]
+                        },
+                        {
+                          "tag": "output",
+                          "children": [
+                            "—"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "lca-region"
+                        ],
+                        [
+                          "data-region",
+                          "right"
+                        ],
+                        [
+                          "data-value",
+                          "—"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "small",
+                          "children": [
+                            "右子树是否含目标"
+                          ]
+                        },
+                        {
+                          "tag": "code",
+                          "children": [
+                            "right_contains_p_or_q"
+                          ]
+                        },
+                        {
+                          "tag": "output",
+                          "children": [
+                            "—"
                           ]
                         }
                       ]
@@ -1640,775 +2657,56 @@
                   ]
                 },
                 {
-                  "tag": "path",
+                  "tag": "p",
                   "attributes": [
                     [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M345.6837309335484,79.55591336743878 L171.45108140582596,163.57536723552133"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-a-left"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M385.3162690664516,79.55591336743878 L559.548918594174,163.57536723552133"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-a-right"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M133.99806918145606,189.2723413149481 L59.27483362022975,261.33926402005665"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-b-left"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M165.66859748521063,189.2723413149481 L240.39183304643694,261.33926402005665"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-b-right"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M565.3314025147894,189.2723413149481 L490.60816695356306,261.33926402005665"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-c-left"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M597.0019308185439,189.2723413149481 L671.7251663797703,261.33926402005665"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-c-right"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M457.49806918145606,293.2723413149481 L382.77483362022974,365.33926402005665"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-f-left"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "stored-edge"
-                    ],
-                    [
-                      "d",
-                      "M489.16859748521057,293.2723413149481 L563.8918330464369,365.33926402005665"
-                    ],
-                    [
-                      "data-visual-element",
-                      "edge-f-right"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#tree-arrow)"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node active"
-                    ],
-                    [
-                      "cx",
-                      "365.5"
-                    ],
-                    [
-                      "cy",
-                      "70"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-a"
-                    ],
-                    [
-                      "r",
-                      "21"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-a"
-                    ],
-                    [
-                      "x",
-                      "365.5"
-                    ],
-                    [
-                      "y",
-                      "71"
+                      "data-region-summary",
+                      ""
                     ]
                   ],
                   "children": [
-                    "1"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "149.83333333333334"
-                    ],
-                    [
-                      "cy",
-                      "174"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-b"
-                    ],
-                    [
-                      "r",
-                      "21"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-b"
-                    ],
-                    [
-                      "x",
-                      "149.83333333333334"
-                    ],
-                    [
-                      "y",
-                      "175"
-                    ]
-                  ],
-                  "children": [
-                    "2"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "581.1666666666666"
-                    ],
-                    [
-                      "cy",
-                      "174"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-c"
-                    ],
-                    [
-                      "r",
-                      "21"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-c"
-                    ],
-                    [
-                      "x",
-                      "581.1666666666666"
-                    ],
-                    [
-                      "y",
-                      "175"
-                    ]
-                  ],
-                  "children": [
-                    "3"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "42"
-                    ],
-                    [
-                      "cy",
-                      "278"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-d"
-                    ],
-                    [
-                      "r",
-                      "21"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-d"
-                    ],
-                    [
-                      "x",
-                      "42"
-                    ],
-                    [
-                      "y",
-                      "279"
-                    ]
-                  ],
-                  "children": [
-                    "4"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "257.6666666666667"
-                    ],
-                    [
-                      "cy",
-                      "278"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-e"
-                    ],
-                    [
-                      "r",
-                      "21"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-e"
-                    ],
-                    [
-                      "x",
-                      "257.6666666666667"
-                    ],
-                    [
-                      "y",
-                      "279"
-                    ]
-                  ],
-                  "children": [
-                    "5"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "473.3333333333333"
-                    ],
-                    [
-                      "cy",
-                      "278"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-f"
-                    ],
-                    [
-                      "r",
-                      "21"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-f"
-                    ],
-                    [
-                      "x",
-                      "473.3333333333333"
-                    ],
-                    [
-                      "y",
-                      "279"
-                    ]
-                  ],
-                  "children": [
-                    "6"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node marked"
-                    ],
-                    [
-                      "cx",
-                      "689"
-                    ],
-                    [
-                      "cy",
-                      "278"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-g"
-                    ],
-                    [
-                      "r",
-                      "21"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-g"
-                    ],
-                    [
-                      "x",
-                      "689"
-                    ],
-                    [
-                      "y",
-                      "279"
-                    ]
-                  ],
-                  "children": [
-                    "7"
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "class",
-                      "annotation"
-                    ],
-                    [
-                      "data-visual-element",
-                      "label-g"
-                    ],
-                    [
-                      "x",
-                      "689"
-                    ],
-                    [
-                      "y",
-                      "309"
-                    ]
-                  ],
-                  "children": [
-                    "q"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node marked"
-                    ],
-                    [
-                      "cx",
-                      "365.5"
-                    ],
-                    [
-                      "cy",
-                      "382"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-h"
-                    ],
-                    [
-                      "r",
-                      "21"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-h"
-                    ],
-                    [
-                      "x",
-                      "365.5"
-                    ],
-                    [
-                      "y",
-                      "383"
-                    ]
-                  ],
-                  "children": [
-                    "8"
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "class",
-                      "annotation"
-                    ],
-                    [
-                      "data-visual-element",
-                      "label-h"
-                    ],
-                    [
-                      "x",
-                      "365.5"
-                    ],
-                    [
-                      "y",
-                      "413"
-                    ]
-                  ],
-                  "children": [
-                    "p"
-                  ]
-                },
-                {
-                  "tag": "circle",
-                  "attributes": [
-                    [
-                      "class",
-                      "node"
-                    ],
-                    [
-                      "cx",
-                      "581.1666666666666"
-                    ],
-                    [
-                      "cy",
-                      "382"
-                    ],
-                    [
-                      "data-visual-element",
-                      "node-i"
-                    ],
-                    [
-                      "r",
-                      "21"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "data-visual-element",
-                      "value-i"
-                    ],
-                    [
-                      "x",
-                      "581.1666666666666"
-                    ],
-                    [
-                      "y",
-                      "383"
-                    ]
-                  ],
-                  "children": [
-                    "9"
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "reference-box"
-                    ],
-                    [
-                      "d",
-                      "M344.5,15 h42 v20 h-42 Z"
-                    ],
-                    [
-                      "data-visual-element",
-                      "reference-box"
-                    ],
-                    [
-                      "opacity",
-                      "1"
-                    ]
-                  ]
-                },
-                {
-                  "tag": "text",
-                  "attributes": [
-                    [
-                      "class",
-                      "annotation"
-                    ],
-                    [
-                      "data-visual-element",
-                      "reference-label"
-                    ],
-                    [
-                      "opacity",
-                      "1"
-                    ],
-                    [
-                      "x",
-                      "365.5"
-                    ],
-                    [
-                      "y",
-                      "25"
-                    ]
-                  ],
-                  "children": [
-                    "root"
-                  ]
-                },
-                {
-                  "tag": "path",
-                  "attributes": [
-                    [
-                      "class",
-                      "reference"
-                    ],
-                    [
-                      "d",
-                      "M365.5,35 L365.5,46"
-                    ],
-                    [
-                      "data-visual-element",
-                      "reference"
-                    ],
-                    [
-                      "marker-end",
-                      "url(#return-arrow)"
-                    ],
-                    [
-                      "opacity",
-                      "1"
-                    ]
+                    "lca → None；等待进入 dfs。"
                   ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "operation"
-            ],
-            [
-              "role",
-              "status"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "code",
-              "attributes": [
-                [
-                  "data-expression",
-                  ""
-                ]
-              ],
-              "children": [
-                "lca = None"
-              ]
             },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "data-explanation",
-                  ""
-                ]
-              ],
-              "children": [
-                "每次外层调用先清空答案，避免保留上一次查询的节点。"
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "execution-detail"
-            ],
-            [
-              "data-execution-detail",
-              ""
-            ],
-            [
-              "hidden",
-              ""
-            ]
-          ],
-          "children": [
             {
               "tag": "div",
               "attributes": [
                 [
                   "class",
-                  "call-handoff"
+                  "operation"
                 ],
                 [
-                  "data-handoff",
-                  ""
-                ],
-                [
-                  "hidden",
-                  ""
+                  "role",
+                  "status"
                 ]
+              ],
+              "children": [
+                {
+                  "tag": "code",
+                  "attributes": [
+                    [
+                      "data-expression",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "lca = None"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "data-explanation",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "每次外层调用先清空答案，避免保留上一次查询的节点。"
+                  ]
+                }
               ]
             },
             {
@@ -2416,16 +2714,52 @@
               "attributes": [
                 [
                   "class",
-                  "call-decision"
+                  "execution-detail"
                 ],
                 [
-                  "data-decision",
+                  "data-execution-detail",
                   ""
                 ],
                 [
                   "hidden",
                   ""
                 ]
+              ],
+              "children": [
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "call-handoff"
+                    ],
+                    [
+                      "data-handoff",
+                      ""
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "call-decision"
+                    ],
+                    [
+                      "data-decision",
+                      ""
+                    ],
+                    [
+                      "hidden",
+                      ""
+                    ]
+                  ]
+                }
               ]
             }
           ]
@@ -2478,7 +2812,7 @@
                 ]
               ],
               "children": [
-                "self = node_is_p_or_q；L/R 是左右调用返回的 contains 标记，不是目标数量。"
+                "每层独立保存三个布尔变量；子调用返回后，只给直接调用者的 left_contains_p_or_q 或 right_contains_p_or_q 赋值。"
               ]
             }
           ]
@@ -2518,7 +2852,7 @@
                 ]
               ],
               "children": [
-                "把「当前节点、左子树、右子树」视为三个区域。两个区域命中时找到 LCA；向父调用只返回是否含任意目标。"
+                "dfs 返回「当前子树是否至少包含一个目标」；True 可能包含两个目标。lca 单独保存节点引用，树的孩子引用始终不变。"
               ]
             }
           ]
