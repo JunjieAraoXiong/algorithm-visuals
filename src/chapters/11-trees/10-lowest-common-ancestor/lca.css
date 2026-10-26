@@ -1,0 +1,144 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: brand · redesign: full
+ * screen: recursive execution workbench · signature: visible call stack and per-call Boolean locals
+ * nav: catalog return and theme control · states: initial, call, receive, return, saved answer
+ * axes: paper/sans/ink · posture: restrained · copy: verbatim · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R5 V4 · weakest: E, compact embeds need explicit room for the current call and code */
+/* Hallmark · finish-review: subagent · 2 findings · 2 resolved: flexible tree stage, grouped teaching headings and prose */
+/* Hallmark · stack refinement review: subagent · ship · controls beneath code, pending returns and received locals remain distinct */
+@import url("../assets/tokens.css");
+
+html, body { overflow-x: clip; }
+body { padding: 20px 32px 40px; font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+#lesson { width: 100%; max-width: var(--container); --lca-gap: 24px; }
+#lesson ::selection { background: var(--color-accent-soft); color: var(--color-ink); }
+#lesson .theme-toggle { border-color: var(--color-rule); border-radius: 4px; }
+#lesson :is(h1, h2, h3) { min-width: 0; overflow-wrap: break-word; text-wrap: balance; }
+#lesson :is(button, select, a, summary, [tabindex]):focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+#lesson .back-nav { margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--color-rule); }
+#lesson .back-link { min-height: 36px; border: 0; padding: 8px 0; font: 13px/1.5 var(--font-body); }
+#lesson .back-link:hover { color: var(--color-accent); background: transparent; }
+#lesson h1 { margin: 0; letter-spacing: -.02em; }
+#lesson .problem { margin: 8px 0 20px; font: 14px/1.5 var(--font-body); color: var(--color-muted); }
+#lesson .learning-layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-rows: minmax(0,1fr) auto; gap: 16px var(--lca-gap); align-items: stretch; height: 704px; }
+#lesson .lca-controls { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding: 0 0 0 24px; border: 0; border-left: 1px solid var(--color-rule); min-width: 0; }
+#lesson .settings { display: flex; align-items: center; gap: 12px; margin: 0; font: 13px/1.5 var(--font-body); width: 100%; }
+#lesson .settings select { flex: 1; min-width: 0; min-height: 40px; width: 100%; max-width: 100%; padding: 8px 12px; border: 1px solid var(--color-field-edge); border-radius: 4px; font: 13px/1.5 var(--font-body); background: var(--color-paper); }
+#lesson .controls { display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 16px; padding: 0; border: 0; font-family: var(--font-body); }
+#lesson .controls button { min-height: 40px; padding: 8px 16px; border: 1px solid var(--color-field-edge); border-radius: 4px; font: 14px/1.5 var(--font-body); white-space: nowrap; background: var(--color-paper); color: var(--color-ink); cursor: pointer; }
+#lesson .controls [data-action="next"] { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-ink); }
+#lesson .controls button:hover:not(:disabled) { filter: brightness(.94); }
+#lesson :is(button, select):active:not(:disabled) { transform: translateY(1px); }
+#lesson .controls button:disabled { background: var(--color-paper-2); color: var(--color-muted); border-color: var(--color-rule); opacity: .55; cursor: not-allowed; }
+#lesson .controls output { min-width: 108px; font: 12px/1.5 var(--font-outlier); font-variant-numeric: tabular-nums; }
+#lesson .animation-panel { grid-column: 1; grid-row: 1 / 3; min-height: 0; }
+#lesson .array-panel:empty { display: none; }
+#lesson .diagram-workspace { display: block; height: 100%; }
+#lesson .lca-focus { display: flex; flex-direction: column; gap: 12px; height: 100%; min-width: 0; }
+#lesson .stage { flex: none; border: 0; }
+#lesson .stage svg text:not(.annotation) { font: 26px var(--font-body); }
+#lesson .stage svg .annotation { font: 20px var(--font-outlier); }
+#lesson .stage svg [data-visual-element^="label-"] { font-size: 24px; }
+#lesson .lca-regions { padding: 0; border: 0; border-top: 1px solid var(--color-rule); min-width: 0; flex: none; }
+#lesson .lca-inspector-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; }
+#lesson .lca-inspector-heading h2 { margin: 0; font: 500 14px/1.5 var(--font-body); }
+#lesson .lca-global-result { display: flex; align-items: baseline; gap: 8px; }
+#lesson .lca-global-result > span { color: var(--color-muted); font: 12px/1.5 var(--font-body); }
+#lesson .lca-inspector-body { display: grid; grid-template-columns: 144px minmax(0,1fr); gap: 20px; min-height: 220px; }
+#lesson .lca-stack { min-width: 0; }
+#lesson .lca-stack-label { margin: 0 0 8px; color: var(--color-muted); font: 12px/1.5 var(--font-body); }
+#lesson [data-call-path] { display: flex; flex-direction: column; gap: 4px; list-style: none; padding: 0; margin: 0; }
+#lesson .lca-stack-frame { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px; border-left: 2px solid var(--color-rule); color: var(--color-muted); }
+#lesson .lca-stack-frame code { font: 12px/1.5 var(--font-outlier); }
+#lesson .lca-stack-frame span { font: 12px/1.5 var(--font-body); white-space: nowrap; }
+#lesson .lca-stack-frame[data-current] { background: var(--color-accent-soft); border-left-color: var(--color-accent); color: var(--color-accent); }
+#lesson .lca-stack-frame[data-recipient] { border-left-color: var(--color-field-edge); border-left-style: dashed; color: var(--color-ink); }
+#lesson .lca-stack-frame.is-entering { animation: lca-push var(--dur-short) var(--ease-out); }
+#lesson .lca-current-call { min-width: 0; }
+#lesson .lca-current-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+#lesson .lca-current-heading h3 { margin: 0; font: 500 15px/1.5 var(--font-body); }
+#lesson [data-result] { font: 12px/1.5 var(--font-outlier); white-space: nowrap; }
+#lesson [data-region-call] { display: block; margin: 4px 0 8px; font: 12px/1.5 var(--font-outlier); color: var(--color-muted); overflow-wrap: anywhere; }
+#lesson .lca-region-values { display: grid; grid-template-columns: minmax(0,1fr); }
+#lesson .lca-region { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 8px; padding: 4px 8px; min-width: 0; border-top: 1px solid var(--color-rule); }
+#lesson .lca-region small { display: none; }
+#lesson .lca-region code { font: 12px/1.5 var(--font-outlier); overflow-wrap: anywhere; }
+#lesson .lca-region output { font: 12px/1.5 var(--font-outlier); }
+#lesson .lca-region[data-value="True"] { background: var(--color-accent-soft); color: var(--color-accent); }
+#lesson .lca-region[data-received] output { text-decoration: underline; text-underline-offset: 3px; color: var(--color-accent); }
+#lesson .lca-region[data-value="未赋值"], #lesson .lca-region[data-value="—"] { color: var(--color-muted); }
+#lesson [data-region-summary] { min-height: 36px; margin: 8px 0 0; font: 12px/1.5 var(--font-body); color: var(--color-muted); }
+#lesson .operation { flex: 0 0 76px; margin: auto 0 0; min-height: 76px; padding: 12px; border: 1px dashed var(--color-field-edge); border-radius: 4px; font: 13px/1.5 var(--font-body); }
+#lesson .operation [data-expression] { display: none; }
+#lesson .operation span { margin: 0; }
+#lesson [data-current-flow] { margin: 4px 0 0; min-height: 18px; font: 12px/1.5 var(--font-outlier); color: var(--color-muted); overflow-wrap: anywhere; }
+#lesson .code-panel { grid-column: 2; grid-row: 1; position: static; display: flex; flex-direction: column; min-height: 0; padding: 0 0 0 24px; border: 0; border-left: 1px solid var(--color-rule); border-radius: 0; }
+#lesson .code-panel h2 { margin: 0; padding: 0 0 12px; font: 500 15px/1.5 var(--font-body); }
+#lesson .code-status { display: none; font-size: 13px; }
+#lesson .code-panel pre { flex: 1; min-height: 0; height: 0; max-height: none; border: 0; padding: 12px 0; background: var(--color-paper-2); font: 13px/1.6 var(--font-outlier); overflow: auto; scrollbar-color: var(--color-muted) var(--color-paper-2); }
+#lesson .code-panel pre code { min-width: max-content; padding: 0; }
+#lesson .code-line { display: grid; grid-template-columns: 2ch max-content; gap: 16px; width: max-content; min-width: 100%; padding: 0 12px 0 8px; white-space: pre; border-left: 3px solid transparent; }
+#lesson .code-line::before { width: auto; margin: 0; font: 11px/1.89 var(--font-outlier); color: var(--color-muted); }
+#lesson .code-line.is-active { border-left-color: var(--color-accent); background: var(--color-accent-soft); outline: 0; }
+#lesson .code-line.is-active::before { color: var(--color-accent); }
+#lesson .lca-history { margin: 20px 0 0; padding: 12px 0; border-block: 1px solid var(--color-rule); }
+#lesson .lca-history > summary { width: fit-content; padding: 4px 0; font: 13px/1.5 var(--font-body); color: var(--color-muted); cursor: pointer; }
+#lesson .lca-history > summary:hover { color: var(--color-ink); }
+#lesson .lca-history[open] > summary { margin-bottom: 12px; color: var(--color-ink); }
+#lesson .lca-history small { font-size: 12px; }
+#lesson .section { max-width: none; display: grid; grid-template-columns: minmax(0,.7fr) minmax(0,1fr); column-gap: 48px; align-items: start; margin: 40px 0 0; padding: 0; border: 0; }
+#lesson .section h2 { margin: 0 0 12px; font: 500 19px/1.5 var(--font-body); }
+#lesson .section-intro { margin: 0; font: 14px/1.8 var(--font-body); }
+#lesson .card-grid { display: block; margin: 0; }
+#lesson .paper-card { padding: 0 0 16px; border: 0; }
+#lesson .paper-card + .paper-card { padding-top: 16px; border-top: 1px solid var(--color-rule); }
+#lesson .paper-card strong { font: 500 14px/1.5 var(--font-body); }
+#lesson .paper-card p { margin: 8px 0 0; font: 14px/1.8 var(--font-body); }
+#lesson .related-nav { margin: 24px 0 0; padding-top: 16px; font: 13px/1.8 var(--font-body); }
+#lesson .related-nav a + a::before { content: ""; }
+#lesson .related-nav a { display: inline-block; margin-left: 16px; }
+
+/* Bounded desktop embeds keep the same workspace and all trace controls. */
+@media (max-width: 1100px), (max-height: 820px) {
+  body { padding: 12px 16px 32px; }
+  #lesson { --lca-gap: 16px; }
+  #lesson .back-nav { margin-bottom: 4px; padding-bottom: 4px; }
+  #lesson .back-link { min-height: 32px; padding: 4px 0; font-size: 12px; }
+  #lesson .problem { margin: 4px 0 8px; font-size: 12px; }
+  #lesson .learning-layout { grid-template-columns: minmax(0,1.12fr) minmax(280px,1fr); gap: 12px var(--lca-gap); height: calc(100svh - 132px); max-height: 704px; }
+  #lesson .lca-controls { gap: 8px; padding: 0 0 0 16px; }
+  #lesson .settings { gap: 8px; font-size: 12px; }
+  #lesson .settings select { width: 100%; min-height: 36px; padding: 4px 8px; font-size: 12px; }
+  #lesson .controls { gap: 8px; }
+  #lesson .controls button { min-height: 36px; padding: 4px 12px; font-size: 13px; }
+  #lesson .controls output { min-width: 96px; font-size: 11px; }
+  #lesson .lca-focus { gap: 8px; }
+  #lesson .stage { flex: 1 1 244px; min-height: 244px; height: auto !important; }
+  #lesson .lca-inspector-heading { padding: 8px 0; }
+  #lesson .lca-inspector-heading h2 { font-size: 13px; }
+  #lesson .lca-inspector-body { grid-template-columns: 128px minmax(0,1fr); gap: 12px; min-height: 176px; }
+  #lesson .lca-stack-label { margin-bottom: 4px; font-size: 11px; }
+  #lesson [data-call-path] { gap: 2px; }
+  #lesson .lca-stack-frame { padding: 4px; gap: 4px; }
+  #lesson .lca-stack-frame code, #lesson .lca-stack-frame span { font-size: 11px; }
+  #lesson .lca-current-heading h3 { font-size: 13px; }
+  #lesson [data-result], #lesson [data-region-call] { font-size: 11px; }
+  #lesson [data-region-call] { margin: 0 0 4px; }
+  #lesson .lca-region { padding: 2px 4px; }
+  #lesson .lca-region code, #lesson .lca-region output { font-size: 11px; }
+  #lesson [data-region-summary] { min-height: 32px; margin-top: 4px; font-size: 11px; line-height: 1.45; }
+  #lesson .operation { min-height: 76px; padding: 8px; font-size: 12px; line-height: 1.45; }
+  #lesson [data-current-flow] { min-height: 16px; font-size: 11px; line-height: 1.45; }
+  #lesson .code-panel { padding-left: 16px; }
+  #lesson .code-panel h2 { padding-bottom: 8px; font-size: 13px; }
+  #lesson .code-panel pre { font-size: 12px; line-height: 1.45; padding-block: 8px; }
+  #lesson .code-line { gap: 8px; padding-right: 8px; padding-left: 4px; }
+  #lesson .code-line::before { font-size: 11px; line-height: 1.58; }
+  #lesson .lca-history { margin-top: 16px; }
+  #lesson .section { column-gap: 24px; }
+}
+@keyframes lca-push { from { opacity: .35; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  #lesson .lca-stack-frame.is-entering { animation: none; }
+  #lesson :is(button, select):active:not(:disabled) { transform: none; }
+  #lesson *, #lesson *::before, #lesson *::after { scroll-behavior: auto; }
+}

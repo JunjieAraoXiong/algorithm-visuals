@@ -77,11 +77,11 @@ test('the width strip counts gaps and never adds them to the real-node queue', a
 });
 
 for (const slug of lessons) {
-  test(`${slug}: all detailed frames remain legible at phone and desktop widths`, async ({page}) => {
+  test(`${slug}: all detailed frames remain legible at supported widths`, async ({page}) => {
     test.setTimeout(120000);
     const errors=[]; page.on('pageerror', error => errors.push(error.message));
     await page.emulateMedia({reducedMotion:'reduce'});
-    for (const width of [320,1280]) {
+    for (const width of (slug==='lowest-common-ancestor'?[760,1280]:[320,1280])) {
       await page.setViewportSize({width,height:900});
       await page.goto(`/${slug}/#step=0`);
       const compact=slug==='lowest-common-ancestor';

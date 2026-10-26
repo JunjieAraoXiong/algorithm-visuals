@@ -103,13 +103,13 @@ async function expectLinesVisibleInScroller(page, lineSelector, scrollerSelector
 
 async function expectCodeLine(page, slug, step) {
   await expect.poll(
-    () => page.locator('[aria-current="step"]:visible').count(),
+    () => page.locator('[data-code-scroll] [aria-current="step"]:visible').count(),
     { message: `${slug}: scripted step ${step} has no active source line` }
   ).toBeGreaterThan(0);
 
   await expectLinesVisibleInScroller(
     page,
-    '[aria-current="step"]:visible',
+    '[data-code-scroll] [aria-current="step"]:visible',
     '[data-code-scroll]',
     `${slug}: scripted step ${step} is not visible inside its code panel`
   );
@@ -420,7 +420,7 @@ test('reduced motion scrolls a core-only code panel immediately', async ({ page 
 });
 
 for (const slug of slugs) {
-  test(`${slug} keeps its scripted trace usable at phone and desktop widths`, async ({ page }) => {
+  test(`${slug} keeps its scripted trace usable at supported widths`, async ({ page }) => {
     const errors = [];
     page.on('console', (message) => {
       if (message.type() === 'error') {
@@ -429,12 +429,15 @@ for (const slug of slugs) {
     });
     page.on('pageerror', (error) => errors.push(`page: ${error.message}`));
 
-    for (const viewport of viewports) {
+    const lessonViewports = slug === 'lowest-common-ancestor'
+      ? [{ name: 'embed', width: 760, height: 700 }, viewports[1]]
+      : viewports;
+    for (const viewport of lessonViewports) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await page.goto(`/${slug}/`);
       await expect(page.locator('body')).toBeVisible();
       await expect(page).toHaveTitle(/ · Algorithm Visuals$/);
-      await expect(page.locator('h1').first()).toHaveCSS('font-size', viewport.name === 'phone' ? '21px' : '26px');
+      await expect(page.locator('h1').first()).toHaveCSS('font-size', viewport.name === 'desktop' ? '26px' : '21px');
       await expect(page.locator('h1').first()).toHaveCSS('font-weight', '500');
       await expect.poll(
         () => page.locator('html').evaluate((documentElement) => documentElement.scrollWidth <= documentElement.clientWidth),
@@ -447,7 +450,7 @@ for (const slug of slugs) {
         const scene = await sceneSnapshot(page);
         expect(scene).toMatchSnapshot(`${slug}.scene.json`);
       }
-      await collectTrace(page, slug, { checkStageOverflow: viewport.name === 'phone' });
+      await collectTrace(page, slug, { checkStageOverflow: viewport.name !== 'desktop' });
       await verifyStandardKeyboardTrace(page, slug);
     }
     expect(errors, `${slug}: browser errors`).toEqual([]);

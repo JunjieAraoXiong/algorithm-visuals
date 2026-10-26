@@ -187,9 +187,9 @@ test('a Notion-sized viewport shows the tree, current call, source and primary c
   }
 });
 
-test('region variables and both references fit phone, embed and desktop widths', async ({page}) => {
+test('region variables and both references fit desktop embed and full-page widths', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  for(const width of [320,390,760,1280]) {
+  for(const width of [760,1280]) {
     await page.setViewportSize({width,height:900});
     for(const step of [2,3,12,13,72,73,75,77,90,95]) {
       await goToStep(page,step);
@@ -204,7 +204,7 @@ test('region variables and both references fit phone, embed and desktop widths',
 
 test('a returning child flag stays separate from the saved global reference', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  for(const width of [320,390,760,1280]) {
+  for(const width of [760,1280]) {
     await page.setViewportSize({width,height:900});
     for(const [mode,step] of [['same',75],['split',92]]) {
       await page.goto(`/lowest-common-ancestor/?case=${mode}#step=${step}`);

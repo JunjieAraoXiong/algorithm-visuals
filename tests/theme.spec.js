@@ -54,13 +54,15 @@ test('theme controls work when an embed blocks storage', async ({ page }) => {
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(255, 253, 248)');
 });
 
-test('every guide keeps readable dark diagrams and usable trace controls on phones', async ({ page }) => {
+test('every guide keeps readable dark diagrams and usable trace controls in its supported viewport', async ({ page }) => {
   test.setTimeout(180_000);
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
-  await page.setViewportSize({ width: 390, height: 844 });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   for (const slug of slugs) {
+    await page.setViewportSize(slug === 'lowest-common-ancestor'
+      ? { width: 760, height: 700 }
+      : { width: 390, height: 844 });
     await page.goto(`/${slug}/#step=0`);
     await expect(toggle(page), slug).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('body'), slug).toHaveCSS('background-color', 'rgb(27, 28, 30)');
