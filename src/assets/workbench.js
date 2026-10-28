@@ -4,6 +4,43 @@
   const mounted = new WeakSet();
   const layouts = new Set();
 
+  function stylePage() {
+    const main = document.querySelector('main');
+    const layout = main?.querySelector('.av-workbench');
+    if (!layout) return;
+    const title = main.querySelector('h1');
+    let heading = title?.closest('header, .heading, .topline, .lab-head');
+    if (heading && layout.contains(heading)) {
+      let container = layout;
+      while (container.parentElement !== main) container = container.parentElement;
+      main.insertBefore(heading, container);
+      heading.classList.add('av-heading-before-workspace');
+    }
+    if (heading) heading.classList.add('av-page-heading');
+    title?.classList.add('av-page-title');
+    for (const intro of main.querySelectorAll('.problem, .subtitle, .lede, .intro')) {
+      if (!layout.contains(intro)) intro.classList.add('av-page-intro');
+    }
+    // Keep the original teaching nodes and anchors; group their heading and
+    // opening paragraph beside the remaining explanation, as on the LCA page.
+    for (const section of main.querySelectorAll('.section, .lab-reasoning, .reasoning, .doc-section, .explanation, .notes, .reason')) {
+      if (layout.contains(section) || section.closest('.av-teaching')) continue;
+      const heading = section.querySelector(':scope > h2, :scope > h3');
+      if (!heading) continue;
+      const intro = document.createElement('div');
+      intro.className = 'av-teaching-intro';
+      const paragraph = heading.nextElementSibling;
+      intro.append(heading);
+      if (paragraph?.tagName === 'P') intro.append(paragraph);
+      const body = document.createElement('div');
+      body.className = 'av-teaching-body';
+      body.append(...section.childNodes);
+      section.classList.add('av-teaching');
+      section.append(intro, body);
+      if (!body.textContent.trim() && !body.querySelector('img, svg, table, input, button')) section.classList.add('av-teaching-brief');
+    }
+  }
+
   function size(layout) {
     if (!layout.getClientRects().length) return;
     const top = layout.getBoundingClientRect().top + window.scrollY;
@@ -25,6 +62,8 @@
     layout.classList.add('av-workbench');
     animation.classList.add('av-animation');
     code.classList.add('av-code');
+    const codeHeading = code.querySelector(':scope > h2, :scope > h3');
+    if (codeHeading) codeHeading.textContent = '完整 Python 代码';
     // These static teaching sections are siblings in the older linked-list
     // layouts. They stay visible below the bounded execution workspace.
     let after = layout;
@@ -77,6 +116,7 @@
   window.addEventListener('resize', () => layouts.forEach(size));
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-learning-layout]').forEach(mount);
+    stylePage();
     layouts.forEach(size);
   });
   window.AlgorithmWorkbench = Object.freeze({mount, render});

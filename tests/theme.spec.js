@@ -67,6 +67,25 @@ test('every guide keeps readable dark diagrams and usable trace controls in its 
     await expect(toggle(page), slug).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('body'), slug).toHaveCSS('background-color', 'rgb(27, 28, 30)');
     await expect(page.locator('h1').first(), slug).toHaveCSS('color', 'rgb(231, 227, 219)');
+    const header = await page.evaluate(() => {
+      const title = document.querySelector('h1');
+      const back = document.querySelector('a.back-link[href="../"]');
+      const theme = document.querySelector('[data-theme-toggle]');
+      const workspace = document.querySelector('[data-learning-layout]');
+      const titleBox = title.getBoundingClientRect();
+      const backBox = back.getBoundingClientRect();
+      const themeBox = theme.getBoundingClientRect();
+      return {
+        sharedNavigationRow: Math.abs((backBox.top + backBox.bottom) / 2 - (themeBox.top + themeBox.bottom) / 2) <= 2,
+        titleBelowNavigation: titleBox.top >= Math.max(backBox.bottom, themeBox.bottom),
+        titleAboveWorkspace: titleBox.bottom <= workspace.getBoundingClientRect().top + 1,
+        titleOutsideAnimation: !workspace.contains(title)
+      };
+    });
+    expect(header, `${slug}: navigation and heading compete with the animation`).toEqual({
+      sharedNavigationRow: true, titleBelowNavigation: true,
+      titleAboveWorkspace: true, titleOutsideAnimation: true
+    });
     await expect(page.locator('[aria-current="step"]:visible').first(), slug).toBeVisible();
     const next = page.locator('[data-action="next"]:visible').first();
     await next.click();

@@ -17,18 +17,18 @@ body.av-study main { width: 100%; max-width: var(--container); margin-inline: au
 .av-study :is(h1, h2, h3) { min-width: 0; overflow-wrap: break-word; text-wrap: balance; }
 .av-study :is(button, select, a, summary, input, [tabindex]):focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 .av-study .back-nav { margin: 0 0 var(--space-md); padding-bottom: var(--space-xs); border-bottom: 1px solid var(--color-rule); }
-.av-study .back-link { min-height: 36px; padding: var(--space-xs) 0; border: 0; font: 13px/1.5 var(--font-body); }
+.av-study .back-link { min-height: 36px; margin: 0; padding: var(--space-xs) 0; border: 0; font: 13px/1.5 var(--font-body); }
 .av-study .back-link:hover { color: var(--color-accent); background: transparent; }
 .av-study .theme-toggle { border-color: var(--color-rule); border-radius: 4px; }
 .av-study h1 { letter-spacing: -.02em; }
 .av-study :is(.problem, .subtitle) { margin: var(--space-xs) 0 var(--space-md); font: 14px/1.5 var(--font-body); color: var(--color-muted); }
 
-body.av-study .av-workbench { display: grid !important; grid-template-columns: minmax(0,1.12fr) minmax(0,1fr) !important; grid-template-rows: minmax(0,1fr) auto; gap: var(--space-md) var(--space-lg) !important; align-items: stretch !important; height: var(--av-height,704px); min-height: 0; width: 100%; max-width: none; margin: 0; padding: 0; border: 0; }
+body.av-study .av-workbench { display: grid !important; grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important; grid-template-rows: minmax(0,1fr) auto; gap: var(--space-md) var(--space-lg) !important; align-items: stretch !important; height: var(--av-height,704px); min-height: 0; width: 100%; max-width: none; margin: 0; padding: 0; border: 0; }
 .av-workbench > .av-animation { grid-column: 1 !important; grid-row: 1 / 3 !important; min-width: 0; min-height: 0; height: auto; max-height: none; overflow: auto; scrollbar-gutter: stable; padding: 0 var(--space-xs) var(--space-2xs) 0; border: 0; overscroll-behavior: contain; scrollbar-color: var(--color-muted) var(--color-paper); }
 body.av-study .av-workbench > .av-code { grid-column: 2 !important; grid-row: 1 !important; display: flex; flex-direction: column; position: static !important; min-width: 0; min-height: 0; max-height: none; padding: 0 0 0 var(--space-lg) !important; margin: 0; border: 0; border-left: 1px solid var(--color-rule); border-radius: 0; background: transparent; }
 body.av-study .av-code > :is(h2,h3) { margin: 0; padding: 0 0 var(--space-sm); font: 500 15px/1.5 var(--font-body); }
 .av-code [data-code-status] { display: none; }
-body.av-study .av-workbench > .av-code { align-self: stretch; }
+body.av-study .av-workbench > .av-code { align-self: stretch !important; }
 .av-practice .av-code [data-code-status] { display: block; min-height: 0; margin: 0 0 var(--space-xs); font: 12px/1.5 var(--font-body); color: var(--color-muted); }
 body.av-study .av-code [data-code-scroll] { flex: 1; min-height: 0; height: 0; max-height: none !important; margin: 0; padding: var(--space-sm) 0; overflow: auto; border: 0; background: var(--color-paper-2); font: 13px/1.6 var(--font-outlier); scrollbar-color: var(--color-muted) var(--color-paper-2); overscroll-behavior: contain; }
 .av-code [data-code-scroll] > code { display: block; min-width: max-content; padding: 0; }
@@ -63,6 +63,34 @@ body.av-study .av-transport button:disabled { background: var(--color-paper-2); 
 .av-study .section { margin-top: 32px; border-color: var(--color-rule); }
 .av-study .related-nav { font: 13px/1.8 var(--font-body); border-color: var(--color-rule); }
 
+/* The LCA page is the shared page reference, including its navigation and
+   teaching rhythm. Diagram geometry remains owned by each lesson. */
+body.av-study .av-page-heading { display: flex; align-items: baseline; flex-wrap: wrap; justify-content: flex-start; gap: var(--space-xs) var(--space-md); padding: 0; margin: 0; border: 0; }
+body.av-study .av-page-title { margin: 0 !important; padding: 0; text-align: left; }
+body.av-study .av-page-intro { max-width: 960px; margin: var(--space-xs) 0 20px; padding: 0; color: var(--color-muted); font: 14px/1.5 var(--font-body); }
+body.av-study .av-page-heading:has(.av-page-intro) { display: block; }
+body.av-study .av-heading-before-workspace { margin-bottom: 20px; }
+body.av-study .av-workbench .av-animation :is(.stage, .lab-stage, .diagram) { border: 0 !important; border-radius: 0; background: transparent; }
+body.av-study .av-workbench .av-animation :is(.state-grid, .step-grid) > * { border: 0; border-top: 1px solid var(--color-rule); padding: var(--space-sm) 0; background: transparent; }
+body.av-study .av-workbench .av-animation :is(.operation, .lab-operation, .helper-callout, .overview-callout) { padding: var(--space-sm); border: 1px dashed var(--color-field-edge); border-radius: var(--radius-card); color: var(--color-ink); background: transparent; font: 13px/1.5 var(--font-body); }
+body.av-study .av-teaching { display: grid; grid-template-columns: minmax(0,.7fr) minmax(0,1fr); gap: var(--space-md) 48px; width: 100%; max-width: none; margin: var(--space-xl) 0 0 !important; padding: 0 !important; border: 0 !important; background: transparent; }
+body.av-study .av-teaching-intro, body.av-study .av-teaching-body { min-width: 0; }
+body.av-study .av-teaching-intro > :is(h2,h3) { margin: 0 0 var(--space-sm); font: 500 19px/1.5 var(--font-body) !important; }
+body.av-study .av-teaching :is(p,li) { font-size: 14px; line-height: 1.8; }
+body.av-study .av-teaching-intro > p { margin: 0; }
+body.av-study .av-teaching :is(.card-grid, .index-grid, .complexity) { display: block; margin: 0; }
+body.av-study .av-teaching :is(.card-grid, .index-grid, .complexity) > .paper-card { padding: 0 0 var(--space-md); border: 0; background: transparent; }
+body.av-study .av-teaching :is(.card-grid, .index-grid, .complexity) > .paper-card + .paper-card { padding-top: var(--space-md); border-top: 1px solid var(--color-rule); }
+body.av-study .av-teaching .paper-card strong { font: 500 14px/1.5 var(--font-body); }
+body.av-study .av-teaching .paper-card p { margin: var(--space-xs) 0 0; }
+body.av-study .av-teaching-brief { display: block; max-width: 960px; }
+body.av-study .av-teaching .verdict { font-size: 11px; }
+/* The two window references can point at the same cell. Give left the lower
+   lane so both labels and their reference stems stay visible. */
+#anagram-lab .av-workbench .pointer { font-size: 11px; }
+#anagram-lab .av-workbench [data-left] { top: 180px !important; }
+#anagram-lab .av-workbench [data-left]::after { top: auto; bottom: 100%; }
+
 /* Bounded desktop workspaces and Notion embeds retain both columns. */
 @media (max-width: 1100px), (max-height: 820px) {
   body.av-study { padding: var(--space-sm) var(--space-md) 32px; }
@@ -76,6 +104,10 @@ body.av-study .av-transport button:disabled { background: var(--color-paper-2); 
   body.av-study .av-code [data-code-scroll] { font-size: 12px; line-height: 1.45; padding-block: var(--space-xs); }
   body.av-study .av-code .code-line { gap: var(--space-xs); padding-left: var(--space-2xs); }
   body.av-study .av-code .code-line::before { font-size: 11px; line-height: 1.58; }
+  body.av-study .av-page-intro { margin: var(--space-2xs) 0 var(--space-xs); font-size: 12px; }
+  body.av-study .av-heading-before-workspace { margin-bottom: var(--space-xs); }
+  body.av-study .av-workbench .av-animation :is(.operation, .lab-operation, .helper-callout, .overview-callout) { padding: var(--space-xs); font-size: 12px; line-height: 1.45; }
+  body.av-study .av-teaching { column-gap: var(--space-lg); }
   body.av-study .av-transport button { min-height: 36px; padding: var(--space-2xs) var(--space-sm); font-size: 13px; }
   .av-study .av-transport output { min-width: 88px; font-size: 11px; }
   .av-options { max-height: 104px; margin-top: var(--space-xs); gap: var(--space-2xs) var(--space-xs); }

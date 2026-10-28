@@ -35,10 +35,19 @@
   });
 
   document.addEventListener('DOMContentLoaded', () => {
-    let navigation = document.querySelector('main > header, .back-nav, .page-nav');
+    const main = document.querySelector('main');
+    const lesson = main.querySelector('[data-learning-layout]');
+    const back = lesson && main.querySelector('a.back-link[href="../"]');
+    // Lesson navigation has its own row. A title/intro header is not a toolbar.
+    let navigation = lesson ? back?.closest('nav') : document.querySelector('main > header, .back-nav, .page-nav');
     if (!navigation) {
       navigation = document.createElement('nav');
-      document.querySelector('main').prepend(navigation);
+      main.prepend(navigation);
+      if (back) navigation.append(back);
+    }
+    if (lesson) {
+      navigation.classList.add('back-nav');
+      main.prepend(navigation);
     }
     navigation.classList.add('theme-nav');
     button = document.createElement('button');
