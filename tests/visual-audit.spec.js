@@ -47,44 +47,55 @@ async function sceneSnapshot(page) {
   // a diagram a diagram. Pixel screenshots would vary with host fonts; this
   // scene baseline instead records node positions, SVG paths, and visual
   // presentation attributes in addition to the accessible state.
-  return page.locator('[data-animation-panel]').first().evaluate((panel) => {
-    const meaningfulAttributes = new Set([
-      'aria-current', 'aria-expanded', 'aria-label', 'aria-pressed', 'aria-selected',
-      'aria-valuenow', 'aria-hidden', 'disabled', 'hidden', 'role', 'value', 'style'
-    ]);
-    const sceneAttributes = new Set([
-      'd', 'viewBox', 'x', 'y', 'x1', 'x2', 'y1', 'y2', 'cx', 'cy', 'r',
-      'width', 'height', 'points', 'transform', 'fill', 'stroke', 'stroke-width',
-      'stroke-dasharray', 'stroke-linecap', 'marker-end', 'marker-start', 'opacity'
-    ]);
-    const cleanText = (value) => value.replace(/\s+/g, ' ').trim();
+  // Linux reserves space for classic scrollbars while macOS overlays them.
+  // Normalize only this capture; restore native gutters for the trace and
+  // keyboard checks so those still exercise the actual application layout.
+  const scrollbarStyle = await page.addStyleTag({content: '[data-animation-panel] { scrollbar-width: none !important; scrollbar-gutter: auto !important; }'});
+  const settleLayout = () => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  try {
+    await settleLayout();
+    return await page.locator('[data-animation-panel]').first().evaluate((panel) => {
+      const meaningfulAttributes = new Set([
+        'aria-current', 'aria-expanded', 'aria-label', 'aria-pressed', 'aria-selected',
+        'aria-valuenow', 'aria-hidden', 'disabled', 'hidden', 'role', 'value', 'style'
+      ]);
+      const sceneAttributes = new Set([
+        'd', 'viewBox', 'x', 'y', 'x1', 'x2', 'y1', 'y2', 'cx', 'cy', 'r',
+        'width', 'height', 'points', 'transform', 'fill', 'stroke', 'stroke-width',
+        'stroke-dasharray', 'stroke-linecap', 'marker-end', 'marker-start', 'opacity'
+      ]);
+      const cleanText = (value) => value.replace(/\s+/g, ' ').trim();
 
-    function serialize(node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const text = cleanText(node.textContent);
-        return text || null;
+      function serialize(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = cleanText(node.textContent);
+          return text || null;
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE || ['SCRIPT', 'STYLE'].includes(node.tagName)) {
+          return null;
+        }
+
+        const attributes = [...node.attributes]
+          .filter((attribute) => meaningfulAttributes.has(attribute.name)
+            || sceneAttributes.has(attribute.name)
+            || attribute.name === 'class'
+            || attribute.name.startsWith('data-'))
+          .map((attribute) => [attribute.name, attribute.value])
+          .sort(([left], [right]) => left.localeCompare(right));
+        const children = [...node.childNodes].map(serialize).filter(Boolean);
+        return {
+          tag: node.tagName.toLowerCase(),
+          ...(attributes.length ? { attributes } : {}),
+          ...(children.length ? { children } : {})
+        };
       }
-      if (node.nodeType !== Node.ELEMENT_NODE || ['SCRIPT', 'STYLE'].includes(node.tagName)) {
-        return null;
-      }
 
-      const attributes = [...node.attributes]
-        .filter((attribute) => meaningfulAttributes.has(attribute.name)
-          || sceneAttributes.has(attribute.name)
-          || attribute.name === 'class'
-          || attribute.name.startsWith('data-'))
-        .map((attribute) => [attribute.name, attribute.value])
-        .sort(([left], [right]) => left.localeCompare(right));
-      const children = [...node.childNodes].map(serialize).filter(Boolean);
-      return {
-        tag: node.tagName.toLowerCase(),
-        ...(attributes.length ? { attributes } : {}),
-        ...(children.length ? { children } : {})
-      };
-    }
-
-    return JSON.stringify(serialize(panel), null, 2);
-  });
+      return JSON.stringify(serialize(panel), null, 2);
+    });
+  } finally {
+    await scrollbarStyle.evaluate(style => style.remove());
+    await settleLayout();
+  }
 }
 
 async function expectLinesVisibleInScroller(page, lineSelector, scrollerSelector, message) {
