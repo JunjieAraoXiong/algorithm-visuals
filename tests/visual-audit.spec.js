@@ -108,13 +108,28 @@ async function sceneSnapshot(page) {
 
 async function expectLinesVisibleInScroller(page, lineSelector, scrollerSelector, message) {
   await expect.poll(
-    () => page.locator(lineSelector).evaluateAll((lines, selector) => lines.every((line) => {
-      const scroller = line.closest(selector);
-      if (!scroller) return false;
-      const lineRect = line.getBoundingClientRect();
-      const scrollRect = scroller.getBoundingClientRect();
-      return lineRect.top >= scrollRect.top - 1 && lineRect.bottom <= scrollRect.bottom + 1;
-    }), scrollerSelector),
+    () => page.locator(lineSelector).evaluateAll((lines, selector) => {
+      const groups = new Map();
+      for (const line of lines) {
+        const scroller = line.closest(selector);
+        if (!scroller) return false;
+        if (!groups.has(scroller)) groups.set(scroller, []);
+        groups.get(scroller).push(line.getBoundingClientRect());
+      }
+      return [...groups].every(([scroller, rects]) => {
+        const bounds = scroller.getBoundingClientRect();
+        const top = bounds.top + scroller.clientTop;
+        const bottom = top + scroller.clientHeight;
+        const span = Math.max(...rects.map(rect => rect.bottom)) - Math.min(...rects.map(rect => rect.top));
+        // Wrapped caller/helper statements can be farther apart than the source
+        // viewport. Show the first statement and keep the remaining source
+        // scrollable; when the group fits, every highlighted line must be visible.
+        const visible = span <= scroller.clientHeight ? rects : rects.slice(0, 1);
+        return visible.every(rect => rect.top >= top - 1 && rect.bottom <= bottom + 1)
+          && rects.every(rect => rect.top - top + scroller.scrollTop >= -1
+            && rect.bottom - top + scroller.scrollTop <= scroller.scrollHeight + 1);
+      });
+    }, scrollerSelector),
     { message }
   ).toBe(true);
 }
@@ -333,6 +348,19 @@ test.describe('shared trace URL state', () => {
 });
 
 test.describe('LRU tabs and anchors', () => {
+  test('a saved source line remains visible after mounting and desktop embed reflow', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/lru-cache/#step=5');
+    await expect.poll(() => stepCount(page)).toMatchObject({ current: 6 });
+    await expectCodeLine(page, 'LRU deep link', 6);
+    await page.setViewportSize({ width: 760, height: 700 });
+    await expectCodeLine(page, 'LRU embed reflow', 6);
+    await page.locator('#lru-tab-helper').click();
+    await page.locator('#lru-tab-trace').click();
+    await expectCodeLine(page, 'LRU trace tab restoration', 6);
+    await expect.poll(() => stepCount(page)).toMatchObject({ current: 6 });
+  });
+
   test('helper anchors and tabs reveal the helper panel without losing trace links', async ({ page }) => {
     const helper = page.locator('#pointer-helpers');
     const helperTab = page.locator('#lru-tab-helper');

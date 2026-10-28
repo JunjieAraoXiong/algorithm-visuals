@@ -163,7 +163,8 @@ for (const question of questions) {
   <script src="../assets/workbench-legacy.js"></script>
   <script src="../assets/workbench.js"></script>
 `;
-  fs.writeFileSync(page, lesson.replace('</head>', `${workbench}</head>`));
+  const readerControls = '<link rel="stylesheet" href="../assets/reader-controls.css">\n<script src="../assets/reader-controls.js" defer></script>\n';
+  fs.writeFileSync(page, lesson.replace('</head>', `${workbench}${readerControls}</head>`));
 }
 
 validateOutputLinks([
