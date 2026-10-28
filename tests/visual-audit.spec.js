@@ -22,7 +22,6 @@ function visualSlugs() {
 
 const slugs = visualSlugs();
 const viewports = [
-  { name: 'phone', width: 390, height: 844 },
   { name: 'desktop', width: 1280, height: 900 }
 ];
 
@@ -265,10 +264,12 @@ test.describe('catalog and README coverage', () => {
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     const routes = await page.getByRole('link').evaluateAll((links) => links.map((link) => link.href));
 
+    // Chapter filters and the skip link stay on the catalog.
+    const questionRoutes = routes.map(routeFor).filter(route => route !== '');
     for (const slug of slugs) {
-      expect(routes.map(routeFor), `catalog is missing ${slug}`).toContain(`/${slug}`);
+      expect(questionRoutes, `catalog is missing ${slug}`).toContain(`/${slug}`);
     }
-    expect(routes.map(routeFor).sort(), 'catalog contains a route without a published page')
+    expect(questionRoutes.sort(), 'catalog contains a route without a published page')
       .toEqual(slugs.map((slug) => `/${slug}`).sort());
   });
 
@@ -344,7 +345,7 @@ test.describe('LRU tabs and anchors', () => {
     await expect.poll(() => stepCount(page)).toMatchObject({ current: 6, total: expect.any(Number) });
   });
 
-  test('helper trace stays reachable and code-synchronized in both layouts', async ({ page }) => {
+  test('helper trace stays reachable and code-synchronized on desktop', async ({ page }) => {
     const errors = [];
     page.on('console', (message) => {
       if (message.type() === 'error') errors.push(`console: ${message.text()}`);
@@ -355,9 +356,9 @@ test.describe('LRU tabs and anchors', () => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await page.goto('/lru-cache/#pointer-helpers');
       const helper = page.locator('#pointer-helpers');
-      const modes = helper.locator('[data-helper-mode]');
-      const previous = helper.locator('[data-helper-prev]');
-      const next = helper.locator('[data-helper-next]');
+      const modes = page.locator('[data-helper-mode]');
+      const previous = page.locator('[data-helper-prev]');
+      const next = page.locator('[data-helper-next]');
 
       await expect(helper).toBeVisible();
       await expect.poll(
@@ -368,10 +369,10 @@ test.describe('LRU tabs and anchors', () => {
         await modes.nth(modeIndex).click();
         let visited = 0;
         while (visited < 25) {
-          await expect(helper.locator('[data-helper-code] [aria-current="step"]')).toHaveCount(1);
+          await expect(page.locator('[data-helper-code] [aria-current="step"]')).toHaveCount(1);
           await expectLinesVisibleInScroller(
             page,
-            '#pointer-helpers [aria-current="step"]:visible',
+            '[data-helper-code] [aria-current="step"]:visible',
             '[data-helper-code-scroll]',
             `LRU helper mode ${modeIndex}: active code line is clipped at ${viewport.width}px`
           );
@@ -388,8 +389,8 @@ test.describe('LRU tabs and anchors', () => {
         await expect(next).toBeDisabled();
       }
 
-      const helperCount = helper.locator('[data-helper-count]');
-      const helperCodeScroll = helper.locator('[data-helper-code-scroll]');
+      const helperCount = page.locator('[data-helper-count]');
+      const helperCodeScroll = page.locator('[data-helper-code-scroll]');
       const countBeforeCodeKey = await helperCount.innerText();
       await helperCodeScroll.focus();
       await page.keyboard.press('ArrowRight');
@@ -412,7 +413,8 @@ test('reduced motion scrolls a core-only code panel immediately', async ({ page 
     };
   });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.setViewportSize({ width: 390, height: 844 });
+  // A short desktop window guarantees the full source needs to scroll.
+  await page.setViewportSize({ width: 1280, height: 500 });
   await page.goto('/substring-anagrams/#step=47');
   await expect.poll(() => page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
   await expectCodeLine(page, 'substring-anagrams reduced motion', '48');
@@ -430,7 +432,7 @@ for (const slug of slugs) {
     page.on('pageerror', (error) => errors.push(`page: ${error.message}`));
 
     const lessonViewports = slug === 'lowest-common-ancestor'
-      ? [{ name: 'embed', width: 760, height: 700 }, viewports[1]]
+      ? [{ name: 'embed', width: 760, height: 700 }, viewports[0]]
       : viewports;
     for (const viewport of lessonViewports) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });

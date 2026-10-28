@@ -7,7 +7,7 @@
     ],
     [
       "class",
-      "animation-panel"
+      "animation-panel av-animation"
     ],
     [
       "data-animation-panel",
@@ -15,1545 +15,6 @@
     ]
   ],
   "children": [
-    {
-      "tag": "label",
-      "attributes": [
-        [
-          "class",
-          "settings"
-        ],
-        [
-          "hidden",
-          ""
-        ]
-      ],
-      "children": [
-        "示例",
-        {
-          "tag": "select",
-          "attributes": [
-            [
-              "aria-label",
-              "最大路径和示例"
-            ],
-            [
-              "data-case",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "original"
-                ]
-              ],
-              "children": [
-                "原图：最高点在 8"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "negative"
-                ]
-              ],
-              "children": [
-                "全负树：-5、-2、-8"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "aria-label",
-          "最大路径和示例"
-        ],
-        [
-          "class",
-          "tree-cases"
-        ],
-        [
-          "role",
-          "group"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "true"
-            ],
-            [
-              "data-case-value",
-              "original"
-            ]
-          ],
-          "children": [
-            "示例：最高点在 8"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "data-case-value",
-              "negative"
-            ]
-          ],
-          "children": [
-            "全负树：-5、-2、-8"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "controls"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "previous"
-            ],
-            [
-              "disabled",
-              ""
-            ]
-          ],
-          "children": [
-            "← 上一步"
-          ]
-        },
-        {
-          "tag": "output",
-          "attributes": [
-            [
-              "data-count",
-              ""
-            ]
-          ],
-          "children": [
-            "步骤 1 / 104"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "next"
-            ]
-          ],
-          "children": [
-            "下一步 →"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "copy-link"
-            ]
-          ],
-          "children": [
-            "复制本步骤链接"
-          ]
-        },
-        {
-          "tag": "label",
-          "attributes": [
-            [
-              "class",
-              "step-picker"
-            ]
-          ],
-          "children": [
-            "跳到步骤",
-            {
-              "tag": "select",
-              "attributes": [
-                [
-                  "aria-label",
-                  "跳到步骤"
-                ],
-                [
-                  "data-step-select",
-                  ""
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "0"
-                    ]
-                  ],
-                  "children": [
-                    "1 · max_sum = float('-inf')"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "1"
-                    ]
-                  ],
-                  "children": [
-                    "2 · max_path_sum_helper(root)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "2"
-                    ]
-                  ],
-                  "children": [
-                    "3 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "3"
-                    ]
-                  ],
-                  "children": [
-                    "4 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "4"
-                    ]
-                  ],
-                  "children": [
-                    "5 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "5"
-                    ]
-                  ],
-                  "children": [
-                    "6 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "6"
-                    ]
-                  ],
-                  "children": [
-                    "7 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "7"
-                    ]
-                  ],
-                  "children": [
-                    "8 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "8"
-                    ]
-                  ],
-                  "children": [
-                    "9 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "9"
-                    ]
-                  ],
-                  "children": [
-                    "10 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "10"
-                    ]
-                  ],
-                  "children": [
-                    "11 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "11"
-                    ]
-                  ],
-                  "children": [
-                    "12 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "12"
-                    ]
-                  ],
-                  "children": [
-                    "13 · left_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "13"
-                    ]
-                  ],
-                  "children": [
-                    "14 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "14"
-                    ]
-                  ],
-                  "children": [
-                    "15 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "15"
-                    ]
-                  ],
-                  "children": [
-                    "16 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "16"
-                    ]
-                  ],
-                  "children": [
-                    "17 · right_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "17"
-                    ]
-                  ],
-                  "children": [
-                    "18 · max_sum = max(max_sum, 11 + 0 + 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "18"
-                    ]
-                  ],
-                  "children": [
-                    "19 · return 11 + max(0, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "19"
-                    ]
-                  ],
-                  "children": [
-                    "20 · left_sum = max(11, 0) = 11"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "20"
-                    ]
-                  ],
-                  "children": [
-                    "21 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "21"
-                    ]
-                  ],
-                  "children": [
-                    "22 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "22"
-                    ]
-                  ],
-                  "children": [
-                    "23 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "23"
-                    ]
-                  ],
-                  "children": [
-                    "24 · right_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "24"
-                    ]
-                  ],
-                  "children": [
-                    "25 · max_sum = max(max_sum, 1 + 11 + 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "25"
-                    ]
-                  ],
-                  "children": [
-                    "26 · return 1 + max(11, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "26"
-                    ]
-                  ],
-                  "children": [
-                    "27 · left_sum = max(12, 0) = 12"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "27"
-                    ]
-                  ],
-                  "children": [
-                    "28 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "28"
-                    ]
-                  ],
-                  "children": [
-                    "29 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "29"
-                    ]
-                  ],
-                  "children": [
-                    "30 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "30"
-                    ]
-                  ],
-                  "children": [
-                    "31 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "31"
-                    ]
-                  ],
-                  "children": [
-                    "32 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "32"
-                    ]
-                  ],
-                  "children": [
-                    "33 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "33"
-                    ]
-                  ],
-                  "children": [
-                    "34 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "34"
-                    ]
-                  ],
-                  "children": [
-                    "35 · left_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "35"
-                    ]
-                  ],
-                  "children": [
-                    "36 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "36"
-                    ]
-                  ],
-                  "children": [
-                    "37 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "37"
-                    ]
-                  ],
-                  "children": [
-                    "38 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "38"
-                    ]
-                  ],
-                  "children": [
-                    "39 · right_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "39"
-                    ]
-                  ],
-                  "children": [
-                    "40 · max_sum = max(max_sum, -1 + 0 + 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "40"
-                    ]
-                  ],
-                  "children": [
-                    "41 · return -1 + max(0, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "41"
-                    ]
-                  ],
-                  "children": [
-                    "42 · left_sum = max(-1, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "42"
-                    ]
-                  ],
-                  "children": [
-                    "43 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "43"
-                    ]
-                  ],
-                  "children": [
-                    "44 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "44"
-                    ]
-                  ],
-                  "children": [
-                    "45 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "45"
-                    ]
-                  ],
-                  "children": [
-                    "46 · right_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "46"
-                    ]
-                  ],
-                  "children": [
-                    "47 · max_sum = max(max_sum, -7 + 0 + 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "47"
-                    ]
-                  ],
-                  "children": [
-                    "48 · return -7 + max(0, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "48"
-                    ]
-                  ],
-                  "children": [
-                    "49 · right_sum = max(-7, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "49"
-                    ]
-                  ],
-                  "children": [
-                    "50 · max_sum = max(max_sum, -10 + 12 + 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "50"
-                    ]
-                  ],
-                  "children": [
-                    "51 · return -10 + max(12, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "51"
-                    ]
-                  ],
-                  "children": [
-                    "52 · left_sum = max(2, 0) = 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "52"
-                    ]
-                  ],
-                  "children": [
-                    "53 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "53"
-                    ]
-                  ],
-                  "children": [
-                    "54 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "54"
-                    ]
-                  ],
-                  "children": [
-                    "55 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "55"
-                    ]
-                  ],
-                  "children": [
-                    "56 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "56"
-                    ]
-                  ],
-                  "children": [
-                    "57 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "57"
-                    ]
-                  ],
-                  "children": [
-                    "58 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "58"
-                    ]
-                  ],
-                  "children": [
-                    "59 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "59"
-                    ]
-                  ],
-                  "children": [
-                    "60 · left_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "60"
-                    ]
-                  ],
-                  "children": [
-                    "61 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "61"
-                    ]
-                  ],
-                  "children": [
-                    "62 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "62"
-                    ]
-                  ],
-                  "children": [
-                    "63 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "63"
-                    ]
-                  ],
-                  "children": [
-                    "64 · right_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "64"
-                    ]
-                  ],
-                  "children": [
-                    "65 · max_sum = max(max_sum, 9 + 0 + 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "65"
-                    ]
-                  ],
-                  "children": [
-                    "66 · return 9 + max(0, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "66"
-                    ]
-                  ],
-                  "children": [
-                    "67 · left_sum = max(9, 0) = 9"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "67"
-                    ]
-                  ],
-                  "children": [
-                    "68 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "68"
-                    ]
-                  ],
-                  "children": [
-                    "69 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "69"
-                    ]
-                  ],
-                  "children": [
-                    "70 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "70"
-                    ]
-                  ],
-                  "children": [
-                    "71 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "71"
-                    ]
-                  ],
-                  "children": [
-                    "72 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "72"
-                    ]
-                  ],
-                  "children": [
-                    "73 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "73"
-                    ]
-                  ],
-                  "children": [
-                    "74 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "74"
-                    ]
-                  ],
-                  "children": [
-                    "75 · left_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "75"
-                    ]
-                  ],
-                  "children": [
-                    "76 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "76"
-                    ]
-                  ],
-                  "children": [
-                    "77 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "77"
-                    ]
-                  ],
-                  "children": [
-                    "78 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "78"
-                    ]
-                  ],
-                  "children": [
-                    "79 · right_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "79"
-                    ]
-                  ],
-                  "children": [
-                    "80 · max_sum = max(max_sum, 6 + 0 + 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "80"
-                    ]
-                  ],
-                  "children": [
-                    "81 · return 6 + max(0, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "81"
-                    ]
-                  ],
-                  "children": [
-                    "82 · left_sum = max(6, 0) = 6"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "82"
-                    ]
-                  ],
-                  "children": [
-                    "83 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "83"
-                    ]
-                  ],
-                  "children": [
-                    "84 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "84"
-                    ]
-                  ],
-                  "children": [
-                    "85 · left_sum = max(max_path_sum_helper(node.left), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "85"
-                    ]
-                  ],
-                  "children": [
-                    "86 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "86"
-                    ]
-                  ],
-                  "children": [
-                    "87 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "87"
-                    ]
-                  ],
-                  "children": [
-                    "88 · left_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "88"
-                    ]
-                  ],
-                  "children": [
-                    "89 · right_sum = max(max_path_sum_helper(node.right), 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "89"
-                    ]
-                  ],
-                  "children": [
-                    "90 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "90"
-                    ]
-                  ],
-                  "children": [
-                    "91 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "91"
-                    ]
-                  ],
-                  "children": [
-                    "92 · right_sum = max(0, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "92"
-                    ]
-                  ],
-                  "children": [
-                    "93 · max_sum = max(max_sum, -3 + 0 + 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "93"
-                    ]
-                  ],
-                  "children": [
-                    "94 · return -3 + max(0, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "94"
-                    ]
-                  ],
-                  "children": [
-                    "95 · right_sum = max(-3, 0) = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "95"
-                    ]
-                  ],
-                  "children": [
-                    "96 · max_sum = max(max_sum, 7 + 6 + 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "96"
-                    ]
-                  ],
-                  "children": [
-                    "97 · return 7 + max(6, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "97"
-                    ]
-                  ],
-                  "children": [
-                    "98 · right_sum = max(13, 0) = 13"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "98"
-                    ]
-                  ],
-                  "children": [
-                    "99 · max_sum = max(max_sum, 8 + 9 + 13)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "99"
-                    ]
-                  ],
-                  "children": [
-                    "100 · return 8 + max(9, 13)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "100"
-                    ]
-                  ],
-                  "children": [
-                    "101 · right_sum = max(21, 0) = 21"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "101"
-                    ]
-                  ],
-                  "children": [
-                    "102 · max_sum = max(max_sum, 5 + 2 + 21)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "102"
-                    ]
-                  ],
-                  "children": [
-                    "103 · return 5 + max(2, 21)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "103"
-                    ]
-                  ],
-                  "children": [
-                    "104 · return max_sum"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "nav",
-      "attributes": [
-        [
-          "aria-label",
-          "关键步骤"
-        ],
-        [
-          "class",
-          "tree-shortcuts"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "true"
-            ],
-            [
-              "data-landmark-step",
-              "0"
-            ]
-          ],
-          "children": [
-            "初始状态"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "98"
-            ]
-          ],
-          "children": [
-            "比较两臂候选"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "99"
-            ]
-          ],
-          "children": [
-            "只返回一臂"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "103"
-            ]
-          ],
-          "children": [
-            "最终结果"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "p",
-      "attributes": [
-        [
-          "class",
-          "step-meta"
-        ],
-        [
-          "data-phase",
-          ""
-        ]
-      ],
-      "children": [
-        "后序 · 候选可两臂，返回只一臂"
-      ]
-    },
     {
       "tag": "div",
       "attributes": [
@@ -1565,22 +26,6 @@
           "data-arrays",
           ""
         ]
-      ]
-    },
-    {
-      "tag": "p",
-      "attributes": [
-        [
-          "class",
-          "diagram-caption"
-        ],
-        [
-          "data-caption",
-          ""
-        ]
-      ],
-      "children": [
-        "灰色标记是本步骤计算的路径；↑ 是向父调用返回的单臂和。max_sum 单独保存全局答案。"
       ]
     },
     {
@@ -1626,7 +71,7 @@
                 ],
                 [
                   "viewBox",
-                  "0 0 731 496"
+                  "0 0 622 496"
                 ]
               ],
               "children": [
@@ -1704,7 +149,7 @@
                     ],
                     [
                       "d",
-                      "M343.53339663086575,81.81002326681131 L218.8908400390555,161.11633825438767"
+                      "M290.69654396029375,83.36912528440966 L191.31286113422496,159.41549968973493"
                     ],
                     [
                       "data-visual-element",
@@ -1725,7 +170,7 @@
                     ],
                     [
                       "d",
-                      "M380.65607705334475,81.81002326681131 L505.298633645155,161.11633825438767"
+                      "M325.6402981449694,83.36912528440966 L425.02398097103816,159.41549968973493"
                     ],
                     [
                       "data-visual-element",
@@ -1746,7 +191,7 @@
                     ],
                     [
                       "d",
-                      "M185.0487939879475,191.298031349701 L131.74485631936827,259.1294203457807"
+                      "M160.21836926171468,192.4167459253809 L117.42302300635913,257.90900444503905"
                     ],
                     [
                       "data-visual-element",
@@ -1767,7 +212,7 @@
                     ],
                     [
                       "d",
-                      "M212.23541653836824,191.298031349701 L265.5393542069475,259.1294203457807"
+                      "M184.28689389618006,192.4167459253809 L227.08224015153564,257.90900444503905"
                     ],
                     [
                       "data-visual-element",
@@ -1788,7 +233,7 @@
                     ],
                     [
                       "d",
-                      "M511.9540571458422,191.298031349701 L458.650119477263,259.1294203457807"
+                      "M432.0499482090831,192.4167459253809 L389.2546019537275,257.90900444503905"
                     ],
                     [
                       "data-visual-element",
@@ -1809,7 +254,7 @@
                     ],
                     [
                       "d",
-                      "M539.140679696263,191.298031349701 L592.4446173648423,259.1294203457807"
+                      "M456.11847284354843,192.4167459253809 L498.913819098904,257.90900444503905"
                     ],
                     [
                       "data-visual-element",
@@ -1830,7 +275,7 @@
                     ],
                     [
                       "d",
-                      "M104.05704012757019,295.8508421441066 L56.027726559397124,362.526354024611"
+                      "M92.98987931353727,296.87326670872795 L54.332571849346934,361.4109817722968"
                     ],
                     [
                       "data-visual-element",
@@ -1851,7 +296,7 @@
                     ],
                     [
                       "d",
-                      "M267.5096717065175,295.8508421441066 L219.48035813834446,362.526354024611"
+                      "M228.90566878722146,296.87326670872795 L190.24836132303113,361.4109817722968"
                     ],
                     [
                       "data-visual-element",
@@ -1872,7 +317,7 @@
                     ],
                     [
                       "d",
-                      "M593.680372935316,295.298031349701 L540.3764352667366,363.1294203457807"
+                      "M500.0078429459252,296.4167459253809 L457.2124966905696,361.90900444503905"
                     ],
                     [
                       "data-visual-element",
@@ -1893,7 +338,7 @@
                     ],
                     [
                       "d",
-                      "M620.8669954857367,295.298031349701 L674.170933154316,363.1294203457807"
+                      "M524.0763675803905,296.4167459253809 L566.8717138357462,361.90900444503905"
                     ],
                     [
                       "data-visual-element",
@@ -1914,7 +359,7 @@
                     ],
                     [
                       "cx",
-                      "362.09473684210525"
+                      "308.1684210526316"
                     ],
                     [
                       "cy",
@@ -1939,7 +384,7 @@
                     ],
                     [
                       "x",
-                      "362.09473684210525"
+                      "308.1684210526316"
                     ],
                     [
                       "y",
@@ -1959,7 +404,7 @@
                     ],
                     [
                       "cx",
-                      "198.64210526315787"
+                      "172.25263157894736"
                     ],
                     [
                       "cy",
@@ -1984,7 +429,7 @@
                     ],
                     [
                       "x",
-                      "198.64210526315787"
+                      "172.25263157894736"
                     ],
                     [
                       "y",
@@ -2004,7 +449,7 @@
                     ],
                     [
                       "cx",
-                      "525.5473684210526"
+                      "444.08421052631576"
                     ],
                     [
                       "cy",
@@ -2029,7 +474,7 @@
                     ],
                     [
                       "x",
-                      "525.5473684210526"
+                      "444.08421052631576"
                     ],
                     [
                       "y",
@@ -2049,7 +494,7 @@
                     ],
                     [
                       "cx",
-                      "116.91578947368421"
+                      "104.2947368421053"
                     ],
                     [
                       "cy",
@@ -2074,7 +519,7 @@
                     ],
                     [
                       "x",
-                      "116.91578947368421"
+                      "104.2947368421053"
                     ],
                     [
                       "y",
@@ -2094,7 +539,7 @@
                     ],
                     [
                       "cx",
-                      "280.36842105263156"
+                      "240.21052631578948"
                     ],
                     [
                       "cy",
@@ -2119,7 +564,7 @@
                     ],
                     [
                       "x",
-                      "280.36842105263156"
+                      "240.21052631578948"
                     ],
                     [
                       "y",
@@ -2139,7 +584,7 @@
                     ],
                     [
                       "cx",
-                      "443.82105263157894"
+                      "376.12631578947367"
                     ],
                     [
                       "cy",
@@ -2164,7 +609,7 @@
                     ],
                     [
                       "x",
-                      "443.82105263157894"
+                      "376.12631578947367"
                     ],
                     [
                       "y",
@@ -2184,7 +629,7 @@
                     ],
                     [
                       "cx",
-                      "607.2736842105263"
+                      "512.0421052631579"
                     ],
                     [
                       "cy",
@@ -2209,7 +654,7 @@
                     ],
                     [
                       "x",
-                      "607.2736842105263"
+                      "512.0421052631579"
                     ],
                     [
                       "y",
@@ -2274,7 +719,7 @@
                     ],
                     [
                       "cx",
-                      "205.45263157894735"
+                      "177.9157894736842"
                     ],
                     [
                       "cy",
@@ -2299,7 +744,7 @@
                     ],
                     [
                       "x",
-                      "205.45263157894735"
+                      "177.9157894736842"
                     ],
                     [
                       "y",
@@ -2319,7 +764,7 @@
                     ],
                     [
                       "cx",
-                      "525.5473684210526"
+                      "444.08421052631576"
                     ],
                     [
                       "cy",
@@ -2344,7 +789,7 @@
                     ],
                     [
                       "x",
-                      "525.5473684210526"
+                      "444.08421052631576"
                     ],
                     [
                       "y",
@@ -2364,7 +809,7 @@
                     ],
                     [
                       "cx",
-                      "689"
+                      "580"
                     ],
                     [
                       "cy",
@@ -2389,7 +834,7 @@
                     ],
                     [
                       "x",
-                      "689"
+                      "580"
                     ],
                     [
                       "y",
@@ -2409,7 +854,7 @@
                     ],
                     [
                       "d",
-                      "M341.09473684210525,15 h42 v20 h-42 Z"
+                      "M287.1684210526316,15 h42 v20 h-42 Z"
                     ],
                     [
                       "data-visual-element",
@@ -2438,7 +883,7 @@
                     ],
                     [
                       "x",
-                      "362.09473684210525"
+                      "308.1684210526316"
                     ],
                     [
                       "y",
@@ -2458,7 +903,7 @@
                     ],
                     [
                       "d",
-                      "M362.09473684210525,35 L362.09473684210525,46"
+                      "M308.1684210526316,35 L308.1684210526316,46"
                     ],
                     [
                       "data-visual-element",
@@ -2472,6 +917,197 @@
                       "opacity",
                       "1"
                     ]
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "section",
+          "attributes": [
+            [
+              "aria-label",
+              "调用栈与当前局部变量"
+            ],
+            [
+              "class",
+              "av-tree-inspector"
+            ],
+            [
+              "data-tree-inspector",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "av-tree-inspector-heading"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "h2",
+                  "children": [
+                    "调用栈与局部变量"
+                  ]
+                },
+                {
+                  "tag": "output",
+                  "attributes": [
+                    [
+                      "class",
+                      "av-tree-result"
+                    ]
+                  ],
+                  "children": [
+                    "max_sum = -∞"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "av-tree-inspector-body"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "av-tree-stack"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "p",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-stack-label"
+                        ]
+                      ],
+                      "children": [
+                        "调用栈为空"
+                      ]
+                    },
+                    {
+                      "tag": "ol",
+                      "attributes": [
+                        [
+                          "aria-label",
+                          "调用栈，栈顶在上"
+                        ],
+                        [
+                          "class",
+                          "av-tree-call-path"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "li",
+                          "attributes": [
+                            [
+                              "aria-label",
+                              "，外层函数，没有活动调用"
+                            ],
+                            [
+                              "class",
+                              "av-tree-call"
+                            ],
+                            [
+                              "data-scope",
+                              "outer"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "small"
+                            },
+                            {
+                              "tag": "code",
+                              "children": [
+                                "外层函数"
+                              ]
+                            },
+                            {
+                              "tag": "span",
+                              "children": [
+                                "没有活动调用"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "av-tree-current"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "h3",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-current-title"
+                        ]
+                      ],
+                      "children": [
+                        "外层函数"
+                      ]
+                    },
+                    {
+                      "tag": "code",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-reference"
+                        ]
+                      ],
+                      "children": [
+                        "max_sum = float('-inf')"
+                      ]
+                    },
+                    {
+                      "tag": "dl",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-locals"
+                        ],
+                        [
+                          "hidden",
+                          ""
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "p",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-summary"
+                        ]
+                      ],
+                      "children": [
+                        "当前在外层函数中。"
+                      ]
+                    }
                   ]
                 }
               ]
@@ -2513,182 +1149,6 @@
               ],
               "children": [
                 "答案从负无穷开始。路径至少包含一个节点，不能用 0 掩盖全负的输入。"
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "execution-detail"
-            ],
-            [
-              "data-execution-detail",
-              ""
-            ],
-            [
-              "hidden",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "div",
-              "attributes": [
-                [
-                  "class",
-                  "call-handoff"
-                ],
-                [
-                  "data-handoff",
-                  ""
-                ],
-                [
-                  "hidden",
-                  ""
-                ]
-              ]
-            },
-            {
-              "tag": "div",
-              "attributes": [
-                [
-                  "class",
-                  "call-decision"
-                ],
-                [
-                  "data-decision",
-                  ""
-                ],
-                [
-                  "hidden",
-                  ""
-                ]
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "memory"
-            ],
-            [
-              "data-memory",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "h3",
-              "children": [
-                "调用栈 · 最后一个是栈顶"
-              ]
-            },
-            {
-              "tag": "div",
-              "attributes": [
-                [
-                  "class",
-                  "memory-items"
-                ],
-                [
-                  "data-memory-items",
-                  ""
-                ]
-              ],
-              "children": [
-                "∅"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "class",
-                  "memory-note"
-                ],
-                [
-                  "data-memory-note",
-                  ""
-                ]
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "state-grid"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "保持什么成立"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "data-invariant",
-                  ""
-                ]
-              ],
-              "children": [
-                "当前节点可把左右两臂合成完整候选；向父节点只能带一臂，否则路径会分叉。负的子树返回值在父调用被截为 0。"
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "返回结果"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "class",
-                  "result"
-                ],
-                [
-                  "data-result",
-                  ""
-                ]
-              ],
-              "children": [
-                "max_sum = -∞"
               ]
             }
           ]

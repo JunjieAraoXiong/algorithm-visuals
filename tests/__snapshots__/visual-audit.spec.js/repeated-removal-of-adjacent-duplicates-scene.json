@@ -7,7 +7,7 @@
     ],
     [
       "class",
-      "animation-panel"
+      "animation-panel av-animation"
     ],
     [
       "data-animation-panel",
@@ -15,288 +15,6 @@
     ]
   ],
   "children": [
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "controls"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "previous"
-            ],
-            [
-              "disabled",
-              ""
-            ]
-          ],
-          "children": [
-            "← 上一步"
-          ]
-        },
-        {
-          "tag": "output",
-          "attributes": [
-            [
-              "data-count",
-              ""
-            ]
-          ],
-          "children": [
-            "步骤 1 / 16"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "next"
-            ]
-          ],
-          "children": [
-            "下一步 →"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "copy-link"
-            ]
-          ],
-          "children": [
-            "复制本步骤链接"
-          ]
-        },
-        {
-          "tag": "label",
-          "attributes": [
-            [
-              "class",
-              "step-picker"
-            ]
-          ],
-          "children": [
-            "跳到步骤",
-            {
-              "tag": "select",
-              "attributes": [
-                [
-                  "aria-label",
-                  "跳到步骤"
-                ],
-                [
-                  "data-step-select",
-                  ""
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "0"
-                    ]
-                  ],
-                  "children": [
-                    "初始化：stack = []"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "1"
-                    ]
-                  ],
-                  "children": [
-                    "i = 0 · c = 'a'：栈空，条件为假"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "2"
-                    ]
-                  ],
-                  "children": [
-                    "i = 0 · 入栈 'a'"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "3"
-                    ]
-                  ],
-                  "children": [
-                    "i = 1 · c = 'a'：撞上栈顶 'a'"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "4"
-                    ]
-                  ],
-                  "children": [
-                    "i = 1 · 弹出 'a'，一对消去"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "5"
-                    ]
-                  ],
-                  "children": [
-                    "i = 2 · c = 'c'：栈空，条件为假"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "6"
-                    ]
-                  ],
-                  "children": [
-                    "i = 2 · 入栈 'c'"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "7"
-                    ]
-                  ],
-                  "children": [
-                    "i = 3 · c = 'a'：≠ 栈顶 'c'"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "8"
-                    ]
-                  ],
-                  "children": [
-                    "i = 3 · 入栈 'a'"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "9"
-                    ]
-                  ],
-                  "children": [
-                    "i = 4 · c = 'b'：≠ 栈顶 'a'"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "10"
-                    ]
-                  ],
-                  "children": [
-                    "i = 4 · 入栈 'b'"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "11"
-                    ]
-                  ],
-                  "children": [
-                    "i = 5 · c = 'b'：撞上栈顶 'b'"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "12"
-                    ]
-                  ],
-                  "children": [
-                    "i = 5 · 弹出 'b'，注意新栈顶"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "13"
-                    ]
-                  ],
-                  "children": [
-                    "i = 6 · c = 'a'：撞上暴露出的 'a'"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "14"
-                    ]
-                  ],
-                  "children": [
-                    "i = 6 · 弹出 'a'，一对消去"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "15"
-                    ]
-                  ],
-                  "children": [
-                    "return ''.join(stack) → 'c'"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
     {
       "tag": "div",
       "attributes": [
@@ -370,7 +88,7 @@
             ],
             [
               "viewBox",
-              "0 0 731 245"
+              "0 0 622 245"
             ]
           ],
           "children": [
@@ -1021,7 +739,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 565 36 L 565 148 L 653 148 L 653 36"
+                  "M 456 36 L 456 148 L 544 148 L 544 36"
                 ],
                 [
                   "data-visual-element",
@@ -1054,7 +772,7 @@
                 ],
                 [
                   "x",
-                  "609"
+                  "500"
                 ],
                 [
                   "y",
@@ -1070,7 +788,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 571 57 L 647 57"
+                  "M 462 57 L 538 57"
                 ],
                 [
                   "data-visual-element",
@@ -1095,7 +813,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 571 83 L 647 83"
+                  "M 462 83 L 538 83"
                 ],
                 [
                   "data-visual-element",
@@ -1120,7 +838,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 571 109 L 647 109"
+                  "M 462 109 L 538 109"
                 ],
                 [
                   "data-visual-element",
@@ -1145,7 +863,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 571 135 L 647 135"
+                  "M 462 135 L 538 135"
                 ],
                 [
                   "data-visual-element",
@@ -1178,7 +896,7 @@
                 ],
                 [
                   "x",
-                  "565"
+                  "456"
                 ],
                 [
                   "y",

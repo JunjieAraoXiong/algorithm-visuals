@@ -1,0 +1,223 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: brand · redesign: full · copy: verbatim · v2.0.0 */
+/* Hallmark · pre-emit critique: preserve the original pointer geometry and use container width for diagram density. */
+/* Hallmark · dismissed 3 · the source-line stripe marks the exact executing Python statement */
+/* Hallmark · answered F4 · the mutually exclusive LRU docks reuse the same next-step button treatment */
+/* Hallmark · waive 24b · diagram-specific marks use existing pointer hit-target dimensions · preserve the established node and reference geometry when fitting desktop columns */
+/* Legacy diagrams retain their own state, source keys, hit targets, and motion. */
+
+.av-workbench.av-legacy > .av-animation {
+  container: legacy-animation / inline-size;
+}
+
+.av-workbench.av-legacy .av-animation :is(.lab-head, .detail-heading) {
+  padding: 0;
+  margin: 0 0 var(--space-sm);
+}
+
+.av-workbench.av-legacy .av-animation :is(.stage, .diagram) {
+  flex: none;
+}
+
+.av-workbench.av-legacy .av-animation :is(.state-grid, .step-grid) {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-sm);
+}
+
+.av-workbench.av-legacy .av-animation :is(.metrics, .invariant) {
+  min-width: 0;
+  border: 0;
+  border-top: 1px solid var(--color-rule);
+  padding: var(--space-sm) 0;
+  background: transparent;
+}
+
+.av-workbench.av-legacy .av-animation .metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-md);
+}
+
+.av-workbench.av-legacy .av-animation .metrics div {
+  min-width: 0;
+}
+
+.av-workbench.av-legacy .av-animation .metrics dd {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.av-workbench.av-legacy .av-options > :is(.examples, .jump-row) {
+  flex-basis: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.av-workbench.av-legacy .av-options .example[aria-pressed="true"] {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+#reverse-list-lab .av-workbench .lab-head h1,
+#recursive-lab .av-workbench .lab-head h1 {
+  font: 500 20px/1.3 var(--font-body);
+  color: var(--color-ink);
+  overflow-wrap: break-word;
+}
+
+#reverse-list-lab .av-workbench .lab-operation,
+#recursive-lab .av-workbench .operation {
+  margin: var(--space-sm) 0 0;
+  padding: var(--space-sm);
+  border-color: var(--color-field-edge);
+  border-radius: var(--radius-card);
+  font: 13px/1.5 var(--font-body);
+}
+
+/* The LRU tabs share the original diagram/code grid, with one live control
+   dock per demonstration. Hidden docks must not contribute grid tracks. */
+.av-workbench.av-legacy > [hidden],
+.av-workbench.av-legacy .av-legacy-controls[hidden] {
+  display: none !important;
+}
+
+#lru-lab .av-workbench :is(.helper, .overview) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+#lru-lab .av-workbench :is(.helper h2, .overview h2) {
+  margin: 0 0 var(--space-sm);
+  font: 500 16px/1.5 var(--font-body);
+}
+
+#lru-lab .av-workbench .helper-visual {
+  padding: 0;
+  border: 0;
+}
+
+#lru-lab .av-workbench .helper-diagram {
+  min-height: 0;
+}
+
+#lru-lab .av-workbench .helper-detail {
+  display: block;
+  margin: var(--space-sm) 0 0;
+}
+
+#lru-lab .av-workbench :is(.helper-callout, .overview-callout) {
+  padding: var(--space-sm);
+  border-color: var(--color-field-edge);
+  border-radius: var(--radius-card);
+  font: 13px/1.5 var(--font-body);
+}
+
+#lru-lab .av-workbench .helper-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#lru-lab .av-workbench .helper-cards.is-single {
+  grid-template-columns: minmax(0, 240px);
+}
+
+#lru-lab .av-workbench .helper-code {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 0;
+  border-left: 1px solid var(--color-rule);
+  background: transparent;
+}
+
+#lru-lab .av-workbench .helper-code pre {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  margin: 0;
+  overflow: auto;
+  background: var(--color-paper-2);
+  font: 13px/1.6 var(--font-outlier);
+}
+
+#lru-lab .av-workbench .helper-code-line.is-current {
+  background: var(--color-accent-soft);
+  outline: 0;
+  border-left: 3px solid var(--color-accent);
+}
+
+#lru-lab .av-workbench .av-legacy-controls :is(.helper-stepper, .overview-stepper) {
+  margin: 0;
+  flex-wrap: nowrap;
+}
+
+#lru-lab .av-workbench .av-legacy-controls :is(.helper-modes, .overview-modes) {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+#lru-lab .av-workbench .av-legacy-controls :is([data-helper-next], [data-overview-next]) {
+  color: var(--color-accent-ink);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+#lru-lab .av-workbench .av-legacy-controls button[aria-pressed="true"] {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+#lru-lab .av-workbench .av-legacy-controls button:disabled {
+  background: var(--color-paper-2);
+  color: var(--color-muted);
+  border-color: var(--color-rule);
+}
+
+/* These are bounded desktop workspace columns, not viewport/device layouts.
+   Match each page's existing clientWidth-based geometry thresholds. */
+@container legacy-animation (max-width: 540px) {
+  .av-workbench[data-legacy-kind="flatten"] .node { --node: 36px; }
+  .av-workbench[data-legacy-kind="flatten"] .reference { width: 40px; height: 20px; font-size: 11px; line-height: 18px; }
+  .av-workbench[data-legacy-kind="flatten"] .source-button { width: 72px; min-height: 24px; height: 24px; font-size: 11px; }
+  #lru-lab .av-workbench .stage { --node-size: 48px; }
+  #lru-lab .av-workbench .node-key { font-size: 16px; }
+  #lru-lab .av-workbench .node-value { font-size: 11px; }
+}
+
+@container legacy-animation (max-width: 480px) {
+  #recursive-lab .av-workbench .stage { --node-size: 40px; height: 246px; }
+  #recursive-lab .av-workbench .frame-card { font-size: 11px; line-height: 13px; padding: 3px 5px; }
+  #recursive-lab .av-workbench .source { min-width: 48px; padding: 3px 5px; font-size: 11px; }
+  #recursive-lab .av-workbench .source.link { min-width: 0; font-size: 11px; }
+  #recursive-lab .av-workbench .node { font-size: 19px; }
+  #recursive-lab .av-workbench .null { min-width: 29px; font-size: 13px; }
+  #remove-lab .av-workbench .stage { --node-size: 32px; }
+  #remove-lab .av-workbench :is(.source, .tag) { padding: 1px 5px; font-size: 11px; line-height: 17px; }
+  #remove-lab .av-workbench .node { font-size: 16px; }
+  #intersection-lab .av-workbench .stage { --node-size: 33px; --label-w: 52px; }
+  #intersection-lab .av-workbench .pointer { font-size: 12px; }
+  #intersection-lab .av-workbench .node { font-size: 17px; }
+  #intersection-lab .av-workbench .node[data-caption]::after { font-size: 10.5px; }
+  #intersection-lab .av-workbench .none { min-width: 32px; font-size: 13px; }
+  .av-workbench[data-legacy-kind="palindrome"] .stage { --node: 34px; height: 242px; }
+  .av-workbench[data-legacy-kind="palindrome"] .stage .variable { min-width: 47px; font-size: 10.5px; }
+  .av-workbench[data-legacy-kind="palindrome"] .stage .next-field { font-size: 10.5px; padding: 3px; }
+}
+
+@container legacy-animation (max-width: 520px) {
+  #loop-lab .av-workbench .stage { --node: 34px; height: 382px; }
+  #midpoint-lab .av-workbench .stage { --node: 35px; }
+}
+
+@container legacy-animation (max-width: 400px) {
+  #reverse-list-lab .av-workbench .lab-stage { height: 172px; }
+  #reverse-list-lab .av-workbench .lab-token { min-width: 70px; padding: 3px var(--space-2xs); font-size: 11px; }
+  #reverse-list-lab .av-workbench .lab-token.next-token { min-width: 59px; }
+  #reverse-list-lab .av-workbench .lab-node { width: 42px; height: 42px; font-size: 20px; }
+  #reverse-list-lab .av-workbench .lab-null { min-width: 36px; padding: 3px 0; font-size: 15px; }
+}

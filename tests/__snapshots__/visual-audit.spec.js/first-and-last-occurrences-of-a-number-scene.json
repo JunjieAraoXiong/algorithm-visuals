@@ -7,7 +7,7 @@
     ],
     [
       "class",
-      "animation-panel"
+      "animation-panel av-animation"
     ],
     [
       "data-animation-panel",
@@ -126,388 +126,6 @@
           ],
           "children": [
             "nums = [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11], target = 4"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "controls"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "previous"
-            ],
-            [
-              "disabled",
-              ""
-            ]
-          ],
-          "children": [
-            "← 上一步"
-          ]
-        },
-        {
-          "tag": "output",
-          "attributes": [
-            [
-              "data-count",
-              ""
-            ]
-          ],
-          "children": [
-            "步骤 1 / 24"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "next"
-            ]
-          ],
-          "children": [
-            "下一步 →"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "copy-link"
-            ]
-          ],
-          "children": [
-            "复制本步骤链接"
-          ]
-        },
-        {
-          "tag": "label",
-          "attributes": [
-            [
-              "class",
-              "step-picker"
-            ],
-            [
-              "style",
-              "margin-left:auto"
-            ]
-          ],
-          "children": [
-            "跳到步骤",
-            {
-              "tag": "select",
-              "attributes": [
-                [
-                  "aria-label",
-                  "跳到步骤"
-                ],
-                [
-                  "data-step-select",
-                  ""
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "0"
-                    ]
-                  ],
-                  "children": [
-                    "问题 · target = 4"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "1"
-                    ]
-                  ],
-                  "children": [
-                    "调用 · 找首个"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "2"
-                    ]
-                  ],
-                  "children": [
-                    "首个 · 初始化 [0, 12]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "3"
-                    ]
-                  ],
-                  "children": [
-                    "首个 · mid = 6"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "4"
-                    ]
-                  ],
-                  "children": [
-                    "首个 · right = mid - 1 → [0, 5]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "5"
-                    ]
-                  ],
-                  "children": [
-                    "首个 · mid = 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "6"
-                    ]
-                  ],
-                  "children": [
-                    "首个 · left = mid + 1 → [3, 5]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "7"
-                    ]
-                  ],
-                  "children": [
-                    "首个 · mid = 4"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "8"
-                    ]
-                  ],
-                  "children": [
-                    "首个 · right = mid → [3, 4]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "9"
-                    ]
-                  ],
-                  "children": [
-                    "首个 · mid = 3"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "10"
-                    ]
-                  ],
-                  "children": [
-                    "首个 · right = mid → [3, 3]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "11"
-                    ]
-                  ],
-                  "children": [
-                    "校验 · 首个 = 3"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "12"
-                    ]
-                  ],
-                  "children": [
-                    "调用 · 找末个"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "13"
-                    ]
-                  ],
-                  "children": [
-                    "末个 · 初始化 [0, 12]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "14"
-                    ]
-                  ],
-                  "children": [
-                    "末个 · mid = 7"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "15"
-                    ]
-                  ],
-                  "children": [
-                    "末个 · right = mid - 1 → [0, 6]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "16"
-                    ]
-                  ],
-                  "children": [
-                    "末个 · mid = 4"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "17"
-                    ]
-                  ],
-                  "children": [
-                    "末个 · left = mid → [4, 6]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "18"
-                    ]
-                  ],
-                  "children": [
-                    "末个 · mid = 6"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "19"
-                    ]
-                  ],
-                  "children": [
-                    "末个 · right = mid - 1 → [4, 5]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "20"
-                    ]
-                  ],
-                  "children": [
-                    "末个 · mid = 5（右偏）"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "21"
-                    ]
-                  ],
-                  "children": [
-                    "末个 · left = mid → [5, 5]"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "22"
-                    ]
-                  ],
-                  "children": [
-                    "校验 · 末个 = 5"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "23"
-                    ]
-                  ],
-                  "children": [
-                    "返回 [3, 5]"
-                  ]
-                }
-              ]
-            }
           ]
         }
       ]
@@ -681,7 +299,7 @@
                         ],
                         [
                           "style",
-                          "left: 26px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 13.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -701,7 +319,7 @@
                         ],
                         [
                           "style",
-                          "left: 75px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 56.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -721,7 +339,7 @@
                         ],
                         [
                           "style",
-                          "left: 124px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 99.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -741,7 +359,7 @@
                         ],
                         [
                           "style",
-                          "left: 173px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 142.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -761,7 +379,7 @@
                         ],
                         [
                           "style",
-                          "left: 222px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 185.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -781,7 +399,7 @@
                         ],
                         [
                           "style",
-                          "left: 271px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 228.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -801,7 +419,7 @@
                         ],
                         [
                           "style",
-                          "left: 320px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 271.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -821,7 +439,7 @@
                         ],
                         [
                           "style",
-                          "left: 369px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 314.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -841,7 +459,7 @@
                         ],
                         [
                           "style",
-                          "left: 418px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 357.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -861,7 +479,7 @@
                         ],
                         [
                           "style",
-                          "left: 467px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 400.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -881,7 +499,7 @@
                         ],
                         [
                           "style",
-                          "left: 516px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 443.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -901,7 +519,7 @@
                         ],
                         [
                           "style",
-                          "left: 565px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 486.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -921,7 +539,7 @@
                         ],
                         [
                           "style",
-                          "left: 614px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 529.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -949,7 +567,7 @@
                         ],
                         [
                           "style",
-                          "left: 663px; top: 90px; width: 42px; height: 44px; font-size: 10px;"
+                          "left: 572.5px; top: 90px; width: 36px; height: 44px; font-size: 10px;"
                         ]
                       ],
                       "children": [
@@ -1063,7 +681,7 @@
                     ],
                     [
                       "viewBox",
-                      "0 0 731 169"
+                      "0 0 622 169"
                     ]
                   ],
                   "children": [
@@ -1219,7 +837,7 @@
                         ],
                         [
                           "style",
-                          "left: 26px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 13.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1239,7 +857,7 @@
                         ],
                         [
                           "style",
-                          "left: 75px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 56.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1259,7 +877,7 @@
                         ],
                         [
                           "style",
-                          "left: 124px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 99.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1279,7 +897,7 @@
                         ],
                         [
                           "style",
-                          "left: 173px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 142.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1299,7 +917,7 @@
                         ],
                         [
                           "style",
-                          "left: 222px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 185.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1319,7 +937,7 @@
                         ],
                         [
                           "style",
-                          "left: 271px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 228.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1339,7 +957,7 @@
                         ],
                         [
                           "style",
-                          "left: 320px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 271.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1359,7 +977,7 @@
                         ],
                         [
                           "style",
-                          "left: 369px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 314.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1379,7 +997,7 @@
                         ],
                         [
                           "style",
-                          "left: 418px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 357.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1399,7 +1017,7 @@
                         ],
                         [
                           "style",
-                          "left: 467px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 400.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1419,7 +1037,7 @@
                         ],
                         [
                           "style",
-                          "left: 516px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 443.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1439,7 +1057,7 @@
                         ],
                         [
                           "style",
-                          "left: 565px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 486.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1459,7 +1077,7 @@
                         ],
                         [
                           "style",
-                          "left: 614px; top: 90px; width: 42px; height: 44px; font-size: 19px;"
+                          "left: 529.5px; top: 90px; width: 36px; height: 44px; font-size: 16.56px;"
                         ]
                       ],
                       "children": [
@@ -1487,7 +1105,7 @@
                         ],
                         [
                           "style",
-                          "left: 663px; top: 90px; width: 42px; height: 44px; font-size: 10px;"
+                          "left: 572.5px; top: 90px; width: 36px; height: 44px; font-size: 10px;"
                         ]
                       ],
                       "children": [
@@ -1601,7 +1219,7 @@
                     ],
                     [
                       "viewBox",
-                      "0 0 731 169"
+                      "0 0 622 169"
                     ]
                   ],
                   "children": [

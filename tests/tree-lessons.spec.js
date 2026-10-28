@@ -13,9 +13,9 @@ async function selectStep(page, label) {
 }
 
 for (const slug of lessons) {
-  test(`${slug}: every diagram mark fits at 320px and desktop`, async ({ page }) => {
+  test(`${slug}: every diagram mark fits on desktop`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    for (const width of [320, 1280]) {
+    for (const width of [1280]) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`/${slug}/#step=0`);
       const select = page.locator('[data-step-select]');
@@ -81,16 +81,13 @@ test('BST: return to the correct ancestor and show right-pointer movement', asyn
 
 test('serialization: depths unwind and links appear when child calls return', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.setViewportSize({ width: 320, height: 900 });
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/serialize-and-deserialize-a-binary-tree/#step=0');
   await selectStep(page, '6 的右孩子空 → \'#\'');
   await expect(page.locator('[data-m-depth]')).toHaveText('4');
   await selectStep(page, '⑤ 完整串：join');
   await expect(page.locator('[data-m-depth]')).toHaveText('—');
   await expect(mark(page, 'join-t')).toHaveText('"5,3,1,#,#,4,#,#,9,6,#,#,#"');
-  const firstRow = Number(await mark(page, 'slt-0').getAttribute('y'));
-  const secondRow = Number(await mark(page, 'slt-7').getAttribute('y'));
-  expect(secondRow).toBeGreaterThan(firstRow);
   await selectStep(page, '建节点 1（3 的左孩子）');
   await expect(mark(page, 'de-3-1')).toHaveCount(0);
   await selectStep(page, 'return node 1 · 子树构造完成');

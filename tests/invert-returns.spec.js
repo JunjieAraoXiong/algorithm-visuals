@@ -107,8 +107,15 @@ test('empty child returns to leaf 4, resumes the right call, then returns node 4
   await expect(page.locator('.receiver .call-transfer code')).toHaveText('收到节点 4 的引用 · 此返回值未赋值');
   await expect(page.locator('[data-expression]')).toHaveText('invert_binary_tree_recursive(root.left) → 节点 4 的引用');
   await expect(page.locator('.memory-item')).toHaveCount(2);
+  const history=page.locator('[data-tree-history]');
+  await expect(history).not.toHaveAttribute('open','');
+  await history.locator('summary').click();
+  await expect(page.locator('[data-return-route]')).toBeVisible();
   const saved=await page.locator('[data-return-route]').innerText();
+  expect(saved).toContain('恢复第 2 层');
   await page.reload();
+  await expect(history).not.toHaveAttribute('open','');
+  await history.locator('summary').click();
   await expect(page.locator('[data-return-route]')).toHaveText(saved);
   await page.locator('[data-stage]').press('Home');
   await expect(page.locator('.memory-item')).toHaveCount(1);
@@ -117,9 +124,9 @@ test('empty child returns to leaf 4, resumes the right call, then returns node 4
   await expect(page.locator('[data-result]')).toContainText('5 → [8, 1]');
 });
 
-test('recursive stack and transfer stay readable at narrow and wide widths', async ({page}) => {
+test('recursive stack and transfer stay readable at desktop embed and full-page widths', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  for(const width of [320,390,760,1280]) {
+  for(const width of [760,1280]) {
     await page.setViewportSize({width,height:900});
     await page.goto('/invert-binary-tree/?case=recursive#step=0');
     const picker=page.locator('[data-step-select]');
@@ -145,7 +152,7 @@ test('recursive stack and transfer stay readable at narrow and wide widths', asy
 
 test('visible method buttons switch the trace and preserve the selected method on reload', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  for(const width of [320,760,1280]) {
+  for(const width of [760,1280]) {
     await page.setViewportSize({width,height:700});
     await page.goto('/invert-binary-tree/?case=recursive#step=11');
     const recursive=page.getByRole('button',{name:'递归 Recursive',exact:true});
@@ -205,9 +212,9 @@ test('call identities keep their own root and return only to their direct caller
   }
 });
 
-test('iterative local references remain distinct and fit narrow diagrams', async ({page}) => {
+test('iterative local references remain distinct and fit desktop embed diagrams', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  for(const width of [320,390,760,1280]) {
+  for(const width of [760,1280]) {
     await page.setViewportSize({width,height:900});
     await page.goto('/invert-binary-tree/?case=iterative#step=0');
     const picker=page.locator('[data-step-select]');

@@ -7,7 +7,7 @@
     ],
     [
       "class",
-      "animation-panel"
+      "animation-panel av-animation"
     ],
     [
       "data-animation-panel",
@@ -15,586 +15,6 @@
     ]
   ],
   "children": [
-    {
-      "tag": "label",
-      "attributes": [
-        [
-          "class",
-          "settings"
-        ],
-        [
-          "hidden",
-          ""
-        ]
-      ],
-      "children": [
-        "示例",
-        {
-          "tag": "select",
-          "attributes": [
-            [
-              "aria-label",
-              "BST 验证示例"
-            ],
-            [
-              "data-case",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "original"
-                ]
-              ],
-              "children": [
-                "6 违反祖先上界"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "duplicate"
-                ]
-              ],
-              "children": [
-                "重复 7：等于边界"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "valid"
-                ]
-              ],
-              "children": [
-                "合法 BST"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "empty"
-                ]
-              ],
-              "children": [
-                "空树"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "aria-label",
-          "BST 验证示例"
-        ],
-        [
-          "class",
-          "tree-cases"
-        ],
-        [
-          "role",
-          "group"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "true"
-            ],
-            [
-              "data-case-value",
-              "original"
-            ]
-          ],
-          "children": [
-            "6 违反祖先上界"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "data-case-value",
-              "duplicate"
-            ]
-          ],
-          "children": [
-            "重复 7：等于边界"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "data-case-value",
-              "valid"
-            ]
-          ],
-          "children": [
-            "合法 BST"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "data-case-value",
-              "empty"
-            ]
-          ],
-          "children": [
-            "空树"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "controls"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "previous"
-            ],
-            [
-              "disabled",
-              ""
-            ]
-          ],
-          "children": [
-            "← 上一步"
-          ]
-        },
-        {
-          "tag": "output",
-          "attributes": [
-            [
-              "data-count",
-              ""
-            ]
-          ],
-          "children": [
-            "步骤 1 / 26"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "next"
-            ]
-          ],
-          "children": [
-            "下一步 →"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "copy-link"
-            ]
-          ],
-          "children": [
-            "复制本步骤链接"
-          ]
-        },
-        {
-          "tag": "label",
-          "attributes": [
-            [
-              "class",
-              "step-picker"
-            ]
-          ],
-          "children": [
-            "跳到步骤",
-            {
-              "tag": "select",
-              "attributes": [
-                [
-                  "aria-label",
-                  "跳到步骤"
-                ],
-                [
-                  "data-step-select",
-                  ""
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "0"
-                    ]
-                  ],
-                  "children": [
-                    "1 · is_within_bounds(root, -inf, inf)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "1"
-                    ]
-                  ],
-                  "children": [
-                    "2 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "2"
-                    ]
-                  ],
-                  "children": [
-                    "3 · if not (−∞ < 5 < ∞):"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "3"
-                    ]
-                  ],
-                  "children": [
-                    "4 · is_within_bounds(node.left, lower_bound, node.val)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "4"
-                    ]
-                  ],
-                  "children": [
-                    "5 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "5"
-                    ]
-                  ],
-                  "children": [
-                    "6 · if not (−∞ < 2 < 5):"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "6"
-                    ]
-                  ],
-                  "children": [
-                    "7 · is_within_bounds(node.left, lower_bound, node.val)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "7"
-                    ]
-                  ],
-                  "children": [
-                    "8 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "8"
-                    ]
-                  ],
-                  "children": [
-                    "9 · if not (−∞ < 1 < 2):"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "9"
-                    ]
-                  ],
-                  "children": [
-                    "10 · is_within_bounds(node.left, lower_bound, node.val)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "10"
-                    ]
-                  ],
-                  "children": [
-                    "11 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "11"
-                    ]
-                  ],
-                  "children": [
-                    "12 · return True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "12"
-                    ]
-                  ],
-                  "children": [
-                    "13 · if not True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "13"
-                    ]
-                  ],
-                  "children": [
-                    "14 · is_within_bounds(node.right, node.val, upper_bound)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "14"
-                    ]
-                  ],
-                  "children": [
-                    "15 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "15"
-                    ]
-                  ],
-                  "children": [
-                    "16 · return True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "16"
-                    ]
-                  ],
-                  "children": [
-                    "17 · return True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "17"
-                    ]
-                  ],
-                  "children": [
-                    "18 · if not True"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "18"
-                    ]
-                  ],
-                  "children": [
-                    "19 · is_within_bounds(node.right, node.val, upper_bound)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "19"
-                    ]
-                  ],
-                  "children": [
-                    "20 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "20"
-                    ]
-                  ],
-                  "children": [
-                    "21 · if not (2 < 6 < 5):"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "21"
-                    ]
-                  ],
-                  "children": [
-                    "22 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "22"
-                    ]
-                  ],
-                  "children": [
-                    "23 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "23"
-                    ]
-                  ],
-                  "children": [
-                    "24 · if not False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "24"
-                    ]
-                  ],
-                  "children": [
-                    "25 · return False"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "25"
-                    ]
-                  ],
-                  "children": [
-                    "26 · return False"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "p",
-      "attributes": [
-        [
-          "class",
-          "step-meta"
-        ],
-        [
-          "data-phase",
-          ""
-        ]
-      ],
-      "children": [
-        "DFS · 祖先边界逐层收紧"
-      ]
-    },
     {
       "tag": "div",
       "attributes": [
@@ -606,22 +26,6 @@
           "data-arrays",
           ""
         ]
-      ]
-    },
-    {
-      "tag": "p",
-      "attributes": [
-        [
-          "class",
-          "diagram-caption"
-        ],
-        [
-          "data-caption",
-          ""
-        ]
-      ],
-      "children": [
-        "节点下方保留各调用收到的范围；「下界 / 上界」标出当前限制来自哪个祖先。"
       ]
     },
     {
@@ -688,7 +92,7 @@
                     ],
                     [
                       "viewBox",
-                      "0 0 657 326"
+                      "0 0 622 326"
                     ]
                   ],
                   "children": [
@@ -766,7 +170,7 @@
                         ],
                         [
                           "d",
-                          "M308.0587844726492,68.13367738261077 L159.799507848019,127.12689740078825"
+                          "M290.7439206580461,68.58436076201764 L153.76420776698,126.63524280507167"
                         ],
                         [
                           "data-bst-status",
@@ -791,7 +195,7 @@
                         ],
                         [
                           "d",
-                          "M348.9412155273508,68.13367738261077 L497.200492151981,127.12689740078825"
+                          "M331.2560793419539,68.58436076201764 L468.23579223302,126.63524280507167"
                         ],
                         [
                           "data-bst-status",
@@ -816,7 +220,7 @@
                         ],
                         [
                           "d",
-                          "M120.28577099348728,149.69928172246037 L60.77915891619567,197.05532903004323"
+                          "M114.88400662023939,150.2247081434402 L60.30835641428429,196.4821365707925"
                         ],
                         [
                           "data-bst-status",
@@ -841,7 +245,7 @@
                         ],
                         [
                           "d",
-                          "M154.71422900651268,149.69928172246037 L214.22084108380432,197.05532903004323"
+                          "M148.4493267130939,150.2247081434402 L203.02497691904904,196.4821365707925"
                         ],
                         [
                           "data-bst-status",
@@ -866,7 +270,7 @@
                         ],
                         [
                           "d",
-                          "M502.2857709934873,149.69928172246037 L442.7791589161957,197.05532903004323"
+                          "M473.5506732869061,150.2247081434402 L418.97502308095096,196.4821365707925"
                         ],
                         [
                           "data-bst-status",
@@ -891,7 +295,7 @@
                         ],
                         [
                           "d",
-                          "M536.7142290065127,149.69928172246037 L596.2208410838043,197.05532903004323"
+                          "M507.11599337976065,150.2247081434402 L561.6916435857157,196.4821365707925"
                         ],
                         [
                           "data-bst-status",
@@ -916,7 +320,7 @@
                         ],
                         [
                           "cx",
-                          "328.5"
+                          "311"
                         ],
                         [
                           "cy",
@@ -949,7 +353,7 @@
                         ],
                         [
                           "x",
-                          "328.5"
+                          "311"
                         ],
                         [
                           "y",
@@ -969,7 +373,7 @@
                         ],
                         [
                           "cx",
-                          "137.49999999999997"
+                          "131.66666666666666"
                         ],
                         [
                           "cy",
@@ -1002,7 +406,7 @@
                         ],
                         [
                           "x",
-                          "137.49999999999997"
+                          "131.66666666666666"
                         ],
                         [
                           "y",
@@ -1022,7 +426,7 @@
                         ],
                         [
                           "cx",
-                          "519.5"
+                          "490.33333333333337"
                         ],
                         [
                           "cy",
@@ -1055,7 +459,7 @@
                         ],
                         [
                           "x",
-                          "519.5"
+                          "490.33333333333337"
                         ],
                         [
                           "y",
@@ -1128,7 +532,7 @@
                         ],
                         [
                           "cx",
-                          "233"
+                          "221.33333333333331"
                         ],
                         [
                           "cy",
@@ -1161,7 +565,7 @@
                         ],
                         [
                           "x",
-                          "233"
+                          "221.33333333333331"
                         ],
                         [
                           "y",
@@ -1181,7 +585,7 @@
                         ],
                         [
                           "cx",
-                          "424"
+                          "400.6666666666667"
                         ],
                         [
                           "cy",
@@ -1214,7 +618,7 @@
                         ],
                         [
                           "x",
-                          "424"
+                          "400.6666666666667"
                         ],
                         [
                           "y",
@@ -1234,7 +638,7 @@
                         ],
                         [
                           "cx",
-                          "615"
+                          "580"
                         ],
                         [
                           "cy",
@@ -1267,7 +671,7 @@
                         ],
                         [
                           "x",
-                          "615"
+                          "580"
                         ],
                         [
                           "y",
@@ -1287,7 +691,7 @@
                         ],
                         [
                           "d",
-                          "M307.5,5 h42 v20 h-42 Z"
+                          "M290,5 h42 v20 h-42 Z"
                         ],
                         [
                           "data-visual-element",
@@ -1316,7 +720,7 @@
                         ],
                         [
                           "x",
-                          "328.5"
+                          "311"
                         ],
                         [
                           "y",
@@ -1336,7 +740,7 @@
                         ],
                         [
                           "d",
-                          "M328.5,25 L328.5,36"
+                          "M311,25 L311,36"
                         ],
                         [
                           "data-visual-element",
@@ -1355,306 +759,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "tag": "section",
-              "attributes": [
-                [
-                  "aria-label",
-                  "当前调用的边界来源"
-                ],
-                [
-                  "class",
-                  "bst-bounds"
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "h2",
-                  "attributes": [
-                    [
-                      "data-bst-context",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "当前调用 · root → 节点 5"
-                  ]
-                },
-                {
-                  "tag": "div",
-                  "attributes": [
-                    [
-                      "class",
-                      "bound-origins"
-                    ]
-                  ],
-                  "children": [
-                    {
-                      "tag": "div",
-                      "children": [
-                        {
-                          "tag": "code",
-                          "attributes": [
-                            [
-                              "data-lower-value",
-                              ""
-                            ]
-                          ],
-                          "children": [
-                            "lower_bound = −∞"
-                          ]
-                        },
-                        {
-                          "tag": "small",
-                          "attributes": [
-                            [
-                              "data-lower-origin",
-                              ""
-                            ]
-                          ],
-                          "children": [
-                            "没有祖先下界"
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "tag": "div",
-                      "children": [
-                        {
-                          "tag": "code",
-                          "attributes": [
-                            [
-                              "data-upper-value",
-                              ""
-                            ]
-                          ],
-                          "children": [
-                            "upper_bound = ∞"
-                          ]
-                        },
-                        {
-                          "tag": "small",
-                          "attributes": [
-                            [
-                              "data-upper-origin",
-                              ""
-                            ]
-                          ],
-                          "children": [
-                            "没有祖先上界"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "svg",
-                  "attributes": [
-                    [
-                      "class",
-                      "bst-range"
-                    ],
-                    [
-                      "role",
-                      "img"
-                    ],
-                    [
-                      "viewBox",
-                      "0 0 320 80"
-                    ]
-                  ],
-                  "children": [
-                    {
-                      "tag": "title",
-                      "children": [
-                        "当前值与允许的开区间"
-                      ]
-                    },
-                    {
-                      "tag": "desc",
-                      "children": [
-                        "−∞ < node.val < ∞，不包含有限端点。当前值为 5。当前允许范围：−∞ < node.val < ∞。有限边界都不包含在内。"
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "range-axis"
-                        ],
-                        [
-                          "d",
-                          "M16 42 H304"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "allowed"
-                        ],
-                        [
-                          "d",
-                          "M16 42 H304"
-                        ],
-                        [
-                          "data-allowed-range",
-                          ""
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "endpoint"
-                        ],
-                        [
-                          "cx",
-                          "16"
-                        ],
-                        [
-                          "cy",
-                          "42"
-                        ],
-                        [
-                          "data-lower-end",
-                          ""
-                        ],
-                        [
-                          "r",
-                          "4"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "circle",
-                      "attributes": [
-                        [
-                          "class",
-                          "endpoint"
-                        ],
-                        [
-                          "cx",
-                          "304"
-                        ],
-                        [
-                          "cy",
-                          "42"
-                        ],
-                        [
-                          "data-upper-end",
-                          ""
-                        ],
-                        [
-                          "r",
-                          "4"
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-lower-label",
-                          ""
-                        ],
-                        [
-                          "x",
-                          "16"
-                        ],
-                        [
-                          "y",
-                          "64"
-                        ]
-                      ],
-                      "children": [
-                        "−∞"
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-upper-label",
-                          ""
-                        ],
-                        [
-                          "x",
-                          "304"
-                        ],
-                        [
-                          "y",
-                          "64"
-                        ]
-                      ],
-                      "children": [
-                        "∞"
-                      ]
-                    },
-                    {
-                      "tag": "path",
-                      "attributes": [
-                        [
-                          "class",
-                          "value-marker"
-                        ],
-                        [
-                          "d",
-                          "M155 25 L165 25 L160 34 Z"
-                        ],
-                        [
-                          "data-value-marker",
-                          ""
-                        ]
-                      ]
-                    },
-                    {
-                      "tag": "text",
-                      "attributes": [
-                        [
-                          "data-value-label",
-                          ""
-                        ],
-                        [
-                          "x",
-                          "160"
-                        ],
-                        [
-                          "y",
-                          "15"
-                        ]
-                      ],
-                      "children": [
-                        "node.val = 5"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "tag": "p",
-                  "attributes": [
-                    [
-                      "class",
-                      "bst-check"
-                    ],
-                    [
-                      "data-bst-condition",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "当前允许范围：−∞ < node.val < ∞。有限边界都不包含在内。"
-                  ]
-                }
-              ]
             }
           ]
         },
@@ -1665,6 +769,23 @@
               "class",
               "bst-stack-column"
             ]
+          ]
+        },
+        {
+          "tag": "section",
+          "attributes": [
+            [
+              "aria-label",
+              "调用栈与当前局部变量"
+            ],
+            [
+              "class",
+              "av-tree-inspector"
+            ],
+            [
+              "data-tree-inspector",
+              ""
+            ]
           ],
           "children": [
             {
@@ -1672,47 +793,26 @@
               "attributes": [
                 [
                   "class",
-                  "memory"
-                ],
-                [
-                  "data-memory",
-                  ""
+                  "av-tree-inspector-heading"
                 ]
               ],
               "children": [
                 {
-                  "tag": "h3",
+                  "tag": "h2",
                   "children": [
-                    "递归调用栈 · ↓ 调用 / ↑ 返回"
+                    "调用栈与局部变量"
                   ]
                 },
                 {
-                  "tag": "div",
+                  "tag": "output",
                   "attributes": [
                     [
                       "class",
-                      "memory-items"
-                    ],
-                    [
-                      "data-memory-items",
-                      ""
+                      "av-tree-result"
                     ]
                   ],
                   "children": [
-                    "尚未调用 · 下一步进入根节点"
-                  ]
-                },
-                {
-                  "tag": "p",
-                  "attributes": [
-                    [
-                      "class",
-                      "memory-note"
-                    ],
-                    [
-                      "data-memory-note",
-                      ""
-                    ]
+                    "尚未返回"
                   ]
                 }
               ]
@@ -1722,15 +822,7 @@
               "attributes": [
                 [
                   "class",
-                  "execution-detail"
-                ],
-                [
-                  "data-execution-detail",
-                  ""
-                ],
-                [
-                  "hidden",
-                  ""
+                  "av-tree-inspector-body"
                 ]
               ],
               "children": [
@@ -1739,16 +831,71 @@
                   "attributes": [
                     [
                       "class",
-                      "call-handoff"
-                    ],
-                    [
-                      "data-handoff",
-                      ""
-                    ],
-                    [
-                      "hidden",
-                      ""
+                      "av-tree-stack"
                     ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "p",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-stack-label"
+                        ]
+                      ],
+                      "children": [
+                        "调用栈为空"
+                      ]
+                    },
+                    {
+                      "tag": "ol",
+                      "attributes": [
+                        [
+                          "aria-label",
+                          "调用栈，栈顶在上"
+                        ],
+                        [
+                          "class",
+                          "av-tree-call-path"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "li",
+                          "attributes": [
+                            [
+                              "aria-label",
+                              "，外层函数，没有活动调用"
+                            ],
+                            [
+                              "class",
+                              "av-tree-call"
+                            ],
+                            [
+                              "data-scope",
+                              "outer"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "small"
+                            },
+                            {
+                              "tag": "code",
+                              "children": [
+                                "外层函数"
+                              ]
+                            },
+                            {
+                              "tag": "span",
+                              "children": [
+                                "没有活动调用"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
@@ -1756,16 +903,59 @@
                   "attributes": [
                     [
                       "class",
-                      "call-decision"
-                    ],
-                    [
-                      "data-decision",
-                      ""
-                    ],
-                    [
-                      "hidden",
-                      ""
+                      "av-tree-current"
                     ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "h3",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-current-title"
+                        ]
+                      ],
+                      "children": [
+                        "外层函数"
+                      ]
+                    },
+                    {
+                      "tag": "code",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-reference"
+                        ]
+                      ],
+                      "children": [
+                        "is_within_bounds(root, -inf, inf)"
+                      ]
+                    },
+                    {
+                      "tag": "dl",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-locals"
+                        ],
+                        [
+                          "hidden",
+                          ""
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "p",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-summary"
+                        ]
+                      ],
+                      "children": [
+                        "当前允许范围：−∞ < node.val < ∞。有限边界都不包含在内。"
+                      ]
+                    }
                   ]
                 }
               ]
@@ -1904,79 +1094,6 @@
           ],
           "children": [
             "最终结果"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "state-grid"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "保持什么成立"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "data-invariant",
-                  ""
-                ]
-              ],
-              "children": [
-                "下界 < node.val < 上界。进入左子树收紧上界；进入右子树收紧下界。边界来自所有祖先，不只父节点。"
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "返回结果"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "class",
-                  "result"
-                ],
-                [
-                  "data-result",
-                  ""
-                ]
-              ],
-              "children": [
-                "结果：尚未返回"
-              ]
-            }
           ]
         }
       ]

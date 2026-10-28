@@ -3,7 +3,7 @@
   "attributes": [
     [
       "class",
-      "demo-pane"
+      "demo-pane av-animation"
     ],
     [
       "data-animation-panel",
@@ -11,641 +11,6 @@
     ]
   ],
   "children": [
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "aria-label",
-          "步骤控制"
-        ],
-        [
-          "class",
-          "controls"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "class",
-              "plain-button"
-            ],
-            [
-              "data-action",
-              "previous"
-            ],
-            [
-              "disabled",
-              ""
-            ]
-          ],
-          "children": [
-            "← 上一步"
-          ]
-        },
-        {
-          "tag": "span",
-          "attributes": [
-            [
-              "class",
-              "step-count"
-            ],
-            [
-              "data-count",
-              ""
-            ]
-          ],
-          "children": [
-            "步骤 1 / 44"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "class",
-              "plain-button"
-            ],
-            [
-              "data-action",
-              "next"
-            ]
-          ],
-          "children": [
-            "下一步 →"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "copy-link"
-            ]
-          ],
-          "children": [
-            "复制本步骤链接"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "jump-row"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "label",
-          "children": [
-            "跳到关键步骤"
-          ]
-        },
-        {
-          "tag": "select",
-          "attributes": [
-            [
-              "data-step-select",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "0"
-                ]
-              ],
-              "children": [
-                "初始结构"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "1"
-                ]
-              ],
-              "children": [
-                "步骤 2 · tail = head"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "2"
-                ]
-              ],
-              "children": [
-                "步骤 3 · tail = tail.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "3"
-                ]
-              ],
-              "children": [
-                "步骤 4 · tail = tail.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "4"
-                ]
-              ],
-              "children": [
-                "步骤 5 · tail = tail.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "5"
-                ]
-              ],
-              "children": [
-                "找到第一层 tail = 5"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "6"
-                ]
-              ],
-              "children": [
-                "步骤 7 · curr = head"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "7"
-                ]
-              ],
-              "children": [
-                "步骤 8 · if curr.child:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "8"
-                ]
-              ],
-              "children": [
-                "步骤 9 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "9"
-                ]
-              ],
-              "children": [
-                "发现 2.child → 6"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "10"
-                ]
-              ],
-              "children": [
-                "接入 6"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "11"
-                ]
-              ],
-              "children": [
-                "清空 2.child"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "12"
-                ]
-              ],
-              "children": [
-                "步骤 13 · tail = tail.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "13"
-                ]
-              ],
-              "children": [
-                "tail 到达 7"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "14"
-                ]
-              ],
-              "children": [
-                "步骤 15 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "15"
-                ]
-              ],
-              "children": [
-                "步骤 16 · if curr.child:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "16"
-                ]
-              ],
-              "children": [
-                "步骤 17 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "17"
-                ]
-              ],
-              "children": [
-                "发现 4.child → 8"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "18"
-                ]
-              ],
-              "children": [
-                "接入 8"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "19"
-                ]
-              ],
-              "children": [
-                "清空 4.child"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "20"
-                ]
-              ],
-              "children": [
-                "步骤 21 · tail = tail.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "21"
-                ]
-              ],
-              "children": [
-                "tail 到达 9"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "22"
-                ]
-              ],
-              "children": [
-                "步骤 23 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "23"
-                ]
-              ],
-              "children": [
-                "步骤 24 · if curr.child:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "24"
-                ]
-              ],
-              "children": [
-                "步骤 25 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "25"
-                ]
-              ],
-              "children": [
-                "步骤 26 · if curr.child:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "26"
-                ]
-              ],
-              "children": [
-                "步骤 27 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "27"
-                ]
-              ],
-              "children": [
-                "发现 7.child → 10"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "28"
-                ]
-              ],
-              "children": [
-                "接入 10"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "29"
-                ]
-              ],
-              "children": [
-                "清空 7.child"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "30"
-                ]
-              ],
-              "children": [
-                "tail 到达 10"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "31"
-                ]
-              ],
-              "children": [
-                "步骤 32 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "32"
-                ]
-              ],
-              "children": [
-                "发现 8.child → 11"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "33"
-                ]
-              ],
-              "children": [
-                "接入 11"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "34"
-                ]
-              ],
-              "children": [
-                "清空 8.child"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "35"
-                ]
-              ],
-              "children": [
-                "tail 到达 11"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "36"
-                ]
-              ],
-              "children": [
-                "步骤 37 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "37"
-                ]
-              ],
-              "children": [
-                "步骤 38 · if curr.child:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "38"
-                ]
-              ],
-              "children": [
-                "步骤 39 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "39"
-                ]
-              ],
-              "children": [
-                "步骤 40 · if curr.child:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "40"
-                ]
-              ],
-              "children": [
-                "步骤 41 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "41"
-                ]
-              ],
-              "children": [
-                "步骤 42 · if curr.child:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "42"
-                ]
-              ],
-              "children": [
-                "步骤 43 · curr = curr.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "43"
-                ]
-              ],
-              "children": [
-                "完成：1 → … → 11"
-              ]
-            }
-          ]
-        }
-      ]
-    },
     {
       "tag": "section",
       "attributes": [
@@ -681,7 +46,7 @@
                 ],
                 [
                   "viewBox",
-                  "0 0 781 352"
+                  "0 0 620 352"
                 ]
               ],
               "children": [
@@ -791,7 +156,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 112.0 62.0 L 207.0 62.0"
+                      "M 99.0 62.0 L 171.5 62.0"
                     ],
                     [
                       "data-visual-element",
@@ -820,7 +185,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 252.0 62.0 L 347.0 62.0"
+                      "M 216.5 62.0 L 289.0 62.0"
                     ],
                     [
                       "data-visual-element",
@@ -849,7 +214,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 392.0 62.0 L 487.0 62.0"
+                      "M 334.0 62.0 L 406.5 62.0"
                     ],
                     [
                       "data-visual-element",
@@ -878,7 +243,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 532.0 62.0 L 627.0 62.0"
+                      "M 451.5 62.0 L 524.0 62.0"
                     ],
                     [
                       "data-visual-element",
@@ -907,7 +272,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 252.0 174.0 L 347.0 174.0"
+                      "M 216.5 174.0 L 289.0 174.0"
                     ],
                     [
                       "data-visual-element",
@@ -936,7 +301,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 532.0 174.0 L 627.0 174.0"
+                      "M 451.5 174.0 L 524.0 174.0"
                     ],
                     [
                       "data-visual-element",
@@ -965,7 +330,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 231.0 83.0 L 231.0 150.0"
+                      "M 195.5 83.0 L 195.5 150.0"
                     ],
                     [
                       "data-visual-element",
@@ -998,7 +363,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 511.0 83.0 L 511.0 150.0"
+                      "M 430.5 83.0 L 430.5 150.0"
                     ],
                     [
                       "data-visual-element",
@@ -1031,7 +396,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 371.0 195.0 L 371.0 262.0"
+                      "M 313.0 195.0 L 313.0 262.0"
                     ],
                     [
                       "data-visual-element",
@@ -1064,7 +429,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 511.0 195.0 L 511.0 262.0"
+                      "M 430.5 195.0 L 430.5 262.0"
                     ],
                     [
                       "data-visual-element",
@@ -1105,7 +470,7 @@
                     ],
                     [
                       "x",
-                      "237.0"
+                      "201.5"
                     ],
                     [
                       "y",
@@ -1129,7 +494,7 @@
                     ],
                     [
                       "x",
-                      "517.0"
+                      "436.5"
                     ],
                     [
                       "y",
@@ -1153,7 +518,7 @@
                     ],
                     [
                       "x",
-                      "377.0"
+                      "319.0"
                     ],
                     [
                       "y",
@@ -1177,7 +542,7 @@
                     ],
                     [
                       "x",
-                      "517.0"
+                      "436.5"
                     ],
                     [
                       "y",
@@ -1193,7 +558,7 @@
                   "attributes": [
                     [
                       "d",
-                      "M 59.0 62.0 L 68.0 62.0"
+                      "M 46.0 62.0 L 55.0 62.0"
                     ],
                     [
                       "data-visual-element",
@@ -1228,7 +593,7 @@
                 ],
                 [
                   "style",
-                  "--visual-x: 37px; --visual-y: 62px;"
+                  "--visual-x: 24px; --visual-y: 62px;"
                 ]
               ],
               "children": [
@@ -1319,7 +684,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 91px; --visual-y: 62px;"
+                      "--visual-x: 78px; --visual-y: 62px;"
                     ]
                   ],
                   "children": [
@@ -1347,7 +712,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 231px; --visual-y: 62px;"
+                      "--visual-x: 195.5px; --visual-y: 62px;"
                     ]
                   ],
                   "children": [
@@ -1375,7 +740,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 371px; --visual-y: 62px;"
+                      "--visual-x: 313px; --visual-y: 62px;"
                     ]
                   ],
                   "children": [
@@ -1403,7 +768,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 511px; --visual-y: 62px;"
+                      "--visual-x: 430.5px; --visual-y: 62px;"
                     ]
                   ],
                   "children": [
@@ -1431,7 +796,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 651px; --visual-y: 62px;"
+                      "--visual-x: 548px; --visual-y: 62px;"
                     ]
                   ],
                   "children": [
@@ -1459,7 +824,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 231px; --visual-y: 174px;"
+                      "--visual-x: 195.5px; --visual-y: 174px;"
                     ]
                   ],
                   "children": [
@@ -1487,7 +852,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 371px; --visual-y: 174px;"
+                      "--visual-x: 313px; --visual-y: 174px;"
                     ]
                   ],
                   "children": [
@@ -1515,7 +880,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 511px; --visual-y: 174px;"
+                      "--visual-x: 430.5px; --visual-y: 174px;"
                     ]
                   ],
                   "children": [
@@ -1543,7 +908,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 651px; --visual-y: 174px;"
+                      "--visual-x: 548px; --visual-y: 174px;"
                     ]
                   ],
                   "children": [
@@ -1571,7 +936,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 371px; --visual-y: 286px;"
+                      "--visual-x: 313px; --visual-y: 286px;"
                     ]
                   ],
                   "children": [
@@ -1599,7 +964,7 @@
                     ],
                     [
                       "style",
-                      "--visual-x: 511px; --visual-y: 286px;"
+                      "--visual-x: 430.5px; --visual-y: 286px;"
                     ]
                   ],
                   "children": [

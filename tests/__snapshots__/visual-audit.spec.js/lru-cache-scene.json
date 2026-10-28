@@ -3,7 +3,7 @@
   "attributes": [
     [
       "class",
-      "detail-demo"
+      "detail-demo av-animation"
     ],
     [
       "data-animation-panel",
@@ -49,138 +49,6 @@
               "class",
               "overview-controls"
             ]
-          ],
-          "children": [
-            {
-              "tag": "div",
-              "attributes": [
-                [
-                  "aria-label",
-                  "选择缓存操作"
-                ],
-                [
-                  "class",
-                  "overview-modes"
-                ],
-                [
-                  "role",
-                  "group"
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "button",
-                  "attributes": [
-                    [
-                      "aria-pressed",
-                      "true"
-                    ],
-                    [
-                      "class",
-                      "plain-button"
-                    ],
-                    [
-                      "data-overview-mode",
-                      "put"
-                    ]
-                  ],
-                  "children": [
-                    "put(3, 200)"
-                  ]
-                },
-                {
-                  "tag": "button",
-                  "attributes": [
-                    [
-                      "aria-pressed",
-                      "false"
-                    ],
-                    [
-                      "class",
-                      "plain-button"
-                    ],
-                    [
-                      "data-overview-mode",
-                      "get"
-                    ]
-                  ],
-                  "children": [
-                    "get(2)"
-                  ]
-                }
-              ]
-            },
-            {
-              "tag": "div",
-              "attributes": [
-                [
-                  "aria-label",
-                  "缓存操作步骤"
-                ],
-                [
-                  "class",
-                  "overview-stepper"
-                ],
-                [
-                  "role",
-                  "group"
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "button",
-                  "attributes": [
-                    [
-                      "class",
-                      "plain-button"
-                    ],
-                    [
-                      "data-overview-prev",
-                      ""
-                    ],
-                    [
-                      "disabled",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "← 上一步"
-                  ]
-                },
-                {
-                  "tag": "span",
-                  "attributes": [
-                    [
-                      "class",
-                      "step-count"
-                    ],
-                    [
-                      "data-overview-count",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "0 / 3"
-                  ]
-                },
-                {
-                  "tag": "button",
-                  "attributes": [
-                    [
-                      "class",
-                      "plain-button"
-                    ],
-                    [
-                      "data-overview-next",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    "下一步 →"
-                  ]
-                }
-              ]
-            }
           ]
         },
         {
@@ -515,644 +383,6 @@
           ]
         },
         {
-          "tag": "div",
-          "attributes": [
-            [
-              "aria-label",
-              "演示控制"
-            ],
-            [
-              "class",
-              "toolbar"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "button",
-              "attributes": [
-                [
-                  "class",
-                  "plain-button"
-                ],
-                [
-                  "data-action",
-                  "previous"
-                ],
-                [
-                  "disabled",
-                  ""
-                ]
-              ],
-              "children": [
-                "← 上一步"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "step-count"
-                ],
-                [
-                  "data-count",
-                  ""
-                ]
-              ],
-              "children": [
-                "步骤 1 / 42"
-              ]
-            },
-            {
-              "tag": "button",
-              "attributes": [
-                [
-                  "class",
-                  "plain-button"
-                ],
-                [
-                  "data-action",
-                  "next"
-                ]
-              ],
-              "children": [
-                "下一步 →"
-              ]
-            },
-            {
-              "tag": "button",
-              "attributes": [
-                [
-                  "class",
-                  "plain-button"
-                ],
-                [
-                  "data-action",
-                  "copy-link"
-                ]
-              ],
-              "children": [
-                "复制本步骤链接"
-              ]
-            },
-            {
-              "tag": "span",
-              "attributes": [
-                [
-                  "class",
-                  "mode-label"
-                ],
-                [
-                  "data-mode",
-                  ""
-                ]
-              ],
-              "children": [
-                "示例演示"
-              ]
-            },
-            {
-              "tag": "label",
-              "attributes": [
-                [
-                  "class",
-                  "jump-wrap"
-                ]
-              ],
-              "children": [
-                "跳到步骤",
-                {
-                  "tag": "select",
-                  "attributes": [
-                    [
-                      "aria-label",
-                      "跳到步骤"
-                    ],
-                    [
-                      "class",
-                      "jump"
-                    ],
-                    [
-                      "data-jump",
-                      ""
-                    ],
-                    [
-                      "data-step-select",
-                      ""
-                    ]
-                  ],
-                  "children": [
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "0"
-                        ]
-                      ],
-                      "children": [
-                        "1. LRUCache.__init__(capacity=3) 执行后"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "1"
-                        ]
-                      ],
-                      "children": [
-                        "2. put(1, 100) · if key in self.hashmap:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "2"
-                        ]
-                      ],
-                      "children": [
-                        "3. put(1, 100) · if len(self.hashmap) == self.capacity:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "3"
-                        ]
-                      ],
-                      "children": [
-                        "4. put(1, 100) · node = DoublyLinkedListNode(key, value)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "4"
-                        ]
-                      ],
-                      "children": [
-                        "5. put(1, 100) · self.hashmap[key] = node"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "5"
-                        ]
-                      ],
-                      "children": [
-                        "6. put(1, 100) · self.add_to_tail(node)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "6"
-                        ]
-                      ],
-                      "children": [
-                        "7. put(2, 250) · if key in self.hashmap:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "7"
-                        ]
-                      ],
-                      "children": [
-                        "8. put(2, 250) · if len(self.hashmap) == self.capacity:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "8"
-                        ]
-                      ],
-                      "children": [
-                        "9. put(2, 250) · node = DoublyLinkedListNode(key, value)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "9"
-                        ]
-                      ],
-                      "children": [
-                        "10. put(2, 250) · self.hashmap[key] = node"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "10"
-                        ]
-                      ],
-                      "children": [
-                        "11. put(2, 250) · self.add_to_tail(node)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "11"
-                        ]
-                      ],
-                      "children": [
-                        "12. get(2) · if key not in self.hashmap:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "12"
-                        ]
-                      ],
-                      "children": [
-                        "13. get(2) · node = self.hashmap[key]"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "13"
-                        ]
-                      ],
-                      "children": [
-                        "14. get(2) · self.remove_node(node)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "14"
-                        ]
-                      ],
-                      "children": [
-                        "15. get(2) · self.add_to_tail(node)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "15"
-                        ]
-                      ],
-                      "children": [
-                        "16. get(2) · return node.val"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "16"
-                        ]
-                      ],
-                      "children": [
-                        "17. put(4, 300) · if key in self.hashmap:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "17"
-                        ]
-                      ],
-                      "children": [
-                        "18. put(4, 300) · if len(self.hashmap) == self.capacity:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "18"
-                        ]
-                      ],
-                      "children": [
-                        "19. put(4, 300) · node = DoublyLinkedListNode(key, value)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "19"
-                        ]
-                      ],
-                      "children": [
-                        "20. put(4, 300) · self.hashmap[key] = node"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "20"
-                        ]
-                      ],
-                      "children": [
-                        "21. put(4, 300) · self.add_to_tail(node)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "21"
-                        ]
-                      ],
-                      "children": [
-                        "22. put(3, 200) · if key in self.hashmap:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "22"
-                        ]
-                      ],
-                      "children": [
-                        "23. put(3, 200) · if len(self.hashmap) == self.capacity:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "23"
-                        ]
-                      ],
-                      "children": [
-                        "24. put(3, 200) · least_recent = self.head.next"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "24"
-                        ]
-                      ],
-                      "children": [
-                        "25. put(3, 200) · self.remove_node(least_recent)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "25"
-                        ]
-                      ],
-                      "children": [
-                        "26. put(3, 200) · del self.hashmap[least_recent.key]"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "26"
-                        ]
-                      ],
-                      "children": [
-                        "27. put(3, 200) · node = DoublyLinkedListNode(key, value)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "27"
-                        ]
-                      ],
-                      "children": [
-                        "28. put(3, 200) · self.hashmap[key] = node"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "28"
-                        ]
-                      ],
-                      "children": [
-                        "29. put(3, 200) · self.add_to_tail(node)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "29"
-                        ]
-                      ],
-                      "children": [
-                        "30. put(2, 260) · if key in self.hashmap:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "30"
-                        ]
-                      ],
-                      "children": [
-                        "31. put(2, 260) · node = self.hashmap[key]"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "31"
-                        ]
-                      ],
-                      "children": [
-                        "32. put(2, 260) · node.val = value"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "32"
-                        ]
-                      ],
-                      "children": [
-                        "33. put(2, 260) · self.remove_node(node)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "33"
-                        ]
-                      ],
-                      "children": [
-                        "34. put(2, 260) · self.add_to_tail(node)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "34"
-                        ]
-                      ],
-                      "children": [
-                        "35. put(2, 260) · return"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "35"
-                        ]
-                      ],
-                      "children": [
-                        "36. get(4) · if key not in self.hashmap:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "36"
-                        ]
-                      ],
-                      "children": [
-                        "37. get(4) · node = self.hashmap[key]"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "37"
-                        ]
-                      ],
-                      "children": [
-                        "38. get(4) · self.remove_node(node)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "38"
-                        ]
-                      ],
-                      "children": [
-                        "39. get(4) · self.add_to_tail(node)"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "39"
-                        ]
-                      ],
-                      "children": [
-                        "40. get(4) · return node.val"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "40"
-                        ]
-                      ],
-                      "children": [
-                        "41. get(1) · if key not in self.hashmap:"
-                      ]
-                    },
-                    {
-                      "tag": "option",
-                      "attributes": [
-                        [
-                          "value",
-                          "41"
-                        ]
-                      ],
-                      "children": [
-                        "42. get(1) · return -1"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
           "tag": "section",
           "attributes": [
             [
@@ -1237,7 +467,7 @@
                     ],
                     [
                       "viewBox",
-                      "0 0 787 250"
+                      "0 0 620 250"
                     ]
                   ],
                   "children": [
@@ -1347,7 +577,7 @@
                       "attributes": [
                         [
                           "d",
-                          "M 90.0 93.0 L 697.0 93.0"
+                          "M 90.0 93.0 L 530.0 93.0"
                         ],
                         [
                           "data-visual-element",
@@ -1380,7 +610,7 @@
                       "attributes": [
                         [
                           "d",
-                          "M 697.0 107.0 L 90.0 107.0"
+                          "M 530.0 107.0 L 90.0 107.0"
                         ],
                         [
                           "data-visual-element",
@@ -1472,7 +702,7 @@
                         ],
                         [
                           "style",
-                          "transform: translate(730px, 69px) translate(-50%, -50%);"
+                          "transform: translate(563px, 69px) translate(-50%, -50%);"
                         ]
                       ],
                       "children": [
@@ -1512,7 +742,7 @@
                         ],
                         [
                           "style",
-                          "transform: translate(730px, 100px) translate(-50%, -50%);"
+                          "transform: translate(563px, 100px) translate(-50%, -50%);"
                         ]
                       ],
                       "children": [
@@ -1624,6 +854,788 @@
                   "data-result",
                   ""
                 ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "section",
+      "attributes": [
+        [
+          "aria-label",
+          "双向链表辅助函数逐行图，可按左右方向键逐行查看"
+        ],
+        [
+          "class",
+          "helper"
+        ],
+        [
+          "data-lru-panel",
+          "helper"
+        ],
+        [
+          "hidden",
+          ""
+        ]
+      ],
+      "children": [
+        {
+          "tag": "h2",
+          "children": [
+            "双向链表指针"
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "aria-label",
+              "当前真实指针字段"
+            ],
+            [
+              "class",
+              "helper-visual"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "helper-diagram"
+                ],
+                [
+                  "data-helper-diagram",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "svg",
+                  "attributes": [
+                    [
+                      "data-helper-svg",
+                      ""
+                    ],
+                    [
+                      "role",
+                      "img"
+                    ],
+                    [
+                      "viewBox",
+                      "0 0 360 270"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "defs",
+                      "children": [
+                        {
+                          "tag": "marker",
+                          "attributes": [
+                            [
+                              "viewBox",
+                              "0 0 8 8"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "path",
+                              "attributes": [
+                                [
+                                  "d",
+                                  "M0 0 L8 4 L0 8 Z"
+                                ],
+                                [
+                                  "fill",
+                                  "#333"
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "marker",
+                          "attributes": [
+                            [
+                              "viewBox",
+                              "0 0 8 8"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "path",
+                              "attributes": [
+                                [
+                                  "d",
+                                  "M0 0 L8 4 L0 8 Z"
+                                ],
+                                [
+                                  "fill",
+                                  "#777"
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "marker",
+                          "attributes": [
+                            [
+                              "viewBox",
+                              "0 0 8 8"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "path",
+                              "attributes": [
+                                [
+                                  "d",
+                                  "M0 0 L8 4 L0 8 Z"
+                                ],
+                                [
+                                  "fill",
+                                  "#777"
+                                ]
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "title",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "helper:title"
+                        ]
+                      ],
+                      "children": [
+                        "逐行建立双向链表节点"
+                      ]
+                    },
+                    {
+                      "tag": "desc",
+                      "attributes": [
+                        [
+                          "data-visual-element",
+                          "helper:desc"
+                        ]
+                      ],
+                      "children": [
+                        "执行前。self 指向新建的节点 N；key 尚未设置，val 尚未设置，prev 尚未设置，next 尚未设置。"
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-svg-label"
+                        ],
+                        [
+                          "data-visual-element",
+                          "constructor:self-label"
+                        ],
+                        [
+                          "x",
+                          "180"
+                        ],
+                        [
+                          "y",
+                          "38"
+                        ]
+                      ],
+                      "children": [
+                        "self"
+                      ]
+                    },
+                    {
+                      "tag": "path",
+                      "attributes": [
+                        [
+                          "aria-hidden",
+                          "true"
+                        ],
+                        [
+                          "class",
+                          "helper-svg-reference"
+                        ],
+                        [
+                          "d",
+                          "M 180 48 L 180 94"
+                        ],
+                        [
+                          "data-visual-element",
+                          "constructor:self-reference"
+                        ],
+                        [
+                          "marker-end",
+                          "url(#helper-variable-arrow)"
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "g",
+                      "attributes": [
+                        [
+                          "aria-hidden",
+                          "true"
+                        ],
+                        [
+                          "class",
+                          "helper-svg-node"
+                        ],
+                        [
+                          "data-node-id",
+                          "N"
+                        ],
+                        [
+                          "data-visual-element",
+                          "constructor:node"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "rect",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "constructor:node:rect"
+                            ],
+                            [
+                              "height",
+                              "38"
+                            ],
+                            [
+                              "width",
+                              "82"
+                            ],
+                            [
+                              "x",
+                              "139"
+                            ],
+                            [
+                              "y",
+                              "101"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "line",
+                          "attributes": [
+                            [
+                              "class",
+                              "divider"
+                            ],
+                            [
+                              "data-visual-element",
+                              "constructor:node:divider"
+                            ],
+                            [
+                              "x1",
+                              "169.34"
+                            ],
+                            [
+                              "x2",
+                              "169.34"
+                            ],
+                            [
+                              "y1",
+                              "101"
+                            ],
+                            [
+                              "y2",
+                              "139"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "constructor:node:key"
+                            ],
+                            [
+                              "x",
+                              "154.58"
+                            ],
+                            [
+                              "y",
+                              "121"
+                            ]
+                          ],
+                          "children": [
+                            "—"
+                          ]
+                        },
+                        {
+                          "tag": "text",
+                          "attributes": [
+                            [
+                              "data-visual-element",
+                              "constructor:node:val"
+                            ],
+                            [
+                              "x",
+                              "196.4"
+                            ],
+                            [
+                              "y",
+                              "121"
+                            ]
+                          ],
+                          "children": [
+                            "—"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-svg-attribute"
+                        ],
+                        [
+                          "data-visual-element",
+                          "constructor:key-label"
+                        ],
+                        [
+                          "x",
+                          "154.58"
+                        ],
+                        [
+                          "y",
+                          "162"
+                        ]
+                      ],
+                      "children": [
+                        "key"
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-svg-attribute"
+                        ],
+                        [
+                          "data-visual-element",
+                          "constructor:val-label"
+                        ],
+                        [
+                          "x",
+                          "196.4"
+                        ],
+                        [
+                          "y",
+                          "162"
+                        ]
+                      ],
+                      "children": [
+                        "val"
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-svg-attribute"
+                        ],
+                        [
+                          "data-visual-element",
+                          "constructor:prev-label"
+                        ],
+                        [
+                          "x",
+                          "92"
+                        ],
+                        [
+                          "y",
+                          "207"
+                        ]
+                      ],
+                      "children": [
+                        "N.prev"
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-svg-attribute-value is-unset"
+                        ],
+                        [
+                          "data-visual-element",
+                          "constructor:prev-value"
+                        ],
+                        [
+                          "x",
+                          "92"
+                        ],
+                        [
+                          "y",
+                          "230"
+                        ]
+                      ],
+                      "children": [
+                        "尚未设置"
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-svg-attribute"
+                        ],
+                        [
+                          "data-visual-element",
+                          "constructor:next-label"
+                        ],
+                        [
+                          "x",
+                          "268"
+                        ],
+                        [
+                          "y",
+                          "207"
+                        ]
+                      ],
+                      "children": [
+                        "N.next"
+                      ]
+                    },
+                    {
+                      "tag": "text",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-svg-attribute-value is-unset"
+                        ],
+                        [
+                          "data-visual-element",
+                          "constructor:next-value"
+                        ],
+                        [
+                          "x",
+                          "268"
+                        ],
+                        [
+                          "y",
+                          "230"
+                        ]
+                      ],
+                      "children": [
+                        "尚未设置"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "details",
+              "attributes": [
+                [
+                  "class",
+                  "helper-fields"
+                ],
+                [
+                  "data-helper-fields",
+                  ""
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "summary",
+                  "children": [
+                    "查看各节点保存的字段"
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "helper-field-panel"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "p",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-visual-label"
+                        ]
+                      ],
+                      "children": [
+                        "从",
+                        {
+                          "tag": "code",
+                          "children": [
+                            "head"
+                          ]
+                        },
+                        "沿",
+                        {
+                          "tag": "code",
+                          "children": [
+                            ".next"
+                          ]
+                        },
+                        "实际能走到："
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-walk"
+                        ],
+                        [
+                          "data-helper-walk",
+                          ""
+                        ]
+                      ],
+                      "children": [
+                        "还没有 head；N 尚未接入链表。"
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-local"
+                        ],
+                        [
+                          "data-helper-local",
+                          ""
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "attributes": [
+                        [
+                          "class",
+                          "helper-cards is-single"
+                        ],
+                        [
+                          "data-helper-cards",
+                          ""
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "div",
+                          "attributes": [
+                            [
+                              "class",
+                              "helper-card is-detached"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "h3",
+                              "children": [
+                                "self → N"
+                              ]
+                            },
+                            {
+                              "tag": "span",
+                              "attributes": [
+                                [
+                                  "class",
+                                  "helper-card-state"
+                                ]
+                              ],
+                              "children": [
+                                "不在 head 的主链上"
+                              ]
+                            },
+                            {
+                              "tag": "div",
+                              "attributes": [
+                                [
+                                  "class",
+                                  "helper-field"
+                                ]
+                              ],
+                              "children": [
+                                {
+                                  "tag": "span",
+                                  "children": [
+                                    "key"
+                                  ]
+                                },
+                                {
+                                  "tag": "span",
+                                  "attributes": [
+                                    [
+                                      "class",
+                                      "helper-field-target is-unset"
+                                    ]
+                                  ],
+                                  "children": [
+                                    "尚未设置"
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "div",
+                              "attributes": [
+                                [
+                                  "class",
+                                  "helper-field"
+                                ]
+                              ],
+                              "children": [
+                                {
+                                  "tag": "span",
+                                  "children": [
+                                    "val"
+                                  ]
+                                },
+                                {
+                                  "tag": "span",
+                                  "attributes": [
+                                    [
+                                      "class",
+                                      "helper-field-target is-unset"
+                                    ]
+                                  ],
+                                  "children": [
+                                    "尚未设置"
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "div",
+                              "attributes": [
+                                [
+                                  "class",
+                                  "helper-field"
+                                ]
+                              ],
+                              "children": [
+                                {
+                                  "tag": "span",
+                                  "children": [
+                                    "prev"
+                                  ]
+                                },
+                                {
+                                  "tag": "span",
+                                  "attributes": [
+                                    [
+                                      "class",
+                                      "helper-field-target is-unset"
+                                    ]
+                                  ],
+                                  "children": [
+                                    "→ 尚未设置"
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "div",
+                              "attributes": [
+                                [
+                                  "class",
+                                  "helper-field"
+                                ]
+                              ],
+                              "children": [
+                                {
+                                  "tag": "span",
+                                  "children": [
+                                    "next"
+                                  ]
+                                },
+                                {
+                                  "tag": "span",
+                                  "attributes": [
+                                    [
+                                      "class",
+                                      "helper-field-target is-unset"
+                                    ]
+                                  ],
+                                  "children": [
+                                    "→ 尚未设置"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "attributes": [
+            [
+              "class",
+              "helper-detail"
+            ]
+          ],
+          "children": [
+            {
+              "tag": "p",
+              "attributes": [
+                [
+                  "class",
+                  "helper-callout"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "strong",
+                  "attributes": [
+                    [
+                      "data-helper-line",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "执行前"
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "attributes": [
+                    [
+                      "data-helper-explanation",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    "刚进入 __init__：对象 N 已创建，但 key、val、prev、next 属性都还没有赋值。"
+                  ]
+                }
               ]
             }
           ]

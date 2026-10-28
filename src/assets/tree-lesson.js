@@ -142,14 +142,18 @@
         } else if (!state.scopedReferences && state.focus === null) {
           const parent=points[state.nullSlot?.parent];
           const nullLabel=`${state.reference||'node'} = None`;
-          const margin=state.savedReferences ? [...nullLabel].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),8)*labelScale/2 : 54;
-          const x=parent?Math.max(margin,Math.min(width-margin,parent.x+(state.nullSlot.side==='left'?-38:38))):width/2;
           const y=parent?parent.y+66:25;
+          const label=text('null-reference',{x:width/2,y,class:'annotation'},nullLabel);
+          // Keep the actual label inside the diagram when workbench typography
+          // is larger than the original label-width estimate.
+          const estimatedMargin=state.savedReferences ? [...nullLabel].reduce((size,char)=>size+(/[^\x00-\x7f]/.test(char)?12:7),8)*labelScale/2 : 54;
+          const margin=Math.max(estimatedMargin,label.getComputedTextLength()/2+4);
+          const x=parent?Math.max(margin,Math.min(width-margin,parent.x+(state.nullSlot.side==='left'?-38:38))):width/2;
+          label.setAttribute('x',x);
           if (parent) {
             const dx=x-parent.x,dy=y-12-parent.y,length=Math.hypot(dx,dy);
             path('empty-child-link',{d:`M${parent.x+dx*(radius+1)/length},${parent.y+dy*(radius+1)/length} L${x},${y-12}`,class:'stored-edge','marker-end':'url(#tree-arrow)'});
           }
-          text('null-reference',{x,y,class:'annotation'},`${state.reference||'node'} = None`);
         }
       });
       // Retained marks added on later frames must stay beneath node values.

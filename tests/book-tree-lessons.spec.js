@@ -168,10 +168,10 @@ test('maximum path separates the two-arm candidate 30 from gain 21 and accepts a
   await expect(page.locator('[data-visual-element="node-a"]')).not.toHaveClass(/on-path/);
 });
 
-test('a child reference leaves its parent position label readable on narrow screens', async ({page}) => {
+test('a child reference leaves its parent position label readable on desktop', async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  for (const width of [320,390]) {
-    await page.setViewportSize({width,height:844});
+  for (const width of [1280]) {
+    await page.setViewportSize({width,height:900});
     await page.goto('/widest-binary-tree-level/#step=0');
     const index=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('node, i = (11, 10)')));
     await page.locator('[data-step-select]').selectOption(String(index));

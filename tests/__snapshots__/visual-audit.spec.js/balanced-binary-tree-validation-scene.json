@@ -7,7 +7,7 @@
     ],
     [
       "class",
-      "animation-panel"
+      "animation-panel av-animation"
     ],
     [
       "data-animation-panel",
@@ -15,1321 +15,6 @@
     ]
   ],
   "children": [
-    {
-      "tag": "label",
-      "attributes": [
-        [
-          "class",
-          "settings"
-        ],
-        [
-          "hidden",
-          ""
-        ]
-      ],
-      "children": [
-        "示例",
-        {
-          "tag": "select",
-          "attributes": [
-            [
-              "aria-label",
-              "平衡验证示例"
-            ],
-            [
-              "data-case",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "original"
-                ]
-              ],
-              "children": [
-                "原图：根平衡，内部失衡"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "balanced"
-                ]
-              ],
-              "children": [
-                "移除 6：整树平衡"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "empty"
-                ]
-              ],
-              "children": [
-                "空树"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "aria-label",
-          "平衡验证示例"
-        ],
-        [
-          "class",
-          "tree-cases"
-        ],
-        [
-          "role",
-          "group"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "true"
-            ],
-            [
-              "data-case-value",
-              "original"
-            ]
-          ],
-          "children": [
-            "示例：根平衡，内部失衡"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "data-case-value",
-              "balanced"
-            ]
-          ],
-          "children": [
-            "移除 6：整树平衡"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "data-case-value",
-              "empty"
-            ]
-          ],
-          "children": [
-            "空树"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "controls"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "previous"
-            ],
-            [
-              "disabled",
-              ""
-            ]
-          ],
-          "children": [
-            "← 上一步"
-          ]
-        },
-        {
-          "tag": "output",
-          "attributes": [
-            [
-              "data-count",
-              ""
-            ]
-          ],
-          "children": [
-            "步骤 1 / 83"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "next"
-            ]
-          ],
-          "children": [
-            "下一步 →"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "copy-link"
-            ]
-          ],
-          "children": [
-            "复制本步骤链接"
-          ]
-        },
-        {
-          "tag": "label",
-          "attributes": [
-            [
-              "class",
-              "step-picker"
-            ]
-          ],
-          "children": [
-            "跳到步骤",
-            {
-              "tag": "select",
-              "attributes": [
-                [
-                  "aria-label",
-                  "跳到步骤"
-                ],
-                [
-                  "data-step-select",
-                  ""
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "0"
-                    ]
-                  ],
-                  "children": [
-                    "1 · get_height_imbalance(root) != -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "1"
-                    ]
-                  ],
-                  "children": [
-                    "2 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "2"
-                    ]
-                  ],
-                  "children": [
-                    "3 · left_height = get_height_imbalance(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "3"
-                    ]
-                  ],
-                  "children": [
-                    "4 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "4"
-                    ]
-                  ],
-                  "children": [
-                    "5 · left_height = get_height_imbalance(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "5"
-                    ]
-                  ],
-                  "children": [
-                    "6 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "6"
-                    ]
-                  ],
-                  "children": [
-                    "7 · left_height = get_height_imbalance(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "7"
-                    ]
-                  ],
-                  "children": [
-                    "8 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "8"
-                    ]
-                  ],
-                  "children": [
-                    "9 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "9"
-                    ]
-                  ],
-                  "children": [
-                    "10 · left_height = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "10"
-                    ]
-                  ],
-                  "children": [
-                    "11 · right_height = get_height_imbalance(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "11"
-                    ]
-                  ],
-                  "children": [
-                    "12 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "12"
-                    ]
-                  ],
-                  "children": [
-                    "13 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "13"
-                    ]
-                  ],
-                  "children": [
-                    "14 · right_height = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "14"
-                    ]
-                  ],
-                  "children": [
-                    "15 · 0 == -1 or 0 == -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "15"
-                    ]
-                  ],
-                  "children": [
-                    "16 · abs(0 - 0) > 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "16"
-                    ]
-                  ],
-                  "children": [
-                    "17 · return 1 + max(0, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "17"
-                    ]
-                  ],
-                  "children": [
-                    "18 · left_height = 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "18"
-                    ]
-                  ],
-                  "children": [
-                    "19 · right_height = get_height_imbalance(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "19"
-                    ]
-                  ],
-                  "children": [
-                    "20 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "20"
-                    ]
-                  ],
-                  "children": [
-                    "21 · left_height = get_height_imbalance(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "21"
-                    ]
-                  ],
-                  "children": [
-                    "22 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "22"
-                    ]
-                  ],
-                  "children": [
-                    "23 · left_height = get_height_imbalance(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "23"
-                    ]
-                  ],
-                  "children": [
-                    "24 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "24"
-                    ]
-                  ],
-                  "children": [
-                    "25 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "25"
-                    ]
-                  ],
-                  "children": [
-                    "26 · left_height = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "26"
-                    ]
-                  ],
-                  "children": [
-                    "27 · right_height = get_height_imbalance(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "27"
-                    ]
-                  ],
-                  "children": [
-                    "28 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "28"
-                    ]
-                  ],
-                  "children": [
-                    "29 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "29"
-                    ]
-                  ],
-                  "children": [
-                    "30 · right_height = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "30"
-                    ]
-                  ],
-                  "children": [
-                    "31 · 0 == -1 or 0 == -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "31"
-                    ]
-                  ],
-                  "children": [
-                    "32 · abs(0 - 0) > 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "32"
-                    ]
-                  ],
-                  "children": [
-                    "33 · return 1 + max(0, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "33"
-                    ]
-                  ],
-                  "children": [
-                    "34 · left_height = 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "34"
-                    ]
-                  ],
-                  "children": [
-                    "35 · right_height = get_height_imbalance(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "35"
-                    ]
-                  ],
-                  "children": [
-                    "36 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "36"
-                    ]
-                  ],
-                  "children": [
-                    "37 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "37"
-                    ]
-                  ],
-                  "children": [
-                    "38 · right_height = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "38"
-                    ]
-                  ],
-                  "children": [
-                    "39 · 1 == -1 or 0 == -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "39"
-                    ]
-                  ],
-                  "children": [
-                    "40 · abs(1 - 0) > 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "40"
-                    ]
-                  ],
-                  "children": [
-                    "41 · return 1 + max(1, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "41"
-                    ]
-                  ],
-                  "children": [
-                    "42 · right_height = 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "42"
-                    ]
-                  ],
-                  "children": [
-                    "43 · 1 == -1 or 2 == -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "43"
-                    ]
-                  ],
-                  "children": [
-                    "44 · abs(1 - 2) > 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "44"
-                    ]
-                  ],
-                  "children": [
-                    "45 · return 1 + max(1, 2)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "45"
-                    ]
-                  ],
-                  "children": [
-                    "46 · left_height = 3"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "46"
-                    ]
-                  ],
-                  "children": [
-                    "47 · right_height = get_height_imbalance(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "47"
-                    ]
-                  ],
-                  "children": [
-                    "48 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "48"
-                    ]
-                  ],
-                  "children": [
-                    "49 · left_height = get_height_imbalance(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "49"
-                    ]
-                  ],
-                  "children": [
-                    "50 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "50"
-                    ]
-                  ],
-                  "children": [
-                    "51 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "51"
-                    ]
-                  ],
-                  "children": [
-                    "52 · left_height = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "52"
-                    ]
-                  ],
-                  "children": [
-                    "53 · right_height = get_height_imbalance(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "53"
-                    ]
-                  ],
-                  "children": [
-                    "54 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "54"
-                    ]
-                  ],
-                  "children": [
-                    "55 · left_height = get_height_imbalance(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "55"
-                    ]
-                  ],
-                  "children": [
-                    "56 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "56"
-                    ]
-                  ],
-                  "children": [
-                    "57 · left_height = get_height_imbalance(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "57"
-                    ]
-                  ],
-                  "children": [
-                    "58 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "58"
-                    ]
-                  ],
-                  "children": [
-                    "59 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "59"
-                    ]
-                  ],
-                  "children": [
-                    "60 · left_height = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "60"
-                    ]
-                  ],
-                  "children": [
-                    "61 · right_height = get_height_imbalance(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "61"
-                    ]
-                  ],
-                  "children": [
-                    "62 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "62"
-                    ]
-                  ],
-                  "children": [
-                    "63 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "63"
-                    ]
-                  ],
-                  "children": [
-                    "64 · right_height = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "64"
-                    ]
-                  ],
-                  "children": [
-                    "65 · 0 == -1 or 0 == -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "65"
-                    ]
-                  ],
-                  "children": [
-                    "66 · abs(0 - 0) > 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "66"
-                    ]
-                  ],
-                  "children": [
-                    "67 · return 1 + max(0, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "67"
-                    ]
-                  ],
-                  "children": [
-                    "68 · left_height = 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "68"
-                    ]
-                  ],
-                  "children": [
-                    "69 · right_height = get_height_imbalance(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "69"
-                    ]
-                  ],
-                  "children": [
-                    "70 · if not node"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "70"
-                    ]
-                  ],
-                  "children": [
-                    "71 · return 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "71"
-                    ]
-                  ],
-                  "children": [
-                    "72 · right_height = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "72"
-                    ]
-                  ],
-                  "children": [
-                    "73 · 1 == -1 or 0 == -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "73"
-                    ]
-                  ],
-                  "children": [
-                    "74 · abs(1 - 0) > 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "74"
-                    ]
-                  ],
-                  "children": [
-                    "75 · return 1 + max(1, 0)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "75"
-                    ]
-                  ],
-                  "children": [
-                    "76 · right_height = 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "76"
-                    ]
-                  ],
-                  "children": [
-                    "77 · 0 == -1 or 2 == -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "77"
-                    ]
-                  ],
-                  "children": [
-                    "78 · abs(0 - 2) > 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "78"
-                    ]
-                  ],
-                  "children": [
-                    "79 · return -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "79"
-                    ]
-                  ],
-                  "children": [
-                    "80 · right_height = -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "80"
-                    ]
-                  ],
-                  "children": [
-                    "81 · 3 == -1 or -1 == -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "81"
-                    ]
-                  ],
-                  "children": [
-                    "82 · return -1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "82"
-                    ]
-                  ],
-                  "children": [
-                    "83 · return -1 != -1"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "nav",
-      "attributes": [
-        [
-          "aria-label",
-          "关键步骤"
-        ],
-        [
-          "class",
-          "tree-shortcuts"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "true"
-            ],
-            [
-              "data-landmark-step",
-              "0"
-            ]
-          ],
-          "children": [
-            "初始状态"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "8"
-            ]
-          ],
-          "children": [
-            "空子树返回"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "78"
-            ]
-          ],
-          "children": [
-            "发现失衡"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-current",
-              "false"
-            ],
-            [
-              "data-landmark-step",
-              "82"
-            ]
-          ],
-          "children": [
-            "最终结果"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "p",
-      "attributes": [
-        [
-          "class",
-          "step-meta"
-        ],
-        [
-          "data-phase",
-          ""
-        ]
-      ],
-      "children": [
-        "后序 · 子树先返回"
-      ]
-    },
     {
       "tag": "div",
       "attributes": [
@@ -1341,22 +26,6 @@
           "data-arrays",
           ""
         ]
-      ]
-    },
-    {
-      "tag": "p",
-      "attributes": [
-        [
-          "class",
-          "diagram-caption"
-        ],
-        [
-          "data-caption",
-          ""
-        ]
-      ],
-      "children": [
-        "节点下方 h 是已返回的高度；虚线箭头把返回值交给父调用。"
       ]
     },
     {
@@ -1402,7 +71,7 @@
                 ],
                 [
                   "viewBox",
-                  "0 0 731 496"
+                  "0 0 622 496"
                 ]
               ],
               "children": [
@@ -1480,7 +149,7 @@
                     ],
                     [
                       "d",
-                      "M353.5186951283406,81.5554465433476 L224.17278713271938,161.39405831634807"
+                      "M298.93913270180985,83.11284008216583 L195.7709461434802,159.69508354672817"
                     ],
                     [
                       "data-visual-element",
@@ -1501,7 +170,7 @@
                     ],
                     [
                       "d",
-                      "M390.96047153832603,81.5554465433476 L520.3063795339473,161.39405831634807"
+                      "M334.2692006315235,83.11284008216585 L437.43738718985315,159.69508354672817"
                     ],
                     [
                       "data-visual-element",
@@ -1522,7 +191,7 @@
                     ],
                     [
                       "d",
-                      "M185.24500288008073,185.89811252223558 L62.187269585366494,265.0202408848339"
+                      "M159.09599946579542,187.45736844280506 L60.98618240095049,263.31923442603085"
                     ],
                     [
                       "data-visual-element",
@@ -1543,7 +212,7 @@
                     ],
                     [
                       "d",
-                      "M222.25499711991932,185.89811252223558 L345.3127304146335,265.0202408848339"
+                      "M193.90400053420464,187.45736844280506 L292.0138175990495,263.31923442603085"
                     ],
                     [
                       "data-visual-element",
@@ -1564,7 +233,7 @@
                     ],
                     [
                       "d",
-                      "M558.7402526049318,186.63332036023886 L669.3515426128016,264.21819597064854"
+                      "M473.52458399800213,188.18498197330632 L561.6549992749067,262.52547421093857"
                     ],
                     [
                       "data-visual-element",
@@ -1585,7 +254,7 @@
                     ],
                     [
                       "d",
-                      "M347.4889140617348,290.6333203602388 L236.87762405386505,368.21819597064854"
+                      "M294.1837493353312,292.1849819733063 L206.05333405842663,366.52547421093857"
                     ],
                     [
                       "data-visual-element",
@@ -1606,7 +275,7 @@
                     ],
                     [
                       "d",
-                      "M670.9889140617348,290.6333203602388 L560.377624053865,368.21819597064854"
+                      "M563.1837493353312,292.1849819733063 L475.05333405842657,366.52547421093857"
                     ],
                     [
                       "data-visual-element",
@@ -1627,7 +296,7 @@
                     ],
                     [
                       "cx",
-                      "372.2395833333333"
+                      "316.6041666666667"
                     ],
                     [
                       "cy",
@@ -1652,7 +321,7 @@
                     ],
                     [
                       "x",
-                      "372.2395833333333"
+                      "316.6041666666667"
                     ],
                     [
                       "y",
@@ -1672,7 +341,7 @@
                     ],
                     [
                       "cx",
-                      "203.75000000000003"
+                      "176.50000000000003"
                     ],
                     [
                       "cy",
@@ -1697,7 +366,7 @@
                     ],
                     [
                       "x",
-                      "203.75000000000003"
+                      "176.50000000000003"
                     ],
                     [
                       "y",
@@ -1717,7 +386,7 @@
                     ],
                     [
                       "cx",
-                      "540.7291666666666"
+                      "456.7083333333333"
                     ],
                     [
                       "cy",
@@ -1742,7 +411,7 @@
                     ],
                     [
                       "x",
-                      "540.7291666666666"
+                      "456.7083333333333"
                     ],
                     [
                       "y",
@@ -1807,7 +476,7 @@
                     ],
                     [
                       "cx",
-                      "365.5"
+                      "311"
                     ],
                     [
                       "cy",
@@ -1832,7 +501,7 @@
                     ],
                     [
                       "x",
-                      "365.5"
+                      "311"
                     ],
                     [
                       "y",
@@ -1852,7 +521,7 @@
                     ],
                     [
                       "cx",
-                      "689"
+                      "580"
                     ],
                     [
                       "cy",
@@ -1877,7 +546,7 @@
                     ],
                     [
                       "x",
-                      "689"
+                      "580"
                     ],
                     [
                       "y",
@@ -1897,7 +566,7 @@
                     ],
                     [
                       "cx",
-                      "217.22916666666666"
+                      "187.70833333333334"
                     ],
                     [
                       "cy",
@@ -1922,7 +591,7 @@
                     ],
                     [
                       "x",
-                      "217.22916666666666"
+                      "187.70833333333334"
                     ],
                     [
                       "y",
@@ -1942,7 +611,7 @@
                     ],
                     [
                       "cx",
-                      "540.7291666666666"
+                      "456.7083333333333"
                     ],
                     [
                       "cy",
@@ -1967,7 +636,7 @@
                     ],
                     [
                       "x",
-                      "540.7291666666666"
+                      "456.7083333333333"
                     ],
                     [
                       "y",
@@ -1987,7 +656,7 @@
                     ],
                     [
                       "d",
-                      "M351.2395833333333,15 h42 v20 h-42 Z"
+                      "M295.6041666666667,15 h42 v20 h-42 Z"
                     ],
                     [
                       "data-visual-element",
@@ -2016,7 +685,7 @@
                     ],
                     [
                       "x",
-                      "372.2395833333333"
+                      "316.6041666666667"
                     ],
                     [
                       "y",
@@ -2036,7 +705,7 @@
                     ],
                     [
                       "d",
-                      "M372.2395833333333,35 L372.2395833333333,46"
+                      "M316.6041666666667,35 L316.6041666666667,46"
                     ],
                     [
                       "data-visual-element",
@@ -2050,6 +719,197 @@
                       "opacity",
                       "1"
                     ]
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "section",
+          "attributes": [
+            [
+              "aria-label",
+              "调用栈与当前局部变量"
+            ],
+            [
+              "class",
+              "av-tree-inspector"
+            ],
+            [
+              "data-tree-inspector",
+              ""
+            ]
+          ],
+          "children": [
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "av-tree-inspector-heading"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "h2",
+                  "children": [
+                    "调用栈与局部变量"
+                  ]
+                },
+                {
+                  "tag": "output",
+                  "attributes": [
+                    [
+                      "class",
+                      "av-tree-result"
+                    ]
+                  ],
+                  "children": [
+                    "尚未返回"
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "attributes": [
+                [
+                  "class",
+                  "av-tree-inspector-body"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "av-tree-stack"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "p",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-stack-label"
+                        ]
+                      ],
+                      "children": [
+                        "调用栈为空"
+                      ]
+                    },
+                    {
+                      "tag": "ol",
+                      "attributes": [
+                        [
+                          "aria-label",
+                          "调用栈，栈顶在上"
+                        ],
+                        [
+                          "class",
+                          "av-tree-call-path"
+                        ]
+                      ],
+                      "children": [
+                        {
+                          "tag": "li",
+                          "attributes": [
+                            [
+                              "aria-label",
+                              "，外层函数，没有活动调用"
+                            ],
+                            [
+                              "class",
+                              "av-tree-call"
+                            ],
+                            [
+                              "data-scope",
+                              "outer"
+                            ]
+                          ],
+                          "children": [
+                            {
+                              "tag": "small"
+                            },
+                            {
+                              "tag": "code",
+                              "children": [
+                                "外层函数"
+                              ]
+                            },
+                            {
+                              "tag": "span",
+                              "children": [
+                                "没有活动调用"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "attributes": [
+                    [
+                      "class",
+                      "av-tree-current"
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "h3",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-current-title"
+                        ]
+                      ],
+                      "children": [
+                        "外层函数"
+                      ]
+                    },
+                    {
+                      "tag": "code",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-reference"
+                        ]
+                      ],
+                      "children": [
+                        "get_height_imbalance(root) != -1"
+                      ]
+                    },
+                    {
+                      "tag": "dl",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-locals"
+                        ],
+                        [
+                          "hidden",
+                          ""
+                        ]
+                      ]
+                    },
+                    {
+                      "tag": "p",
+                      "attributes": [
+                        [
+                          "class",
+                          "av-tree-summary"
+                        ]
+                      ],
+                      "children": [
+                        "当前在外层函数中。"
+                      ]
+                    }
                   ]
                 }
               ]
@@ -2091,182 +951,6 @@
               ],
               "children": [
                 "检查整棵子树的返回值，不能只比较根的两个高度。"
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "execution-detail"
-            ],
-            [
-              "data-execution-detail",
-              ""
-            ],
-            [
-              "hidden",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "div",
-              "attributes": [
-                [
-                  "class",
-                  "call-handoff"
-                ],
-                [
-                  "data-handoff",
-                  ""
-                ],
-                [
-                  "hidden",
-                  ""
-                ]
-              ]
-            },
-            {
-              "tag": "div",
-              "attributes": [
-                [
-                  "class",
-                  "call-decision"
-                ],
-                [
-                  "data-decision",
-                  ""
-                ],
-                [
-                  "hidden",
-                  ""
-                ]
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "memory"
-            ],
-            [
-              "data-memory",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "h3",
-              "children": [
-                "调用栈 · 最后一个是栈顶"
-              ]
-            },
-            {
-              "tag": "div",
-              "attributes": [
-                [
-                  "class",
-                  "memory-items"
-                ],
-                [
-                  "data-memory-items",
-                  ""
-                ]
-              ],
-              "children": [
-                "∅"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "class",
-                  "memory-note"
-                ],
-                [
-                  "data-memory-note",
-                  ""
-                ]
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "state-grid"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "保持什么成立"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "data-invariant",
-                  ""
-                ]
-              ],
-              "children": [
-                "返回非负高度意味着整个子树平衡；返回 -1 意味着至少一处失衡，祖先必须继续返回 -1。"
-              ]
-            }
-          ]
-        },
-        {
-          "tag": "div",
-          "attributes": [
-            [
-              "class",
-              "invariant"
-            ]
-          ],
-          "children": [
-            {
-              "tag": "strong",
-              "children": [
-                "返回结果"
-              ]
-            },
-            {
-              "tag": "p",
-              "attributes": [
-                [
-                  "class",
-                  "result"
-                ],
-                [
-                  "data-result",
-                  ""
-                ]
-              ],
-              "children": [
-                "结果：尚未返回"
               ]
             }
           ]

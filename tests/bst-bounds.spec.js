@@ -59,9 +59,11 @@ test('equal-valued nodes remain distinguishable and empty/valid cases clear the 
   await expect(page.locator('[data-bst-condition]')).toContainText('空树通过验证');
 });
 
-test('range labels and complete source lines fit phone and desktop layouts', async ({page}) => {
-  for(const width of [320,1280]) {
+test('range labels and complete source lines fit desktop layouts', async ({page}) => {
+  for(const width of [1280]) {
     await page.setViewportSize({width,height:900});
+    await page.locator('[data-tree-history] > summary').click();
+    await expect(page.locator('.bst-range')).toBeVisible();
     for(const name of ['6 违反祖先上界','重复 7：等于边界','合法 BST','空树']) {
       await page.getByRole('button', {name,exact:true}).click();
       const count=await page.locator('[data-step-select] option').count();
@@ -74,7 +76,16 @@ test('range labels and complete source lines fit phone and desktop layouts', asy
             if(b.x<0||b.y<0||b.x+b.width>view.width||b.y+b.height>view.height)errors.push('range mark clipped');
           }
           const code=root.querySelector('[data-code-scroll]');
-          if(code.scrollWidth>code.clientWidth)errors.push('code needs horizontal scrolling');
+          if(code.scrollWidth>code.clientWidth) {
+            // Complete Python now scrolls inside the right-hand workbench.
+            // Verify that the far edge remains reachable, rather than requiring
+            // the full implementation to be shrunk to the column width.
+            if(!['auto','scroll'].includes(getComputedStyle(code).overflowX))errors.push('complete source cannot scroll horizontally');
+            const before=code.scrollLeft;
+            code.scrollLeft=code.scrollWidth;
+            if(code.scrollLeft+code.clientWidth<code.scrollWidth-1)errors.push('complete source far edge is unreachable');
+            code.scrollLeft=before;
+          }
           const active=code.querySelector('[aria-current="step"]'),a=active.getBoundingClientRect(),c=code.getBoundingClientRect();
           if(a.top<c.top-1||a.bottom>c.bottom+1)errors.push('active code line clipped');
           if(document.documentElement.scrollWidth>innerWidth)errors.push('page overflow');
@@ -86,48 +97,49 @@ test('range labels and complete source lines fit phone and desktop layouts', asy
   }
 });
 
-test('stepping keeps the entire tree and recursive stack together in a laptop viewport', async ({page}) => {
+test('stepping keeps the tree and current stack together with controls beneath code', async ({page}) => {
   for(const width of [800,1280,1440]) {
     await page.setViewportSize({width,height:720});
     await page.goto('/binary-search-tree-validation/#step=0');
     const count=await page.locator('[data-step-select] option').count();
     for(let step=0;step<count;step++) {
       await page.locator('[data-step-select]').selectOption(String(step));
-      const geometry=await page.locator('[data-animation-panel]').evaluate(panel=>{
-        const rect=selector=>panel.querySelector(selector).getBoundingClientRect();
-        const tree=rect('[data-stage]'),stack=rect('[data-memory]'),next=rect('[data-action="next"]');
+      const geometry=await page.locator('[data-learning-layout]').evaluate(layout=>{
+        const rect=selector=>layout.querySelector(selector).getBoundingClientRect();
+        const tree=rect('[data-stage]'),stack=rect('.av-tree-call-path'),next=rect('[data-action="next"]'),code=rect('[data-code-panel]');
         return {
-          parallel:stack.left>=tree.right,
-          treeVisible:tree.top>=next.bottom&&tree.bottom<=innerHeight,
-          stackVisible:stack.top>=next.bottom&&stack.bottom<=innerHeight,
+          stackBelowTree:stack.top>=tree.bottom,
+          treeVisible:tree.top>=0&&tree.bottom<=innerHeight,
+          stackVisible:stack.top>=0&&stack.bottom<=innerHeight,
+          controlsBesideTree:next.left>=tree.right,
+          controlsBelowCode:next.top>=code.bottom,
           controlsVisible:next.top>=0&&next.bottom<=innerHeight
         };
       });
       expect(geometry,`${width}px, step ${step}`).toEqual({
-        parallel:true,treeVisible:true,stackVisible:true,controlsVisible:true
+        stackBelowTree:true,treeVisible:true,stackVisible:true,controlsBesideTree:true,controlsBelowCode:true,controlsVisible:true
       });
+      const calls=await page.locator('.call-frame').count();
+      await expect(page.locator('.av-tree-call')).toHaveCount(Math.max(1,calls));
     }
   }
 });
 
-test('the return destination remains beside the tree and mobile controls stay reachable', async ({page}) => {
+test('the return destination stays visible while full history can be expanded', async ({page}) => {
   await page.setViewportSize({width:1280,height:720});
   await page.locator('[data-step-select]').selectOption('11');
   await expect(page.locator('.call-frame')).toHaveCount(4);
   await expect(page.locator('.call-frame.current > div')).toHaveText('node → None');
   await expect(page.locator('.handoff-source')).toHaveText('回到第 17 行 · 检查左子树');
-  expect(await page.locator('[data-handoff]').evaluate(el=>el.getBoundingClientRect().bottom<=innerHeight)).toBe(true);
+  await expect(page.locator('.av-tree-summary')).toContainText('return True → 第 3 层（待接收）');
+  await expect(page.locator('.av-tree-summary')).toBeInViewport({ratio:1});
+  const history=page.locator('[data-tree-history]');
+  await expect(history).not.toHaveAttribute('open','');
+  await history.locator('summary').click();
+  await expect(page.locator('[data-handoff]')).toBeVisible();
   await page.locator('[data-action="next"]').click();
   await expect(page.locator('.call-frame')).toHaveCount(3);
   await expect(page.locator('.call-frame.current > div')).toHaveText('node → 1');
   await page.locator('[data-action="previous"]').click();
   await expect(page.locator('.call-frame')).toHaveCount(4);
-  await page.setViewportSize({width:390,height:844});
-  await page.locator('.call-frame.current').scrollIntoViewIfNeeded();
-  expect(await page.locator('[data-action="next"]').evaluate(el=> {
-    const b=el.getBoundingClientRect();
-    return b.top>=0&&b.bottom<=innerHeight;
-  })).toBe(true);
-  await page.locator('[data-action="next"]').click();
-  await expect(page.locator('.call-frame.current > div')).toHaveText('node → 1');
 });

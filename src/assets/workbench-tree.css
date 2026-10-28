@@ -1,0 +1,79 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: brand · redesign: full
+ * screen: recorded recursive tree execution · signature: top-first calls with actual locals
+ * states: outer call, recurse, pending return, receive, completed · copy: verbatim · v2.0.0 */
+/* Hallmark · pre-emit critique: preserve original detailed memory and isolate current state without inventing trace values. */
+
+/* Inversion's explicit stack shares the narrow animation column with its tree. */
+.av-study .tree-lesson:has([data-return-flow]) .diagram-workspace { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-sm); }
+.av-study .tree-lesson:has([data-return-flow]):not(.av-recursion) .memory-items { min-height: 0; padding-left: 0; }
+.av-recursion .diagram-workspace { display: flex !important; flex-direction: column; align-items: stretch !important; gap: var(--space-xs) !important; min-width: 0; }
+.av-recursion .diagram-workspace > :is(.bst-tree-column, div:has(> [data-stage])) { min-width: 0; }
+.av-recursion .bst-stack-column { display: none; }
+.av-recursion .stage { height: 320px !important; min-height: 0; flex: none; }
+.av-recursion .stage svg text:not(.annotation) { font: 23px var(--font-body); }
+.av-recursion .stage svg .annotation { font: 18px var(--font-outlier); }
+.av-recursion .stage svg .scoped-reference { font-size: 12px; }
+.av-recursion .av-tree-inspector { flex: none; min-width: 0; border-top: 1px solid var(--color-rule); }
+.av-recursion .av-tree-inspector-heading { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-sm); padding: var(--space-xs) 0; }
+.av-recursion .av-tree-inspector-heading h2 { text-wrap: balance; margin: 0; flex: none; font: 500 14px/1.5 var(--font-body); }
+.av-recursion .av-tree-result { min-width: 0; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; font: 12px/1.5 var(--font-outlier); color: var(--color-muted); }
+.av-recursion .av-tree-inspector-body { display: grid; grid-template-columns: minmax(136px,.85fr) minmax(0,1.15fr); gap: var(--space-md); min-height: 162px; }
+.av-recursion :is(.av-tree-stack, .av-tree-current) { min-width: 0; }
+.av-recursion .av-tree-stack-label { margin: 0 0 var(--space-2xs); font: 12px/1.5 var(--font-body); color: var(--color-muted); }
+.av-recursion .av-tree-call-path { display: flex; flex-direction: column; gap: var(--space-2xs); list-style: none; margin: 0; padding: 0; max-height: 190px; overflow: auto; scrollbar-width: thin; }
+.av-recursion .av-tree-call { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 0 var(--space-xs); align-items: center; padding: var(--space-2xs) var(--space-xs); border-left: 2px solid var(--color-rule); color: var(--color-muted); }
+.av-recursion .av-tree-call small { grid-column: 1 / -1; font: 10px/1.35 var(--font-body); }
+.av-recursion .av-tree-call code { font: 12px/1.5 var(--font-outlier); overflow-wrap: anywhere; }
+.av-recursion .av-tree-call span { font: 11px/1.5 var(--font-body); white-space: nowrap; }
+.av-recursion .av-tree-call[data-current] { border-left-color: var(--color-accent); background: var(--color-accent-soft); color: var(--color-accent); }
+.av-recursion .av-tree-call[data-recipient] { border-left-style: dashed; border-left-color: var(--color-field-edge); color: var(--color-ink); }
+.av-recursion .av-tree-call.is-entering { animation: av-tree-call-enter var(--dur-short) var(--ease-out); }
+.av-recursion .av-tree-current-title { margin: 0; font: 500 14px/1.5 var(--font-body); }
+.av-recursion .av-tree-reference { display: block; margin: var(--space-2xs) 0 var(--space-xs); font: 12px/1.5 var(--font-outlier); overflow-wrap: anywhere; }
+.av-recursion .av-tree-locals { margin: 0; }
+.av-recursion .av-tree-local { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: var(--space-xs); padding: var(--space-2xs) 0; border-top: 1px solid var(--color-rule); font: 12px/1.5 var(--font-outlier); }
+.av-recursion .av-tree-local dt { overflow-wrap: anywhere; }
+.av-recursion .av-tree-local dd { margin: 0; }
+.av-recursion .av-tree-local[data-value="未赋值"] { color: var(--color-muted); }
+.av-recursion .av-tree-local[data-received] dd { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
+.av-recursion .av-tree-summary { margin: var(--space-xs) 0 0; font: 12px/1.5 var(--font-body); color: var(--color-muted); overflow-wrap: anywhere; }
+.av-tree-history { margin: 20px 0 0; padding: var(--space-sm) 0; border-block: 1px solid var(--color-rule); }
+.av-tree-history > summary { width: fit-content; padding: var(--space-2xs) 0; font: 13px/1.5 var(--font-body); color: var(--color-muted); cursor: pointer; }
+.av-tree-history > summary:hover { color: var(--color-ink); }
+.av-tree-history > summary:active { color: var(--color-accent); }
+.av-tree-history > summary:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.av-tree-history[open] > summary { margin-bottom: var(--space-sm); color: var(--color-ink); }
+.av-recursion .av-tree-history :is(.memory, .execution-detail, .state-grid, .bst-bounds, .return-flow) { margin-block: var(--space-sm); }
+.av-recursion .av-tree-history .memory-items { min-height: 0 !important; }
+.av-recursion .av-tree-history .call-handoff p { display: block; }
+.av-recursion .av-tree-mapping > [data-memory] { margin: 0; }
+.av-recursion .av-tree-mapping > [data-memory] .memory-items { grid-template-columns: repeat(auto-fit, minmax(70px,1fr)); }
+.av-recursion [data-arrays]:not(:empty) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-sm); margin-top: 0; }
+.av-recursion [data-arrays] .array-row { min-width: 0; margin-top: 0; }
+.av-recursion [data-arrays] .array-row p { font: 11px/1.5 var(--font-outlier); }
+.av-recursion [data-arrays] .array-cell { flex: 1 1 0; min-width: 0; padding: var(--space-2xs) 1px; font: 11px/1.5 var(--font-outlier); }
+.av-recursion [data-arrays] .array-cell.cursor { padding: calc(var(--space-2xs) - 1px) 0; }
+.av-recursion [data-arrays] .array-end { min-width: 24px; padding: var(--space-2xs) 0; font-size: 10px; }
+.av-recursion:has([data-arrays] .array-row) .stage { height: 240px !important; }
+.av-tree-inspector[hidden], .av-tree-history[hidden], .av-tree-locals[hidden], .av-tree-summary[hidden] { display: none; }
+
+/* Bounded desktop workspaces use the same two-part inspector at a closer pitch. */
+@media (max-width: 1100px), (max-height: 820px) {
+  .av-recursion .stage { height: 240px !important; }
+  .av-recursion:has([data-arrays] .array-row) .stage { height: 200px !important; }
+  .av-study .av-recursion .av-animation .operation { padding: var(--space-xs); }
+  .av-recursion .av-tree-inspector-heading { padding-block: var(--space-xs); gap: var(--space-xs); }
+  .av-recursion .av-tree-inspector-heading h2 { font-size: 13px; }
+  .av-recursion .av-tree-result { font-size: 11px; }
+  .av-recursion .av-tree-inspector-body { grid-template-columns: minmax(120px,.9fr) minmax(0,1.1fr); gap: var(--space-xs); min-height: 138px; }
+  .av-recursion .av-tree-call-path { max-height: 140px; gap: var(--space-3xs); }
+  .av-recursion .av-tree-call { padding: var(--space-2xs); gap: 0 var(--space-2xs); }
+  .av-recursion .av-tree-call code { font-size: 11px; }
+  .av-recursion .av-tree-call span { font-size: 10px; }
+  .av-recursion .av-tree-current-title { font-size: 13px; }
+  .av-recursion .av-tree-reference { margin-block: var(--space-3xs) var(--space-2xs); font-size: 11px; }
+  .av-recursion .av-tree-local { padding-block: var(--space-2xs); font-size: 11px; }
+  .av-recursion .av-tree-summary { font-size: 11px; margin-top: var(--space-2xs); }
+}
+@keyframes av-tree-call-enter { from { opacity: .4; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .av-recursion .av-tree-call.is-entering { animation: none; } }

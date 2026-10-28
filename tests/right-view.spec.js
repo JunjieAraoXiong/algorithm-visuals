@@ -42,8 +42,8 @@ test('layer shortcuts preserve the queue boundary and restore the right-view res
   await expect(page.locator('[data-result]')).toHaveText('[]');
 });
 
-test('the drawing remains readable at 320px in both themes', async ({page}) => {
-  await page.setViewportSize({width:320,height:844});
+test('the drawing remains readable on desktop in both themes', async ({page}) => {
+  await page.setViewportSize({width:1280,height:900});
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.goto('/rightmost-nodes-of-a-binary-tree/#step=0');
   for (const iteration of [0,1]) {

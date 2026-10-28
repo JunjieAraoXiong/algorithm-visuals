@@ -7,7 +7,7 @@
     ],
     [
       "class",
-      "animation-panel"
+      "animation-panel av-animation"
     ],
     [
       "data-animation-panel",
@@ -15,467 +15,6 @@
     ]
   ],
   "children": [
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "aria-label",
-          "Choose an example / 选择例子"
-        ],
-        [
-          "class",
-          "examples"
-        ],
-        [
-          "role",
-          "group"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "true"
-            ],
-            [
-              "class",
-              "example"
-            ],
-            [
-              "data-example",
-              "delayed"
-            ]
-          ],
-          "children": [
-            "Delayed cycle / 延迟入环"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "class",
-              "example"
-            ],
-            [
-              "data-example",
-              "perfect"
-            ]
-          ],
-          "children": [
-            "Perfect cycle / 完整环"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "class",
-              "example"
-            ],
-            [
-              "data-example",
-              "noneEven"
-            ]
-          ],
-          "children": [
-            "No cycle · even / 无环偶数"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "aria-pressed",
-              "false"
-            ],
-            [
-              "class",
-              "example"
-            ],
-            [
-              "data-example",
-              "noneOdd"
-            ]
-          ],
-          "children": [
-            "No cycle · odd / 无环奇数"
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "aria-label",
-          "Animation controls / 演示控制"
-        ],
-        [
-          "class",
-          "controls"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "previous"
-            ],
-            [
-              "disabled",
-              ""
-            ]
-          ],
-          "children": [
-            "← 上一步"
-          ]
-        },
-        {
-          "tag": "output",
-          "attributes": [
-            [
-              "class",
-              "step-count"
-            ],
-            [
-              "data-count",
-              ""
-            ]
-          ],
-          "children": [
-            "步骤 1 / 22"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "next"
-            ]
-          ],
-          "children": [
-            "下一步 →"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "copy-link"
-            ]
-          ],
-          "children": [
-            "复制本步骤链接"
-          ]
-        },
-        {
-          "tag": "label",
-          "attributes": [
-            [
-              "class",
-              "jump-label"
-            ]
-          ],
-          "children": [
-            "跳到步骤"
-          ]
-        },
-        {
-          "tag": "select",
-          "attributes": [
-            [
-              "aria-label",
-              "跳到步骤"
-            ],
-            [
-              "data-step-select",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "0"
-                ]
-              ],
-              "children": [
-                "步骤 1 · slow = fast = head"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "1"
-                ]
-              ],
-              "children": [
-                "步骤 2 · while fast and fast.next:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "2"
-                ]
-              ],
-              "children": [
-                "步骤 3 · slow = slow.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "3"
-                ]
-              ],
-              "children": [
-                "步骤 4 · fast = fast.next.next · hop 1 / 第 1 跳"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "4"
-                ]
-              ],
-              "children": [
-                "步骤 5 · fast = fast.next.next · hop 2 / 第 2 跳"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "5"
-                ]
-              ],
-              "children": [
-                "步骤 6 · if fast == slow:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "6"
-                ]
-              ],
-              "children": [
-                "步骤 7 · while fast and fast.next:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "7"
-                ]
-              ],
-              "children": [
-                "步骤 8 · slow = slow.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "8"
-                ]
-              ],
-              "children": [
-                "步骤 9 · fast = fast.next.next · hop 1 / 第 1 跳"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "9"
-                ]
-              ],
-              "children": [
-                "步骤 10 · fast = fast.next.next · hop 2 / 第 2 跳"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "10"
-                ]
-              ],
-              "children": [
-                "步骤 11 · if fast == slow:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "11"
-                ]
-              ],
-              "children": [
-                "步骤 12 · while fast and fast.next:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "12"
-                ]
-              ],
-              "children": [
-                "步骤 13 · slow = slow.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "13"
-                ]
-              ],
-              "children": [
-                "步骤 14 · fast = fast.next.next · hop 1 / 第 1 跳"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "14"
-                ]
-              ],
-              "children": [
-                "步骤 15 · fast = fast.next.next · hop 2 / 第 2 跳"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "15"
-                ]
-              ],
-              "children": [
-                "步骤 16 · if fast == slow:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "16"
-                ]
-              ],
-              "children": [
-                "步骤 17 · while fast and fast.next:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "17"
-                ]
-              ],
-              "children": [
-                "步骤 18 · slow = slow.next"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "18"
-                ]
-              ],
-              "children": [
-                "步骤 19 · fast = fast.next.next · hop 1 / 第 1 跳"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "19"
-                ]
-              ],
-              "children": [
-                "步骤 20 · fast = fast.next.next · hop 2 / 第 2 跳"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "20"
-                ]
-              ],
-              "children": [
-                "步骤 21 · if fast == slow:"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "21"
-                ]
-              ],
-              "children": [
-                "步骤 22 · return True"
-              ]
-            }
-          ]
-        }
-      ]
-    },
     {
       "tag": "div",
       "attributes": [
@@ -567,7 +106,7 @@
             ],
             [
               "viewBox",
-              "0 0 781 409"
+              "0 0 622 409"
             ]
           ],
           "children": [
@@ -629,7 +168,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 288.59000000000003 48 H 632.99 Q 656.99 48 656.99 72 V 336 Q 656.99 360 632.99 360 H 288.59000000000003 Q 264.59000000000003 360 264.59000000000003 336 V 72 Q 264.59000000000003 48 288.59000000000003 48"
+                  "M 226.58 48 H 507.38 Q 531.38 48 531.38 72 V 336 Q 531.38 360 507.38 360 H 226.58 Q 202.58 360 202.58 336 V 72 Q 202.58 48 226.58 48"
                 ],
                 [
                   "data-visual-element",
@@ -666,7 +205,7 @@
                 ],
                 [
                   "x",
-                  "270.59000000000003"
+                  "208.58"
                 ],
                 [
                   "y",
@@ -682,7 +221,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 77.67 205 L 145.82 205"
+                  "M 66.54 205 L 110.84 205"
                 ],
                 [
                   "data-visual-element",
@@ -719,7 +258,7 @@
                 ],
                 [
                   "x",
-                  "113.245"
+                  "90.19"
                 ],
                 [
                   "y",
@@ -735,7 +274,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 194.82 205 L 278.59000000000003 205"
+                  "M 159.84 205 L 216.58 205"
                 ],
                 [
                   "data-visual-element",
@@ -772,7 +311,7 @@
                 ],
                 [
                   "x",
-                  "238.205"
+                  "189.71"
                 ],
                 [
                   "y",
@@ -788,7 +327,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 322.29766475920246 190.32217288643508 L 432.96263983742335 98.59232630229077"
+                  "M 258.5152476297975 188.41482942574805 L 342.7462418097941 100.74845369263264"
                 ],
                 [
                   "data-visual-element",
@@ -825,11 +364,11 @@
                 ],
                 [
                   "x",
-                  "385.1666639624195"
+                  "308.88094372793563"
                 ],
                 [
                   "y",
-                  "151.1989846779141"
+                  "150.42836853469458"
                 ]
               ],
               "children": [
@@ -841,7 +380,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 471.380403878797 95.7994614785198 L 596.1895434413599 189.4006087634124"
+                  "M 377.50453474228914 97.76770611928926 L 472.45139550871664 187.17563656080344"
                 ],
                 [
                   "data-visual-element",
@@ -878,11 +417,11 @@
                 ],
                 [
                   "x",
-                  "528.985234139774"
+                  "419.214475600309"
                 ],
                 [
                   "y",
-                  "151.50017559947696"
+                  "150.78023249664744"
                 ]
               ],
               "children": [
@@ -894,7 +433,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 598.4818310895481 218.65458470925358 L 473.9022778987717 310.56438250258293"
+                  "M 474.50708255079195 220.63024813469738 L 379.83373276866996 308.3310238477334"
                 ],
                 [
                   "data-visual-element",
@@ -931,11 +470,11 @@
                 ],
                 [
                   "x",
-                  "529.048224039455"
+                  "419.2742399414359"
                 ],
                 [
                   "y",
-                  "257.4529700389339"
+                  "258.16394893512694"
                 ]
               ],
               "children": [
@@ -947,7 +486,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 435.1548688706895 311.46505245200774 L 324.74014823313365 221.43081027164342"
+                  "M 344.68941174246436 309.5459368830444 L 260.74675194330115 223.60024526264544"
                 ],
                 [
                   "data-visual-element",
@@ -984,11 +523,11 @@
                 ],
                 [
                   "x",
-                  "385.10454241217053"
+                  "308.8239404856329"
                 ],
                 [
                   "y",
-                  "257.7499429872563"
+                  "258.51278771411495"
                 ]
               ],
               "children": [
@@ -1008,7 +547,7 @@
                 ],
                 [
                   "x",
-                  "304.59000000000003"
+                  "242.58"
                 ],
                 [
                   "y",
@@ -1032,7 +571,7 @@
                 ],
                 [
                   "x",
-                  "304.59000000000003"
+                  "242.58"
                 ],
                 [
                   "y",
@@ -1048,7 +587,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 54.67 161 L 54.67 180"
+                  "M 43.540000000000006 161 L 43.540000000000006 180"
                 ],
                 [
                   "data-visual-element",
@@ -1077,7 +616,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 54.67 249 L 54.67 230"
+                  "M 43.540000000000006 249 L 43.540000000000006 230"
                 ],
                 [
                   "data-visual-element",
@@ -1148,7 +687,7 @@
             ],
             [
               "style",
-              "--visual-x: 54.67px; --visual-y: 147px;"
+              "--visual-x: 43.540000000000006px; --visual-y: 147px;"
             ]
           ],
           "children": [
@@ -1172,7 +711,7 @@
             ],
             [
               "style",
-              "--visual-x: 54.67px; --visual-y: 263px;"
+              "--visual-x: 43.540000000000006px; --visual-y: 263px;"
             ]
           ],
           "children": [
@@ -1200,7 +739,7 @@
             ],
             [
               "style",
-              "--visual-x: 54.67px; --visual-y: 205px;"
+              "--visual-x: 43.540000000000006px; --visual-y: 205px;"
             ]
           ],
           "children": [
@@ -1228,7 +767,7 @@
             ],
             [
               "style",
-              "--visual-x: 171.82px; --visual-y: 205px;"
+              "--visual-x: 136.84px; --visual-y: 205px;"
             ]
           ],
           "children": [
@@ -1256,7 +795,7 @@
             ],
             [
               "style",
-              "--visual-x: 304.59000000000003px; --visual-y: 205px;"
+              "--visual-x: 242.58px; --visual-y: 205px;"
             ]
           ],
           "children": [
@@ -1284,7 +823,7 @@
             ],
             [
               "style",
-              "--visual-x: 452.97999999999996px; --visual-y: 82px;"
+              "--visual-x: 360.76px; --visual-y: 82px;"
             ]
           ],
           "children": [
@@ -1312,7 +851,7 @@
             ],
             [
               "style",
-              "--visual-x: 616.99px; --visual-y: 205px;"
+              "--visual-x: 491.38px; --visual-y: 205px;"
             ]
           ],
           "children": [
@@ -1340,7 +879,7 @@
             ],
             [
               "style",
-              "--visual-x: 452.97999999999996px; --visual-y: 326px;"
+              "--visual-x: 360.76px; --visual-y: 326px;"
             ]
           ],
           "children": [

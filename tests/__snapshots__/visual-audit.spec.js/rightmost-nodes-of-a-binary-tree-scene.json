@@ -7,7 +7,7 @@
     ],
     [
       "class",
-      "animation-panel"
+      "animation-panel av-animation"
     ],
     [
       "data-animation-panel",
@@ -15,987 +15,6 @@
     ]
   ],
   "children": [
-    {
-      "tag": "label",
-      "attributes": [
-        [
-          "class",
-          "settings"
-        ]
-      ],
-      "children": [
-        "示例",
-        {
-          "tag": "select",
-          "attributes": [
-            [
-              "aria-label",
-              "右视图示例"
-            ],
-            [
-              "data-case",
-              ""
-            ]
-          ],
-          "children": [
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "original"
-                ]
-              ],
-              "children": [
-                "原图：最深层的 11 来自左子树"
-              ]
-            },
-            {
-              "tag": "option",
-              "attributes": [
-                [
-                  "value",
-                  "empty"
-                ]
-              ],
-              "children": [
-                "空树"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "controls"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "previous"
-            ],
-            [
-              "disabled",
-              ""
-            ]
-          ],
-          "children": [
-            "← 上一步"
-          ]
-        },
-        {
-          "tag": "output",
-          "attributes": [
-            [
-              "data-count",
-              ""
-            ]
-          ],
-          "children": [
-            "步骤 1 / 70"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "next"
-            ]
-          ],
-          "children": [
-            "下一步 →"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "copy-link"
-            ]
-          ],
-          "children": [
-            "复制本步骤链接"
-          ]
-        },
-        {
-          "tag": "label",
-          "attributes": [
-            [
-              "class",
-              "step-picker"
-            ]
-          ],
-          "children": [
-            "跳到步骤",
-            {
-              "tag": "select",
-              "attributes": [
-                [
-                  "aria-label",
-                  "跳到步骤"
-                ],
-                [
-                  "data-step-select",
-                  ""
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "0"
-                    ]
-                  ],
-                  "children": [
-                    "1 · if not root"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "1"
-                    ]
-                  ],
-                  "children": [
-                    "2 · res = []"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "2"
-                    ]
-                  ],
-                  "children": [
-                    "3 · queue = deque([root])"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "3"
-                    ]
-                  ],
-                  "children": [
-                    "4 · while queue"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "4"
-                    ]
-                  ],
-                  "children": [
-                    "5 · level_size = 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "5"
-                    ]
-                  ],
-                  "children": [
-                    "6 · for i in range(1) · i=0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "6"
-                    ]
-                  ],
-                  "children": [
-                    "7 · node = queue.popleft()"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "7"
-                    ]
-                  ],
-                  "children": [
-                    "8 · if node.left"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "8"
-                    ]
-                  ],
-                  "children": [
-                    "9 · queue.append(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "9"
-                    ]
-                  ],
-                  "children": [
-                    "10 · if node.right"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "10"
-                    ]
-                  ],
-                  "children": [
-                    "11 · queue.append(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "11"
-                    ]
-                  ],
-                  "children": [
-                    "12 · 0 == 1 - 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "12"
-                    ]
-                  ],
-                  "children": [
-                    "13 · res.append(node.val)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "13"
-                    ]
-                  ],
-                  "children": [
-                    "14 · while queue"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "14"
-                    ]
-                  ],
-                  "children": [
-                    "15 · level_size = 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "15"
-                    ]
-                  ],
-                  "children": [
-                    "16 · for i in range(2) · i=0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "16"
-                    ]
-                  ],
-                  "children": [
-                    "17 · node = queue.popleft()"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "17"
-                    ]
-                  ],
-                  "children": [
-                    "18 · if node.left"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "18"
-                    ]
-                  ],
-                  "children": [
-                    "19 · queue.append(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "19"
-                    ]
-                  ],
-                  "children": [
-                    "20 · if node.right"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "20"
-                    ]
-                  ],
-                  "children": [
-                    "21 · queue.append(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "21"
-                    ]
-                  ],
-                  "children": [
-                    "22 · 0 == 2 - 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "22"
-                    ]
-                  ],
-                  "children": [
-                    "23 · for i in range(2) · i=1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "23"
-                    ]
-                  ],
-                  "children": [
-                    "24 · node = queue.popleft()"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "24"
-                    ]
-                  ],
-                  "children": [
-                    "25 · if node.left"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "25"
-                    ]
-                  ],
-                  "children": [
-                    "26 · queue.append(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "26"
-                    ]
-                  ],
-                  "children": [
-                    "27 · if node.right"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "27"
-                    ]
-                  ],
-                  "children": [
-                    "28 · 1 == 2 - 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "28"
-                    ]
-                  ],
-                  "children": [
-                    "29 · res.append(node.val)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "29"
-                    ]
-                  ],
-                  "children": [
-                    "30 · while queue"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "30"
-                    ]
-                  ],
-                  "children": [
-                    "31 · level_size = 3"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "31"
-                    ]
-                  ],
-                  "children": [
-                    "32 · for i in range(3) · i=0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "32"
-                    ]
-                  ],
-                  "children": [
-                    "33 · node = queue.popleft()"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "33"
-                    ]
-                  ],
-                  "children": [
-                    "34 · if node.left"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "34"
-                    ]
-                  ],
-                  "children": [
-                    "35 · queue.append(node.left)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "35"
-                    ]
-                  ],
-                  "children": [
-                    "36 · if node.right"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "36"
-                    ]
-                  ],
-                  "children": [
-                    "37 · queue.append(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "37"
-                    ]
-                  ],
-                  "children": [
-                    "38 · 0 == 3 - 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "38"
-                    ]
-                  ],
-                  "children": [
-                    "39 · for i in range(3) · i=1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "39"
-                    ]
-                  ],
-                  "children": [
-                    "40 · node = queue.popleft()"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "40"
-                    ]
-                  ],
-                  "children": [
-                    "41 · if node.left"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "41"
-                    ]
-                  ],
-                  "children": [
-                    "42 · if node.right"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "42"
-                    ]
-                  ],
-                  "children": [
-                    "43 · queue.append(node.right)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "43"
-                    ]
-                  ],
-                  "children": [
-                    "44 · 1 == 3 - 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "44"
-                    ]
-                  ],
-                  "children": [
-                    "45 · for i in range(3) · i=2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "45"
-                    ]
-                  ],
-                  "children": [
-                    "46 · node = queue.popleft()"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "46"
-                    ]
-                  ],
-                  "children": [
-                    "47 · if node.left"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "47"
-                    ]
-                  ],
-                  "children": [
-                    "48 · if node.right"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "48"
-                    ]
-                  ],
-                  "children": [
-                    "49 · 2 == 3 - 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "49"
-                    ]
-                  ],
-                  "children": [
-                    "50 · res.append(node.val)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "50"
-                    ]
-                  ],
-                  "children": [
-                    "51 · while queue"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "51"
-                    ]
-                  ],
-                  "children": [
-                    "52 · level_size = 3"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "52"
-                    ]
-                  ],
-                  "children": [
-                    "53 · for i in range(3) · i=0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "53"
-                    ]
-                  ],
-                  "children": [
-                    "54 · node = queue.popleft()"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "54"
-                    ]
-                  ],
-                  "children": [
-                    "55 · if node.left"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "55"
-                    ]
-                  ],
-                  "children": [
-                    "56 · if node.right"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "56"
-                    ]
-                  ],
-                  "children": [
-                    "57 · 0 == 3 - 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "57"
-                    ]
-                  ],
-                  "children": [
-                    "58 · for i in range(3) · i=1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "58"
-                    ]
-                  ],
-                  "children": [
-                    "59 · node = queue.popleft()"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "59"
-                    ]
-                  ],
-                  "children": [
-                    "60 · if node.left"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "60"
-                    ]
-                  ],
-                  "children": [
-                    "61 · if node.right"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "61"
-                    ]
-                  ],
-                  "children": [
-                    "62 · 1 == 3 - 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "62"
-                    ]
-                  ],
-                  "children": [
-                    "63 · for i in range(3) · i=2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "63"
-                    ]
-                  ],
-                  "children": [
-                    "64 · node = queue.popleft()"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "64"
-                    ]
-                  ],
-                  "children": [
-                    "65 · if node.left"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "65"
-                    ]
-                  ],
-                  "children": [
-                    "66 · if node.right"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "66"
-                    ]
-                  ],
-                  "children": [
-                    "67 · 2 == 3 - 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "67"
-                    ]
-                  ],
-                  "children": [
-                    "68 · res.append(node.val)"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "68"
-                    ]
-                  ],
-                  "children": [
-                    "69 · while queue"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "69"
-                    ]
-                  ],
-                  "children": [
-                    "70 · return res"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
     {
       "tag": "nav",
       "attributes": [
@@ -1123,7 +142,7 @@
             ],
             [
               "viewBox",
-              "0 0 731 360"
+              "0 0 622 360"
             ]
           ],
           "children": [
@@ -1201,7 +220,7 @@
                 ],
                 [
                   "d",
-                  "M2,47 H729 v55 H2 Z"
+                  "M2,47 H620 v55 H2 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1250,7 +269,7 @@
                 ],
                 [
                   "x",
-                  "282.6"
+                  "239"
                 ],
                 [
                   "y",
@@ -1274,7 +293,7 @@
                 ],
                 [
                   "x",
-                  "729"
+                  "620"
                 ],
                 [
                   "y",
@@ -1294,7 +313,7 @@
                 ],
                 [
                   "d",
-                  "M35,104 H728"
+                  "M35,104 H619"
                 ],
                 [
                   "data-visual-element",
@@ -1335,7 +354,7 @@
                 ],
                 [
                   "d",
-                  "M687,72 H455.35"
+                  "M578,72 H384.5"
                 ],
                 [
                   "data-visual-element",
@@ -1356,7 +375,7 @@
                 ],
                 [
                   "d",
-                  "M689,55 h34 v34 h-34 Z"
+                  "M580,55 h34 v34 h-34 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1377,7 +396,7 @@
                 ],
                 [
                   "x",
-                  "706"
+                  "597"
                 ],
                 [
                   "y",
@@ -1397,7 +416,7 @@
                 ],
                 [
                   "d",
-                  "M35,182 H728"
+                  "M35,182 H619"
                 ],
                 [
                   "data-visual-element",
@@ -1438,7 +457,7 @@
                 ],
                 [
                   "d",
-                  "M687,150 H623.07"
+                  "M578,150 H521.7"
                 ],
                 [
                   "data-visual-element",
@@ -1459,7 +478,7 @@
                 ],
                 [
                   "d",
-                  "M689,133 h34 v34 h-34 Z"
+                  "M580,133 h34 v34 h-34 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1480,7 +499,7 @@
                 ],
                 [
                   "x",
-                  "706"
+                  "597"
                 ],
                 [
                   "y",
@@ -1500,7 +519,7 @@
                 ],
                 [
                   "d",
-                  "M35,260 H728"
+                  "M35,260 H619"
                 ],
                 [
                   "data-visual-element",
@@ -1541,7 +560,7 @@
                 ],
                 [
                   "d",
-                  "M687,228 H575.15"
+                  "M578,228 H482.5"
                 ],
                 [
                   "data-visual-element",
@@ -1562,7 +581,7 @@
                 ],
                 [
                   "d",
-                  "M689,211 h34 v34 h-34 Z"
+                  "M580,211 h34 v34 h-34 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1583,7 +602,7 @@
                 ],
                 [
                   "x",
-                  "706"
+                  "597"
                 ],
                 [
                   "y",
@@ -1603,7 +622,7 @@
                 ],
                 [
                   "d",
-                  "M35,338 H728"
+                  "M35,338 H619"
                 ],
                 [
                   "data-visual-element",
@@ -1644,7 +663,7 @@
                 ],
                 [
                   "d",
-                  "M687,306 H437.38"
+                  "M578,306 H369.8"
                 ],
                 [
                   "data-visual-element",
@@ -1665,7 +684,7 @@
                 ],
                 [
                   "d",
-                  "M689,289 h34 v34 h-34 Z"
+                  "M580,289 h34 v34 h-34 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1686,7 +705,7 @@
                 ],
                 [
                   "x",
-                  "706"
+                  "597"
                 ],
                 [
                   "y",
@@ -1706,7 +725,7 @@
                 ],
                 [
                   "d",
-                  "M416.676611596962,78.58368407257775 L265.09928047416236,142.25448932637912"
+                  "M346.3772513527093,79.76546671816111 L227.3914689968126,140.8641568021634"
                 ],
                 [
                   "data-visual-element",
@@ -1727,7 +746,7 @@
                 ],
                 [
                   "d",
-                  "M447.7645858106311,79.16871984992382 L581.9351931639635,141.5662119412661"
+                  "M376.2786580023674,80.40186096344503 L481.3133435266266,140.11545769006466"
                 ],
                 [
                   "data-visual-element",
@@ -1748,7 +767,7 @@
                 ],
                 [
                   "d",
-                  "M233.4748193982494,160.73084397888718 L166.33197717853014,215.37547767189744"
+                  "M197.5484803613762,161.99003229352883 L145.37825839838098,213.89407965467197"
                 ],
                 [
                   "data-visual-element",
@@ -1769,7 +788,7 @@
                 ],
                 [
                   "d",
-                  "M259.84518060175066,160.73084397888718 L326.9880228214699,215.37547767189744"
+                  "M221.65151963862385,161.99003229352883 L273.821741601619,213.89407965467197"
                 ],
                 [
                   "data-visual-element",
@@ -1790,7 +809,7 @@
                 ],
                 [
                   "d",
-                  "M591.1711217758456,164.48481847838173 L562.6192684990053,210.9590370842568"
+                  "M491.066226579849,165.18965119315766 L468.48090990606005,210.12982212569688"
                 ],
                 [
                   "data-visual-element",
@@ -1811,7 +830,7 @@
                 ],
                 [
                   "d",
-                  "M138.37213687368916,239.57802675712193 L81.60454485448334,292.3787920504448"
+                  "M119.97301558579471,240.76537586454828 L75.80821695788856,290.98191074759023"
                 ],
                 [
                   "data-visual-element",
@@ -1832,7 +851,7 @@
                 ],
                 [
                   "d",
-                  "M163.26786312631083,239.57802675712193 L220.03545514551666,292.3787920504448"
+                  "M142.42698441420526,240.76537586454828 L186.59178304211144,290.98191074759023"
                 ],
                 [
                   "data-visual-element",
@@ -1853,7 +872,7 @@
                 ],
                 [
                   "d",
-                  "M354.0203733456667,240.5012398575682 L400.8266195933333,291.29265899109623"
+                  "M298.2333843447021,241.57489760011495 L334.76072430035055,290.02953223515885"
                 ],
                 [
                   "data-visual-element",
@@ -1874,7 +893,7 @@
                 ],
                 [
                   "cx",
-                  "432.35"
+                  "361.5"
                 ],
                 [
                   "cy",
@@ -1903,7 +922,7 @@
                 ],
                 [
                   "cx",
-                  "432.35"
+                  "361.5"
                 ],
                 [
                   "cy",
@@ -1928,7 +947,7 @@
                 ],
                 [
                   "x",
-                  "432.35"
+                  "361.5"
                 ],
                 [
                   "y",
@@ -1948,7 +967,7 @@
                 ],
                 [
                   "cx",
-                  "246.66000000000003"
+                  "209.60000000000002"
                 ],
                 [
                   "cy",
@@ -1977,7 +996,7 @@
                 ],
                 [
                   "cx",
-                  "246.66000000000003"
+                  "209.60000000000002"
                 ],
                 [
                   "cy",
@@ -2002,7 +1021,7 @@
                 ],
                 [
                   "x",
-                  "246.66000000000003"
+                  "209.60000000000002"
                 ],
                 [
                   "y",
@@ -2022,7 +1041,7 @@
                 ],
                 [
                   "cx",
-                  "600.07"
+                  "498.70000000000005"
                 ],
                 [
                   "cy",
@@ -2051,7 +1070,7 @@
                 ],
                 [
                   "cx",
-                  "600.07"
+                  "498.70000000000005"
                 ],
                 [
                   "cy",
@@ -2076,7 +1095,7 @@
                 ],
                 [
                   "x",
-                  "600.07"
+                  "498.70000000000005"
                 ],
                 [
                   "y",
@@ -2096,7 +1115,7 @@
                 ],
                 [
                   "cx",
-                  "150.82"
+                  "131.2"
                 ],
                 [
                   "cy",
@@ -2125,7 +1144,7 @@
                 ],
                 [
                   "cx",
-                  "150.82"
+                  "131.2"
                 ],
                 [
                   "cy",
@@ -2150,7 +1169,7 @@
                 ],
                 [
                   "x",
-                  "150.82"
+                  "131.2"
                 ],
                 [
                   "y",
@@ -2170,7 +1189,7 @@
                 ],
                 [
                   "cx",
-                  "342.5"
+                  "288"
                 ],
                 [
                   "cy",
@@ -2199,7 +1218,7 @@
                 ],
                 [
                   "cx",
-                  "342.5"
+                  "288"
                 ],
                 [
                   "cy",
@@ -2224,7 +1243,7 @@
                 ],
                 [
                   "x",
-                  "342.5"
+                  "288"
                 ],
                 [
                   "y",
@@ -2244,7 +1263,7 @@
                 ],
                 [
                   "cx",
-                  "552.15"
+                  "459.5"
                 ],
                 [
                   "cy",
@@ -2273,7 +1292,7 @@
                 ],
                 [
                   "cx",
-                  "552.15"
+                  "459.5"
                 ],
                 [
                   "cy",
@@ -2298,7 +1317,7 @@
                 ],
                 [
                   "x",
-                  "552.15"
+                  "459.5"
                 ],
                 [
                   "y",
@@ -2318,7 +1337,7 @@
                 ],
                 [
                   "cx",
-                  "66.96000000000001"
+                  "62.6"
                 ],
                 [
                   "cy",
@@ -2347,7 +1366,7 @@
                 ],
                 [
                   "cx",
-                  "66.96000000000001"
+                  "62.6"
                 ],
                 [
                   "cy",
@@ -2372,7 +1391,7 @@
                 ],
                 [
                   "x",
-                  "66.96000000000001"
+                  "62.6"
                 ],
                 [
                   "y",
@@ -2392,7 +1411,7 @@
                 ],
                 [
                   "cx",
-                  "234.68"
+                  "199.8"
                 ],
                 [
                   "cy",
@@ -2421,7 +1440,7 @@
                 ],
                 [
                   "cx",
-                  "234.68"
+                  "199.8"
                 ],
                 [
                   "cy",
@@ -2446,7 +1465,7 @@
                 ],
                 [
                   "x",
-                  "234.68"
+                  "199.8"
                 ],
                 [
                   "y",
@@ -2466,7 +1485,7 @@
                 ],
                 [
                   "cx",
-                  "414.38"
+                  "346.8"
                 ],
                 [
                   "cy",
@@ -2495,7 +1514,7 @@
                 ],
                 [
                   "cx",
-                  "414.38"
+                  "346.8"
                 ],
                 [
                   "cy",
@@ -2520,7 +1539,7 @@
                 ],
                 [
                   "x",
-                  "414.38"
+                  "346.8"
                 ],
                 [
                   "y",
@@ -2548,7 +1567,7 @@
                 ],
                 [
                   "x",
-                  "432.35"
+                  "361.5"
                 ],
                 [
                   "y",
@@ -2568,7 +1587,7 @@
                 ],
                 [
                   "d",
-                  "M432.35,43 V52"
+                  "M361.5,43 V52"
                 ],
                 [
                   "data-visual-element",

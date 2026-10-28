@@ -9,6 +9,9 @@ const sourceRoot = path.join(repositoryRoot, 'src');
 const outputRoot = path.join(repositoryRoot, '_site');
 const registryPath = path.join(sourceRoot, 'questions.json');
 const readText = (file) => fs.readFileSync(file, 'utf8');
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, character => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[character]);
 
 function fail(message) {
   throw new Error(`Site build failed: ${message}`);
@@ -74,6 +77,16 @@ const slugs = questions.map((question) => question.slug);
 if (new Set(slugs).size !== slugs.length) fail('question slugs must be unique');
 
 for (const question of questions) {
+  if (!Array.isArray(question.tags) || question.tags.length < 1 || question.tags.length > 3 ||
+      new Set(question.tags).size !== question.tags.length) {
+    fail(`${question.slug} must have 1–3 unique tags`);
+  }
+  for (const id of question.tags) {
+    const tag = registry.tags?.[id];
+    if (!tag?.title || !tag?.titleZh || !Array.isArray(tag.aliases)) {
+      fail(`${question.slug} has an unknown or incomplete tag: ${id}`);
+    }
+  }
   const page = path.join(question.sourceDirectory, 'index.html');
   if (!fs.existsSync(page)) {
     fail(`${question.slug} is registered but ${path.relative(repositoryRoot, page)} does not exist`);
@@ -114,6 +127,16 @@ sameMembers(
 
 const catalog = readText(path.join(sourceRoot, 'index.html'));
 sameMembers(catalogSlugs(catalog), slugs, 'src/index.html cards must exactly match src/questions.json');
+const tagSlots = [...catalog.matchAll(/data-question-tags="([^"]+)"/g)].map(match => match[1]);
+sameMembers(tagSlots, slugs, 'catalog tag slots must exactly match src/questions.json');
+const questionsBySlug = new Map(questions.map(question => [question.slug, question]));
+const taggedCatalog = catalog.replace(/<span class="chips" data-question-tags="([^"]+)"><\/span>/g,
+  (_, slug) => {
+    const tags = questionsBySlug.get(slug).tags.map(id => registry.tags[id]);
+    const aliases = tags.flatMap(tag => tag.aliases).join(' ');
+    const chips = tags.map(tag => `<span class="chip">${escapeHtml(tag.title)} / ${escapeHtml(tag.titleZh)}</span>`).join('');
+    return `<span class="chips" data-search-aliases="${escapeHtml(aliases)}">${chips}</span>`;
+  });
 
 const readme = readText(path.join(repositoryRoot, 'README.md'));
 const readmeSlugs = [...readme.matchAll(/junjiearaoxiong\.github\.io\/algorithm-visuals\/([^/)]+)\//gi)]
@@ -127,13 +150,20 @@ for (const asset of ['visual.css', 'guide.css']) {
   fs.writeFileSync(path.join(outputRoot, 'assets', asset), themeColors(readText(path.join(sourceRoot, 'assets', asset))));
 }
 fs.appendFileSync(path.join(outputRoot, 'assets', 'theme.css'), themePaletteCss());
-fs.writeFileSync(path.join(outputRoot, 'index.html'), themePage(catalog, './assets'));
+fs.writeFileSync(path.join(outputRoot, 'index.html'), themePage(taggedCatalog, './assets'));
 fs.copyFileSync(path.join(sourceRoot, '.nojekyll'), path.join(outputRoot, '.nojekyll'));
 
 for (const question of questions) {
   fs.cpSync(question.sourceDirectory, path.join(outputRoot, question.slug), { recursive: true });
   const page = path.join(outputRoot, question.slug, 'index.html');
-  fs.writeFileSync(page, themePage(readText(page), '../assets'));
+  const lesson = themePage(readText(page), '../assets');
+  const workbench = question.slug === 'lowest-common-ancestor' ? '' : `
+  <link rel="stylesheet" href="../assets/workbench.css">
+  <script src="../assets/workbench-tree.js"></script>
+  <script src="../assets/workbench-legacy.js"></script>
+  <script src="../assets/workbench.js"></script>
+`;
+  fs.writeFileSync(page, lesson.replace('</head>', `${workbench}</head>`));
 }
 
 validateOutputLinks([

@@ -62,7 +62,7 @@ test('every guide keeps readable dark diagrams and usable trace controls in its 
   for (const slug of slugs) {
     await page.setViewportSize(slug === 'lowest-common-ancestor'
       ? { width: 760, height: 700 }
-      : { width: 390, height: 844 });
+      : { width: 1280, height: 900 });
     await page.goto(`/${slug}/#step=0`);
     await expect(toggle(page), slug).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('body'), slug).toHaveCSS('background-color', 'rgb(27, 28, 30)');

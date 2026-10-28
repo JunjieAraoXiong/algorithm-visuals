@@ -7,7 +7,7 @@ async function finish(page){
 for(const slug of ['kth-smallest-number-in-a-binary-search-tree','the-josephus-problem']) {
   test(`${slug}: visible choices switch independent traces and restore permalinks`,async({page})=>{
     await page.emulateMedia({reducedMotion:'reduce'});
-    for(const width of [320,760,1280]) {
+    for(const width of [760,1280]) {
       await page.setViewportSize({width,height:700});
       await page.goto(`/${slug}/?method=recursive#step=0`);
       await expect(choice(page,'recursive')).toBeInViewport();
@@ -81,8 +81,8 @@ test('linked-list method choices navigate inside an embedded frame',async({page,
 });
 
 
-test('Josephus iteration marks stay inside the diagram at phone and embed widths',async({page})=>{
-  for(const width of [320,760]) {
+test('Josephus iteration marks stay inside the diagram at desktop embed widths',async({page})=>{
+  for(const width of [760]) {
     await page.setViewportSize({width,height:700});
     await page.goto('/the-josephus-problem/?method=iterative#step=0');
     const picker=page.locator('[data-step-select]');

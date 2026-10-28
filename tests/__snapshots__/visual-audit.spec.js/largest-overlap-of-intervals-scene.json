@@ -7,7 +7,7 @@
     ],
     [
       "class",
-      "animation-panel"
+      "animation-panel av-animation"
     ],
     [
       "data-animation-panel",
@@ -15,276 +15,6 @@
     ]
   ],
   "children": [
-    {
-      "tag": "div",
-      "attributes": [
-        [
-          "class",
-          "controls"
-        ]
-      ],
-      "children": [
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "previous"
-            ],
-            [
-              "disabled",
-              ""
-            ]
-          ],
-          "children": [
-            "← 上一步"
-          ]
-        },
-        {
-          "tag": "output",
-          "attributes": [
-            [
-              "data-count",
-              ""
-            ]
-          ],
-          "children": [
-            "步骤 1 / 15"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "next"
-            ]
-          ],
-          "children": [
-            "下一步 →"
-          ]
-        },
-        {
-          "tag": "button",
-          "attributes": [
-            [
-              "data-action",
-              "copy-link"
-            ]
-          ],
-          "children": [
-            "复制本步骤链接"
-          ]
-        },
-        {
-          "tag": "label",
-          "attributes": [
-            [
-              "class",
-              "step-picker"
-            ]
-          ],
-          "children": [
-            "跳到步骤",
-            {
-              "tag": "select",
-              "attributes": [
-                [
-                  "aria-label",
-                  "跳到步骤"
-                ],
-                [
-                  "data-step-select",
-                  ""
-                ]
-              ],
-              "children": [
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "0"
-                    ]
-                  ],
-                  "children": [
-                    "points = []：建空列表"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "1"
-                    ]
-                  ],
-                  "children": [
-                    "按输入顺序追加 2n 个端点"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "2"
-                    ]
-                  ],
-                  "children": [
-                    "排序：同时刻 E 在 S 前"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "3"
-                    ]
-                  ],
-                  "children": [
-                    "active = 0，max = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "4"
-                    ]
-                  ],
-                  "children": [
-                    "(1, 'S') → active = 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "5"
-                    ]
-                  ],
-                  "children": [
-                    "(2, 'S') → active = 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "6"
-                    ]
-                  ],
-                  "children": [
-                    "(3, 'E') → active = 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "7"
-                    ]
-                  ],
-                  "children": [
-                    "(4, 'S') → active = 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "8"
-                    ]
-                  ],
-                  "children": [
-                    "(5, 'S') → active = 3"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "9"
-                    ]
-                  ],
-                  "children": [
-                    "(6, 'E') → active = 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "10"
-                    ]
-                  ],
-                  "children": [
-                    "(6, 'S') → active = 3"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "11"
-                    ]
-                  ],
-                  "children": [
-                    "(7, 'E') → active = 2"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "12"
-                    ]
-                  ],
-                  "children": [
-                    "(7, 'E') → active = 1"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "13"
-                    ]
-                  ],
-                  "children": [
-                    "(8, 'E') → active = 0"
-                  ]
-                },
-                {
-                  "tag": "option",
-                  "attributes": [
-                    [
-                      "value",
-                      "14"
-                    ]
-                  ],
-                  "children": [
-                    "return 3 · 最大重叠 [5, 6)"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
     {
       "tag": "div",
       "attributes": [
@@ -346,7 +76,7 @@
             ],
             [
               "viewBox",
-              "0 0 731 291"
+              "0 0 622 291"
             ]
           ],
           "children": [
@@ -408,7 +138,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 34 142 L 713 142"
+                  "M 34 142 L 604 142"
                 ],
                 [
                   "data-visual-element",
@@ -490,7 +220,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 131 142 L 131 147"
+                  "M 115.42857142857143 142 L 115.42857142857143 147"
                 ],
                 [
                   "data-visual-element",
@@ -523,7 +253,7 @@
                 ],
                 [
                   "x",
-                  "131"
+                  "115.42857142857143"
                 ],
                 [
                   "y",
@@ -539,7 +269,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 228 142 L 228 147"
+                  "M 196.85714285714286 142 L 196.85714285714286 147"
                 ],
                 [
                   "data-visual-element",
@@ -572,7 +302,7 @@
                 ],
                 [
                   "x",
-                  "228"
+                  "196.85714285714286"
                 ],
                 [
                   "y",
@@ -588,7 +318,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 325 142 L 325 147"
+                  "M 278.2857142857143 142 L 278.2857142857143 147"
                 ],
                 [
                   "data-visual-element",
@@ -621,7 +351,7 @@
                 ],
                 [
                   "x",
-                  "325"
+                  "278.2857142857143"
                 ],
                 [
                   "y",
@@ -637,7 +367,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 422 142 L 422 147"
+                  "M 359.7142857142857 142 L 359.7142857142857 147"
                 ],
                 [
                   "data-visual-element",
@@ -670,7 +400,7 @@
                 ],
                 [
                   "x",
-                  "422"
+                  "359.7142857142857"
                 ],
                 [
                   "y",
@@ -686,7 +416,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 519 142 L 519 147"
+                  "M 441.14285714285717 142 L 441.14285714285717 147"
                 ],
                 [
                   "data-visual-element",
@@ -719,7 +449,7 @@
                 ],
                 [
                   "x",
-                  "519"
+                  "441.14285714285717"
                 ],
                 [
                   "y",
@@ -735,7 +465,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 616 142 L 616 147"
+                  "M 522.5714285714286 142 L 522.5714285714286 147"
                 ],
                 [
                   "data-visual-element",
@@ -768,7 +498,7 @@
                 ],
                 [
                   "x",
-                  "616"
+                  "522.5714285714286"
                 ],
                 [
                   "y",
@@ -784,7 +514,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 713 142 L 713 147"
+                  "M 604 142 L 604 147"
                 ],
                 [
                   "data-visual-element",
@@ -817,7 +547,7 @@
                 ],
                 [
                   "x",
-                  "713"
+                  "604"
                 ],
                 [
                   "y",
@@ -833,7 +563,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 34 120 L 228 120"
+                  "M 34 120 L 196.85714285714286 120"
                 ],
                 [
                   "data-visual-element",
@@ -879,7 +609,7 @@
               "attributes": [
                 [
                   "cx",
-                  "228"
+                  "196.85714285714286"
                 ],
                 [
                   "cy",
@@ -912,7 +642,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 131 66 L 519 66"
+                  "M 115.42857142857143 66 L 441.14285714285717 66"
                 ],
                 [
                   "data-visual-element",
@@ -937,7 +667,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 127.4 62.4 h 7.2 v 7.2 h -7.2 Z"
+                  "M 111.82857142857144 62.4 h 7.2 v 7.2 h -7.2 Z"
                 ],
                 [
                   "data-visual-element",
@@ -958,7 +688,7 @@
               "attributes": [
                 [
                   "cx",
-                  "519"
+                  "441.14285714285717"
                 ],
                 [
                   "cy",
@@ -991,7 +721,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 325 39 L 713 39"
+                  "M 278.2857142857143 39 L 604 39"
                 ],
                 [
                   "data-visual-element",
@@ -1016,7 +746,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 321.4 35.4 h 7.2 v 7.2 h -7.2 Z"
+                  "M 274.68571428571425 35.4 h 7.2 v 7.2 h -7.2 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1037,7 +767,7 @@
               "attributes": [
                 [
                   "cx",
-                  "713"
+                  "604"
                 ],
                 [
                   "cy",
@@ -1070,7 +800,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 519 93 L 616 93"
+                  "M 441.14285714285717 93 L 522.5714285714286 93"
                 ],
                 [
                   "data-visual-element",
@@ -1095,7 +825,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 515.4 89.4 h 7.2 v 7.2 h -7.2 Z"
+                  "M 437.54285714285714 89.4 h 7.2 v 7.2 h -7.2 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1116,7 +846,7 @@
               "attributes": [
                 [
                   "cx",
-                  "616"
+                  "522.5714285714286"
                 ],
                 [
                   "cy",
@@ -1149,7 +879,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 422 12 L 616 12"
+                  "M 359.7142857142857 12 L 522.5714285714286 12"
                 ],
                 [
                   "data-visual-element",
@@ -1174,7 +904,7 @@
               "attributes": [
                 [
                   "d",
-                  "M 418.4 8.4 h 7.2 v 7.2 h -7.2 Z"
+                  "M 356.1142857142857 8.4 h 7.2 v 7.2 h -7.2 Z"
                 ],
                 [
                   "data-visual-element",
@@ -1195,7 +925,7 @@
               "attributes": [
                 [
                   "cx",
-                  "616"
+                  "522.5714285714286"
                 ],
                 [
                   "cy",

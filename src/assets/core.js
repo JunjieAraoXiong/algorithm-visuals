@@ -350,10 +350,12 @@
       if (!frames.length) return;
       const frame = frames[step];
       const manualMessage = currentManualMessage();
+      window.AlgorithmWorkbench?.mount(root);
       // Let the page paint its algorithm-specific scene first. The shared
       // controls and code panel deliberately run afterwards so legacy local
       // drawing code cannot drift their common contract.
       onRender?.(context());
+      window.AlgorithmWorkbench?.render(root, context());
       const hadPreviousFocus = document.activeElement === previous;
       const hadNextFocus = document.activeElement === next;
       if (count) count.textContent = formatCount({
@@ -471,7 +473,7 @@
       copyLink.textContent = copiedLinkLabel;
       copyResetTimer = setTimeout(() => { if (copyLink) copyLink.textContent = copyLinkLabel; }, 1800);
     });
-    const keyboardScope = root.querySelector('[data-animation-panel]') || root;
+    const keyboardScope = root.closest('[data-learning-layout]') || root.querySelector('[data-learning-layout]') || root;
     keyboardScope.addEventListener('keydown', event => {
       if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || isEditable(event.target)) return;
       if (event.key === 'ArrowLeft') {
