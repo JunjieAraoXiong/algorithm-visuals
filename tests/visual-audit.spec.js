@@ -24,6 +24,14 @@ const slugs = visualSlugs();
 const viewports = [
   { name: 'desktop', width: 1280, height: 900 }
 ];
+// These scenes use measured host-font widths or retain SVG labels across the
+// initial native-gutter resize. Keep strict Linux baselines for them instead
+// of rounding coordinates or discarding draw order from the scene comparison.
+const platformScenes = new Set([
+  'build-binary-tree-from-preorder-and-inorder-traversals',
+  'remove-kth-last-node',
+  'serialize-and-deserialize-a-binary-tree'
+]);
 
 function routeFor(link) {
   return new URL(link, 'http://algorithm-visuals.test').pathname
@@ -461,7 +469,8 @@ for (const slug of slugs) {
       if (viewport.name === 'desktop') {
         // Refresh only after reviewing an intentional visual-state change: npm test -- --update-snapshots
         const scene = await sceneSnapshot(page);
-        expect(scene).toMatchSnapshot(`${slug}.scene.json`);
+        const platform = process.platform === 'linux' && platformScenes.has(slug) ? '.linux' : '';
+        expect(scene).toMatchSnapshot(`${slug}${platform}.scene.json`);
       }
       await collectTrace(page, slug, { checkStageOverflow: viewport.name !== 'desktop' });
       await verifyStandardKeyboardTrace(page, slug);
