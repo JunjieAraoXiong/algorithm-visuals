@@ -296,7 +296,7 @@ test.describe('catalog and README coverage', () => {
   test('catalog links every visualization directory', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    const routes = await page.getByRole('link').evaluateAll((links) => links.map((link) => link.href));
+    const routes = await page.locator('a.card').evaluateAll((links) => links.map((link) => link.href));
 
     // Chapter filters and the skip link stay on the catalog.
     const questionRoutes = routes.map(routeFor).filter(route => route !== '');

@@ -1,6 +1,6 @@
 # Algorithm Visuals
 
-Interactive bilingual explanations for algorithm practice, published at [Algo Visual](https://junjiearaoxiong.github.io/algorithm-visuals/). Each page pairs a step-by-step diagram with synchronized source code and keyboard controls.
+Interactive bilingual explanations for algorithm practice and system design, published at [Visual Library](https://junjiearaoxiong.github.io/algorithm-visuals/). Algorithm lessons pair a step-by-step diagram with synchronized source code. System design lessons build an architecture one decision at a time. Both support keyboard controls.
 
 ## Repository layout
 
@@ -11,6 +11,7 @@ src/
 │   ├── 01-two-pointers/
 │   ├── 02-hash-maps-and-sets/
 │   └── …                    numbered chapters and questions
+├── system-design/          architecture walkthroughs
 ├── index.html              catalog source
 └── questions.json          ordered question registry
 scripts/build-site.mjs      validates and creates _site/
@@ -134,6 +135,17 @@ Source folders are ordered for repository browsing. The build keeps the public U
 
 - [The Josephus Problem / 约瑟夫问题](https://junjiearaoxiong.github.io/algorithm-visuals/the-josephus-problem/)
 - [Triangle Numbers / 三角形数字](https://junjiearaoxiong.github.io/algorithm-visuals/triangle-numbers/)
+
+## System Design
+
+- [Design a URL Shortener / 设计短链接服务](https://junjiearaoxiong.github.io/algorithm-visuals/design-url-shortener/): step-by-step architecture, request flows, and an editable Excalidraw diagram.
+- [Token Bucket Rate Limiter / 令牌桶限流器](https://junjiearaoxiong.github.io/algorithm-visuals/design-rate-limiter/)
+- [Consistent Hashing / 一致性哈希](https://junjiearaoxiong.github.io/algorithm-visuals/design-consistent-hashing/)
+- [Unique ID Generator / 唯一 ID 生成器](https://junjiearaoxiong.github.io/algorithm-visuals/design-unique-id/)
+- [Notification Queue / 通知队列与重试](https://junjiearaoxiong.github.io/algorithm-visuals/design-notification-queue/)
+- [Search Autocomplete / 搜索补全](https://junjiearaoxiong.github.io/algorithm-visuals/design-search-autocomplete/)
+- [Replicated Key-Value Store / 副本读写](https://junjiearaoxiong.github.io/algorithm-visuals/design-replicated-key-value/)
+- [News Feed Fanout / 信息流分发](https://junjiearaoxiong.github.io/algorithm-visuals/design-news-feed/)
 
 ## Development
 

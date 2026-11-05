@@ -30,8 +30,9 @@ function pageLinks(html) {
 }
 
 function catalogSlugs(html) {
-  return [...html.matchAll(/<a\b[^>]*class=["'][^"']*\bcard\b[^"']*["'][^>]*href=["']\.\/([^/"']+)\/["'][^>]*>/g)]
-    .map((match) => match[1]);
+  return [...html.matchAll(/<a\b[^>]*>/g)]
+    .filter(([tag]) => /\bclass=["']([^"']+)["']/.exec(tag)?.[1].split(/\s+/).includes('card'))
+    .map(([tag]) => /\bhref=["']\.\/([^/"']+)\/["']/.exec(tag)?.[1]);
 }
 
 function validateOutputLinks(htmlFiles) {
@@ -74,7 +75,29 @@ const questions = registry.chapters.flatMap((chapter) => {
 });
 
 const slugs = questions.map((question) => question.slug);
-if (new Set(slugs).size !== slugs.length) fail('question slugs must be unique');
+if (!Array.isArray(registry.systemDesign)) fail('src/questions.json must contain a systemDesign array');
+const systemDesignRoot = path.join(sourceRoot, 'system-design');
+const systemDesign = registry.systemDesign.map((question) => {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(question.slug) || question.slug === 'assets' ||
+      !/^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(question.directory) ||
+      typeof question.title !== 'string' || !question.title.trim() ||
+      typeof question.titleZh !== 'string' || !question.titleZh.trim()) {
+    fail('each system design question needs a safe slug, numbered directory, and bilingual titles');
+  }
+  const sourceDirectory = path.join(systemDesignRoot, question.directory);
+  if (!fs.existsSync(path.join(sourceDirectory, 'index.html'))) {
+    fail(`${question.slug} is registered but ${path.relative(repositoryRoot, sourceDirectory)}/index.html does not exist`);
+  }
+  return { ...question, sourceDirectory };
+});
+const systemDesignSlugs = systemDesign.map(question => question.slug);
+const allSlugs = [...slugs, ...systemDesignSlugs];
+if (new Set(allSlugs).size !== allSlugs.length) fail('algorithm and system design slugs must be globally unique');
+const systemDesignDirectories = fs.existsSync(systemDesignRoot)
+  ? fs.readdirSync(systemDesignRoot, { withFileTypes: true }).filter(entry => entry.isDirectory()).map(entry => entry.name)
+  : [];
+sameMembers(systemDesignDirectories, systemDesign.map(question => question.directory),
+  'system design source directories must exactly match src/questions.json');
 
 for (const question of questions) {
   if (!Array.isArray(question.tags) || question.tags.length < 1 || question.tags.length > 3 ||
@@ -127,6 +150,16 @@ sameMembers(
 
 const catalog = readText(path.join(sourceRoot, 'index.html'));
 sameMembers(catalogSlugs(catalog), slugs, 'src/index.html cards must exactly match src/questions.json');
+const systemDesignCards = [...catalog.matchAll(/<a\b[^>]*>/g)]
+  .map(([tag]) => ({ tag, slug: /\bdata-system-design=["']([^"']+)["']/.exec(tag)?.[1] }))
+  .filter(card => card.slug);
+sameMembers(systemDesignCards.map(card => card.slug), systemDesignSlugs,
+  'catalog system design cards must exactly match src/questions.json');
+for (const { tag, slug } of systemDesignCards) {
+  if (/\bhref=["']([^"']+)["']/.exec(tag)?.[1] !== `./${slug}/`) {
+    fail(`system design catalog card ${slug} must link to its registered route`);
+  }
+}
 const tagSlots = [...catalog.matchAll(/data-question-tags="([^"]+)"/g)].map(match => match[1]);
 sameMembers(tagSlots, slugs, 'catalog tag slots must exactly match src/questions.json');
 const questionsBySlug = new Map(questions.map(question => [question.slug, question]));
@@ -139,9 +172,14 @@ const taggedCatalog = catalog.replace(/<span class="chips" data-question-tags="(
   });
 
 const readme = readText(path.join(repositoryRoot, 'README.md'));
-const readmeSlugs = [...readme.matchAll(/junjiearaoxiong\.github\.io\/algorithm-visuals\/([^/)]+)\//gi)]
-  .map((match) => match[1]);
-sameMembers(readmeSlugs, slugs, 'README visual links must exactly match src/questions.json');
+function readmeSlugs(heading) {
+  const section = readme.split(`## ${heading}\n`)[1]?.split(/\n## /)[0] || '';
+  return [...section.matchAll(/junjiearaoxiong\.github\.io\/algorithm-visuals\/([^/)]+)\//gi)]
+    .map((match) => match[1]);
+}
+sameMembers(readmeSlugs('Visuals'), slugs, 'README algorithm links must exactly match src/questions.json');
+sameMembers(readmeSlugs('System Design'), systemDesignSlugs,
+  'README system design links must exactly match src/questions.json');
 
 fs.rmSync(outputRoot, { recursive: true, force: true });
 fs.mkdirSync(outputRoot, { recursive: true });
@@ -167,9 +205,15 @@ for (const question of questions) {
   fs.writeFileSync(page, lesson.replace('</head>', `${workbench}${readerControls}</head>`));
 }
 
+for (const question of systemDesign) {
+  fs.cpSync(question.sourceDirectory, path.join(outputRoot, question.slug), { recursive: true });
+  const page = path.join(outputRoot, question.slug, 'index.html');
+  fs.writeFileSync(page, themePage(readText(page), '../assets'));
+}
+
 validateOutputLinks([
   path.join(outputRoot, 'index.html'),
-  ...questions.map((question) => path.join(outputRoot, question.slug, 'index.html'))
+  ...[...questions, ...systemDesign].map((question) => path.join(outputRoot, question.slug, 'index.html'))
 ]);
 
-console.log(`Built ${questions.length} visualizations in ${path.relative(repositoryRoot, outputRoot)}/`);
+console.log(`Built ${questions.length} algorithm visualizations and ${systemDesign.length} system design visualizations in ${path.relative(repositoryRoot, outputRoot)}/`);

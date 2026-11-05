@@ -1,0 +1,12 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: existing paper and ink · signature: an uncertain send is retried with the same event identity · states: queued, in-flight, unknown, confirmed · v2.0.0 */
+/* Hallmark · pre-emit critique: keep queue ownership, external effects and acknowledgement visible as separate facts in a fixed drawing. */
+@import url('../assets/system-design.css');
+:root { --notification-ledger-size: 21px; }
+#architecture .state-ledger text { text-anchor: start; font: var(--notification-ledger-size) var(--font-outlier); }
+#architecture .state-ledger .node-detail { font: 18px var(--font-body); }
+#architecture .flow text { font: 16px var(--font-body); }
+#message-slot rect { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 1.5; }
+#message-slot[data-queue-state="处理中"] rect { stroke-dasharray: 5 4; }
+[data-flow="response"].is-lost path { stroke-dasharray: 5 4; }
+.design-options label { display: flex; align-items: center; gap: var(--space-sm); font-size: 14px; }
+.design-options select { min-height: 36px; padding-inline: var(--space-sm); color: var(--color-ink); background: var(--color-paper); border: 1px solid var(--color-field-edge); }

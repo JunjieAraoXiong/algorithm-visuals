@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Bilingual interactive algorithm visuals, organized by coding interview pattern. 中英双语算法交互图解。">
-  <title>Algo Visual</title>
+  <meta name="description" content="A bilingual visual library with separate Algorithms and System Design collections. 算法与系统设计图解库。">
+  <title>Visual Library / 图解库</title>
   <link rel="stylesheet" href="./assets/catalog.css">
   <script src="./assets/catalog.js" defer></script>
 </head>
@@ -12,9 +12,13 @@
 <a class="skip" href="#catalog-results">跳到图解</a>
 <main>
   <header class="catalog-header">
-    <h1>Algo Visual<span lang="zh-CN">算法图解</span></h1>
+    <h1>Visual Library<span lang="zh-CN">图解库</span></h1>
   </header>
-  <div class="catalog-layout">
+  <nav class="catalog-tabs" aria-label="图解分类">
+    <a id="algorithms-tab" class="catalog-tab" href="#algorithms-panel" data-topic="algorithms">Algorithms<span lang="zh-CN">算法</span></a>
+    <a id="system-design-tab" class="catalog-tab" href="#system-design-panel" data-topic="system-design">System Design<span lang="zh-CN">系统设计</span></a>
+  </nav>
+  <div id="algorithms-panel" class="catalog-layout" aria-labelledby="algorithms-tab" tabindex="0">
     <aside class="chapter-sidebar" aria-label="章节目录" hidden>
       <nav id="chapter-links" aria-label="章节"></nav>
     </aside>
@@ -655,6 +659,49 @@
       <div class="catalog-empty" hidden><h2>没有找到匹配的图解</h2><p>试试其他关键词，或查看全部章节。</p><button type="button" id="clear-filters">清除筛选</button></div>
     </div>
   </div>
+  <section id="system-design-panel" class="system-design-panel" aria-labelledby="system-design-tab" tabindex="0">
+    <h2>System Design<span lang="zh-CN">系统设计</span></h2>
+    <a class="design-card" href="./design-url-shortener/" data-system-design="design-url-shortener">
+      <span class="design-card-number">01</span>
+      <span><h3>Design a URL Shortener<span lang="zh-CN">设计短链接服务</span></h3><p>从需求到架构，逐步加入数据库、跳转、缓存与服务扩容。</p></span>
+      <span class="design-card-type">逐步设计 / Excalidraw</span>
+    </a>
+    <a class="design-card" href="./design-rate-limiter/" data-system-design="design-rate-limiter">
+      <span class="design-card-number">02</span>
+      <span><h3>Token Bucket Rate Limiter<span lang="zh-CN">令牌桶限流器</span></h3><p>发送突发请求，观察令牌消耗、补充与限流。</p></span>
+      <span class="design-card-type">逐步设计 / Excalidraw</span>
+    </a>
+    <a class="design-card" href="./design-consistent-hashing/" data-system-design="design-consistent-hashing">
+      <span class="design-card-number">03</span>
+      <span><h3>Consistent Hashing<span lang="zh-CN">一致性哈希</span></h3><p>增加或移除服务器，比较 key 迁移与虚拟节点分布。</p></span>
+      <span class="design-card-type">逐步设计 / Excalidraw</span>
+    </a>
+    <a class="design-card" href="./design-unique-id/" data-system-design="design-unique-id">
+      <span class="design-card-number">04</span>
+      <span><h3>Unique ID Generator<span lang="zh-CN">唯一 ID 生成器</span></h3><p>组合时间戳、机器编号和序列，处理溢出与时钟回退。</p></span>
+      <span class="design-card-type">逐步设计 / Excalidraw</span>
+    </a>
+    <a class="design-card" href="./design-notification-queue/" data-system-design="design-notification-queue">
+      <span class="design-card-number">05</span>
+      <span><h3>Notification Queue<span lang="zh-CN">通知队列与重试</span></h3><p>追踪同一事件的投递、超时重试与去重边界。</p></span>
+      <span class="design-card-type">逐步设计 / Excalidraw</span>
+    </a>
+    <a class="design-card" href="./design-search-autocomplete/" data-system-design="design-search-autocomplete">
+      <span class="design-card-number">06</span>
+      <span><h3>Search Autocomplete<span lang="zh-CN">搜索补全</span></h3><p>查询前缀与 Top-K，观察词频更新和快照发布。</p></span>
+      <span class="design-card-type">逐步设计 / Excalidraw</span>
+    </a>
+    <a class="design-card" href="./design-replicated-key-value/" data-system-design="design-replicated-key-value">
+      <span class="design-card-number">07</span>
+      <span><h3>Replicated Key-Value Store<span lang="zh-CN">副本读写</span></h3><p>调整读写确认数，观察延迟副本、旧版本与恢复。</p></span>
+      <span class="design-card-type">逐步设计 / Excalidraw</span>
+    </a>
+    <a class="design-card" href="./design-news-feed/" data-system-design="design-news-feed">
+      <span class="design-card-number">08</span>
+      <span><h3>News Feed Fanout<span lang="zh-CN">信息流分发</span></h3><p>比较推、拉与混合模式中的发布成本和读取合并。</p></span>
+      <span class="design-card-type">逐步设计 / Excalidraw</span>
+    </a>
+  </section>
 </main>
 </body>
 </html>

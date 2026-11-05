@@ -1,0 +1,18 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: existing paper and ink · signature: token consumption beside the request path · states: initial, allowed, rejected, refilled · v2.0.0 */
+/* Hallmark · pre-emit critique: keep the architecture stable while the quota and request history change; show rejection with words and a distinct path. */
+@import url('../assets/system-design.css');
+
+.rate-parameters { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-md); margin-top: var(--space-sm); font-size: 14px; }
+.rate-parameters label { display: flex; align-items: center; gap: var(--space-xs); }
+.rate-parameters select { min-height: 36px; min-width: 64px; padding: var(--space-xs); color: var(--color-ink); background: var(--color-paper); border: 1px solid var(--color-field-edge); }
+.rate-parameters span { color: var(--color-muted); }
+.bucket-outline { fill: none; stroke: var(--color-ink); stroke-width: 1.5; }
+.token-slot { fill: var(--color-paper); stroke: var(--color-field-edge); stroke-width: 1.4; stroke-dasharray: 3 3; }
+.token-slot.is-filled { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-dasharray: none; }
+#architecture .token-number { font: 16px var(--font-outlier); }
+#architecture .clock-label { text-anchor: start; font: 20px var(--font-outlier); }
+#architecture .history-label { font: 16px var(--font-outlier); }
+.history-mark { fill: var(--color-paper); stroke: var(--color-field-edge); stroke-width: 1.2; }
+.history-mark.is-allowed { fill: var(--color-accent-soft); stroke: var(--color-accent); }
+.history-mark.is-rejected { stroke: var(--color-ink); stroke-dasharray: 4 2; }
+.history-line { stroke: var(--color-rule); stroke-width: 1; }

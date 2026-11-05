@@ -27,9 +27,9 @@ test('an empty search can recover, and matching questions navigate to working gu
 });
 
 test('the complete catalog remains usable without JavaScript', async ({ browser, baseURL }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false });
+  const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
   const page = await context.newPage();
-  await page.goto(baseURL);
+  await page.goto('/');
   await expect(page.locator('.card:visible')).toHaveCount(61);
   await page.locator('.card[href="./reverse-linked-list/"]').click();
   await expect(page).toHaveURL(/\/reverse-linked-list\//);

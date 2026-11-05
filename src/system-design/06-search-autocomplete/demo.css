@@ -1,0 +1,25 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: existing paper and ink · signature: a prefix path separates live queries from snapshot updates · states: initial, matched, empty, stale, published · v2.0.0 */
+/* Hallmark · pre-emit critique: stable trie geometry and visible version numbers explain cache freshness without moving stored nodes. */
+@import url('../assets/system-design.css');
+:root { --autocomplete-node-label: 21px; --autocomplete-word-label: 16px; }
+.trie-node circle { fill: var(--color-paper); stroke: var(--color-ink); stroke-width: 1.4; }
+.trie-node.is-path circle { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 2.4; }
+.trie-node.is-visited circle { stroke-dasharray: 4 3; stroke-width: 2.4; }
+#trie-edges path { fill: none; stroke: var(--color-field-edge); stroke-width: 1.2; }
+#trie-edges path.is-path { stroke: var(--color-accent); stroke-width: 2.5; }
+#architecture .trie-node text { font: var(--autocomplete-node-label) var(--font-outlier); }
+#architecture .trie-node .word-label { font-size: var(--autocomplete-word-label); }
+.results-panel rect { fill: var(--color-paper-2); stroke: var(--color-field-edge); stroke-width: 1; }
+#architecture .result-row { text-anchor: start; font: 21px var(--font-outlier); }
+#architecture .section-label { font: 19px var(--font-outlier); }
+#architecture .pipeline-label { font-size: 17px; }
+.pipeline-line { fill: none; stroke: var(--color-rule); stroke-width: 1; }
+.flow:not(.is-current) { opacity: .45; }
+.query-settings { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm); margin-top: var(--space-md); }
+.query-settings label { display: flex; align-items: center; gap: var(--space-xs); font-size: 14px; }
+.query-settings input, .query-settings select, .query-settings button { min-height: 40px; padding: var(--space-2xs) var(--space-xs); border: 1px solid var(--color-field-edge); border-radius: 3px; color: var(--color-ink); background: var(--color-paper); font-size: 14px; }
+.query-settings input { width: 78px; }
+.query-settings button { cursor: pointer; }
+.query-settings button:hover { background: var(--color-paper-2); }
+.query-settings button:active { background: var(--color-paper-3); }
+.query-settings span { font-size: 13px; color: var(--color-muted); }
