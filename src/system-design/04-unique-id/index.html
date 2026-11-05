@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="逐步组合 Snowflake 风格唯一 ID，观察多机器、序列耗尽与时钟回退。">
+  <title>Unique ID Generator / 唯一 ID 生成器</title>
+  <link rel="stylesheet" href="./demo.css">
+  <script src="../assets/core.js" defer></script>
+  <script src="./demo.js" defer></script>
+</head>
+<body class="design-page">
+<main id="design-lesson">
+  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a><a href="../?topic=system-design">System Design / 系统设计</a></nav>
+  <header class="lesson-heading"><h1>Unique ID Generator <span>唯一 ID 生成器</span></h1><p>两台机器各自生成编号：哪些字段避免重复，什么时候必须停止发号？</p></header>
+  <div id="design-workspace" data-learning-layout>
+    <nav class="design-roadmap" aria-label="设计阶段" hidden>
+      <button type="button" data-design-key="scope">明确需求</button><button type="button" data-design-key="layout">拆分字段</button><button type="button" data-design-key="generate">生成编号</button><button type="button" data-design-key="boundary">边界场景</button><button type="button" data-design-key="review">取舍与扩展</button>
+    </nav>
+    <div class="design-columns">
+      <section class="drawing-panel" data-animation-panel aria-labelledby="drawing-title">
+        <div class="drawing-heading"><h2 id="drawing-title">发号状态</h2><span id="drawing-stage">需求</span></div>
+        <div class="drawing-scroll" data-stage>
+          <svg id="architecture" viewBox="0 0 900 430" role="img" aria-labelledby="architecture-title architecture-description">
+            <title id="architecture-title">唯一 ID 的字段组合与两台机器状态</title><desc id="architecture-description">机器身份分开，同一毫秒内用序列号区分请求。</desc>
+            <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7"/></marker></defs>
+            <text x="450" y="30">创建请求</text>
+            <g class="flow" data-worker-flow="a"><path d="M425 40 H220 V65"/></g><g class="flow" data-worker-flow="b"><path d="M475 40 H680 V65"/></g>
+            <g class="component" data-worker="a"><rect x="70" y="70" width="300" height="100" rx="4"/><text x="220" y="97">Worker A</text><text class="node-detail" x="220" y="124">dc = 1 / machine = 1</text><text class="worker-state" x="220" y="151" id="state-a">尚未发号</text></g>
+            <g class="component" data-worker="b"><rect x="530" y="70" width="300" height="100" rx="4"/><text x="680" y="97">Worker B</text><text class="node-detail" x="680" y="124">dc = 1 / machine = 2</text><text class="worker-state" x="680" y="151" id="state-b">尚未发号</text></g>
+            <text x="450" y="199" id="clock-state">时间、身份和序列号共同决定编号</text>
+            <g id="bit-fields" hidden>
+              <g class="bit-field" data-field="sign"><rect x="30" y="221" width="70" height="65"/><text x="65" y="245">符号 1</text><text x="65" y="273">0</text></g>
+              <g class="bit-field" data-field="timestamp"><rect x="100" y="221" width="310" height="65"/><text x="255" y="245">时间戳 41 bits</text><text class="field-value" x="255" y="273" id="field-time">T</text></g>
+              <g class="bit-field" data-field="dc"><rect x="410" y="221" width="130" height="65"/><text x="475" y="245">机房 5 bits</text><text x="475" y="273" id="field-dc">1</text></g>
+              <g class="bit-field" data-field="machine"><rect x="540" y="221" width="140" height="65"/><text x="610" y="245">机器 5 bits</text><text x="610" y="273" id="field-machine">1</text></g>
+              <g class="bit-field" data-field="sequence"><rect x="680" y="221" width="190" height="65"/><text x="775" y="245">序列 12 bits</text><text x="775" y="273" id="field-sequence">0</text></g>
+              <text class="node-detail" x="450" y="308">字段宽度为排版示意，位数以标签为准</text>
+            </g>
+            <g class="ledger"><text x="40" y="345" id="output-a">A 最近一次：尚未生成</text><text x="40" y="377" id="output-b">B 最近一次：尚未生成</text><text class="node-detail" x="40" y="409" id="result-status">无实际网络请求，时间由演示推进</text></g>
+          </svg>
+        </div>
+        <p id="step-change" class="step-change" role="status" aria-live="polite">先规定：编号不能重复，能放进 64 位，并大致按时间排序。</p>
+      </section>
+      <aside class="decision-panel" aria-labelledby="decision-title"><h2 id="decision-title">先区分唯一与有序</h2><p id="decision-why">多个服务都需要创建记录。这里要求数值编号全局唯一、占用 64 位，并大致按时间排序，不要求相邻编号加一。</p><pre class="evidence"><code id="decision-evidence">Worker A → id_a
+Worker B → id_b
+要求：id_a ≠ id_b</code></pre><h3>代价与边界</h3><p id="decision-tradeoff">时间有序不等于跨机器请求的严格先后顺序；这是模拟发号器，不连接真实时钟或服务。</p></aside>
+    </div>
+    <div class="av-controls design-controls" hidden>
+      <div class="av-transport"><button type="button" data-action="previous"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10 H4 M9 5 L4 10 L9 15"/></svg>上一步</button><output data-count aria-live="polite">步骤 1 / 15</output><button type="button" data-action="next">下一步<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10 H16 M11 5 L16 10 L11 15"/></svg></button></div>
+      <div class="design-options av-options"><label class="settings">跳到步骤<select data-step-select aria-label="跳到步骤"></select></label><button type="button" data-action="copy-link">复制本步骤链接</button><button type="button" id="restart">从头开始</button></div>
+      <div class="design-options"><label class="settings">边界场景<select id="scenario" aria-label="边界场景"><option value="normal">正常推进到下一毫秒</option><option value="overflow">序列号耗尽</option><option value="rollback">时钟回退</option></select></label></div>
+    </div>
+  </div>
+  <section class="design-notes"><div><h2>唯一性来自约束</h2><p>同一时刻，机器身份不能重复；同一机器，同一毫秒内序列不能重复。</p></div><p>机房与机器编号需要统一分配。进程重启不能直接清空状态并在旧时间点重发；必须持久化高水位、等待安全时间或采用有保护的身份分配策略。本例把这部分作为部署前提。</p></section>
+  <section class="design-notes"><div><h2>与短链接的关系</h2><p>一个 64 位编号不会自动变成七位短码。</p></div><p>完整 Base62 编码保留唯一性，但可能需要 11 位。当前短链接例子的七位上限依赖 id &lt; 62^7；不能把本页的编号截断后直接替换进去。</p></section>
+  <section class="design-notes"><div><h2>继续修改架构</h2><p>把时钟策略、身份分配与重启恢复补进可编辑草图。</p></div><div><a class="download-link" href="./unique-id.excalidraw" download>下载 Excalidraw 草图</a><a class="editor-link" href="https://excalidraw.com/" target="_blank" rel="noopener">打开 Excalidraw</a></div></section>
+  <footer class="lesson-footer"><p>参考：Alex Xu，《System Design Interview: An Insider’s Guide》第二版，第 7 章。字段布局参考章节方案；示例时间、故障轨迹和拒绝策略为演示选择。页面使用 BigInt 保留整数精度。</p><p>相关题目：<a href="../design-url-shortener/">URL Shortener / 短链接服务</a>；<a href="../?topic=system-design">系统设计目录</a></p></footer>
+</main>
+</body>
+</html>

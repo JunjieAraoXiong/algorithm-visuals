@@ -1,0 +1,31 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: existing paper and ink · signature: stable keys reveal changed ownership · states: lookup, membership change, migration, virtual nodes · v2.0.0 */
+/* Hallmark · pre-emit critique: compare computed assignments on the same keys and make routing distinct from moving their values. */
+@import url('../assets/system-design.css');
+:root { --hash-ring-width: 1.5; }
+#architecture .hash-ring { fill: none; stroke: var(--color-field-edge); stroke-width: var(--hash-ring-width); }
+#architecture .hash-key line { stroke: var(--color-field-edge); stroke-width: 1; }
+#architecture .hash-key circle { fill: var(--color-paper); stroke: var(--color-muted); stroke-width: 1.5; }
+#architecture .hash-key text { font-size: 17px; }
+#architecture .hash-key.is-moved circle { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 2.5; }
+#architecture .hash-key.is-selected circle { stroke: var(--color-ink); stroke-width: 3; }
+#architecture .hash-key.is-moved text { fill: var(--color-accent); }
+#architecture .server-token { fill: var(--color-paper); stroke: var(--color-ink); stroke-width: 1.6; }
+#architecture .selected-token { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 2.5; }
+#architecture .token-label { font-size: 16px; }
+#architecture .server-box { fill: var(--color-paper); stroke: var(--color-field-edge); stroke-width: 1.2; }
+#architecture .server.is-selected .server-box { stroke: var(--color-accent); stroke-width: 2; stroke-dasharray: 5 3; fill: var(--color-accent-soft); }
+#architecture .server.is-absent .server-box { stroke-dasharray: 4 4; }
+#architecture .server .owner-keys { font: 18px var(--font-outlier); }
+#architecture .server .owner-count { font-size: 15px; fill: var(--color-muted); }
+#architecture .lookup-path { fill: none; stroke: var(--color-accent); stroke-width: 3; marker-end: url('#arrow'); }
+#architecture .route-path { fill: none; stroke: var(--color-ink); stroke-width: 1.8; marker-end: url('#arrow'); }
+#architecture .route-label { font-size: 17px; }
+#architecture .diagram-summary { font-size: 18px; }
+#architecture .formula { font: 25px var(--font-outlier); }
+#architecture .ring-center { font-size: 18px; }
+#architecture .ring-detail { font-size: 15px; fill: var(--color-muted); }
+#architecture .new-value { fill: var(--color-accent); }
+.hash-settings { display: flex; flex-wrap: wrap; gap: var(--space-sm) var(--space-lg); padding-top: var(--space-sm); }
+.hash-settings label { display: inline-flex; align-items: center; gap: var(--space-sm); font-size: 14px; }
+.hash-settings select { min-height: 36px; padding: var(--space-xs); border: 1px solid var(--color-field-edge); border-radius: 3px; background: var(--color-paper); color: var(--color-ink); font: inherit; }
+#hash-inputs { font-family: var(--font-outlier); overflow-wrap: anywhere; }

@@ -66,6 +66,17 @@ The learner approved this layout on 2026-10-28 as the default for every future a
 
 ## Files and publishing
 
+- System design walkthroughs live in `src/system-design/<NN-topic>/`, with stable
+  `/design-<topic>/` routes registered in the `systemDesign` array. Add their cards
+  to the System Design catalog tab and links to the README's System Design section.
+- For these walkthroughs, reuse `src/assets/system-design.css` and the shared
+  trace controller. The right panel shows the current decision, evidence, and
+  tradeoff. Map frames to unique `data-design-key` roadmap buttons. Keep component
+  positions stable, exact state on rewind, and scenario parameters in step URLs.
+  Each page includes an original editable Excalidraw download and distinguishes
+  simulated behavior from production guarantees. Use desktop and desktop embed
+  checks for these pages, including 760×700 and 900×700.
+
 - Put each question at `src/chapters/<NN-pattern>/<NN-problem-slug>/index.html`. Register its chapter, order, stable public slug, and bilingual title in `src/questions.json`; add its card to `src/index.html` and its published link to `README.md`. The source stays plain HTML, CSS, and JavaScript. Pages still load `../assets/visual.css`, `../assets/guide.css`, and `../assets/core.js` because `npm run build` copies them to the stable public `/<problem-slug>/` route. Do not add a bundler, framework runtime, or network dependency.
 - Give every question page a visible, keyboard-focusable `<a href="../">` link back to the root visual catalog. Keep it near the page title so a learner never has to use browser history to return; do not substitute `history.back()` or a site-root `/` URL.
 - Treat everything committed here as public. `npm run build` validates the ordered registry, catalog, README inventory, and local links before creating the ignored `_site/` artifact. GitHub Actions publishes that artifact from `main` while preserving the short public `/<problem-slug>/` URLs. If a task includes publishing, check the live URL after pushing. If it includes a Notion embed, add the published URL to the matching page without replacing the learner's notes, then confirm the embed loads and its controls work.

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="三个固定副本中逐步写入、等待确认、读取版本，并观察延迟与离线的取舍。">
+  <title>Replicated Key-Value Store / 副本读写</title>
+  <link rel="stylesheet" href="./demo.css">
+  <script src="../assets/core.js" defer></script>
+  <script src="./demo.js" defer></script>
+</head>
+<body class="design-page">
+<main id="design-lesson">
+  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a><a href="../?topic=system-design">System Design / 系统设计</a></nav>
+  <header class="lesson-heading"><h1>Replicated Key-Value Store <span>副本读写</span></h1><p>写入等几个确认，读取等几个响应，怎样影响返回的版本？</p></header>
+  <div id="design-workspace" data-learning-layout>
+    <nav class="design-roadmap" aria-label="设计阶段" hidden>
+      <button type="button" data-design-key="scope">固定副本</button><button type="button" data-design-key="write">写入与确认</button><button type="button" data-design-key="read">读取响应</button><button type="button" data-design-key="recover">副本恢复</button><button type="button" data-design-key="review">交集与边界</button>
+    </nav>
+    <div class="design-columns">
+      <section class="drawing-panel" data-animation-panel aria-labelledby="drawing-title">
+        <div class="drawing-heading"><h2 id="drawing-title">同一个 key，三个版本位置</h2><span id="drawing-stage">固定 N = 3</span></div>
+        <div class="drawing-scroll" data-stage>
+          <svg id="architecture" viewBox="0 0 900 430" role="img" aria-labelledby="architecture-title architecture-description">
+            <title id="architecture-title">三个固定副本的写确认与读响应</title><desc id="architecture-description">初始三个副本都保存 theme=light 的 v0 版本。</desc>
+            <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7"/></marker></defs>
+            <text x="290" y="35" id="policy-state">N = 3；W = 1；R = 1</text>
+            <g class="flow" data-flow="request" hidden><path d="M150 190 H274"/><text x="210" y="171" id="request-label">PUT v1</text></g>
+            <g class="flow" data-flow="client-result" hidden><path d="M280 235 H156"/></g>
+            <g class="flow" data-flow="to-a" hidden><path d="M490 178 H560 V75 H644"/></g>
+            <g class="flow" data-flow="to-b" hidden><path d="M490 213 H644"/></g>
+            <g class="flow" data-flow="to-c" hidden><path d="M490 246 H560 V353 H644"/></g>
+            <g class="flow" data-flow="from-a" hidden><path d="M650 100 H585 V180 H496"/></g>
+            <g class="flow" data-flow="from-b" hidden><path d="M650 236 H496"/></g>
+            <g class="flow" data-flow="from-c" hidden><path d="M650 375 H585 V255 H496"/></g>
+            <g class="component" data-node="client"><rect x="25" y="167" width="125" height="80" rx="4"/><text x="87" y="199">Client</text><text class="node-detail" x="87" y="224">单写者</text></g>
+            <g class="component" data-node="coordinator"><rect x="280" y="152" width="210" height="115" rx="4"/><text x="385" y="181">Coordinator</text><text class="counter-label" x="385" y="215" id="write-count">写确认 0 / 1</text><text class="counter-label" x="385" y="246" id="read-count">读响应 0 / 1</text></g>
+            <g class="component" data-node="a"><rect x="650" y="35" width="210" height="90" rx="4"/><text x="755" y="59">副本 A</text><text class="replica-version" x="755" y="86" id="version-a">v0 / light</text><text class="node-detail" x="755" y="111" id="state-a">在线</text></g>
+            <g class="component" data-node="b"><rect x="650" y="172" width="210" height="90" rx="4"/><text x="755" y="196">副本 B</text><text class="replica-version" x="755" y="223" id="version-b">v0 / light</text><text class="node-detail" x="755" y="248" id="state-b">写入排在 A 之后</text></g>
+            <g class="component" data-node="c"><rect x="650" y="309" width="210" height="90" rx="4"/><text x="755" y="333">副本 C</text><text class="replica-version" x="755" y="360" id="version-c">v0 / light</text><text class="node-detail" x="755" y="385" id="state-c">写消息延迟</text></g>
+            <g class="result-ledger"><text x="30" y="322" id="write-result">写入：尚未开始</text><text x="30" y="357" id="read-responses">已收响应：无</text><text x="30" y="392" id="read-result">读取：尚未开始</text></g>
+          </svg>
+        </div>
+        <p id="step-change" class="step-change" role="status" aria-live="polite">固定 A、B、C 三个副本，初始都保存 theme=light 的 v0。</p>
+      </section>
+      <aside class="decision-panel" aria-labelledby="decision-title"><h2 id="decision-title">先固定副本集合与写入顺序</h2><p id="decision-why">只讨论一个 key、一个写者和一次 v0 到 v1 的更新。三个副本身份不变，版本有确定的先后关系。</p><pre class="evidence"><code id="decision-evidence">key = theme
+v0 = light
+v1 = dark
+N = 3</code></pre><h3>代价与边界</h3><p id="decision-tradeoff">这是固定副本的确定性模拟，不包含并发写、成员变更、故障替代副本或真实网络。</p></aside>
+    </div>
+    <div class="av-controls design-controls" hidden>
+      <div class="av-transport"><button type="button" data-action="previous"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10 H4 M9 5 L4 10 L9 15"/></svg>上一步</button><output data-count aria-live="polite">步骤 1 / 17</output><button type="button" data-action="next">下一步<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10 H16 M11 5 L16 10 L11 15"/></svg></button></div>
+      <div class="design-options av-options"><label class="settings">跳到步骤<select data-step-select aria-label="跳到步骤"></select></label><button type="button" data-action="copy-link">复制本步骤链接</button><button type="button" id="restart">从头开始</button></div>
+      <div class="replica-parameters"><label>写确认 W<select id="write-quorum" aria-label="写确认 W"><option selected>1</option><option>2</option><option>3</option></select></label><label>读响应 R<select id="read-quorum" aria-label="读响应 R"><option selected>1</option><option>2</option><option>3</option></select></label><label>副本 C<select id="scenario" aria-label="副本 C 状态"><option value="lag">写消息延迟</option><option value="offline">离线</option></select></label></div>
+    </div>
+  </div>
+  <section class="design-notes"><div><h2>确认数改变等待的边界</h2><p>W 是写入成功前等待的确认数；R 是读取返回前等待的响应数。</p></div><p>本例请求发往固定三副本。<code>W=1</code> 时 A 确认就返回，B 的写消息尚未处理。<code>W≥2</code> 时继续等 B。C 的写消息在读取完成前不会到达；延迟场景下 C 仍能先响应读取，离线场景下它不能响应。超时不能证明写入没有发生。</p></section>
+  <section class="design-notes"><div><h2>交集条件需要哪些前提</h2><p>R + W &gt; N 只说明两个固定集合必定相交。</p></div><p>对已获 W 个确认的写入，本例还假设副本不丢失已确认版本、读取发生在写确认之后、没有并发写，并从 R 个响应中选最大版本。真实系统的线性一致性还涉及并发、版本顺序、故障和协议；不能只凭这条不等式判断。</p></section>
+  <section class="design-notes"><div><h2>补上恢复协议</h2><p>本例由协调者保留 v1，并在读完后补齐延迟副本。</p></div><div><a class="download-link" href="./replicated-key-value.excalidraw" download>下载 Excalidraw 草图</a><a class="editor-link" href="https://excalidraw.com/" target="_blank" rel="noopener">打开 Excalidraw</a><p>真实系统还需处理协调者失败、日志持久性、重试与数据校验。</p></div></section>
+  <footer class="lesson-footer"><p>参考：Alex Xu，《System Design Interview: An Insider’s Guide》第二版，第 6 章。图解、请求顺序与故障轨迹为原创的简化示例。</p><p>相关题目：<a href="../design-consistent-hashing/">Consistent Hashing / 一致性哈希</a>；<a href="../lru-cache/">LRU Cache / 缓存</a>；<a href="../?topic=system-design">系统设计目录</a></p></footer>
+</main>
+</body>
+</html>

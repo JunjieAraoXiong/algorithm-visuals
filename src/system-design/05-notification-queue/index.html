@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="逐步追踪通知的持久化、消费、发送与确认，比较失败重试和幂等键的边界。">
+  <title>Notification Queue / 通知队列与重试</title>
+  <link rel="stylesheet" href="./demo.css">
+  <script src="../assets/core.js" defer></script>
+  <script src="./demo.js" defer></script>
+</head>
+<body class="design-page">
+<main id="design-lesson">
+  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a><a href="../?topic=system-design">System Design / 系统设计</a></nav>
+  <header class="lesson-heading"><h1>Notification Queue <span>通知队列与重试</span></h1><p>通知已入队，不代表已发送；发送超时，也不代表外部服务没有执行。</p></header>
+  <div id="design-workspace" data-learning-layout>
+    <nav class="design-roadmap" aria-label="设计阶段" hidden>
+      <button type="button" data-design-key="scope">需求与队列</button><button type="button" data-design-key="enqueue">接收与入队</button><button type="button" data-design-key="consume">消费与发送</button><button type="button" data-design-key="retry">确认与重试</button><button type="button" data-design-key="review">完成与取舍</button>
+    </nav>
+    <div class="design-columns">
+      <section class="drawing-panel" data-animation-panel aria-labelledby="drawing-title">
+        <div class="drawing-heading"><h2 id="drawing-title">同一条通知的状态</h2><span id="drawing-stage">需求</span></div>
+        <div class="drawing-scroll" data-stage>
+          <svg id="architecture" viewBox="0 0 900 430" role="img" aria-labelledby="architecture-title architecture-description">
+            <title id="architecture-title">通知入队、发送和重试的状态</title><desc id="architecture-description">API 接收事件 e42，队列保存待办，Worker 调用外部服务并等待确认。</desc>
+            <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7"/></marker></defs>
+            <text id="event-label" x="450" y="35">event_id = e42 / 收件人 user:7 / 邮件通知</text>
+            <g class="flow" data-flow="direct"><path d="M180 118 H715"/><text x="450" y="102">同步调用</text></g>
+            <g class="flow" data-flow="enqueue" hidden><path d="M180 118 H260"/><text x="220" y="102">写入</text></g>
+            <g class="flow" data-flow="claim" hidden><path d="M410 118 H480"/><text x="445" y="102">领取</text></g>
+            <g class="flow" data-flow="send" hidden><path d="M630 118 H715"/><text x="672" y="102">发送</text></g>
+            <g class="flow" data-flow="response" hidden><path d="M750 160 V205 H590 V160"/><text id="response-label" x="675" y="230">服务商响应</text></g>
+            <g class="flow" data-flow="ack" hidden><path d="M535 160 V278 H335 V160"/><text x="450" y="300">处理完成后确认队列消息</text></g>
+            <g class="flow" data-flow="retry" hidden><path d="M410 145 H445 V248 H240 V143 H258"/><text x="168" y="256">到期可重领</text></g>
+            <g class="component" data-node="api"><rect x="30" y="75" width="150" height="85" rx="4"/><text x="105" y="105">Notification API</text><text class="node-detail" id="api-state" x="105" y="138">尚未接收</text></g>
+            <g class="component" data-node="queue" hidden><rect x="260" y="75" width="150" height="85" rx="4"/><text x="335" y="105">持久化队列</text><text class="node-detail" id="queue-state" x="335" y="138">空</text></g>
+            <g class="component" data-node="worker" hidden><rect x="480" y="75" width="150" height="85" rx="4"/><text x="555" y="105">Worker</text><text class="node-detail" id="worker-state" x="555" y="138">空闲</text></g>
+            <g class="component" data-node="provider"><rect x="715" y="75" width="155" height="85" rx="4"/><text x="792" y="105">邮件服务商</text><text class="node-detail" id="provider-state" x="792" y="138">尚未调用</text></g>
+            <g id="message-slot" hidden><rect x="275" y="180" width="120" height="42" rx="2"/><text x="335" y="208">e42</text></g>
+            <g class="state-ledger"><text x="35" y="344" id="delivery-count">服务商发送：0 次</text><text x="480" y="344" id="confirmation-state">Worker 确认：无</text><text class="node-detail" x="35" y="380" id="consumer-record">消费者完成记录：无</text><text class="node-detail" x="480" y="380" id="provider-record">服务商幂等记录：未启用</text><text class="node-detail" x="35" y="414" id="attempt-count">发送调用：0 次；队列消息未被确认</text></g>
+          </svg>
+        </div>
+        <p id="step-change" class="step-change" role="status" aria-live="polite">先限定一个渠道：把事件 e42 变成发给 user:7 的一封邮件。</p>
+      </section>
+      <aside class="decision-panel" aria-labelledby="decision-title"><h2 id="decision-title">先明确“成功”指哪一步</h2><p id="decision-why">调用方需要快速提交通知；邮件服务可能变慢或失败。接收请求、保存待办、服务商发送和用户阅读是不同的事实。</p><pre class="evidence"><code id="decision-evidence">event_id: e42
+recipient: user:7
+channel: email</code></pre><h3>代价与边界</h3><p id="decision-tradeoff">这里只模拟一个渠道与一个事件，不连接真实服务。服务商发送成功也不等于最终送达或用户已经阅读。</p></aside>
+    </div>
+    <div class="av-controls design-controls" hidden>
+      <div class="av-transport"><button type="button" data-action="previous"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10 H4 M9 5 L4 10 L9 15"/></svg>上一步</button><output data-count aria-live="polite">步骤 1</output><button type="button" data-action="next">下一步<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10 H16 M11 5 L16 10 L11 15"/></svg></button></div>
+      <div class="design-options av-options"><label class="settings">跳到步骤<select data-step-select aria-label="跳到步骤"></select></label><button type="button" data-action="copy-link">复制本步骤链接</button><button type="button" id="restart">从头开始</button></div>
+      <div class="design-options"><label>故障场景<select id="scenario" aria-label="故障场景"><option value="lost">已发送，但响应丢失</option><option value="failure">发送前失败</option><option value="normal">正常完成</option></select></label><label>去重位置<select id="dedup" aria-label="去重位置"><option value="consumer">仅消费者完成记录</option><option value="provider">加服务商幂等键</option></select></label></div>
+    </div>
+  </div>
+  <section class="design-notes"><div><h2>超时留下的是不确定性</h2><p>Worker 看不到外部结果，不能把超时直接等同于“未发送”。</p></div><p>先记录完成再调用服务商，崩溃会漏发；发送后才记录完成，崩溃或响应丢失会留下重复窗口。本例的服务商幂等模式假设同一个键和请求内容，在约定保留期内能原子复用首次结果。这需要服务商契约，不能只靠本地集合保证。</p></section>
+  <section class="design-notes"><div><h2>重试也需要上限</h2><p>本例只重试一次，让同一事件的状态变化清楚可见。</p></div><p>生产设计还要配置退避、抖动、重试上限、死信处理与监控。队列持久化和确认机制承担各自的故障假设；若业务数据库更新与入队必须一起成功，还需讨论事务发件箱等写入边界。</p></section>
+  <section class="design-notes"><div><h2>继续修改架构</h2><p>在草图里补上重试策略、死信队列和服务商契约。</p></div><div><a class="download-link" href="./notification-queue.excalidraw" download>下载 Excalidraw 草图</a><a class="editor-link" href="https://excalidraw.com/" target="_blank" rel="noopener">打开 Excalidraw</a></div></section>
+  <footer class="lesson-footer"><p>参考：Alex Xu，《System Design Interview: An Insider’s Guide》第二版，第 10 章。图解、事件与故障轨迹为原创演示。确认边界参考 <a href="https://www.rabbitmq.com/docs/confirms">RabbitMQ：发布确认与消费确认</a>；重投机制参考 <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html">Amazon SQS：可见性超时</a>。本页是通用模型，不绑定某个队列产品。</p><p>相关题目：<a href="../implement-a-queue-using-stacks/">Queue / 队列</a>；<a href="../lru-cache/">LRU Cache / 缓存与哈希索引</a>；<a href="../?topic=system-design">系统设计目录</a></p></footer>
+</main>
+</body>
+</html>

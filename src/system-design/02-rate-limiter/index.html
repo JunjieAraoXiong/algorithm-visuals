@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="逐步设计令牌桶限流器，观察突发请求、令牌补充、429 响应和容量上限。">
+  <title>Token Bucket Rate Limiter / 令牌桶限流器</title>
+  <link rel="stylesheet" href="./demo.css">
+  <script src="../assets/core.js" defer></script>
+  <script src="./demo.js" defer></script>
+</head>
+<body class="design-page rate-page">
+<main id="design-lesson">
+  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a><a href="../?topic=system-design">System Design / 系统设计</a></nav>
+  <header class="lesson-heading">
+    <h1>Token Bucket Rate Limiter <span>令牌桶限流器</span></h1>
+    <p>允许短暂突发，同时限制持续请求速率。参考 Alex Xu 第 4 章。</p>
+  </header>
+  <div id="design-workspace" data-learning-layout>
+    <nav class="design-roadmap" aria-label="设计阶段" hidden>
+      <button type="button" data-design-key="scope" data-jump="0">需求与位置</button>
+      <button type="button" data-design-key="bucket" data-jump="2">保存额度</button>
+      <button type="button" data-design-key="burst" data-jump="3">处理突发</button>
+      <button type="button" data-design-key="refill" data-jump="7">补充与上限</button>
+      <button type="button" data-design-key="review" data-jump="11">设计取舍</button>
+    </nav>
+    <div class="design-columns">
+      <section class="drawing-panel" data-animation-panel aria-labelledby="drawing-title">
+        <div class="drawing-heading"><h2 id="drawing-title">请求与令牌</h2><span id="drawing-stage">一个用户的一种请求</span></div>
+        <div class="drawing-scroll" data-stage>
+          <svg id="architecture" viewBox="0 0 900 430" role="img" aria-labelledby="architecture-title architecture-description">
+            <title id="architecture-title">令牌桶限流器的逐步设计</title>
+            <desc id="architecture-description">一个用户的请求到达服务；先确定限流的范围。</desc>
+            <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M1 1 L7 4 L1 7"/></marker></defs>
+            <g class="flow" data-flow="direct"><path d="M175 134 H724"/><text x="450" y="115">每个请求都进入服务</text></g>
+            <g class="flow" data-flow="incoming" hidden><path d="M175 134 H354"/><text x="260" y="115" id="request-label">POST /api/links</text></g>
+            <g class="flow" data-flow="allowed" hidden><path d="M560 134 H724"/><text x="645" y="115">通过</text></g>
+            <g class="flow" data-flow="denied" hidden><path d="M360 155 H270 V196 H105 V170"/><text x="225" y="222">429 / 本次未进入服务</text></g>
+            <g class="flow" data-flow="inspect" hidden><path d="M460 170 V234"/><text x="552" y="213">检查并消费</text></g>
+            <g class="flow" data-flow="refill" hidden><path d="M670 260 H606"/><text x="741" y="264" id="refill-label">+1 令牌</text></g>
+            <g class="component" data-node="client"><rect x="35" y="100" width="140" height="70" rx="5"/><text x="105" y="129">Client</text><text class="node-detail" x="105" y="151">user:42</text></g>
+            <g class="component" data-node="gateway" hidden><rect x="360" y="100" width="200" height="70" rx="5"/><text x="460" y="129">Gateway / Limiter</text><text class="node-detail" x="460" y="151">服务端检查</text></g>
+            <g class="component" data-node="service"><rect x="730" y="100" width="140" height="70" rx="5"/><text x="800" y="129">Service</text><text class="node-detail" x="800" y="151" id="service-count">已收到 0 次</text></g>
+            <g data-node="bucket" hidden>
+              <path class="bucket-outline" d="M310 238 V295 H600 V238"/>
+              <text class="node-detail" x="455" y="230">key = user:42 + POST /api/links</text>
+              <g id="token-slots"></g>
+              <text x="455" y="322" id="token-count">令牌 3 / 3</text>
+            </g>
+            <text class="clock-label" x="65" y="48" id="clock-state">t = 0 s</text>
+            <text class="node-detail" x="665" y="48" id="policy-state">容量 3；每秒补充 1</text>
+            <g id="request-history" aria-label="请求记录"></g>
+          </svg>
+        </div>
+        <p id="step-change" class="step-change" role="status" aria-live="polite">先确定按谁、按哪个接口限流，避免把所有人的请求混进同一个桶。</p>
+      </section>
+      <aside class="decision-panel" aria-labelledby="decision-title">
+        <h2 id="decision-title">先限定一个用户的一种请求</h2>
+        <p id="decision-why">以 user:42 创建短链接为例。允许短时突发，但不能让一个用户持续占满服务；每个请求消耗一个令牌。</p>
+        <pre class="evidence"><code id="decision-evidence">key = user:42 + POST /api/links
+capacity = 3
+refill = 1 token / second</code></pre>
+        <h3>代价与边界</h3><p id="decision-tradeoff">数值是演示选择。身份来自已验证的用户或密钥，不应直接信任客户端随意提交的 user ID。</p>
+      </aside>
+    </div>
+    <div class="av-controls design-controls" hidden>
+      <div class="av-transport"><button type="button" data-action="previous"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10 H4 M9 5 L4 10 L9 15"/></svg>上一步</button><output data-count aria-live="polite">步骤 1 / 12</output><button type="button" data-action="next">下一步<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10 H16 M11 5 L16 10 L11 15"/></svg></button></div>
+      <div class="design-options av-options"><label class="settings">跳到步骤<select data-step-select aria-label="跳到步骤"></select></label><button type="button" data-action="copy-link">复制本步骤链接</button><button type="button" id="restart">从头开始</button></div>
+      <div class="rate-parameters">
+        <label>桶容量<select id="capacity" aria-label="桶容量"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></label>
+        <label>每秒补充<select id="refill-rate" aria-label="每秒补充"><option selected>1</option><option>2</option><option>3</option></select>个令牌</label>
+        <span>修改参数后从头重放</span>
+      </div>
+    </div>
+  </div>
+  <section class="design-notes" aria-labelledby="tradeoff-title">
+    <div><h2 id="tradeoff-title">容量与速率分别控制什么</h2><p>容量决定空闲后积攒的突发额度；补充速率决定长时间内可持续通过的速率。</p></div>
+    <p>令牌桶允许短时间超过补充速率，不能理解成“每一个一秒窗口最多放行一条”。这里以整秒补充和顺序请求演示；生产实现还需决定时间精度、计费权重与失败策略。</p>
+  </section>
+  <section class="design-notes" aria-labelledby="extend-title">
+    <div><h2 id="extend-title">扩到多台网关时</h2><p>同一个用户的额度必须有一致的归属。</p></div>
+    <div><p>若每台网关各存一个满桶，总额度会随实例数放大。可以路由到同一个限流分区，或使用共享存储做原子补充与消费；共享存储的延迟、故障和热点也随之进入设计。</p><a class="download-link" href="./rate-limiter.excalidraw" download>下载 Excalidraw 草图</a><a class="editor-link" href="https://excalidraw.com/" target="_blank" rel="noopener">打开 Excalidraw</a></div>
+  </section>
+  <footer class="lesson-footer">
+    <p>参考：Alex Xu，《System Design Interview: An Insider’s Guide》第二版，第 4 章；<a href="https://www.rfc-editor.org/rfc/rfc6585.html#section-4">HTTP 429</a>。图解与请求时序为原创演示。</p>
+    <p>相关题目：<a href="../design-url-shortener/">URL Shortener / 短链接服务</a>；<a href="../implement-a-queue-using-stacks/">Queue / 队列</a>；<a href="../?topic=system-design">系统设计目录</a></p>
+  </footer>
+</main>
+</body>
+</html>

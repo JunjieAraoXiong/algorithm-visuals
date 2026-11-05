@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="逐步比较信息流的推、拉和混合分发，观察异步分发与读取合并的实际工作量。">
+  <title>News Feed Fanout / 信息流分发</title>
+  <link rel="stylesheet" href="./demo.css">
+  <script src="../assets/core.js" defer></script>
+  <script src="./demo.js" defer></script>
+</head>
+<body class="design-page">
+<main id="design-lesson">
+  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a><a href="../?topic=system-design">System Design / 系统设计</a></nav>
+  <header class="lesson-heading"><h1>News Feed Fanout <span>信息流分发</span></h1><p>同一条新帖子，工作放在发布时还是读取时？比较推、拉与混合分发。</p></header>
+  <div id="design-workspace" data-learning-layout>
+    <nav class="design-roadmap" aria-label="设计阶段" hidden><button type="button" data-design-key="scope">需求与策略</button><button type="button" data-design-key="publish">发布与分发</button><button type="button" data-design-key="early">第一次读取</button><button type="button" data-design-key="finish">追平与刷新</button><button type="button" data-design-key="review">工作量与取舍</button></nav>
+    <div class="design-columns">
+      <section class="drawing-panel" data-animation-panel aria-labelledby="drawing-title">
+        <div class="drawing-heading"><h2 id="drawing-title">帖子、副本引用与读取结果</h2><span id="drawing-stage">需求</span></div>
+        <div class="drawing-scroll" data-stage>
+          <svg id="architecture" viewBox="0 0 900 430" role="img" aria-labelledby="architecture-title architecture-description">
+            <title id="architecture-title">信息流发布和读取的逐步状态</title><desc id="architecture-description">u1 关注 A 和 B；同一条新帖子可以在发布时分发，或者读取时合并。</desc>
+            <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7"/></marker></defs>
+            <g class="flow" data-flow="enqueue-a" hidden><path d="M260 72 H315"/></g>
+            <g class="flow" data-flow="enqueue-b" hidden><path d="M260 187 H280 V90 H315"/></g>
+            <g class="flow" data-flow="fanout-reader" hidden><path d="M435 115 V140"/></g>
+            <g class="flow" data-flow="fanout-others" hidden><path d="M550 72 H575 V330 H555"/></g>
+            <g class="flow" data-flow="read-a" hidden><path d="M260 60 H285 V15 H735 V25"/></g>
+            <g class="flow" data-flow="read-b" hidden><path d="M260 200 H290 V130 H595 V75 H615"/></g>
+            <g class="flow" data-flow="read-inbox" hidden><path d="M550 215 H590 V85 H615"/></g>
+            <g class="flow" data-flow="result" hidden><path d="M740 115 V145"/></g>
+            <g class="component" data-node="a"><rect x="30" y="30" width="230" height="85" rx="4"/><text x="145" y="56">作者 A / 普通用户</text><text class="node-detail" x="145" y="79" id="author-a">3 位关注者</text><text class="post-list" x="145" y="102" id="timeline-a">A1 @ 10:00:01</text></g>
+            <g class="component" data-node="b"><rect x="30" y="145" width="230" height="85" rx="4"/><text x="145" y="171">作者 B / 大量关注者</text><text class="node-detail" x="145" y="194" id="author-b">12 位关注者</text><text class="post-list" x="145" y="217" id="timeline-b">B1 @ 10:00:02</text></g>
+            <g class="component" data-node="job"><rect x="320" y="30" width="230" height="85" rx="4"/><text x="435" y="56">分发任务</text><text class="node-detail" x="435" y="79" id="fanout-state">尚未发布</text><text class="node-detail" x="435" y="102" id="policy-state">混合：A 推，B 拉</text></g>
+            <g class="component" data-node="inbox"><rect x="320" y="145" width="230" height="135" rx="4"/><text x="435" y="173">u1 的收件箱引用</text><text class="post-list" x="435" y="202" id="reader-inbox">A1</text><text class="node-detail" x="435" y="232">u1 关注 A 和 B</text><text class="node-detail" x="435" y="259" id="reader-status">尚未读取</text></g>
+            <g class="component" data-node="others"><rect x="320" y="300" width="230" height="60" rx="4"/><text x="435" y="324" id="other-followers">其他关注者</text><text class="node-detail" x="435" y="348" id="other-copies">新帖引用：0 份</text></g>
+            <g class="component" data-node="feed"><rect x="620" y="30" width="240" height="85" rx="4"/><text x="740" y="56">Feed API</text><text class="node-detail" x="740" y="80" id="request-state">等待 u1 打开信息流</text><text class="node-detail" x="740" y="103" id="source-state">按时间倒序合并</text></g>
+            <g class="component" data-node="result"><rect x="620" y="150" width="240" height="175" rx="4"/><text x="740" y="179" id="result-title">上一次响应</text><text class="post-list" x="740" y="211" data-feed-row="0">尚未查询</text><text class="post-list" x="740" y="244" data-feed-row="1"></text><text class="post-list" x="740" y="277" data-feed-row="2"></text><text class="node-detail" x="740" y="310" id="result-version">无</text></g>
+            <text class="diagram-note" x="145" y="277">新帖 P3 @ 10:00:03</text><text class="diagram-note" x="145" y="307" id="selected-author">本次由 B 发布</text><text class="diagram-note" x="145" y="337">旧帖作为初始数据</text>
+            <text class="work-count" x="450" y="390" id="work-count">作者写 0；收件箱写 0；读取 0；合并候选 0</text>
+            <text class="node-detail" x="450" y="418" id="status-line">只统计本次新帖及之后的两次读取，不计初始化。</text>
+          </svg>
+        </div>
+        <p class="step-change" id="step-change" role="status" aria-live="polite">u1 关注 A 与 B。新帖发布后，需要把它放进按时间倒序排列的信息流。</p>
+      </section>
+      <aside class="decision-panel" aria-labelledby="decision-title"><h2 id="decision-title">先限定时间顺序的信息流</h2><p id="decision-why">u1 同时关注 A 和 B。保留两条旧帖，再发布一条 P3，比较发布路径和读取路径。</p><pre class="evidence"><code id="decision-evidence">A1 @ 10:00:01
+B1 @ 10:00:02
+新帖 P3 @ 10:00:03</code></pre><h3>代价与边界</h3><p id="decision-tradeoff">只做一个小社交图的确定性模拟，不包含推荐排序、隐私过滤或真实后端。</p></aside>
+    </div>
+    <div class="av-controls design-controls" hidden>
+      <div class="av-transport"><button type="button" data-action="previous"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10 H4 M9 5 L4 10 L9 15"/></svg>上一步</button><output data-count aria-live="polite">步骤 1 / 15</output><button type="button" data-action="next">下一步<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10 H16 M11 5 L16 10 L11 15"/></svg></button></div>
+      <div class="design-options av-options"><label class="settings">跳到步骤<select data-step-select aria-label="跳到步骤"></select></label><button type="button" data-action="copy-link">复制本步骤链接</button><button type="button" id="restart">从头开始</button></div>
+      <div class="feed-settings"><label>分发策略<select id="strategy"><option value="push">推：发布时分发</option><option value="pull">拉：读取时合并</option><option value="hybrid" selected>混合：按作者分开</option></select></label><label>本次发布者<select id="author"><option value="a">A / 普通用户</option><option value="b" selected>B / 大量关注者</option></select></label><label>B 的关注者数<select id="followers"><option value="6">6</option><option value="12" selected>12</option><option value="24">24</option></select></label></div>
+    </div>
+  </div>
+  <section class="design-notes"><div><h2>把工作放在哪一次请求</h2><p>推在发布时写入关注者的收件箱引用；拉在读取时查询作者时间线。</p></div><p>混合策略在本例中把 A 的旧帖与新帖推入收件箱，把 B 的帖子留在作者时间线，读取时再合并。阈值 5 只是教学选择；生产边界应结合关注者规模、活跃读者、读写频率和服务成本评估。</p></section>
+  <section class="design-notes"><div><h2>分发完成之前会看到什么</h2><p>本例让 u1 排在分发队列最后，显式观察暂时缺少新帖的响应。</p></div><p>推送进度不会自动刷新已返回的页面。分发完成后，下一次读取才看到 P3。这里一次批量处理只做不同收件箱的独立写入，不是跨用户原子事务；重试还需按帖子 ID 去重。帖子删除、关注关系变化和权限检查也要单独设计。</p></section>
+  <section class="design-notes"><div><h2>继续修改架构</h2><p>在草图中加入分页、分发任务重试与关注关系更新。</p></div><div><a class="download-link" href="./news-feed.excalidraw" download>下载 Excalidraw 草图</a><a class="editor-link" href="https://excalidraw.com/" target="_blank" rel="noopener">打开 Excalidraw</a></div></section>
+  <footer class="lesson-footer"><p>参考：Alex Xu，《System Design Interview: An Insider’s Guide》第二版，第 11 章。社交图、时间戳、阈值和工作计数均为原创教学样本，不是生产基准。</p><p>相关题目：<a href="../combine-sorted-linked-lists/">Combine Sorted Linked Lists / 合并有序流</a>；<a href="../design-notification-queue/">Notification Queue / 异步重试</a>；<a href="../?topic=system-design">系统设计目录</a></p></footer>
+</main>
+</body>
+</html>

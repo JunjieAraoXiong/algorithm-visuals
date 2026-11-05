@@ -1,6 +1,7 @@
 (() => {
   'use strict';
-  const sections = [...document.querySelectorAll('.pattern')];
+  const tabs = [...document.querySelectorAll('.catalog-tab')];
+  const sections = [...document.querySelectorAll('#algorithms-panel .pattern')];
   const sidebar = document.querySelector('.chapter-sidebar');
   const nav = document.querySelector('#chapter-links');
   const input = document.querySelector('#visual-search');
@@ -20,6 +21,39 @@
   });
   let chapter = '';
   let query = '';
+  let topic = 'algorithms';
+
+  document.querySelector('.catalog-tabs').setAttribute('role', 'tablist');
+  for (const [index, tab] of tabs.entries()) {
+    const panel = document.querySelector(`#${tab.dataset.topic}-panel`);
+    tab.setAttribute('role', 'tab');
+    tab.setAttribute('aria-controls', panel.id);
+    panel.setAttribute('role', 'tabpanel');
+    tab.addEventListener('click', event => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      selectTopic(tab.dataset.topic);
+    });
+    tab.addEventListener('keydown', event => {
+      const next = { ArrowRight: (index + 1) % tabs.length,
+        ArrowLeft: (index + tabs.length - 1) % tabs.length,
+        Home: 0, End: tabs.length - 1 }[event.key];
+      if (next !== undefined) {
+        event.preventDefault();
+        selectTopic(tabs[next].dataset.topic);
+        tabs[next].focus();
+      } else if (event.key === ' ') {
+        event.preventDefault();
+        selectTopic(tab.dataset.topic);
+      }
+    });
+  }
+
+  function selectTopic(next) {
+    topic = next;
+    syncURL(true);
+    render();
+  }
 
   function addLink(slug, name, number, total) {
     const link = document.createElement('a');
@@ -51,6 +85,7 @@
 
   function syncURL(push = false) {
     const url = new URL(location.href);
+    if (topic !== 'algorithms') url.searchParams.set('topic', topic); else url.searchParams.delete('topic');
     if (chapter) url.searchParams.set('chapter', chapter); else url.searchParams.delete('chapter');
     if (query) url.searchParams.set('q', query); else url.searchParams.delete('q');
     url.hash = '';
@@ -58,6 +93,19 @@
   }
 
   function render() {
+    for (const tab of tabs) {
+      const active = tab.dataset.topic === topic;
+      tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
+      document.getElementById(tab.getAttribute('aria-controls')).hidden = !active;
+      const url = new URL(location.href);
+      if (tab.dataset.topic === 'algorithms') url.searchParams.delete('topic');
+      else url.searchParams.set('topic', tab.dataset.topic);
+      url.hash = '';
+      tab.href = `${url.pathname}${url.search}`;
+    }
+    document.querySelector('.skip').href = topic === 'algorithms' ? '#catalog-results' : '#system-design-panel';
+    document.title = `${topic === 'algorithms' ? 'Algorithms / 算法' : 'System Design / 系统设计'} | Visual Library`;
     let matches = 0;
     let shownChapters = 0;
     const words = query.toLocaleLowerCase().split(/\s+/).filter(Boolean);
@@ -89,6 +137,8 @@
 
   function readURL() {
     const params = new URLSearchParams(location.search);
+    const requestedTopic = params.get('topic') || location.hash.replace(/^#(.+)-panel$/, '$1');
+    topic = tabs.some(tab => tab.dataset.topic === requestedTopic) ? requestedTopic : 'algorithms';
     const requested = params.get('chapter');
     chapter = chapters.some(c => c.slug === requested) ? requested : '';
     query = params.get('q') || '';

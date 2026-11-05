@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="逐步设计一致性哈希：比较取模和哈希环，观察节点增减、数据迁移与虚拟节点。">
+  <title>Consistent Hashing / 一致性哈希</title>
+  <link rel="stylesheet" href="./demo.css">
+  <script src="../assets/core.js" defer></script>
+  <script src="./model.js" defer></script>
+  <script src="./demo.js" defer></script>
+</head>
+<body class="design-page hashing-page">
+<main id="design-lesson">
+  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a><a href="../?topic=system-design">System Design / 系统设计</a></nav>
+  <header class="lesson-heading"><h1>Consistent Hashing <span>一致性哈希</span></h1><p>服务器增减时，尽量少改变 key 的归属。参考 Alex Xu 第 5 章。</p></header>
+  <div id="design-workspace" data-learning-layout>
+    <nav class="design-roadmap" aria-label="设计阶段" hidden>
+      <button type="button" data-design-key="scope" data-jump="0">分区需求</button>
+      <button type="button" data-design-key="modulo" data-jump="1">取模的代价</button>
+      <button type="button" data-design-key="ring" data-jump="3">哈希环查询</button>
+      <button type="button" data-design-key="migration" data-jump="6">成员变化</button>
+      <button type="button" data-design-key="virtual" data-jump="9">虚拟节点</button>
+    </nav>
+    <div class="design-columns">
+      <section class="drawing-panel" data-animation-panel aria-labelledby="drawing-title">
+        <div class="drawing-heading"><h2 id="drawing-title">key 的路由与归属</h2><span id="drawing-stage">需求</span></div>
+        <div class="drawing-scroll" data-stage>
+          <svg id="architecture" viewBox="0 0 900 430" role="img" aria-labelledby="architecture-title architecture-description">
+            <title id="architecture-title">一致性哈希的分区与重路由</title>
+            <desc id="architecture-description">十二个 key 分配到 A、B、C 三台服务器，节点变化时比较归属。</desc>
+            <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7"/></marker></defs>
+            <g id="scene"><text x="450" y="165">Client → 路由规则 → Server</text><text x="450" y="225">同一个 key 的所有请求必须找到同一归属</text><text class="node-detail" x="450" y="275">先用固定三台服务器，再讨论扩容与迁移。</text></g>
+          </svg>
+        </div>
+        <p id="step-change" class="step-change" role="status" aria-live="polite">先定义分区规则：同一份成员配置必须对同一个 key 得到相同结果。</p>
+      </section>
+      <aside class="decision-panel" aria-labelledby="decision-title">
+        <h2 id="decision-title">先让请求找到正确的服务器</h2><p id="decision-why">用三台服务器存放不同 key。路由规则决定去哪一台读取；先不加入副本或自动恢复。</p>
+        <pre class="evidence"><code id="decision-evidence">Client → Router → Server
+初始成员：A、B、C
+固定样本：k0 … k11</code></pre>
+        <h3>代价与边界</h3><p id="decision-tradeoff">图中位置与数据为教学样本，不是生产负载；这是一份确定性的模拟。</p>
+      </aside>
+    </div>
+    <div class="av-controls design-controls" hidden>
+      <div class="av-transport"><button type="button" data-action="previous"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10 H4 M9 5 L4 10 L9 15"/></svg>上一步</button><output data-count aria-live="polite">步骤 1 / 13</output><button type="button" data-action="next">下一步<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10 H16 M11 5 L16 10 L11 15"/></svg></button></div>
+      <div class="design-options av-options"><label class="settings">跳到步骤<select data-step-select aria-label="跳到步骤"></select></label><button type="button" data-action="copy-link">复制本步骤链接</button><button type="button" id="restart">从头开始</button></div>
+      <div class="hash-settings">
+        <label>成员变化<select id="membership" aria-label="成员变化"><option value="add">加入 D</option><option value="remove">计划移除 B</option></select></label>
+        <label>查询 key<select id="selected-key" aria-label="查询 key"><option value="k1">k1</option></select></label>
+        <label>虚拟节点 / 台<select id="virtual-count" aria-label="每台虚拟节点数"><option value="1">1</option><option value="3" selected>3</option><option value="6">6</option></select></label>
+      </div>
+    </div>
+  </div>
+  <section class="design-notes" aria-labelledby="hash-inputs-title">
+    <div><h2 id="hash-inputs-title">固定输入，才能公平比较</h2><p>每个 key 的散列结果始终不变。这里把空间缩小为 0 到 359，节点坐标也预先给定，便于逐个核对。</p></div>
+    <div><p id="hash-inputs">k0:12, k1:42, k2:77, k3:109, k4:139, k5:168, k6:205, k7:236, k8:263, k9:291, k10:322, k11:348</p><p>取模使用当前成员顺序；哈希环选择顺时针第一个节点，经过 359 后回到 0。虚拟节点的坐标不因其他服务器增减而改变。</p></div>
+  </section>
+  <section class="design-notes" aria-labelledby="continue-title">
+    <div><h2 id="continue-title">把迁移过程接到架构上</h2><p>归属改变后，还要协调数据复制、增量写入和路由切换。环本身不会搬数据。</p></div>
+    <div><a class="download-link" href="./consistent-hashing.excalidraw" download>下载 Excalidraw 草图</a><a class="editor-link" href="https://excalidraw.com/" target="_blank" rel="noopener">打开 Excalidraw</a><p>下一问：迁移期间旧节点仍收到写入，如何保证新节点不会漏数据？</p></div>
+  </section>
+  <footer class="lesson-footer"><p>参考：Alex Xu，《System Design Interview: An Insider’s Guide》第二版，第 5 章。这里使用重新绘制的教学样本，补充区分路由、迁移与故障恢复。</p><p>相关题目：<a href="../design-url-shortener/">URL Shortener / 短链接</a>；<a href="../longest-chain-of-consecutive-numbers/">最长连续数字链 / 哈希集合练习</a>；<a href="../?topic=system-design">系统设计目录</a></p></footer>
+</main>
+</body>
+</html>

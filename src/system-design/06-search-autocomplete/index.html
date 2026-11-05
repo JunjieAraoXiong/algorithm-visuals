@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="逐步查询 Trie、缓存 Top-K，并观察词频更新与快照发布之间的滞后。">
+  <title>Search Autocomplete / 搜索补全</title>
+  <link rel="stylesheet" href="./demo.css">
+  <script src="../assets/core.js" defer></script>
+  <script src="./demo.js" defer></script>
+</head>
+<body class="design-page">
+<main id="design-lesson">
+  <nav class="back-nav" aria-label="页面导航"><a class="back-link" href="../">← Algo Visual / 返回目录</a><a href="../?topic=system-design">System Design / 系统设计</a></nav>
+  <header class="lesson-heading"><h1>Search Autocomplete <span>搜索补全</span></h1><p>输入前缀找出热门词；词频变化后，什么时候才能读到新结果？</p></header>
+  <div id="design-workspace" data-learning-layout>
+    <nav class="design-roadmap" aria-label="设计阶段" hidden>
+      <button type="button" data-design-key="scope">需求与 Trie</button><button type="button" data-design-key="query">遍历查询</button><button type="button" data-design-key="cache">缓存 Top-K</button><button type="button" data-design-key="update">更新与发布</button><button type="button" data-design-key="review">取舍与边界</button>
+    </nav>
+    <div class="design-columns">
+      <section class="drawing-panel" data-animation-panel aria-labelledby="drawing-title">
+        <div class="drawing-heading"><h2 id="drawing-title">前缀树与查询快照</h2><span id="drawing-stage">需求</span></div>
+        <div class="drawing-scroll" data-stage>
+          <svg id="architecture" viewBox="0 0 900 430" role="img" aria-labelledby="architecture-title architecture-description">
+            <title id="architecture-title">前缀 Trie、Top-K 结果与离线更新</title><desc id="architecture-description">六个词组成前缀树；查询读取已发布快照，词频源更新后需要构建并发布新快照。</desc>
+            <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7"/></marker></defs>
+            <text class="section-label" x="280" y="28" id="query-label">查询 prefix = ca，K = 3</text>
+            <g id="trie-edges" aria-hidden="true">
+              <path data-edge="c" d="M300 72 L175 120"/><path data-edge="d" d="M300 72 L425 120"/><path data-edge="ca" d="M175 138 V180"/><path data-edge="do" d="M425 138 V180"/>
+              <path data-edge="can" d="M175 198 L70 257"/><path data-edge="cap" d="M175 198 L140 257"/><path data-edge="car" d="M175 198 L210 257"/><path data-edge="cat" d="M175 198 L280 257"/><path data-edge="dog" d="M425 198 L390 257"/><path data-edge="dot" d="M425 198 L470 257"/>
+            </g>
+            <g class="trie-node" data-prefix=""><circle cx="300" cy="60" r="18"/><text x="300" y="66">∅</text></g>
+            <g class="trie-node" data-prefix="c"><circle cx="175" cy="120" r="18"/><text x="175" y="126">c</text></g><g class="trie-node" data-prefix="d"><circle cx="425" cy="120" r="18"/><text x="425" y="126">d</text></g>
+            <g class="trie-node" data-prefix="ca"><circle cx="175" cy="180" r="18"/><text x="175" y="186">a</text></g><g class="trie-node" data-prefix="do"><circle cx="425" cy="180" r="18"/><text x="425" y="186">o</text></g>
+            <g class="trie-node terminal" data-prefix="can"><circle cx="70" cy="257" r="18"/><text x="70" y="263">n</text><text class="word-label" x="70" y="299" data-word="can">can 4</text></g>
+            <g class="trie-node terminal" data-prefix="cap"><circle cx="140" cy="257" r="18"/><text x="140" y="263">p</text><text class="word-label" x="140" y="299" data-word="cap">cap 6</text></g>
+            <g class="trie-node terminal" data-prefix="car"><circle cx="210" cy="257" r="18"/><text x="210" y="263">r</text><text class="word-label" x="210" y="299" data-word="car">car 20</text></g>
+            <g class="trie-node terminal" data-prefix="cat"><circle cx="280" cy="257" r="18"/><text x="280" y="263">t</text><text class="word-label" x="280" y="299" data-word="cat">cat 12</text></g>
+            <g class="trie-node terminal" data-prefix="dog"><circle cx="390" cy="257" r="18"/><text x="390" y="263">g</text><text class="word-label" x="390" y="299" data-word="dog">dog 10</text></g>
+            <g class="trie-node terminal" data-prefix="dot"><circle cx="470" cy="257" r="18"/><text x="470" y="263">t</text><text class="word-label" x="470" y="299" data-word="dot">dot 8</text></g>
+            <g class="results-panel"><rect x="555" y="48" width="315" height="268" rx="4"/><text x="712" y="80" id="snapshot-label">服务快照 v1</text><text class="node-detail" x="712" y="110" id="result-mode">尚未查询</text><text class="result-row" x="585" y="155" data-result="0">尚未查询</text><text class="result-row" x="585" y="192" data-result="1"></text><text class="result-row" x="585" y="229" data-result="2"></text><text class="node-detail" x="712" y="279" id="work-count">词频保存在单词末端</text></g>
+            <path class="pipeline-line" d="M32 333 H868"/>
+            <text class="pipeline-label" x="145" y="366" id="source-frequency">词频源 cap = 6</text><text class="pipeline-label" x="440" y="366" id="build-state">离线构建：无待发布版本</text><text class="pipeline-label" x="752" y="366" id="published-state">查询读取 v1</text>
+            <g class="flow" id="build-flow"><path d="M250 362 H297"/></g><g class="flow" id="publish-flow"><path d="M582 362 H648"/></g>
+            <text class="node-detail" x="450" y="405" id="pipeline-status">查询路径与词频更新路径相互独立</text>
+          </svg>
+        </div>
+        <p id="step-change" class="step-change" role="status" aria-live="polite">先限定：按前缀匹配，按词频降序返回最多 K 个词。</p>
+      </section>
+      <aside class="decision-panel" aria-labelledby="decision-title"><h2 id="decision-title">先确定补全规则</h2><p id="decision-why">六个英文词组成小词典。输入前缀，返回词频最高的 K 个匹配词；同频时按字母顺序决定先后。</p><pre class="evidence"><code id="decision-evidence">prefix = ca，K = 3
+car:20，cat:12，cap:6，can:4</code></pre><h3>代价与边界</h3><p id="decision-tradeoff">本例不做拼写纠错、个性化或语义搜索。词频是演示数据，不是生产排名指标。</p></aside>
+    </div>
+    <div class="av-controls design-controls" hidden>
+      <div class="av-transport"><button type="button" data-action="previous"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10 H4 M9 5 L4 10 L9 15"/></svg>上一步</button><output data-count aria-live="polite">步骤 1 / 14</output><button type="button" data-action="next">下一步<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10 H16 M11 5 L16 10 L11 15"/></svg></button></div>
+      <div class="design-options av-options"><label class="settings">跳到步骤<select data-step-select aria-label="跳到步骤"></select></label><button type="button" data-action="copy-link">复制本步骤链接</button><button type="button" id="restart">从头开始</button></div>
+      <form id="query-settings" class="query-settings"><label>前缀<input id="prefix" name="prefix" value="ca" maxlength="3" pattern="[a-zA-Z]{0,3}" aria-label="前缀" autocomplete="off"></label><label>K<select id="top-k" aria-label="结果数量 K"><option>1</option><option>2</option><option selected>3</option></select></label><label>更新词<select id="update-word" aria-label="更新哪个词"><option>can</option><option selected>cap</option><option>car</option><option>cat</option><option>dog</option><option>dot</option></select></label><label>新词频<input id="new-frequency" type="number" min="1" max="99" value="30" aria-label="新词频"></label><button type="submit">应用并重放</button><span>前缀最多 3 个英文字母，可留空</span></form>
+    </div>
+  </div>
+  <section class="design-notes"><div><h2>把查询计算提前</h2><p>每个前缀节点保存最多三个候选；请求只取所需的前 K 个。</p></div><p>缓存让查询不再扫描整棵匹配子树，但增加存储和更新工作。查找前缀仍需读取 p 个字符，返回 K 个词也有输出成本。这里只支持 K ≤ 3；如果产品需要更多结果，就要增大缓存或回退到遍历。</p></section>
+  <section class="design-notes"><div><h2>更新词频不等于发布结果</h2><p>查询始终读取一个完整快照。离线构建完成后才切换到新版本。</p></div><p>此例用一次指针切换模拟单个查询进程发布，避免读到构建一半的索引。多实例部署还需版本分发、健康检查与回滚；各实例也可能短时间读取不同版本。快照周期决定热词反映到结果的滞后。</p></section>
+  <section class="design-notes"><div><h2>继续修改架构</h2><p>在草图上补充日志汇总、版本分发与失败回滚。</p></div><div><a class="download-link" href="./search-autocomplete.excalidraw" download>下载 Excalidraw 草图</a><a class="editor-link" href="https://excalidraw.com/" target="_blank" rel="noopener">打开 Excalidraw</a></div></section>
+  <footer class="lesson-footer"><p>参考：Alex Xu，《System Design Interview: An Insider’s Guide》第二版，第 13 章；<a href="https://algs4.cs.princeton.edu/code/javadoc/edu/princeton/cs/algs4/TrieST.html">Princeton TrieST 前缀查询</a>。词典、词频和版本轨迹为原创演示。</p><p>相关题目：<a href="../k-most-frequent-strings/">K Most Frequent Strings / 前 K 个高频字符串</a>；<a href="../binary-search-tree-validation/">Tree / 树结构</a>；<a href="../?topic=system-design">系统设计目录</a></p></footer>
+</main>
+</body>
+</html>
