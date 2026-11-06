@@ -12,9 +12,11 @@
 #architecture .server-token { fill: var(--color-paper); stroke: var(--color-ink); stroke-width: 1.6; }
 #architecture .selected-token { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 2.5; }
 #architecture .token-label { font-size: 16px; }
-#architecture .server-box { fill: var(--color-paper); stroke: var(--color-field-edge); stroke-width: 1.2; }
+#architecture .server-box { fill: none; stroke: none; stroke-width: 1.2; }
 #architecture .server.is-selected .server-box { stroke: var(--color-accent); stroke-width: 2; stroke-dasharray: 5 3; fill: var(--color-accent-soft); }
-#architecture .server.is-absent .server-box { stroke-dasharray: 4 4; }
+#architecture .server.is-selected .system-figure { color: var(--color-accent); }
+#architecture .server.is-absent .system-figure { color: var(--color-muted); opacity: .5; }
+#architecture .server-divider { fill: none; stroke: var(--color-rule); stroke-width: 1; }
 #architecture .server .owner-keys { font: 18px var(--font-outlier); }
 #architecture .server .owner-count { font-size: 15px; fill: var(--color-muted); }
 #architecture .lookup-path { fill: none; stroke: var(--color-accent); stroke-width: 3; marker-end: url('#arrow'); }

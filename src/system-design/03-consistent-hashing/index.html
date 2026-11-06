@@ -30,7 +30,7 @@
             <title id="architecture-title">一致性哈希的分区与重路由</title>
             <desc id="architecture-description">十二个 key 分配到 A、B、C 三台服务器，节点变化时比较归属。</desc>
             <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7"/></marker></defs>
-            <g id="scene"><text x="450" y="165">Client → 路由规则 → Server</text><text x="450" y="225">同一个 key 的所有请求必须找到同一归属</text><text class="node-detail" x="450" y="275">先用固定三台服务器，再讨论扩容与迁移。</text></g>
+            <g id="scene"><use class="system-figure" href="../assets/system-figures.svg#client" x="176" y="115" width="64" height="64"/><use class="system-figure" href="../assets/system-figures.svg#router" x="418" y="115" width="64" height="64"/><use class="system-figure" href="../assets/system-figures.svg#server" x="660" y="115" width="64" height="64"/><path class="route-path" d="M262 148 H396 M504 148 H638"/><text x="208" y="210">Client</text><text x="450" y="210">路由规则</text><text x="692" y="210">Server</text><text x="450" y="275">同一个 key 的所有请求必须找到同一归属</text><text class="node-detail" x="450" y="315">先用固定三台服务器，再讨论扩容与迁移。</text></g>
           </svg>
         </div>
         <p id="step-change" class="step-change" role="status" aria-live="polite">先定义分区规则：同一份成员配置必须对同一个 key 得到相同结果。</p>

@@ -32,22 +32,22 @@
             <title id="architecture-title">令牌桶限流器的逐步设计</title>
             <desc id="architecture-description">一个用户的请求到达服务；先确定限流的范围。</desc>
             <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M1 1 L7 4 L1 7"/></marker></defs>
-            <g class="flow" data-flow="direct"><path d="M175 134 H724"/><text x="450" y="115">每个请求都进入服务</text></g>
-            <g class="flow" data-flow="incoming" hidden><path d="M175 134 H354"/><text x="260" y="115" id="request-label">POST /api/links</text></g>
-            <g class="flow" data-flow="allowed" hidden><path d="M560 134 H724"/><text x="645" y="115">通过</text></g>
-            <g class="flow" data-flow="denied" hidden><path d="M360 155 H270 V196 H105 V170"/><text x="225" y="222">429 / 本次未进入服务</text></g>
-            <g class="flow" data-flow="inspect" hidden><path d="M460 170 V234"/><text x="552" y="213">检查并消费</text></g>
+            <g class="flow" data-flow="direct"><path d="M141 108 H763"/><text x="450" y="91">每个请求都进入服务</text></g>
+            <g class="flow" data-flow="incoming" hidden><path d="M141 108 H422"/><text x="260" y="91" id="request-label">POST /api/links</text></g>
+            <g class="flow" data-flow="allowed" hidden><path d="M497 108 H763"/><text x="645" y="91">通过</text></g>
+            <g class="flow" data-flow="denied" hidden><path d="M422 126 H267 V199 H105 V181"/><text x="225" y="222">429 / 本次未进入服务</text></g>
+            <g class="flow" data-flow="inspect" hidden><path d="M460 183 V204 H620 V264 H606"/><text x="546" y="196">检查并消费</text></g>
             <g class="flow" data-flow="refill" hidden><path d="M670 260 H606"/><text x="741" y="264" id="refill-label">+1 令牌</text></g>
-            <g class="component" data-node="client"><rect x="35" y="100" width="140" height="70" rx="5"/><text x="105" y="129">Client</text><text class="node-detail" x="105" y="151">user:42</text></g>
-            <g class="component" data-node="gateway" hidden><rect x="360" y="100" width="200" height="70" rx="5"/><text x="460" y="129">Gateway / Limiter</text><text class="node-detail" x="460" y="151">服务端检查</text></g>
-            <g class="component" data-node="service"><rect x="730" y="100" width="140" height="70" rx="5"/><text x="800" y="129">Service</text><text class="node-detail" x="800" y="151" id="service-count">已收到 0 次</text></g>
+            <g class="component" data-node="client"><rect class="figure-boundary" x="35" y="76" width="140" height="104" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#client" x="79" y="81" width="52" height="52"/><text x="105" y="150">Client</text><text class="node-detail" x="105" y="173">user:42</text></g>
+            <g class="component" data-node="gateway" hidden><rect class="figure-boundary" x="360" y="76" width="200" height="104" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#gate" x="434" y="81" width="52" height="52"/><text x="460" y="150">Gateway / Limiter</text><text class="node-detail" x="460" y="173">服务端检查</text></g>
+            <g class="component" data-node="service"><rect class="figure-boundary" x="730" y="76" width="140" height="104" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#server" x="774" y="81" width="52" height="52"/><text x="800" y="150">Service</text><text class="node-detail" x="800" y="173" id="service-count">已收到 0 次</text></g>
             <g data-node="bucket" hidden>
-              <path class="bucket-outline" d="M310 238 V295 H600 V238"/>
+              <path class="bucket-outline" d="M304 242 L316 298 H594 L606 242"/><path class="bucket-rim" d="M304 242 H606"/>
               <text class="node-detail" x="455" y="230">key = user:42 + POST /api/links</text>
               <g id="token-slots"></g>
               <text x="455" y="322" id="token-count">令牌 3 / 3</text>
             </g>
-            <text class="clock-label" x="65" y="48" id="clock-state">t = 0 s</text>
+            <use class="system-figure" href="../assets/system-figures.svg#clock" x="30" y="24" width="28" height="28"/><text class="clock-label" x="70" y="48" id="clock-state">t = 0 s</text>
             <text class="node-detail" x="665" y="48" id="policy-state">容量 3；每秒补充 1</text>
             <g id="request-history" aria-label="请求记录"></g>
           </svg>

@@ -160,7 +160,7 @@
   function renderScene(state) {
     const selected = model.keys.find(key => key.id === state.selected);
     const owner = selected ? state.placement[selected.id] : null;
-    let drawing = `<g class="component"><rect x="25" y="15" width="120" height="40" rx="4"/><text x="85" y="41">Client</text><rect x="185" y="15" width="165" height="40" rx="4"/><text x="267" y="41">Router</text></g><path class="route-path" d="M145 35 H179"/><text class="route-label" x="670" y="76">${selected ? `GET(${selected.id})` : '同一配置，同一归属'}</text>`;
+    let drawing = `<g class="routing-figures"><use class="system-figure" href="../assets/system-figures.svg#client" x="25" y="12" width="46" height="46"/><text x="106" y="41">Client</text><use class="system-figure" href="../assets/system-figures.svg#router" x="185" y="12" width="46" height="46"/><text x="291" y="41">Router</text></g><path class="route-path" d="M145 35 H179"/><text class="route-label" x="670" y="76">${selected ? `GET(${selected.id})` : '同一配置，同一归属'}</text>`;
     if (state.mode === 'ring') {
       drawing += '<circle class="hash-ring" cx="220" cy="220" r="120"/>';
       for (const key of model.keys) {
@@ -198,7 +198,7 @@
       const assigned = model.keys.filter(key => state.placement[key.id] === server).map(key => key.id);
       const present = state.servers.includes(server);
       const parts = [assigned.slice(0, 4), assigned.slice(4, 8), assigned.slice(8)];
-      drawing += `<g class="server${server === owner && state.route ? ' is-selected' : ''}${present ? '' : ' is-absent'}" data-server="${server}" data-present="${present}" data-key-count="${assigned.length}" data-keys="${assigned.join(',')}"><rect class="server-box" x="${x}" y="${y}" width="190" height="125" rx="4"/>${tokenShape(server, x + 28, y + 24, 7, 'server-token')}<text x="${x + 106}" y="${y + 30}">Server ${server}</text><text class="owner-count" x="${x + 95}" y="${y + 53}">${present ? `${assigned.length} 个 key` : '不在当前配置'}</text>${parts.map((part, row) => `<text class="owner-keys" x="${x + 95}" y="${y + 77 + row * 19}">${part.join(' ') || (row === 0 && present ? '空' : '')}</text>`).join('')}</g>`;
+      drawing += `<g class="server${server === owner && state.route ? ' is-selected' : ''}${present ? '' : ' is-absent'}" data-server="${server}" data-present="${present}" data-key-count="${assigned.length}" data-keys="${assigned.join(',')}"><rect class="server-box" x="${x}" y="${y}" width="190" height="125" rx="4"/><use class="system-figure" href="../assets/system-figures.svg#server" x="${x + 9}" y="${y + 8}" width="46" height="46"/>${tokenShape(server, x + 173, y + 27, 6, 'server-token')}<text x="${x + 110}" y="${y + 30}">Server ${server}</text><text class="owner-count" x="${x + 110}" y="${y + 53}">${present ? `${assigned.length} 个 key` : '不在当前配置'}</text><path class="server-divider" d="M${x + 12} ${y + 64} H${x + 178}"/>${parts.map((part, row) => `<text class="owner-keys" x="${x + 95}" y="${y + 87 + row * 18}">${part.join(' ') || (row === 0 && present ? '空' : '')}</text>`).join('')}</g>`;
     });
     if (owner && state.route) {
       const index = ['A', 'B', 'C', 'D'].indexOf(owner), x = 550 + (index % 2) * 215, y = 100 + Math.floor(index / 2) * 145;

@@ -10,7 +10,7 @@ body.design-page { padding: var(--space-lg) var(--space-xl) var(--space-2xl); }
 .design-page main { max-width: var(--design-container); margin-inline: auto; }
 .back-nav { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-lg); min-height: 40px; font-size: 14px; }
 .back-nav .theme-toggle { margin-left: auto; }
-.lesson-heading { margin: var(--space-lg) 0; }
+.lesson-heading { margin: var(--space-md) 0 var(--space-lg); }
 .lesson-heading h1 { max-width: none; font-size: 28px; line-height: 1.4; text-wrap: balance; }
 .lesson-heading h1 span { display: inline-block; margin-left: var(--space-sm); }
 .lesson-heading p { margin-top: var(--space-xs); color: var(--color-muted); }
@@ -21,7 +21,7 @@ body.design-page { padding: var(--space-lg) var(--space-xl) var(--space-2xl); }
 .design-roadmap button:hover { background: var(--color-paper-2); color: var(--color-ink); }
 .design-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .42fr); gap: var(--space-lg); align-items: start; }
 .design-columns > * { min-width: 0; }
-.drawing-panel { border: 1px solid var(--color-field-edge); }
+.drawing-panel { border: 1px solid var(--color-rule); }
 .drawing-heading { display: flex; justify-content: space-between; gap: var(--space-md); padding: var(--space-sm) var(--space-md); border-bottom: 1px solid var(--color-rule); align-items: baseline; }
 .drawing-heading h2 { font-size: 15px; font-weight: 400; letter-spacing: 0; }
 .drawing-heading span { color: var(--color-muted); font-size: 13px; }
@@ -31,14 +31,18 @@ body.design-page { padding: var(--space-lg) var(--space-xl) var(--space-2xl); }
 #architecture .node-detail { font-size: var(--design-diagram-detail); fill: var(--color-muted); }
 .component rect, .component .store { fill: var(--color-paper); stroke: var(--color-ink); stroke-width: 1.4; }
 .component.is-current rect, .component.is-current .store { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 2; stroke-dasharray: 5 3; }
+.system-figure { color: var(--color-ink); }
+.component.is-current .system-figure { color: var(--color-accent); }
+.component .figure-boundary { fill: transparent; stroke: transparent; }
+.component.is-current .figure-boundary { fill: none; stroke: var(--color-accent); stroke-width: 1; stroke-dasharray: 4 4; }
 .flow path { fill: none; stroke: var(--color-ink); stroke-width: 1.5; marker-end: url('#arrow'); }
 #arrow path { fill: none; stroke: var(--color-ink); stroke-width: 1.2; }
-#architecture .flow text { font: 15px var(--font-outlier); fill: var(--color-muted); }
+#architecture .flow text { font: 15px var(--font-outlier); fill: var(--color-muted); paint-order: stroke; stroke: var(--color-paper); stroke-width: 6px; stroke-linejoin: round; }
 .flow.goal path { stroke-dasharray: 5 5; }
-.flow.is-current path { stroke-width: 2.2; }
+.flow.is-current path { stroke: var(--color-accent); stroke-width: 2; }
 .component.is-new { animation: component-arrive var(--dur-short) var(--ease-out); }
 @keyframes component-arrive { from { opacity: .3; } to { opacity: 1; } }
-.step-change { min-height: 76px; padding: var(--space-sm) var(--space-md); border-top: 1px dashed var(--color-field-edge); font-size: 15px; line-height: 1.65; }
+.step-change { min-height: 68px; padding: var(--space-sm) var(--space-md); border-top: 1px solid var(--color-rule); border-left: 3px solid var(--color-accent); font-size: 15px; line-height: 1.65; }
 .decision-panel h2 { font-size: 22px; font-weight: 400; line-height: 1.4; }
 .decision-panel > p:not(.decision-label) { margin-top: var(--space-sm); font-size: 15px; line-height: 1.7; }
 .decision-panel h3 { margin-top: var(--space-lg); font-size: 14px; font-weight: 400; color: var(--color-muted); letter-spacing: 0; }
@@ -83,7 +87,7 @@ button:active, .download-link:active { background: var(--color-paper-3); }
   .design-columns { display: contents; }
   .drawing-panel { order: 1; }
   .drawing-heading { padding-block: var(--space-xs); }
-  #architecture { height: 280px; }
+  #architecture { height: auto; max-height: 330px; }
   .step-change { min-height: 58px; font-size: 14px; }
   .design-controls { order: 2; margin-top: var(--space-sm); }
   .decision-panel { order: 3; margin-top: var(--space-lg); }

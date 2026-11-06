@@ -133,6 +133,7 @@
         const index = Number(row.dataset.result), item = state.result?.[index];
         row.textContent = item ? `${index + 1}. ${item.word}  ${item.frequency}` : index === 0 ? state.result ? '无匹配结果' : '尚未查询' : '';
       }
+      for (const component of root.querySelectorAll('[data-pipeline]')) component.classList.toggle('is-current', component.dataset.pipeline === state.active);
       root.querySelector('#build-flow').classList.toggle('is-current', state.active === 'build');
       root.querySelector('#publish-flow').classList.toggle('is-current', state.active === 'publish');
     }

@@ -5,8 +5,17 @@
 #architecture .state-ledger text { text-anchor: start; font: var(--notification-ledger-size) var(--font-outlier); }
 #architecture .state-ledger .node-detail { font: 18px var(--font-body); }
 #architecture .flow text { font: 16px var(--font-body); }
-#message-slot rect { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 1.5; }
-#message-slot[data-queue-state="处理中"] rect { stroke-dasharray: 5 4; }
 [data-flow="response"].is-lost path { stroke-dasharray: 5 4; }
 .design-options label { display: flex; align-items: center; gap: var(--space-sm); font-size: 14px; }
 .design-options select { min-height: 36px; padding-inline: var(--space-sm); color: var(--color-ink); background: var(--color-paper); border: 1px solid var(--color-field-edge); }
+
+/* The actors share a flow lane, but keep their own system roles. */
+#architecture .notification-actor > .figure-boundary { fill: none; stroke: none; }
+#architecture .notification-actor.is-current > .figure-boundary { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 1.5; stroke-dasharray: 4 4; }
+#architecture .notification-actor .system-figure { color: var(--color-ink); }
+#architecture .notification-actor.is-current .system-figure { color: var(--color-accent); }
+#architecture .notification-actor .node-detail { font-size: 16px; }
+#architecture #event-label { font: 17px var(--font-outlier); }
+#architecture .ledger-rule { fill: none; stroke: var(--color-rule); stroke-width: 1; }
+#message-slot .message-paper { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 1.5; }
+#message-slot[data-queue-state="处理中"] .message-paper { stroke-dasharray: 5 4; }

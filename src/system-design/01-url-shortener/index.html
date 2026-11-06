@@ -32,34 +32,34 @@
             <title id="architecture-title">短链接服务的设计过程</title>
             <desc id="architecture-description">浏览器创建并访问短链接，最后打开原网页。</desc>
             <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M1 1 L7 4 L1 7"/></marker></defs>
-            <g class="flow goal" data-flow="goal"><path d="M86 250 V334"/><text x="100" y="296">短链接 → 原网页</text></g>
-            <g class="flow" data-flow="request" hidden><path d="M152 198 H305 V165 H429"/><text x="232" y="180" data-flow-label>POST /api/links</text></g>
-            <g class="flow" data-flow="write" hidden><path d="M585 182 H655 V230 H699"/><text x="610" y="230">INSERT</text></g>
-            <g class="flow" data-flow="lookup" hidden><path d="M585 182 H655 V230 H699"/><text x="610" y="230">SELECT</text></g>
-            <g class="flow" data-flow="db-result" hidden><path d="M705 250 H625 V205 H560"/><text x="635" y="279">long_url</text></g>
-            <g class="flow" data-flow="created" hidden><path d="M435 145 H375 V110 H86 V180"/><text x="175" y="95">201 + 短链接</text></g>
-            <g class="flow" data-flow="redirect" hidden><path d="M435 145 H375 V110 H86 V180"/><text x="167" y="95">302 + Location</text></g>
-            <g class="flow" data-flow="visit" hidden><path d="M86 250 V334"/><text x="104" y="296">GET /article</text></g>
-            <g class="flow" data-flow="cache-get" hidden><path d="M585 149 H640 V69 H699"/><text x="590" y="105">GET code</text></g>
-            <g class="flow" data-flow="cache-miss" hidden><path d="M705 91 H667 V168 H591"/><text x="710" y="150">MISS</text></g>
-            <g class="flow" data-flow="cache-fill" hidden><path d="M585 149 H640 V69 H699"/><text x="590" y="105">SET + TTL</text></g>
-            <g class="flow" data-flow="cache-hit" hidden><path d="M705 91 H667 V168 H591"/><text x="710" y="150">HIT</text></g>
-            <g class="flow" data-flow="balance-in" hidden><path d="M152 217 H214"/></g>
-            <g class="flow" data-flow="balance-a" hidden><path d="M352 200 H388 V165 H429"/></g>
-            <g class="flow" data-flow="balance-b" hidden><path d="M352 233 H388 V325 H429"/></g>
-            <g class="flow" data-flow="shared-db" hidden><path d="M585 325 H650 V256 H699"/><text x="665" y="350">共享持久化存储</text></g>
-            <g class="flow" data-flow="shared-cache" hidden><path d="M510 360 V405 H884 V69 H866"/></g>
-            <g class="flow" data-flow="id-request" hidden><path d="M475 130 V86"/><text x="416" y="105">next ID</text></g>
-            <g class="flow" data-flow="id-result" hidden><path d="M545 80 V124"/><text x="510" y="110">id</text></g>
-            <g class="flow" data-flow="shared-id" hidden><path d="M435 47 H405 V157 Q392 165 405 173 V253 Q405 265 417 265 H460 V284"/><text x="493" y="250">创建时分配 ID</text></g>
-            <g class="component" data-node="browser"><rect x="20" y="185" width="132" height="65" rx="5"/><text x="86" y="213">Browser</text><text class="node-detail" x="86" y="235">浏览器</text></g>
-            <g class="component" data-node="destination"><rect x="20" y="340" width="145" height="65" rx="5"/><text x="92" y="368">Destination</text><text class="node-detail" x="92" y="390">原网页</text></g>
-            <g class="component" data-node="api" hidden><rect x="435" y="130" width="150" height="70" rx="5"/><text x="510" y="159">Short-link API</text><text class="node-detail" x="510" y="182">无状态服务 A</text></g>
-            <g class="component" data-node="db" hidden><path class="store" d="M705 210 C705 190 860 190 860 210 V260 C860 280 705 280 705 260 Z M705 210 C705 230 860 230 860 210"/><text x="783" y="247">Database</text><text class="node-detail" x="783" y="299" id="db-state">code → long_url</text></g>
-            <g class="component" data-node="cache" hidden><rect x="705" y="35" width="155" height="70" rx="5"/><text x="783" y="64">Cache</text><text class="node-detail" x="783" y="87" id="cache-state">热点映射 / TTL</text></g>
-            <g class="component" data-node="balancer" hidden><rect x="220" y="185" width="132" height="65" rx="5"/><text x="286" y="213">Load balancer</text><text class="node-detail" x="286" y="235">负载均衡</text></g>
-            <g class="component" data-node="api2" hidden><rect x="435" y="290" width="150" height="70" rx="5"/><text x="510" y="319">Short-link API</text><text class="node-detail" x="510" y="342">无状态服务 B</text></g>
-            <g class="component" data-node="id" hidden><rect x="435" y="15" width="150" height="65" rx="5"/><text x="510" y="42">Unique ID</text><text class="node-detail" x="510" y="65">仅创建时分配</text></g>
+            <g class="flow goal" data-flow="goal"><path d="M86 268 V326"/><text x="100" y="296">短链接 → 原网页</text></g>
+            <g class="flow" data-flow="request" hidden><path d="M120 201 H315 V157 H478"/><text x="232" y="180" data-flow-label>POST /api/links</text></g>
+            <g class="flow" data-flow="write" hidden><path d="M542 174 H650 V220 H749"/><text x="610" y="230">INSERT</text></g>
+            <g class="flow" data-flow="lookup" hidden><path d="M542 174 H650 V220 H749"/><text x="610" y="230">SELECT</text></g>
+            <g class="flow" data-flow="db-result" hidden><path d="M749 243 H622 V187 H548"/><text x="627" y="263">long_url</text></g>
+            <g class="flow" data-flow="created" hidden><path d="M478 145 H375 V110 H86 V169"/><text x="175" y="95">201 + 短链接</text></g>
+            <g class="flow" data-flow="redirect" hidden><path d="M478 145 H375 V110 H86 V169"/><text x="167" y="95">302 + Location</text></g>
+            <g class="flow" data-flow="visit" hidden><path d="M86 268 V326"/><text x="104" y="296">GET /article</text></g>
+            <g class="flow" data-flow="cache-get" hidden><path d="M542 153 H640 V51 H749"/><text x="610" y="99">GET code</text></g>
+            <g class="flow" data-flow="cache-miss" hidden><path d="M749 71 H667 V176 H548"/><text x="710" y="150">MISS</text></g>
+            <g class="flow" data-flow="cache-fill" hidden><path d="M542 153 H640 V51 H749"/><text x="610" y="99">SET + TTL</text></g>
+            <g class="flow" data-flow="cache-hit" hidden><path d="M749 71 H667 V176 H548"/><text x="710" y="150">HIT</text></g>
+            <g class="flow" data-flow="balance-in" hidden><path d="M120 208 H252"/></g>
+            <g class="flow" data-flow="balance-a" hidden><path d="M318 210 H388 V157 H478"/></g>
+            <g class="flow" data-flow="balance-b" hidden><path d="M318 230 H388 V310 H478"/></g>
+            <g class="flow" data-flow="shared-db" hidden><path d="M542 310 H700 V247 H749"/><text x="665" y="342">共享持久化存储</text></g>
+            <g class="flow" data-flow="shared-cache" hidden><path d="M510 386 V417 H884 V51 H817"/></g>
+            <g class="flow" data-flow="id-request" hidden><path d="M490 126 V96"/><text x="416" y="105">next ID</text></g>
+            <g class="flow" data-flow="id-result" hidden><path d="M530 95 V126"/><text x="554" y="119">id</text></g>
+            <g class="flow" data-flow="shared-id" hidden><path d="M480 30 H408 V147 Q394 157 408 167 V294 H478"/><text x="505" y="260">创建时分配 ID</text></g>
+            <g class="component" data-node="browser"><rect class="figure-boundary" x="20" y="173" width="132" height="92" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#browser" x="62" y="176" width="48" height="48"/><text x="86" y="239">Browser</text><text class="node-detail" x="86" y="260">浏览器</text></g>
+            <g class="component" data-node="destination"><rect class="figure-boundary" x="20" y="330" width="145" height="91" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#document" x="70" y="333" width="44" height="44"/><text x="92" y="389">Destination</text><text class="node-detail" x="92" y="410">原网页</text></g>
+            <g class="component" data-node="api" hidden><rect class="figure-boundary" x="435" y="128" width="150" height="101" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#server" x="486" y="133" width="48" height="48"/><text x="510" y="202">Short-link API</text><text class="node-detail" x="510" y="223">无状态服务 A</text></g>
+            <g class="component" data-node="db" hidden><rect class="figure-boundary" x="705" y="193" width="155" height="112" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#database" x="757" y="199" width="52" height="52"/><text x="783" y="274">Database</text><text class="node-detail" x="783" y="297" id="db-state">code → long_url</text></g>
+            <g class="component" data-node="cache" hidden><rect class="figure-boundary" x="705" y="22" width="155" height="100" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#cache" x="759" y="27" width="48" height="48"/><text x="783" y="93">Cache</text><text class="node-detail" x="783" y="115" id="cache-state">热点映射 / TTL</text></g>
+            <g class="component" data-node="balancer" hidden><rect class="figure-boundary" x="220" y="185" width="132" height="103" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#router" x="262" y="190" width="48" height="48"/><text x="286" y="261">Load balancer</text><text class="node-detail" x="286" y="282">负载均衡</text></g>
+            <g class="component" data-node="api2" hidden><rect class="figure-boundary" x="435" y="281" width="150" height="104" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#server" x="486" y="286" width="48" height="48"/><text x="510" y="355">Short-link API</text><text class="node-detail" x="510" y="377">无状态服务 B</text></g>
+            <g class="component" data-node="id" hidden><rect class="figure-boundary" x="435" y="5" width="150" height="88" rx="6"/><use class="system-figure" href="../assets/system-figures.svg#id" x="488" y="8" width="44" height="44"/><text x="510" y="66">Unique ID</text><text class="node-detail" x="510" y="87">仅创建时分配</text></g>
             <g class="design-note" data-note="traffic" hidden>
               <text class="note-title" x="250" y="100">书中的流量假设</text>
               <path d="M250 120 H840 M250 187 H840 M250 254 H840"/>
