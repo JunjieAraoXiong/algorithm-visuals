@@ -139,13 +139,15 @@
       for (const node of root.querySelectorAll('[data-node]')) node.classList.toggle('is-current', frame.active.includes(node.dataset.node));
       root.querySelector('[data-node="c"]').classList.toggle('is-offline', !state.onlineC);
       for (const flow of root.querySelectorAll('[data-flow]')) flow.toggleAttribute('hidden', !frame.flows.includes(flow.dataset.flow));
+      const readStatus = state.read === '等待响应' && state.responses.length === R
+        ? '候选集已定，待比较版本' : state.read;
       const fields = {
         '#decision-title': frame.title, '#decision-why': frame.why, '#decision-evidence': frame.evidence, '#decision-tradeoff': frame.tradeoff,
         '#step-change': frame.change, '#architecture-description': frame.change,
         '#drawing-stage': ({scope:'固定 N = 3',write:'写入与确认',read:'前 R 个响应',recover:'补齐版本',review:'条件与取舍'})[frame.key],
         '#policy-state': `N = 3；W = ${W}；R = ${R}`,
         '#write-count': `写确认 ${state.acks.length} / ${W}`, '#read-count': `读响应 ${state.responses.length} / ${R}`,
-        '#write-result': `写入：${state.write}`, '#read-result': `读取：${state.read}`,
+        '#write-result': `写入：${state.write}`, '#read-result': `读取：${readStatus}`,
         '#read-responses': `已收响应：${state.responses.map(reply => `${reply.replica}:v${reply.version}`).join('，') || '无'}`,
         '#request-label': frame.request
       };
