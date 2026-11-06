@@ -33,12 +33,33 @@
             <g class="flow" data-flow="from-a" hidden><path d="M650 100 H585 V180 H496"/></g>
             <g class="flow" data-flow="from-b" hidden><path d="M650 236 H496"/></g>
             <g class="flow" data-flow="from-c" hidden><path d="M650 375 H585 V255 H496"/></g>
-            <g class="component" data-node="client"><rect x="25" y="167" width="125" height="80" rx="4"/><text x="87" y="199">Client</text><text class="node-detail" x="87" y="224">单写者</text></g>
-            <g class="component" data-node="coordinator"><rect x="280" y="152" width="210" height="115" rx="4"/><text x="385" y="181">Coordinator</text><text class="counter-label" x="385" y="215" id="write-count">写确认 0 / 1</text><text class="counter-label" x="385" y="246" id="read-count">读响应 0 / 1</text></g>
-            <g class="component" data-node="a"><rect x="650" y="35" width="210" height="90" rx="4"/><text x="755" y="59">副本 A</text><text class="replica-version" x="755" y="86" id="version-a">v0 / light</text><text class="node-detail" x="755" y="111" id="state-a">在线</text></g>
-            <g class="component" data-node="b"><rect x="650" y="172" width="210" height="90" rx="4"/><text x="755" y="196">副本 B</text><text class="replica-version" x="755" y="223" id="version-b">v0 / light</text><text class="node-detail" x="755" y="248" id="state-b">写入排在 A 之后</text></g>
-            <g class="component" data-node="c"><rect x="650" y="309" width="210" height="90" rx="4"/><text x="755" y="333">副本 C</text><text class="replica-version" x="755" y="360" id="version-c">v0 / light</text><text class="node-detail" x="755" y="385" id="state-c">写消息延迟</text></g>
-            <g class="result-ledger"><text x="30" y="322" id="write-result">写入：尚未开始</text><text x="30" y="357" id="read-responses">已收响应：无</text><text x="30" y="392" id="read-result">读取：尚未开始</text></g>
+            <g class="component replica-client" data-node="client">
+              <rect class="node-focus" x="25" y="150" width="125" height="122" rx="4"/>
+              <use class="system-figure" href="../assets/system-figures.svg#client" x="57" y="157" width="60" height="60"/>
+              <text x="87" y="239">Client</text><text class="node-detail" x="87" y="262">单写者</text>
+            </g>
+            <g class="component replica-coordinator" data-node="coordinator">
+              <rect class="node-focus" x="280" y="112" width="210" height="160" rx="4"/>
+              <use class="system-figure" href="../assets/system-figures.svg#server" x="359" y="120" width="52" height="52"/>
+              <text x="385" y="194">Coordinator</text>
+              <text class="counter-label" x="385" y="222" id="write-count">写确认 0 / 1</text><text class="counter-label" x="385" y="250" id="read-count">读响应 0 / 1</text>
+            </g>
+            <g class="component replica-store" data-node="a">
+              <rect class="node-focus" x="650" y="28" width="235" height="102" rx="4"/>
+              <use class="system-figure" href="../assets/system-figures.svg#database" x="654" y="45" width="54" height="54"/>
+              <text x="721" y="58">副本 A</text><text class="replica-version" x="721" y="85" id="version-a">v0 / light</text><text class="node-detail" x="721" y="112" id="state-a">在线</text>
+            </g>
+            <g class="component replica-store" data-node="b">
+              <rect class="node-focus" x="650" y="165" width="235" height="102" rx="4"/>
+              <use class="system-figure" href="../assets/system-figures.svg#database" x="654" y="182" width="54" height="54"/>
+              <text x="721" y="195">副本 B</text><text class="replica-version" x="721" y="222" id="version-b">v0 / light</text><text class="node-detail" x="721" y="249" id="state-b">写入排在 A 之后</text>
+            </g>
+            <g class="component replica-store" data-node="c">
+              <rect class="node-focus" x="650" y="302" width="235" height="102" rx="4"/>
+              <use class="system-figure" href="../assets/system-figures.svg#database" x="654" y="319" width="54" height="54"/>
+              <text x="721" y="332">副本 C</text><text class="replica-version" x="721" y="359" id="version-c">v0 / light</text><text class="node-detail" x="721" y="386" id="state-c">写消息延迟</text>
+            </g>
+            <path class="ledger-rule" d="M30 292 H520"/><g class="result-ledger"><text x="30" y="322" id="write-result">写入：尚未开始</text><text x="30" y="357" id="read-responses">已收响应：无</text><text x="30" y="392" id="read-result">读取：尚未开始</text></g>
           </svg>
         </div>
         <p id="step-change" class="step-change" role="status" aria-live="polite">固定 A、B、C 三个副本，初始都保存 theme=light 的 v0。</p>

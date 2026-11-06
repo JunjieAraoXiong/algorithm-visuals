@@ -9,10 +9,15 @@
 #trie-edges path.is-path { stroke: var(--color-accent); stroke-width: 2.5; }
 #architecture .trie-node text { font: var(--autocomplete-node-label) var(--font-outlier); }
 #architecture .trie-node .word-label { font-size: var(--autocomplete-word-label); }
-.results-panel rect { fill: var(--color-paper-2); stroke: var(--color-field-edge); stroke-width: 1; }
+.trie-node.terminal circle { stroke-width: 2; }
+.results-panel rect { fill: var(--color-paper); stroke: var(--color-field-edge); stroke-width: 1; }
+.result-rule { fill: none; stroke: var(--color-rule); stroke-width: 1; }
+#architecture .snapshot-title { text-anchor: start; }
 #architecture .result-row { text-anchor: start; font: 21px var(--font-outlier); }
 #architecture .section-label { font: 19px var(--font-outlier); }
-#architecture .pipeline-label { font-size: 17px; }
+#architecture .pipeline-label { font-size: 17px; text-anchor: start; }
+.pipeline-component.is-current .system-figure { color: var(--color-accent); }
+#architecture .pipeline-component.is-current .pipeline-label { fill: var(--color-accent); text-decoration: underline; text-underline-offset: 4px; }
 .pipeline-line { fill: none; stroke: var(--color-rule); stroke-width: 1; }
 .flow:not(.is-current) { opacity: .45; }
 .query-settings { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm); margin-top: var(--space-md); }

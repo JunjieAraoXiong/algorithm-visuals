@@ -8,3 +8,19 @@
 .feed-settings { display: flex; flex-wrap: wrap; gap: var(--space-sm) var(--space-lg); padding-top: var(--space-sm); }
 .feed-settings label { display: flex; align-items: center; gap: var(--space-sm); font-size: 14px; }
 .feed-settings select { min-height: 36px; padding: var(--space-xs); color: var(--color-ink); background: var(--color-paper); border: 1px solid var(--color-field-edge); border-radius: 3px; }
+
+/* People, background work, stored references, and a returned page are distinct. */
+#architecture .figure-boundary { fill: none; stroke: none; }
+#architecture .component.is-current > .figure-boundary { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 1.5; stroke-dasharray: 4 4; }
+#architecture .system-figure { color: var(--color-ink); }
+#architecture .component.is-current .system-figure { color: var(--color-accent); }
+#architecture .actor-title { text-anchor: start; font-size: 17px; }
+#architecture .actor-detail { text-anchor: start; }
+#architecture .actor-detail.post-list { font-size: 16px; }
+#architecture .record-rule { fill: none; stroke: var(--color-rule); stroke-width: 1; }
+#architecture .inbox-tray { fill: var(--color-paper-2); stroke: var(--color-field-edge); stroke-width: 1.5; }
+#architecture .inbox-figure.is-current .inbox-tray { fill: var(--color-accent-soft); stroke: var(--color-accent); stroke-width: 2; }
+#architecture .browser-chrome { fill: none; stroke: var(--color-field-edge); stroke-width: 1.5; }
+#architecture .result-browser.is-current rect { stroke-dasharray: none; }
+#architecture .result-browser.is-current .browser-chrome { stroke: var(--color-accent); }
+#architecture .followers-figure text { font-size: 16px; }
