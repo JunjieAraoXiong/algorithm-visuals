@@ -138,6 +138,7 @@ Source folders are ordered for repository browsing. The build keeps the public U
 
 ## System Design
 
+- [System Design Fundamentals / 系统设计基础](https://junjiearaoxiong.github.io/algorithm-visuals/design-fundamentals/): requirements, request flow, building blocks, and failure tradeoffs.
 - [Design a URL Shortener / 设计短链接服务](https://junjiearaoxiong.github.io/algorithm-visuals/design-url-shortener/): step-by-step architecture, request flows, and an editable Excalidraw diagram.
 - [Token Bucket Rate Limiter / 令牌桶限流器](https://junjiearaoxiong.github.io/algorithm-visuals/design-rate-limiter/)
 - [Consistent Hashing / 一致性哈希](https://junjiearaoxiong.github.io/algorithm-visuals/design-consistent-hashing/)

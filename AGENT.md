@@ -9,6 +9,7 @@ This is the canonical guidance for this public visualization repository. Read th
 - Use one bilingual policy across a guide: pair an English problem name with its Chinese name, but make controls Chinese-first (`← 上一步`, `下一步 →`, `跳到步骤`). Use the static back-link label `← Algo Visual / 返回目录` everywhere.
 - When the learner provides a photo or sketch, use its visual vocabulary and arrangement as the primary reference. The rules below are the default shared style for new pages, not a reason to erase a requested distinction.
 - Draw original diagrams. Do not publish copied course images or private notes in this public repository.
+- Keep a beginner entry point before the system-design case studies. Explain requirements, latency and throughput, the request journey, and a minimal client–service–database system before adding infrastructure. Introduce building blocks with figures showing what they do, when they are useful, and their tradeoffs; add cache/CDN, load balancing, queues, storage, replication, partitioning, and failure handling in response to a concrete need. Do not imply every system needs every component or repeat the full introduction in narrowly scoped advanced lessons.
 
 ## Shared visual language
 

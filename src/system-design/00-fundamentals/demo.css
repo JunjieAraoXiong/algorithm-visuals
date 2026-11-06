@@ -1,0 +1,46 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: existing paper and ink · signature: one request becomes a reasoned system · states: requirements, request, capacity, data, failure · v2.0.0 */
+/* Hallmark · pre-emit critique: keep each scene scoped to one distinction; reuse shared controls and draw recognizable components with clear connector space. */
+/* Finish review: one embed atlas legibility finding resolved by stacking rows; reviewer: ship.
+   Static sweep: focus/active/disabled/overflow/head wrapping live in shared imports;
+   DNS, HTTP, API and CDN are technical acronyms. Rendered desktop/embed checks passed. */
+@import url('../assets/system-design.css');
+
+.fundamentals-page { --fundamentals-caption: 16px; --fundamentals-title: 20px; }
+#architecture .scene-title { font-size: var(--fundamentals-title); }
+#architecture .scene-note { font-size: var(--fundamentals-caption); fill: var(--color-muted); }
+#architecture .scope-line { font-size: 18px; }
+#architecture .metric-formula { font-size: 21px; }
+.metric-point { fill: var(--color-paper); stroke: var(--color-ink); stroke-width: 1.5; }
+.metric-request { fill: none; stroke: var(--color-ink); stroke-width: 1.5; marker-end: url('#arrow'); }
+.separation { fill: none; stroke: var(--color-rule); stroke-width: 1; }
+.lifeline { fill: none; stroke: var(--color-field-edge); stroke-width: 1; stroke-dasharray: 4 5; }
+.lost-flow path, .broken-link { stroke-dasharray: 6 5; }
+.broken-link, .lost-mark { fill: none; stroke: var(--color-ink); stroke-width: 1.5; }
+.fundamentals-page .flow.is-current text { fill: var(--color-accent); }
+.fundamentals-page .lesson-heading h1 { overflow-wrap: break-word; min-width: 0; }
+.building-blocks { margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--color-rule); }
+.atlas-heading { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1fr); gap: var(--space-2xl); }
+.atlas-heading h2 { font-size: 20px; font-weight: 400; }
+.atlas-heading p { color: var(--color-muted); font-size: 15px; line-height: 1.7; }
+.atlas-entry { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1fr); gap: var(--space-2xl); padding: var(--space-lg) 0; border-bottom: 1px solid var(--color-rule); }
+.atlas-entry > * { min-width: 0; }
+.atlas-entry h3 { font-size: 17px; font-weight: 400; line-height: 1.5; letter-spacing: 0; }
+.atlas-figure { display: block; width: 100%; max-width: 460px; height: auto; margin-top: var(--space-sm); }
+.atlas-figure text { fill: var(--color-ink); text-anchor: middle; font: 17px var(--font-body); }
+.atlas-figure .atlas-flow-label { fill: var(--color-muted); font-size: 15px; paint-order: stroke; stroke: var(--color-paper); stroke-width: 5px; stroke-linejoin: round; }
+.atlas-arrow, .atlas-figure marker path { fill: none; stroke: var(--color-ink); stroke-width: 1.4; }
+.atlas-entry dl, .vocabulary dl { margin: 0; }
+.atlas-entry dl > div, .vocabulary dl > div { display: grid; grid-template-columns: 94px minmax(0, 1fr); column-gap: var(--space-sm); }
+.atlas-entry dl > div + div, .vocabulary dl > div + div { margin-top: var(--space-sm); }
+.atlas-entry dt, .vocabulary dt { font-size: 14px; line-height: 1.75; }
+.atlas-entry dd, .vocabulary dd { margin: 0; color: var(--color-muted); font-size: 15px; line-height: 1.7; }
+.vocabulary dl > div { grid-template-columns: 130px minmax(0, 1fr); }
+@media (max-width: 1100px) {
+  .atlas-heading, .atlas-entry { gap: var(--space-lg); }
+  .atlas-entry dl > div { grid-template-columns: minmax(0, 1fr); }
+  .vocabulary dl > div { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 1000px) {
+  .atlas-heading, .atlas-entry { grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); }
+  .atlas-entry dl > div { grid-template-columns: 94px minmax(0, 1fr); }
+}

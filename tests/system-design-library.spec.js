@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 const lessons = [
+  'design-fundamentals',
   'design-url-shortener',
   'design-rate-limiter',
   'design-consistent-hashing',
