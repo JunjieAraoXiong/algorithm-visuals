@@ -34,6 +34,10 @@
             [
               "class",
               "array-row"
+            ],
+            [
+              "data-traversal",
+              "preorder"
             ]
           ],
           "children": [
@@ -202,13 +206,17 @@
             [
               "class",
               "array-row"
+            ],
+            [
+              "data-traversal",
+              "inorder"
             ]
           ],
           "children": [
             {
               "tag": "p",
               "children": [
-                "inorder · 建立值 → 下标表"
+                "inorder · 完整中序顺序"
               ]
             },
             {
@@ -348,7 +356,7 @@
           "attributes": [
             [
               "aria-label",
-              "每次构建先重置前序游标，避免第二次调用从旧位置开始。"
+              "本次 buildTree 创建自己的前序指针；内层函数通过 nonlocal 推进它。"
             ],
             [
               "class",
@@ -394,7 +402,7 @@
                 {
                   "tag": "desc",
                   "children": [
-                    "每次构建先重置前序游标，避免第二次调用从旧位置开始。"
+                    "本次 buildTree 创建自己的前序指针；内层函数通过 nonlocal 推进它。"
                   ]
                 },
                 {
@@ -696,6 +704,152 @@
                   ]
                 }
               ]
+            },
+            {
+              "tag": "section",
+              "attributes": [
+                [
+                  "aria-label",
+                  "非空调用概览"
+                ],
+                [
+                  "class",
+                  "call-overview"
+                ]
+              ],
+              "children": [
+                {
+                  "tag": "h3",
+                  "children": [
+                    "调用概览",
+                    {
+                      "tag": "span",
+                      "children": [
+                        "· ptr 只向右，区间逐层拆分"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "table",
+                  "attributes": [
+                    [
+                      "data-call-overview",
+                      ""
+                    ]
+                  ],
+                  "children": [
+                    {
+                      "tag": "colgroup",
+                      "children": [
+                        {
+                          "tag": "col",
+                          "attributes": [
+                            [
+                              "class",
+                              "bound"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "col",
+                          "attributes": [
+                            [
+                              "class",
+                              "value"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "col",
+                          "attributes": [
+                            [
+                              "class",
+                              "value"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "col",
+                          "attributes": [
+                            [
+                              "class",
+                              "value"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "col",
+                          "attributes": [
+                            [
+                              "class",
+                              "bound"
+                            ]
+                          ]
+                        },
+                        {
+                          "tag": "col",
+                          "attributes": [
+                            [
+                              "class",
+                              "bound"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "thead",
+                      "children": [
+                        {
+                          "tag": "tr",
+                          "children": [
+                            {
+                              "tag": "th",
+                              "children": [
+                                "区间"
+                              ]
+                            },
+                            {
+                              "tag": "th",
+                              "children": [
+                                "ptr"
+                              ]
+                            },
+                            {
+                              "tag": "th",
+                              "children": [
+                                "val"
+                              ]
+                            },
+                            {
+                              "tag": "th",
+                              "children": [
+                                "mid"
+                              ]
+                            },
+                            {
+                              "tag": "th",
+                              "children": [
+                                "左区间"
+                              ]
+                            },
+                            {
+                              "tag": "th",
+                              "children": [
+                                "右区间"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "tbody"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -733,7 +887,7 @@
                 ]
               ],
               "children": [
-                "每次构建先重置前序游标，避免第二次调用从旧位置开始。"
+                "本次 buildTree 创建自己的前序指针；内层函数通过 nonlocal 推进它。"
               ]
             }
           ]

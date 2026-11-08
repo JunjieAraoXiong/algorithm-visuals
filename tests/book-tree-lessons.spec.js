@@ -217,16 +217,24 @@ test('an explicit stack marks the next pop while recursion marks the executing c
   await expect(page.locator('.memory-item.current > div')).toHaveText('node = 2');
 });
 
-test('map insertion emphasis clears on the next iteration', async ({page}) => {
+test('reconstruction initializes a fresh cursor and the complete lookup map in two steps', async ({page}) => {
   await page.goto('/build-binary-tree-from-preorder-and-inorder-traversals/#step=0');
-  const write=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('inorder_indexes_map[2] = 0')));
-  await page.locator('[data-step-select]').selectOption(String(write));
-  await expect(page.locator('.memory-item.current .memory-role')).toHaveText('本次写入');
-  await expect(page.locator('.memory-item.current > div')).toHaveText('2 → 0');
-  await expect(page.locator('[data-stage]')).toBeHidden();
+  await expect(page.locator('[data-source-key="init-index"]')).toHaveAttribute('aria-current','step');
+  await expect(page.locator('[data-arrays]')).toContainText('preorder_index = 0');
+  const code=await page.locator('[data-code-panel]').innerText();
+  expect(code).toContain('class Solution:');
+  expect(code).toContain('nonlocal preorder_index');
+  expect(code).not.toMatch(/\bglobal\b/);
   await page.locator('[data-action="next"]').click();
-  await expect(page.locator('.memory-item.current')).toHaveCount(0);
-  await expect(page.locator('.memory-role')).toHaveCount(0);
+  await expect(page.locator('[data-step-select]')).toHaveValue('1');
+  await expect(page.locator('[data-source-key="build-map"]')).toHaveAttribute('aria-current','step');
+  for(const [value,index] of [[2,0],[9,1],[5,2],[4,3],[3,4],[7,5]]) {
+    await expect(page.locator('[data-memory-items]')).toContainText(`${value} → ${index}`);
+  }
+  await expect(page.locator('[data-stage]')).toBeHidden();
+  await expect(page.locator('[data-call-overview] tbody tr')).toHaveCount(0);
+  await page.locator('[data-action="next"]').click();
+  await expect(page.locator('[data-source-key="build-return"]')).toHaveAttribute('aria-current','step');
   const node=await page.locator('[data-step-select] option').evaluateAll(items=>items.findIndex(o=>o.textContent.includes('node = TreeNode(5)')));
   await page.locator('[data-step-select]').selectOption(String(node));
   await expect(page.locator('[data-stage]')).toBeVisible();
