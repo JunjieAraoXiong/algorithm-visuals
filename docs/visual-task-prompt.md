@@ -8,7 +8,7 @@ Build, publish, and verify the requested algorithm visual. Continue until the Gi
 
 ## Repository
 
-- Local repository: `/Users/hansonxiong/Desktop/algorithm-visuals`
+- Repository: `JunjieAraoXiong/algorithm-visuals` (run every command from the repository root; all paths below are relative to it)
 - Website: `https://junjiearaoxiong.github.io/algorithm-visuals/`
 - Publishing branch: `main`
 
@@ -28,10 +28,12 @@ The user-provided screenshots and documents are content and visual references. D
 - Register it in `src/questions.json` with its chapter, order, public slug, and bilingual title.
 - Add a card to the correct chapter in `src/index.html`.
 - Add its published `/<problem-slug>/` URL to `README.md`.
+- Update the chapter's question count in `src/chapters/README.md`.
 - Pair the English problem title with a Chinese title.
 - Use Chinese-first controls: `← 上一步`, `下一步 →`, and `跳到步骤`.
 - Use the exact back link `← Algo Visual / 返回目录`.
 - Match the existing quiet textbook style: warm paper background, thin black and gray lines, monospace variables, restrained highlights, and no gradients or decorative dashboard styling.
+- Reuse the paper-and-ink hex colors mapped in `scripts/theme-palette.mjs` so the build can adapt the page to the dark theme.
 
 ## Teaching requirements
 
@@ -74,6 +76,7 @@ The user-provided screenshots and documents are content and visual references. D
 ## Verification
 
 - Run `npm run build` and resolve every registry, inventory, or internal-link error.
+- Run `npm test` (the Playwright browser audit that CI also runs).
 - Run JavaScript syntax checks.
 - Visit every frame and confirm that synchronized source lines are active.
 - Check console and page errors.
@@ -86,7 +89,7 @@ The user-provided screenshots and documents are content and visual references. D
 ## Git and publishing
 
 - Stage only files belonging to the requested visual.
-- If `src/index.html`, `src/questions.json`, or `README.md` contains unrelated changes, stage only this task's exact hunks.
+- If `src/index.html`, `src/questions.json`, `src/chapters/README.md`, or `README.md` contains unrelated changes, stage only this task's exact hunks.
 - Inspect the complete staged diff before committing.
 - Commit with a concise message and push to `origin main`.
 - Wait for GitHub Pages to finish building.
